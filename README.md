@@ -57,6 +57,6 @@ logger:
 
 ## Credits
 
-Thanks to my kollege you for inspiring me to start
+Thanks to my kollege David for giving me a start point.
 
 And also thanks for the great work of the team from homeassistant and the great community.
