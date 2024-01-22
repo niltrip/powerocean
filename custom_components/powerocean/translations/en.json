@@ -10,10 +10,9 @@
         },
         "step": {
             "user": {
-                "description": "Please enter your Resol device information below:",
+                "description": "Please enter your PowerOcean device information below:",
                 "data": {
-                    "host": "Host (can be a local or public IP)",
-                    "port": "Port (use port-forwarding if required)",
+                    "serialnumber": "Inverter serial number",
                     "password": "Password",
                     "username": "Username"
                 }

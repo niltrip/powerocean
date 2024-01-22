@@ -1,15 +1,15 @@
 {
-  "domain": "resol",
-  "name": "Resol Controller",
+  "domain": "powerocean",
+  "name": "Ecoflow PowerOcean",
   "codeowners": [
-    "@evercape"
+    "@niltrip"
   ],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/evercape/resol",
-  "issue_tracker": "https://github.com/evercape/resol/issues",
+  "documentation": "https://github.com/niltrip/powerocean",
+  "issue_tracker": "https://github.com/niltrip/powerocean/issues",
   "homekit": {},
   "iot_class": "cloud_polling",
   "requirements": [],
-  "version": "2023.11.1"
+  "version": "2024.01.01"
 }

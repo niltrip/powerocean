@@ -1,17 +1,17 @@
-"""Constants for the Resol integration."""
+"""Constants for the PowerOcean integration."""
 import logging
 from homeassistant.const import Platform
 
-DOMAIN = "resol"                    # Have requested to add logos via https://github.com/home-assistant/brands/pull/4904
-NAME = "Resol Controller"
-VERSION="2023.11.1"
-ISSUE_URL = "https://github.com/evercape/resol/issues"
+DOMAIN = "powerocean"  # Have requested to add logos via https://github.com/home-assistant/brands/pull/4904
+NAME = "Ecoflow PowerOcean"
+VERSION = "2024.01.01"
+ISSUE_URL = "https://github.com/evercape/powerocean/issues"
 ISSUE_URL_ERROR_MESSAGE = " Please log any issues here: " + ISSUE_URL
 
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
-_LOGGER = logging.getLogger("custom_components.resol")
+_LOGGER = logging.getLogger("custom_components.powerocean")
 
 ATTR_PRODUCT_DESCRIPTION = "Product Description"
 ATTR_DESTINATION_NAME = "Destination Name"
@@ -23,8 +23,6 @@ ATTR_PRODUCT_NAME = "Device Name"
 ATTR_PRODUCT_VERSION = "Vendor Firmware Version"
 ATTR_PRODUCT_BUILD = "Vendor Product Build"
 ATTR_PRODUCT_FEATURES = "Vendor Product Features"
-
-
 
 
 STARTUP_MESSAGE = f"""
