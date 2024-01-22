@@ -28,8 +28,8 @@ Once installed, use Add Integration -> Ecoflow PowerOcean.
 
 Follow the flow.
 
-![step 1](documentation/setup_step_1.png)
-![step 2](documentation/setup_step_2.png)
+![step 1](documentation/setup_step_1.PNG)
+![step 2](documentation/setup_step_2.PNG)
 
 
 
@@ -42,7 +42,7 @@ Sensors are registered to each device as `sensor.{name}_{serial}_{sensor_name}` 
 - Vendor Firmware Version: 5.1.8
 - Vendor Product Build: 13
   
-![sensor](documentation/sensor.png)
+![sensor](documentation/sensor.PNG)
 
 
 ## Troubleshooting
