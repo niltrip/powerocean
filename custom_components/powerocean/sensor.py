@@ -124,7 +124,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
         # Fetch the full dataset once from the API
         try:
-            full_data = await hass.async_add_executor_job(ecoflow.fetch_data_km2)
+            full_data = await hass.async_add_executor_job(ecoflow.fetch_data)
         except Exception as e:
             _LOGGER.error(
                 f"{ecoflow.device['serial']}: Error fetching data from the device: {e}"
