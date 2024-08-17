@@ -22,6 +22,7 @@ PowerOceanEndPoint = namedtuple(
 
 # ecoflow_api to detect device and get device info, fetch the actual data from the PowerOcean device, and parse it
 class ecoflow_api:
+    """Class representing ecoflow_api"""
     def __init__(self, serialnumber, username, password):
         self.username = username
         self.password = password
@@ -61,8 +62,8 @@ class ecoflow_api:
                 "product": "PowerOcean",
                 "vendor": "Ecoflow",
                 "serial": self.sn,
-                "version": "5.1.8",
-                "build": "13",
+                "version": "5.1.15",
+                "build": "6",
                 "name": "PowerOcean",
                 "features": "Photovoltaik",
             }
@@ -86,6 +87,7 @@ class ecoflow_api:
         return self.device
 
     def get_json_response(self, request):
+        """Function printing python version."""
         if request.status_code != 200:
             raise Exception(
                 f"Got HTTP status code {request.status_code}: {request.text}"
@@ -95,7 +97,7 @@ class ecoflow_api:
             response = json.loads(request.text)
             response_message = response["message"]
         except KeyError as key:
-            raise Exception(f"Failed to extract key {key} from {response}")
+            raise Exception(f"Failed to extract key {key} from {response}") from key
         except Exception as error:
             raise Exception(f"Failed to parse response: {request.text} Error: {error}")
 
@@ -106,6 +108,7 @@ class ecoflow_api:
 
     # Fetch the data from the PowerOcean device, which then constitues the Sensors
     def fetch_data(self):
+        """Function fetch data from Url."""
         # curl 'https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}}' \
         # -H 'authorization: Bearer {self.token}'
 
@@ -134,36 +137,76 @@ class ecoflow_api:
             raise IntegrationError(error)
             return None
 
+    def get_unit(self, key):
+        """Function get unit from keyName."""
+        if key.endswith("pwr") or key.endswith("Pwr"):
+            unit = "W"
+        elif key.endswith("amp") or key.endswith("Amp"):
+            unit = "A"
+        elif key == "bpSoc":
+            unit = "%"
+        elif key == "vol":
+            unit = "V"
+        elif "Energy" in key:
+            unit = "Wh"
+        elif "Generation" in key:
+            unit = "kWh"
+        else:
+            unit = ""
+
+        return unit
+
     def __parse_data(self, response):
         # Implement the logic to parse the response from the PowerOcean device
 
         data = {}
+
+        #        json_data = json.load(f"{response}")
+        #        _LOGGER.info(f"{json_data}")
+        #        _LOGGER.info(json_data["data"]["quota"]["JTS1_EMS_HEARTBEAT"])
+
         for key, value in response["data"].items():
             if key == "quota":
                 continue
             unique_id = f"{self.sn}_{key}"
-            unit_tmp = ""
+            unit_tmp = self.get_unit(key)
             description_tmp = {key}
             if key == "sysLoadPwr":
-                unit_tmp = "W"
                 description_tmp = "Hausnetz"
             if key == "sysGridPwr":
-                unit_tmp = "W"
                 description_tmp = "Stromnetz"
             if key == "mpptPwr":
-                unit_tmp = "W"
                 description_tmp = "Solarertrag"
             if key == "bpPwr":
-                unit_tmp = "W"
                 description_tmp = "Batterieleistung"
             if key == "bpSoc":
-                unit_tmp = "%"
                 description_tmp = "Ladezustand der Batterie"
 
-            if "Energy" in key:
-                unit_tmp = "Wh"
-            if "Generation" in key:
-                unit_tmp = "kWh"
+            data[unique_id] = PowerOceanEndPoint(
+                internal_unique_id=unique_id,
+                serial=self.sn,
+                name=f"{self.sn}_{key}",
+                friendly_name=key,
+                value=value,
+                unit=unit_tmp,
+                description=description_tmp,
+            )
+
+        report = "JTS1_ENERGY_STREAM_REPORT"
+        for key, value in response["data"]["quota"][report].items():
+            unique_id = f"{self.sn}_{report}_{key}"
+            unit_tmp = self.get_unit(key)
+            description_tmp = {key}
+            if key == "sysLoadPwr":
+                description_tmp = "Hausnetz"
+            if key == "sysGridPwr":
+                description_tmp = "Stromnetz"
+            if key == "mpptPwr":
+                description_tmp = "Solarertrag"
+            if key == "bpPwr":
+                description_tmp = "Batterieleistung"
+            if key == "bpSoc":
+                description_tmp = "Ladezustand der Batterie"
 
             data[unique_id] = PowerOceanEndPoint(
                 internal_unique_id=unique_id,
@@ -175,22 +218,14 @@ class ecoflow_api:
                 description=description_tmp,
             )
 
-        for key, value in response["data"]["quota"]["JTS1_EMS_CHANGE_REPORT"].items():
-            unique_id = f"{self.sn}_{key}"
-            unit_tmp = ""
+        report = "JTS1_EMS_CHANGE_REPORT"
+        for key, value in response["data"]["quota"][report].items():
+            # Exceptions empty or special structure
+            if key == "evBindList" or key == "emsSgReady":
+                continue
+            unique_id = f"{self.sn}_{report}_{key}"
+            unit_tmp = self.get_unit(key)
             description_tmp = key
-            if key == "bpTotalChgEnergy":
-                unit_tmp = "Wh"
-                description_tmp = "Batterie Laden Total"
-            if key == "bpTotalDsgEnergy":
-                unit_tmp = "Wh"
-                description_tmp = "Batterie Entladen Total"
-            # if "LowVol" in key:
-            #     unit_tmp = "V"
-            # if "HighVol" in key:
-            #     unit_tmp = "V"
-            # if "OverVol" in key:
-            #     unit_tmp = "V"
 
             data[unique_id] = PowerOceanEndPoint(
                 internal_unique_id=unique_id,
@@ -201,6 +236,102 @@ class ecoflow_api:
                 unit=unit_tmp,
                 description=description_tmp,
             )
+
+        report = "JTS1_EMS_HEARTBEAT"
+        for key, value in response["data"]["quota"][report].items():
+            # Exceptions empty or special structure
+            if (
+                key == "pcsAPhase"
+                or key == "pcsBPhase"
+                or key == "pcsCPhase"
+                or key == "mpptHeartBeat"
+            ):
+                continue
+            unique_id = f"{self.sn}_{report}_{key}"
+            unit_tmp = self.get_unit(key)
+            description_tmp = key
+
+            data[unique_id] = PowerOceanEndPoint(
+                internal_unique_id=unique_id,
+                serial=self.sn,
+                name=f"{self.sn}_{key}",
+                friendly_name=key,
+                value=value,
+                unit=unit_tmp,
+                description=description_tmp,
+            )
+        # special for phases
+        report = "JTS1_EMS_HEARTBEAT"
+        phases=["pcsAPhase", "pcsBPhase","pcsCPhase"]
+        for i, phase in enumerate(phases):
+            for key, value in response["data"]["quota"][report][phase].items():
+                unique_id = f"{self.sn}_{report}_{phase}_{key}"
+                unit_tmp = self.get_unit(key)
+                description_tmp = key
+
+                data[unique_id] = PowerOceanEndPoint(
+                    internal_unique_id=unique_id,
+                    serial=self.sn,
+                    name=f"{self.sn}_{phase}_{key}",
+                    friendly_name=f"{phase}_{key}",
+                    value=value,
+                    unit=unit_tmp,
+                    description=description_tmp,
+                )
+
+        # special for mpptPv
+        report = "JTS1_EMS_HEARTBEAT"
+        mpptpvs=["mpptPv1", "mpptPv2"]
+        for i, mpptpv in enumerate(mpptpvs):
+            for key, value in response["data"]["quota"][report]["mpptHeartBeat"][0]["mpptPv"][i].items():
+                unique_id = f"{self.sn}_{report}_mpptHeartBeat_{mpptpv}_{key}"
+                unit_tmp = self.get_unit(key)
+                description_tmp = ""
+                data[unique_id] = PowerOceanEndPoint(
+                    internal_unique_id=unique_id,
+                    serial=self.sn,
+                    name=f"{self.sn}_{mpptpv}_{key}",
+                    friendly_name=f"{mpptpv}_{key}",
+                    value=value,
+                    unit=unit_tmp,
+                    description=description_tmp,
+                )
+        #next step
+        #for key, value in response["data"]["quota"]["JTS1_BP_STA_REPORT"].items():
+            #array füllen mit keys
+            #Schleife über Array und daten ermitteln
+
+        # for key, value in response["data"]["quota"]["JTS1_BP_STA_REPORT"][
+        #     "HJ32ZDH4ZF8U0167"
+        # ].items():
+        #     unique_id = f"{self.sn}_bp1_{key}"
+        #     unit_tmp = self.get_unit(key)
+        #     description_tmp = ""
+        #     data[unique_id] = PowerOceanEndPoint(
+        #         internal_unique_id=unique_id,
+        #         serial=self.sn,
+        #         name=f"{self.sn}_bp1_{key}",
+        #         friendly_name=f"bp1_{key}",
+        #         value=value,
+        #         unit=unit_tmp,
+        #         description=description_tmp,
+        #     )
+
+        # for key, value in response["data"]["quota"]["JTS1_BP_STA_REPORT"][
+        #     "HJ32ZDH4ZF8U0126"
+        # ].items():
+        #     unique_id = f"{self.sn}_bp2_{key}"
+        #     unit_tmp = self.get_unit(key)
+        #     description_tmp = ""
+        #     data[unique_id] = PowerOceanEndPoint(
+        #         internal_unique_id=unique_id,
+        #         serial=self.sn,
+        #         name=f"{self.sn}_bp2_{key}",
+        #         friendly_name=f"bp2_{key}",
+        #         value=value,
+        #         unit=unit_tmp,
+        #         description=description_tmp,
+        #     )
 
         return data
 
