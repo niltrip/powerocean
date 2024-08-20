@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta  # TODO: datetime not in use
 #from datetime import datetime
 from collections import defaultdict
 
@@ -10,6 +10,7 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers import entity_registry
 from homeassistant.exceptions import IntegrationError
 
+# TODO: the following imports are not in use
 from homeassistant.helpers.entity_registry import async_get
 from homeassistant.helpers.entity_registry import async_get as async_get_entity_registry
 from homeassistant.config_entries import ConfigEntry
