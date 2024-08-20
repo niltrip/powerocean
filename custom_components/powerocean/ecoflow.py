@@ -2,7 +2,7 @@
 import requests
 import base64
 from collections import namedtuple
-from requests.exceptions import RequestException, Timeout
+from requests.exceptions import RequestException
 
 from homeassistant.exceptions import IntegrationError
 from homeassistant.util.json import json_loads
@@ -23,23 +23,29 @@ class Ecoflow:
     """Class representing Ecoflow"""
     def __init__(self, serialnumber, username, password):
         self.sn = serialnumber
+        self.unique_id = serialnumber
         self.ecoflow_username = username
         self.ecoflow_password = password
         self.token = None
         self.device = None
         self.session = requests.Session()
         self.url_iot_app = "https://api.ecoflow.com/auth/login"
-        self.url_iot_mqtt = "https://api.ecoflow.com/iot-auth/app/certification"
         self.url_user_fetch = f"https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}"
+        self.authorize()  # authorize user and get device details
 
-        # MQTT Certs
-        self.user_id = None
-        self.mqtt_url = "mqtt.mqtt.com"
-        self.mqtt_port = 8883
-        self.mqtt_username = None
-        self.mqtt_password = None
+    def get_device(self):
+        """Function get device"""
+        self.device = {
+            "product": "PowerOcean",
+            "vendor": "Ecoflow",
+            "serial": self.sn,
+            "version": "5.1.15",      # TODO: woher bekommt man diese Info? Hab es aus der App
+            "build": "13",            # TODO: wo finde ich das?
+            "name": "PowerOcean",
+            "features": "Photovoltaik"
+        }
 
-        self.unique_id = serialnumber
+        return self.device
 
     def authorize(self):
         """Function authorize"""
@@ -73,41 +79,9 @@ class Ecoflow:
 
         _LOGGER.info("Successfully logged in: %s", {user_name})
 
-        # MQTT CERT
-        headers = {"lang": "en_US", "authorization": f"Bearer {self.token}"}
-        data = {"userId": self.user_id}
-
-        url = self.url_iot_mqtt
-        _LOGGER.info("Requesting IoT MQTT credentials %s", {url})
-        request = requests.get(url, data=data, headers=headers)
-        response = self.get_json_response(request)
-
-        try:
-            self.mqtt_url = response["data"]["url"]
-            self.mqtt_port = int(response["data"]["port"])
-            self.mqtt_username = response["data"]["certificateAccount"]
-            self.mqtt_password = response["data"]["certificatePassword"]
-
-        except KeyError as key:
-            raise Exception(f"Failed to extract key {key} from {response}")
-
-        _LOGGER.info(f"Successfully extracted account: {self.mqtt_username}")
+        self.get_device()  # collect device info
 
         return auth_ok
-
-    def get_device(self):
-        """Function get device"""
-        self.device = {
-            "product": "PowerOcean",
-            "vendor": "Ecoflow",
-            "serial": self.sn,
-            "version": "5.1.15",
-            "build": "13",
-            "name": "PowerOcean",
-            "features": "Photovoltaik"
-        }
-
-        return self.device
 
     def get_json_response(self, request):
         """Function get json response"""
@@ -141,9 +115,7 @@ class Ecoflow:
             _LOGGER.debug(f"{response}")
             _LOGGER.debug(f"{response['data']}")
 
-            # Proceed to parsing
-            #TODO: __parse_data or _get_sensors
-            return self.__parse_data(response)
+            return self._get_sensors(response)
 
         except ConnectionError:
             error = f"ConnectionError in fetch_data: Unable to connect to {url}. Device might be offline."
@@ -176,243 +148,92 @@ class Ecoflow:
 
         return unit
 
-    def __parse_data(self, response):
-        """Function parse data"""
-        # Implement the logic to parse the response from the PowerOcean device
-        #TODO: Parameter ohne EInheit auch interessant
-        data = {}
+    def __get_description(self, key):
 
-        #        json_data = json.load(f"{response}")
-        #        _LOGGER.info(f"{json_data}")
-        #        _LOGGER.info(json_data["data"]["quota"]["JTS1_EMS_HEARTBEAT"])
-        #TODO: better values from reports (JTS1_ENERGY_STREAM_REPORT). unique_id will change!! Compatibility broken!!!
-        for key, value in response["data"].items():
-            if key == "quota":
-                continue
-            unique_id = f"{self.sn}_{key}"
-            unit_tmp = self.__get_unit(key)
-            description_tmp = {key}
-            if key == "sysLoadPwr":
-                description_tmp = "Hausnetz"
-            if key == "sysGridPwr":
-                description_tmp = "Stromnetz"
-            if key == "mpptPwr":
-                description_tmp = "Solarertrag"
-            if key == "bpPwr":
-                description_tmp = "Batterieleistung"
-            if key == "bpSoc":
-                description_tmp = "Ladezustand der Batterie"
+        # TODO: hier könnte man noch mehr definieren bzw ein translation dict erstellen
+        description = key   # default description
+        if key == "sysLoadPwr":
+            description = "Hausnetz"
+        if key == "sysGridPwr":
+            description = "Stromnetz"
+        if key == "mpptPwr":
+            description = "Solarertrag"
+        if key == "bpPwr":
+            description = "Batterieleistung"
+        if key == "bpSoc":
+            description = "Ladezustand der Batterie"
+        if key == "online":
+            description = "Online"
+        if key == "systemName":
+            description = "System Name"
+        if key == "createTime":
+            description = "Installations Datum"
+        # Battery descriptions
+        if key == "bpVol":
+            description_tmp = "Batteriespannung"
+        if key == "bpAmp":
+            description_tmp = "Batteriestrom"
+        if key == "bpCycles":
+            description_tmp = "Ladezyklen"
 
-            data[unique_id] = PowerOceanEndPoint(
-                internal_unique_id=unique_id,
-                serial=self.sn,
-                name=f"{self.sn}_{key}",
-                friendly_name=key,
-                value=value,
-                unit=unit_tmp,
-                description=description_tmp,
-            )
+        return description
 
-        report = "JTS1_ENERGY_STREAM_REPORT"
-        for key, value in response["data"]["quota"][report].items():
-            unique_id = f"{self.sn}_{report}_{key}"
-            unit_tmp = self.__get_unit(key)
-            description_tmp = {key}
-            if key == "sysLoadPwr":
-                description_tmp = "Hausnetz"
-            if key == "sysGridPwr":
-                description_tmp = "Stromnetz"
-            if key == "mpptPwr":
-                description_tmp = "Solarertrag"
-            if key == "bpPwr":
-                description_tmp = "Batterieleistung"
-            if key == "bpSoc":
-                description_tmp = "Ladezustand der Batterie"
-
-            data[unique_id] = PowerOceanEndPoint(
-                internal_unique_id=unique_id,
-                serial=self.sn,
-                name=f"{self.sn}_{key}",
-                friendly_name=key,
-                value=value,
-                unit=unit_tmp,
-                description=description_tmp,
-            )
-
-        report = "JTS1_EMS_CHANGE_REPORT"
-        for key, value in response["data"]["quota"][report].items():
-            # Exceptions empty or special structure
-            if key == "evBindList" or key == "emsSgReady":
-                continue
-            unique_id = f"{self.sn}_{report}_{key}"
-            unit_tmp = self.__get_unit(key)
-            description_tmp = key
-
-            data[unique_id] = PowerOceanEndPoint(
-                internal_unique_id=unique_id,
-                serial=self.sn,
-                name=f"{self.sn}_{key}",
-                friendly_name=key,
-                value=value,
-                unit=unit_tmp,
-                description=description_tmp,
-            )
-
-        report = "JTS1_EMS_HEARTBEAT"
-        for key, value in response["data"]["quota"][report].items():
-            # Exceptions empty or special structure
-            if (
-                key == "pcsAPhase"
-                or key == "pcsBPhase"
-                or key == "pcsCPhase"
-                or key == "mpptHeartBeat"
-            ):
-                continue
-            unique_id = f"{self.sn}_{report}_{key}"
-            unit_tmp = self.__get_unit(key)
-            description_tmp = key
-
-            data[unique_id] = PowerOceanEndPoint(
-                internal_unique_id=unique_id,
-                serial=self.sn,
-                name=f"{self.sn}_{key}",
-                friendly_name=key,
-                value=value,
-                unit=unit_tmp,
-                description=description_tmp,
-            )
-        # special for phases
-        report = "JTS1_EMS_HEARTBEAT"
-        phases=["pcsAPhase", "pcsBPhase","pcsCPhase"]
-        for i, phase in enumerate(phases):
-            for key, value in response["data"]["quota"][report][phase].items():
-                unique_id = f"{self.sn}_{report}_{phase}_{key}"
-                unit_tmp = self.__get_unit(key)
-                description_tmp = key
-
-                data[unique_id] = PowerOceanEndPoint(
-                    internal_unique_id=unique_id,
-                    serial=self.sn,
-                    name=f"{self.sn}_{phase}_{key}",
-                    friendly_name=f"{phase}_{key}",
-                    value=value,
-                    unit=unit_tmp,
-                    description=description_tmp,
-                )
-
-        # special for mpptPv
-        report = "JTS1_EMS_HEARTBEAT"
-        mpptpvs=["mpptPv1", "mpptPv2"]
-        for i, mpptpv in enumerate(mpptpvs):
-            for key, value in response["data"]["quota"][report]["mpptHeartBeat"][0]["mpptPv"][i].items():
-                unique_id = f"{self.sn}_{report}_mpptHeartBeat_{mpptpv}_{key}"
-                unit_tmp = self.__get_unit(key)
-                description_tmp = ""
-                data[unique_id] = PowerOceanEndPoint(
-                    internal_unique_id=unique_id,
-                    serial=self.sn,
-                    name=f"{self.sn}_{mpptpv}_{key}",
-                    friendly_name=f"{mpptpv}_{key}",
-                    value=value,
-                    unit=unit_tmp,
-                    description=description_tmp,
-                )
-        #next step
-        # loop over N batteries
-        report = "JTS1_BP_STA_REPORT"
-        keys = list(response["data"]["quota"][report].keys())
-        batts = [s for s in keys if 12 <= len(s)]
-
-        ibat = 0
-        bat_sens_select = ['bpPwr', 'bpSoc', 'bpSoh', 'bpVol', 'bpAmp','bpCycles', 'bpSysState']
-        for ibat, bat in enumerate(batts):
-            d_bat = json_loads(response["data"]["quota"][report][bat])
-            for key, value in d_bat.items():
-                if key in bat_sens_select:
-                    # default uid, unit and descript
-                    unique_id = f"{self.sn}_{report}_{bat}_{key}"
-                    unit_tmp = self.__get_unit(key)
-                    description_tmp = f"Battery{ibat+1}_{key}"
-
-                    data[unique_id] = PowerOceanEndPoint(
-                        internal_unique_id=unique_id,
-                        serial=self.sn,
-                        name=f"{self.sn}_bat{ibat+1}_{key}",
-                        friendly_name=key,
-                        value=value,
-                        unit=unit_tmp,
-                        description=description_tmp
-                    )
-
-
-        return data
 
     def _get_sensors(self, response):
-        # 1. get most important data first
-        sensors = self.__get_base_sensors(response["data"])
 
-        # 2. get info from batteries  => JTS1_BP_STA_REPORT
-        sens_bat = self.__get_battery_sensors(response["data"]["quota"]["JTS1_BP_STA_REPORT"])
-        dict.update(sensors, sens_bat)
+        #  TODO - Comment: Note, unique_id will change!! Compatibility broken!!!
+        #        => ist nur wichtig bei Langzeitdatenerfassung (z.B. influx)
 
-        # TODO: mpptHeartBeat collect from JTS1_EMS_HEARTBEAT
-        #       response["data"]["quota"]["JTS1_EMS_HEARTBEAT"]['mpptHeartBeat']
+        # get sensors from response['data']
+        # TODO - Question:  for final version
+        #  - alle Daten aus 'JTS1_EMS_CHANGE_REPORT' gibt es hier auch.
+        #  - brauchen wir die beide?
+        sensors = self.__get_sensors_data(response)
 
-        # TODO: JTS1_EMS_CHANGE_REPORT  => we may not need this
-        #       response["data"]["quota"]["JTS1_EMS_CHANGE_REPORT"]
-        #sens_ems = self.__get_ems_sensors(response["data"]["quota"]["JTS1_EMS_CHANGE_REPORT"])
-        #dict.update(sensors, sens_bat, sens_ems)
+        # get sensors from 'JTS1_ENERGY_STREAM_REPORT'
+        sensors = self.__get_sensors_energy_stream(response, sensors)
+
+        # get sensors from 'JTS1_EMS_CHANGE_REPORT'
+        # TODO - QUESTION:  hier würde ich (in der finalen Version) deutlich weniger einlesen bzw. enablen
+        #  In meinem System hatte ich alles Sensoren ca. 4 Monate lang beobachtet. Nur ganz wenige zeigen Änderungen.
+        #  Vieles davon sagt mir auch nichts. Mein Vorschlag für die finale Version wäre:
+        #  ein Liste von interessanten Sensoren zu definieren und die anderen auf "disable" zu setzen
+        sensors = self.__get_sensors_ems_change(response, sensors)
+
+        # get info from batteries  => JTS1_BP_STA_REPORT
+        sensors = self.__get_sensors_battery(response, sensors)
+
+
+        # get info from PV strings  => JTS1_EMS_HEARTBEAT
+        sensors = self.__get_sensors_pvstrings(response, sensors)
 
         return sensors
 
-    def __get_base_sensors(self, d):
-        # sens_all = ['sysLoadPwr', 'sysGridPwr', 'mpptPwr', 'bpPwr', 'bpSoc', 'sysBatChgUpLimit', 'sysBatDsgDownLimit',
-        #             'sysGridSta', 'sysOnOffMachineStat', 'online', 'todayElectricityGeneration',
-        #             'monthElectricityGeneration', 'yearElectricityGeneration', 'totalElectricityGeneration',
-        #             'systemName', 'createTime', 'location', 'timezone', 'quota']
-        sens_select = ['sysLoadPwr', 'sysGridPwr', 'mpptPwr', 'bpPwr', 'bpSoc', 'online',
-                       'todayElectricityGeneration', 'monthElectricityGeneration',
-                       'yearElectricityGeneration', 'totalElectricityGeneration',
-                       'systemName', 'createTime']
-        sensors = dict()
+    def __get_sensors_data(self, response):
+        d = response["data"].copy()
+        r = d.pop('quota')  # remove quota dict
+
+        # sens_all = ['sysLoadPwr', 'sysGridPwr', 'mpptPwr', 'bpPwr', 'bpSoc', 'sysBatChgUpLimit',
+        #             'sysBatDsgDownLimit','sysGridSta', 'sysOnOffMachineStat', 'online',
+        #             'todayElectricityGeneration', 'monthElectricityGeneration', 'yearElectricityGeneration',
+        #             'totalElectricityGeneration','systemName', 'createTime', 'location', 'timezone', 'quota']
+
+        # TODO: this would be my suggestion for the selection of sensors
+        # sens_select = ['sysLoadPwr', 'sysGridPwr', 'mpptPwr', 'bpPwr', 'bpSoc', 'online',
+        #                'todayElectricityGeneration', 'monthElectricityGeneration',
+        #                'yearElectricityGeneration', 'totalElectricityGeneration',
+        #                'systemName', 'createTime']
+
+        sens_select = d.keys()  # TODO: in case you want to read in all sensors
+
+        sensors = dict()  # start with empty dict
         for key, value in d.items():
             if key in sens_select:   # use only sensors in sens_select
                 if not isinstance(value, dict):
                     # default uid, unit and descript
                     unique_id = f"{self.sn}_{key}"
-                    unit_tmp = ""
-                    description_tmp = {key}
-
-                    if key == "sysLoadPwr":
-                        unit_tmp = "W"
-                        description_tmp = "Hausnetz"
-                    if key == "sysGridPwr":
-                        unit_tmp = "W"
-                        description_tmp = "Stromnetz"
-                    if key == "mpptPwr":
-                        unit_tmp = "W"
-                        description_tmp = "Solarertrag"
-                    if key == "bpPwr":
-                        unit_tmp = "W"
-                        description_tmp = "Batterieleistung"
-                    if key == "bpSoc":
-                        unit_tmp = "%"
-                        description_tmp = "Ladezustand der Batterie"
-                    if key == "online":
-                        unit_tmp = ""
-                        description_tmp = "Online"
-                    if key == "systemName":
-                        unit_tmp = ""
-                        description_tmp = "System Name"
-                    if key == "createTime":
-                        unit_tmp = ""
-                        description_tmp = "Installations Datum"
-
-                    if "Energy" in key:
-                        unit_tmp = "Wh"
-                    if "Generation" in key:
-                        unit_tmp = "kWh"
-
+                    unit_tmp = self.__get_unit(key)
+                    description_tmp = self.__get_description(key)
                     sensors[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
                         serial=self.sn,
@@ -425,123 +246,194 @@ class Ecoflow:
 
         return sensors
 
-    def __get_battery_sensors(self, d):
+    def __get_sensors_energy_stream(self, response, sensors):
+        report = "JTS1_ENERGY_STREAM_REPORT"
+        d = response["data"]["quota"][report]
+
+        # TODO: note, the prefix name is introduced to avoid doubling the sensor names
+        prefix = '_'.join(report.split('_')[1:3]).lower() + '_' # used to construct sensor name
+
+        # sens_all = ['bpSoc', 'mpptPwr', 'updateTime', 'bpPwr', 'sysLoadPwr', 'sysGridPwr']
+        sens_select = d.keys()
+        data = {}
+        for key, value in d.items():
+            if key in sens_select:   # use only sensors in sens_select
+                # default uid, unit and descript
+                unique_id = f"{self.sn}_{report}_{key}"
+                unit_tmp = self.__get_unit(key)
+                description_tmp = self.__get_description(key)
+                data[unique_id] = PowerOceanEndPoint(
+                    internal_unique_id=unique_id,
+                    serial=self.sn,
+                    name=f"{self.sn}_{prefix+key}",
+                    friendly_name=prefix+key,
+                    value=value,
+                    unit=unit_tmp,
+                    description=description_tmp,
+                )
+        dict.update(sensors, data)
+
+        return sensors
+
+    def __get_sensors_ems_change(self, response, sensors):
+        report = "JTS1_EMS_CHANGE_REPORT"
+        d = response["data"]["quota"][report]
+        prefix = '_'.join(report.split('_')[1:3]).lower() + '_' # used to construct sensor name
+
+        # sens_select = ['bpTotalChgEnergy', 'bpTotalDsgEnergy', 'bpSoc', 'bpOnlineSum', 'emsCtrlLedBright'
+        #                # TODO: we need a loop over strings if we want to use the sensors below
+        #                'mppt1WarningCode', 'mppt2WarningCode', 'mppt1FaultCode', 'mppt2FaultCode'
+        #                ]
+
+        # TODO: here we get more than 200 sensors
+        sens_select = d.keys()
+        data = {}
+        for key, value in d.items():
+            if key in sens_select:   # use only sensors in sens_select
+                # Exceptions empty or special structure
+                if key == "evBindList" or key == "emsSgReady":
+                    continue
+                # default uid, unit and descript
+                unique_id = f"{self.sn}_{report}_{key}"
+                unit_tmp = self.__get_unit(key)
+                description_tmp = self.__get_description(key)  # TODO: update description
+
+                data[unique_id] = PowerOceanEndPoint(
+                    internal_unique_id=unique_id,
+                    serial=self.sn,
+                    name=f"{self.sn}_{prefix+key}",
+                    friendly_name=prefix+key,
+                    value=value,
+                    unit=unit_tmp,
+                    description=description_tmp,
+                )
+        dict.update(sensors, data)
+
+        return sensors
+
+    def __get_sensors_battery(self, response, sensors):
+
+        report = "JTS1_BP_STA_REPORT"
+        d = response["data"]["quota"][report]
         removed = d.pop('')  # first element is empty
         keys = list(d.keys())
         n_bat = len(keys) - 1  # number of batteries found
 
-        sensors = dict()
+        sens_select = d.keys()
+        data = {}
+        prefix = 'bp_'
 
         # collect updateTime
         key = 'updateTime'
+        name = prefix + key
         value = d[key]
-        unique_id = f"{self.sn}_{key}"
-        sensors[unique_id] = PowerOceanEndPoint(
+        unique_id = f"{self.sn}_{name}"
+        data[unique_id] = PowerOceanEndPoint(
             internal_unique_id=unique_id,
             serial=self.sn,
-            name=f"{self.sn}_{key}",
-            friendly_name=key,
+            name=f"{self.sn}_{name}",
+            friendly_name= name,
             value=value,
             unit="",
             description="Letzte Aktualisierung"
         )
 
-        # loop over N batteries
-        batts = keys[1:]
-        ibat = 0
-        bat_sens_select = ['bpPwr', 'bpSoc', 'bpSoh', 'bpVol', 'bpAmp','bpCycles', 'bpSysState']
-        for ibat, bat in enumerate(batts):
-            d_bat = json_loads(d[bat])
-            for key, value in d_bat.items():
-                if key in bat_sens_select:
-                    # default uid, unit and descript
-                    unique_id = f"{self.sn}_{bat}_{key}"
-                    unit_tmp = ""
-                    description_tmp = f"Battery{ibat+1}_{key}"
-
-                    if key == "bpPwr":
-                        unit_tmp = "W"
-                        description_tmp = f"Battery{ibat+1} Leistung"
-
-                    if key == "bpVol":
-                        unit_tmp = "V"
-                        description_tmp = f"Battery{ibat+1} Spannung"
-
-                    if key == "bpAmp":
-                        unit_tmp = ""
-                        description_tmp = f"Battery{ibat+1} Ampere"
-
-                    if key == "bpCycles":
-                        unit_tmp = ""
-                        description_tmp = f"Battery{ibat+1} Ladezyklen"
-
-                    sensors[unique_id] = PowerOceanEndPoint(
-                        internal_unique_id=unique_id,
-                        serial=self.sn,
-                        name=f"{self.sn}_bat{ibat+1}_{key}",
-                        friendly_name=key,
-                        value=value,
-                        unit=unit_tmp,
-                        description=description_tmp
-                    )
-
         # create sensor for number of batteries
         key = 'number_of_batteries'
-        unique_id = f"{self.sn}_{key}"
+        name = prefix + key
+        unique_id = f"{self.sn}_{name}"
         unit_tmp = ""
         description_tmp = "Anzahl der Batterien"
-        sensors[unique_id] = PowerOceanEndPoint(
+        data[unique_id] = PowerOceanEndPoint(
             internal_unique_id=unique_id,
             serial=self.sn,
-            name=f"{self.sn}_{key}",
-            friendly_name=key,
+            name=f"{self.sn}_{name}",
+            friendly_name = name,
             value=n_bat,
             unit=unit_tmp,
             description=description_tmp,
         )
 
+
+        # loop over N batteries:
+        # TODO: we may want to compute the mean cell temperature
+
+        batts = keys[1:]
+        ibat = 0
+        bat_sens_select = ['bpPwr', 'bpSoc', 'bpSoh', 'bpVol', 'bpAmp','bpCycles', 'bpSysState']
+        for ibat, bat in enumerate(batts):
+            prefix = prefix + 'bat%i_' % (ibat+1)
+            d_bat = json_loads(d[bat])
+            for key, value in d_bat.items():
+                if key in bat_sens_select:
+                    # default uid, unit and descript
+                    unique_id = f"{self.sn}_{bat}_{key}"
+                    unit_tmp = self.__get_unit(key)
+                    description_tmp = f"{prefix}" + self.__get_description(key)
+                    data[unique_id] = PowerOceanEndPoint(
+                        internal_unique_id=unique_id,
+                        serial=self.sn,
+                        name=f"{self.sn}_{prefix + key}",
+                        friendly_name=prefix+key,
+                        value=value,
+                        unit=unit_tmp,
+                        description=description_tmp,
+                    )
+
+        dict.update(sensors, data)
+
         return sensors
 
-    def __get_ems_sensors(self, d):
+    def __get_sensors_pvstrings(self, response, sensors):
+        # TODO - Question: wie kann ich d um einen Schritt für phase erweitern?
+        #                 => Ich muss gestehen, dass ich die Frage nicht verstanden habe
+        # TODO - Comment: hab die Funktion nahezu so gelassen wie Du sie gemacht hast
+
         report = "JTS1_EMS_HEARTBEAT"
-        sensors = dict()
+        d = response["data"]["quota"][report]
+        sens_select = d.keys()  # 68 Felder
+        data = {}
+        prefix = 'pv_'
         for key, value in d.items():
             # Exceptions empty or special structure
             if (
-                key == "pcsAPhase"
-                or key == "pcsBPhase"
-                or key == "pcsCPhase"
-                or key == "mpptHeartBeat"
+                # key == "pcsAPhase"
+                # or key == "pcsBPhase"
+                # or key == "pcsCPhase"
+                # or key == "mpptHeartBeat"
+                isinstance(value, dict)     # exclude ["pcsAPhase", "pcsBPhase","pcsCPhase", "mpptHeartBeat"]
+                or isinstance(value, list)  # exclude meterData or write extra routine
             ):
                 continue
-            unique_id = f"{self.sn}_{report}_{key}"
-            unit_tmp = self.__get_unit(key)
-            description_tmp = key
 
-            sensors[unique_id] = PowerOceanEndPoint(
+            name = prefix + key
+            unique_id = f"{self.sn}_{report}_{name}"
+            unit_tmp = self.__get_unit(key)
+            description_tmp = self.__get_description(key)
+            data[unique_id] = PowerOceanEndPoint(
                 internal_unique_id=unique_id,
                 serial=self.sn,
-                name=f"{self.sn}_{key}",
-                friendly_name=key,
+                name=f"{self.sn}_{name}",
+                friendly_name=name,
                 value=value,
                 unit=unit_tmp,
                 description=description_tmp,
             )
         # special for phases
-        #TODO: wie kann ich d um einen Schritt für phase erweitern? 
         report = "JTS1_EMS_HEARTBEAT"
         phases=["pcsAPhase", "pcsBPhase","pcsCPhase"]
         for i, phase in enumerate(phases):
-            for key, value in d.items():
-                unique_id = f"{self.sn}_{report}_{phase}_{key}"
+            for key, value in d[phase].items():
+                name = prefix + phase + '_' +  key
+                unique_id = f"{self.sn}_{report}_{name}"
                 unit_tmp = self.__get_unit(key)
-                description_tmp = key
+                description_tmp = self.__get_description(key)
 
-                sensors[unique_id] = PowerOceanEndPoint(
+                data[unique_id] = PowerOceanEndPoint(
                     internal_unique_id=unique_id,
                     serial=self.sn,
-                    name=f"{self.sn}_{phase}_{key}",
-                    friendly_name=f"{phase}_{key}",
+                    name=f"{self.sn}_{name}",
+                    friendly_name=f"{name}",
                     value=value,
                     unit=unit_tmp,
                     description=description_tmp,
@@ -550,12 +442,13 @@ class Ecoflow:
         # special for mpptPv
         report = "JTS1_EMS_HEARTBEAT"
         mpptpvs=["mpptPv1", "mpptPv2"]
+        mpptPv_sum = 0.0
         for i, mpptpv in enumerate(mpptpvs):
-            for key, value in sensors["data"]["quota"][report]["mpptHeartBeat"][0]["mpptPv"][i].items():
+            for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
                 unique_id = f"{self.sn}_{report}_mpptHeartBeat_{mpptpv}_{key}"
                 unit_tmp = self.__get_unit(key)
-                description_tmp = ""
-                sensors[unique_id] = PowerOceanEndPoint(
+                description_tmp = self.__get_description(key)
+                data[unique_id] = PowerOceanEndPoint(
                     internal_unique_id=unique_id,
                     serial=self.sn,
                     name=f"{self.sn}_{mpptpv}_{key}",
@@ -564,9 +457,28 @@ class Ecoflow:
                     unit=unit_tmp,
                     description=description_tmp,
                 )
+                # sum power of all strings
+                if key == 'pwr':
+                    mpptPv_sum += value
+
+        # create total power sensor of all strings
+        name = "mpptPv_pwrTotal"
+        unique_id = f"{self.sn}_{report}_mpptHeartBeat_{name}"
+        unit_tmp = self.__get_unit('pwr')
+        description_tmp = "Solarertrag aller Strings"
+        data[unique_id] = PowerOceanEndPoint(
+            internal_unique_id=unique_id,
+            serial=self.sn,
+            name=f"{self.sn}_{name}",
+            friendly_name=f"{name}",
+            value=mpptPv_sum,
+            unit=unit_tmp,
+            description=description_tmp,
+        )
+
+        dict.update(sensors, data)
 
         return sensors
-
 
 class AuthenticationFailed(Exception):
     """Exception to indicate authentication failure."""
