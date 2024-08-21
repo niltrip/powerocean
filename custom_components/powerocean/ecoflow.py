@@ -1,4 +1,5 @@
 """ecoflow.py: API for PowerOcean integration."""
+
 import requests
 import base64
 from collections import namedtuple
@@ -21,6 +22,7 @@ PowerOceanEndPoint = namedtuple(
 # Rename, there is an official API since june
 class Ecoflow:
     """Class representing Ecoflow"""
+
     def __init__(self, serialnumber, username, password):
         self.sn = serialnumber
         self.unique_id = serialnumber
@@ -31,7 +33,8 @@ class Ecoflow:
         self.session = requests.Session()
         self.url_iot_app = "https://api.ecoflow.com/auth/login"
         self.url_user_fetch = f"https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}"
-        self.authorize()  # authorize user and get device details
+        # TODO: Unexpected Exception
+        # self.authorize()  # authorize user and get device details
 
     def get_device(self):
         """Function get device"""
@@ -39,10 +42,10 @@ class Ecoflow:
             "product": "PowerOcean",
             "vendor": "Ecoflow",
             "serial": self.sn,
-            "version": "5.1.15",      # TODO: woher bekommt man diese Info? Hab es aus der App
-            "build": "13",            # TODO: wo finde ich das?
+            "version": "5.1.15",  # TODO: woher bekommt man diese Info? Hab es aus der App
+            "build": "13",  # TODO: wo finde ich das?
             "name": "PowerOcean",
-            "features": "Photovoltaik"
+            "features": "Photovoltaik",
         }
 
         return self.device
@@ -55,7 +58,7 @@ class Ecoflow:
             "email": self.ecoflow_username,
             "password": base64.b64encode(self.ecoflow_password.encode()).decode(),
             "scene": "IOT_APP",
-            "userType": "ECOFLOW"
+            "userType": "ECOFLOW",
         }
 
         try:
@@ -66,7 +69,7 @@ class Ecoflow:
 
         except ConnectionError:
             error = f"Unable to connect to {self.url_iot_app}. Device might be offline."
-            _LOGGER.warning( error + ISSUE_URL_ERROR_MESSAGE )
+            _LOGGER.warning(error + ISSUE_URL_ERROR_MESSAGE)
             raise IntegrationError(error)
 
         try:
@@ -86,12 +89,16 @@ class Ecoflow:
     def get_json_response(self, request):
         """Function get json response"""
         if request.status_code != 200:
-            raise Exception(f"Got HTTP status code {request.status_code}: {request.text}")
+            raise Exception(
+                f"Got HTTP status code {request.status_code}: {request.text}"
+            )
         try:
             response = json_loads(request.text)
             response_message = response["message"]
         except KeyError as key:
-            raise Exception(f"Failed to extract key {key} from {json_loads(request.text)}")
+            raise Exception(
+                f"Failed to extract key {key} from {json_loads(request.text)}"
+            )
         except Exception as error:
             raise Exception(f"Failed to parse response: {request.text} Error: {error}")
 
@@ -149,9 +156,8 @@ class Ecoflow:
         return unit
 
     def __get_description(self, key):
-
-        # TODO: hier könnte man noch mehr definieren bzw ein translation dict erstellen
-        description = key   # default description
+        # TODO: hier könnte man noch mehr definieren bzw ein translation dict erstellen +1
+        description = key  # default description
         if key == "sysLoadPwr":
             description = "Hausnetz"
         if key == "sysGridPwr":
@@ -170,24 +176,24 @@ class Ecoflow:
             description = "Installations Datum"
         # Battery descriptions
         if key == "bpVol":
-            description_tmp = "Batteriespannung"
+            description = "Batteriespannung"
         if key == "bpAmp":
-            description_tmp = "Batteriestrom"
+            description = "Batteriestrom"
         if key == "bpCycles":
-            description_tmp = "Ladezyklen"
+            description = "Ladezyklen"
 
         return description
 
-
     def _get_sensors(self, response):
-
         #  TODO - Comment: Note, unique_id will change!! Compatibility broken!!!
-        #        => ist nur wichtig bei Langzeitdatenerfassung (z.B. influx)
+        #        => ist nur wichtig bei Langzeitdatenerfassung (z.B. influx) oder Energiedashboard
 
         # get sensors from response['data']
         # TODO - Question:  for final version
         #  - alle Daten aus 'JTS1_EMS_CHANGE_REPORT' gibt es hier auch.
         #  - brauchen wir die beide?
+        #  Eigentlich würde ich Daten aus den expliziten "Reports" bevorzugen, dafür sind sie meines Erachtens vorgesehen.
+        # Da es scheinbar keinen Unterschied hinsichtlich der Abfragezycklen gibt wäre ich für Kompatibilität und weglassen des "JTS1_ENERGY_STREAM_REPORT"
         sensors = self.__get_sensors_data(response)
 
         # get sensors from 'JTS1_ENERGY_STREAM_REPORT'
@@ -198,11 +204,11 @@ class Ecoflow:
         #  In meinem System hatte ich alles Sensoren ca. 4 Monate lang beobachtet. Nur ganz wenige zeigen Änderungen.
         #  Vieles davon sagt mir auch nichts. Mein Vorschlag für die finale Version wäre:
         #  ein Liste von interessanten Sensoren zu definieren und die anderen auf "disable" zu setzen
+        # siehe parameter_selected.json
         sensors = self.__get_sensors_ems_change(response, sensors)
 
         # get info from batteries  => JTS1_BP_STA_REPORT
         sensors = self.__get_sensors_battery(response, sensors)
-
 
         # get info from PV strings  => JTS1_EMS_HEARTBEAT
         sensors = self.__get_sensors_pvstrings(response, sensors)
@@ -211,7 +217,7 @@ class Ecoflow:
 
     def __get_sensors_data(self, response):
         d = response["data"].copy()
-        r = d.pop('quota')  # remove quota dict
+        r = d.pop("quota")  # remove quota dict
 
         # sens_all = ['sysLoadPwr', 'sysGridPwr', 'mpptPwr', 'bpPwr', 'bpSoc', 'sysBatChgUpLimit',
         #             'sysBatDsgDownLimit','sysGridSta', 'sysOnOffMachineStat', 'online',
@@ -228,7 +234,7 @@ class Ecoflow:
 
         sensors = dict()  # start with empty dict
         for key, value in d.items():
-            if key in sens_select:   # use only sensors in sens_select
+            if key in sens_select:  # use only sensors in sens_select
                 if not isinstance(value, dict):
                     # default uid, unit and descript
                     unique_id = f"{self.sn}_{key}"
@@ -241,7 +247,7 @@ class Ecoflow:
                         friendly_name=key,
                         value=value,
                         unit=unit_tmp,
-                        description=description_tmp
+                        description=description_tmp,
                     )
 
         return sensors
@@ -251,13 +257,15 @@ class Ecoflow:
         d = response["data"]["quota"][report]
 
         # TODO: note, the prefix name is introduced to avoid doubling the sensor names
-        prefix = '_'.join(report.split('_')[1:3]).lower() + '_' # used to construct sensor name
+        prefix = (
+            "_".join(report.split("_")[1:3]).lower() + "_"
+        )  # used to construct sensor name
 
         # sens_all = ['bpSoc', 'mpptPwr', 'updateTime', 'bpPwr', 'sysLoadPwr', 'sysGridPwr']
         sens_select = d.keys()
         data = {}
         for key, value in d.items():
-            if key in sens_select:   # use only sensors in sens_select
+            if key in sens_select:  # use only sensors in sens_select
                 # default uid, unit and descript
                 unique_id = f"{self.sn}_{report}_{key}"
                 unit_tmp = self.__get_unit(key)
@@ -266,7 +274,7 @@ class Ecoflow:
                     internal_unique_id=unique_id,
                     serial=self.sn,
                     name=f"{self.sn}_{prefix+key}",
-                    friendly_name=prefix+key,
+                    friendly_name=prefix + key,
                     value=value,
                     unit=unit_tmp,
                     description=description_tmp,
@@ -278,7 +286,9 @@ class Ecoflow:
     def __get_sensors_ems_change(self, response, sensors):
         report = "JTS1_EMS_CHANGE_REPORT"
         d = response["data"]["quota"][report]
-        prefix = '_'.join(report.split('_')[1:3]).lower() + '_' # used to construct sensor name
+        prefix = (
+            "_".join(report.split("_")[1:3]).lower() + "_"
+        )  # used to construct sensor name
 
         # sens_select = ['bpTotalChgEnergy', 'bpTotalDsgEnergy', 'bpSoc', 'bpOnlineSum', 'emsCtrlLedBright'
         #                # TODO: we need a loop over strings if we want to use the sensors below
@@ -289,20 +299,22 @@ class Ecoflow:
         sens_select = d.keys()
         data = {}
         for key, value in d.items():
-            if key in sens_select:   # use only sensors in sens_select
+            if key in sens_select:  # use only sensors in sens_select
                 # Exceptions empty or special structure
                 if key == "evBindList" or key == "emsSgReady":
                     continue
                 # default uid, unit and descript
                 unique_id = f"{self.sn}_{report}_{key}"
                 unit_tmp = self.__get_unit(key)
-                description_tmp = self.__get_description(key)  # TODO: update description
+                description_tmp = self.__get_description(
+                    key
+                )  # TODO: update description
 
                 data[unique_id] = PowerOceanEndPoint(
                     internal_unique_id=unique_id,
                     serial=self.sn,
                     name=f"{self.sn}_{prefix+key}",
-                    friendly_name=prefix+key,
+                    friendly_name=prefix + key,
                     value=value,
                     unit=unit_tmp,
                     description=description_tmp,
@@ -312,19 +324,22 @@ class Ecoflow:
         return sensors
 
     def __get_sensors_battery(self, response, sensors):
-
         report = "JTS1_BP_STA_REPORT"
         d = response["data"]["quota"][report]
-        removed = d.pop('')  # first element is empty
+        # TODO: das klappt bei mir nicht. Bei mir ist das erste Element nicht leer!
+        # Bei mir batts = Keylänge(Seriennummer) unter 12 Zeichen wird verworfen
+        # batts = [s for s in keys if 12 <= len(s)]
+
+        removed = d.pop("")  # first element is empty
         keys = list(d.keys())
         n_bat = len(keys) - 1  # number of batteries found
 
         sens_select = d.keys()
         data = {}
-        prefix = 'bp_'
+        prefix = "bp_"
 
         # collect updateTime
-        key = 'updateTime'
+        key = "updateTime"
         name = prefix + key
         value = d[key]
         unique_id = f"{self.sn}_{name}"
@@ -332,14 +347,14 @@ class Ecoflow:
             internal_unique_id=unique_id,
             serial=self.sn,
             name=f"{self.sn}_{name}",
-            friendly_name= name,
+            friendly_name=name,
             value=value,
             unit="",
-            description="Letzte Aktualisierung"
+            description="Letzte Aktualisierung",
         )
 
         # create sensor for number of batteries
-        key = 'number_of_batteries'
+        key = "number_of_batteries"
         name = prefix + key
         unique_id = f"{self.sn}_{name}"
         unit_tmp = ""
@@ -348,21 +363,28 @@ class Ecoflow:
             internal_unique_id=unique_id,
             serial=self.sn,
             name=f"{self.sn}_{name}",
-            friendly_name = name,
+            friendly_name=name,
             value=n_bat,
             unit=unit_tmp,
             description=description_tmp,
         )
-
 
         # loop over N batteries:
         # TODO: we may want to compute the mean cell temperature
 
         batts = keys[1:]
         ibat = 0
-        bat_sens_select = ['bpPwr', 'bpSoc', 'bpSoh', 'bpVol', 'bpAmp','bpCycles', 'bpSysState']
+        bat_sens_select = [
+            "bpPwr",
+            "bpSoc",
+            "bpSoh",
+            "bpVol",
+            "bpAmp",
+            "bpCycles",
+            "bpSysState",
+        ]
         for ibat, bat in enumerate(batts):
-            prefix = prefix + 'bat%i_' % (ibat+1)
+            prefix = prefix + "bat%i_" % (ibat + 1)
             d_bat = json_loads(d[bat])
             for key, value in d_bat.items():
                 if key in bat_sens_select:
@@ -374,7 +396,7 @@ class Ecoflow:
                         internal_unique_id=unique_id,
                         serial=self.sn,
                         name=f"{self.sn}_{prefix + key}",
-                        friendly_name=prefix+key,
+                        friendly_name=prefix + key,
                         value=value,
                         unit=unit_tmp,
                         description=description_tmp,
@@ -387,13 +409,14 @@ class Ecoflow:
     def __get_sensors_pvstrings(self, response, sensors):
         # TODO - Question: wie kann ich d um einen Schritt für phase erweitern?
         #                 => Ich muss gestehen, dass ich die Frage nicht verstanden habe
+        #                   Die einfachste Variante: Überreiche der Funktion response ;-)
         # TODO - Comment: hab die Funktion nahezu so gelassen wie Du sie gemacht hast
 
         report = "JTS1_EMS_HEARTBEAT"
         d = response["data"]["quota"][report]
         sens_select = d.keys()  # 68 Felder
         data = {}
-        prefix = 'pv_'
+        prefix = "pv_"
         for key, value in d.items():
             # Exceptions empty or special structure
             if (
@@ -401,7 +424,9 @@ class Ecoflow:
                 # or key == "pcsBPhase"
                 # or key == "pcsCPhase"
                 # or key == "mpptHeartBeat"
-                isinstance(value, dict)     # exclude ["pcsAPhase", "pcsBPhase","pcsCPhase", "mpptHeartBeat"]
+                isinstance(
+                    value, dict
+                )  # exclude ["pcsAPhase", "pcsBPhase","pcsCPhase", "mpptHeartBeat"]
                 or isinstance(value, list)  # exclude meterData or write extra routine
             ):
                 continue
@@ -421,10 +446,10 @@ class Ecoflow:
             )
         # special for phases
         report = "JTS1_EMS_HEARTBEAT"
-        phases=["pcsAPhase", "pcsBPhase","pcsCPhase"]
+        phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
         for i, phase in enumerate(phases):
             for key, value in d[phase].items():
-                name = prefix + phase + '_' +  key
+                name = prefix + phase + "_" + key
                 unique_id = f"{self.sn}_{report}_{name}"
                 unit_tmp = self.__get_unit(key)
                 description_tmp = self.__get_description(key)
@@ -441,7 +466,7 @@ class Ecoflow:
 
         # special for mpptPv
         report = "JTS1_EMS_HEARTBEAT"
-        mpptpvs=["mpptPv1", "mpptPv2"]
+        mpptpvs = ["mpptPv1", "mpptPv2"]
         mpptPv_sum = 0.0
         for i, mpptpv in enumerate(mpptpvs):
             for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
@@ -458,13 +483,13 @@ class Ecoflow:
                     description=description_tmp,
                 )
                 # sum power of all strings
-                if key == 'pwr':
+                if key == "pwr":
                     mpptPv_sum += value
 
         # create total power sensor of all strings
         name = "mpptPv_pwrTotal"
         unique_id = f"{self.sn}_{report}_mpptHeartBeat_{name}"
-        unit_tmp = self.__get_unit('pwr')
+        unit_tmp = self.__get_unit("pwr")
         description_tmp = "Solarertrag aller Strings"
         data[unique_id] = PowerOceanEndPoint(
             internal_unique_id=unique_id,
@@ -479,6 +504,7 @@ class Ecoflow:
         dict.update(sensors, data)
 
         return sensors
+
 
 class AuthenticationFailed(Exception):
     """Exception to indicate authentication failure."""
