@@ -330,9 +330,9 @@ class Ecoflow:
         # Bei mir batts = Keylänge(Seriennummer) unter 12 Zeichen wird verworfen
         # batts = [s for s in keys if 12 <= len(s)]
 
-        removed = d.pop("")  # first element is empty
+        # removed = d.pop("")  # first element is empty
         keys = list(d.keys())
-        n_bat = len(keys) - 1  # number of batteries found
+        n_bat = len(keys) - 2  # number of batteries found
 
         sens_select = d.keys()
         data = {}
@@ -372,7 +372,8 @@ class Ecoflow:
         # loop over N batteries:
         # TODO: we may want to compute the mean cell temperature
 
-        batts = keys[1:]
+        # batts = keys[1:]
+        batts = [s for s in keys if 12 <= len(s)]
         ibat = 0
         bat_sens_select = [
             "bpPwr",
