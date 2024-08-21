@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta  # TODO: datetime not in use
-#from datetime import datetime
+from datetime import timedelta
 from collections import defaultdict
 
 from homeassistant.components.sensor import SensorEntity
@@ -9,16 +8,6 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers import entity_registry
 from homeassistant.exceptions import IntegrationError
-
-# TODO: the following imports are not in use
-from homeassistant.helpers.entity_registry import async_get
-from homeassistant.helpers.entity_registry import async_get as async_get_entity_registry
-from homeassistant.config_entries import ConfigEntry
-from homeassistant import config_entries
-from homeassistant import exceptions
-from homeassistant.exceptions import HomeAssistantError
-import asyncio
-
 
 from .const import (
     DOMAIN,
@@ -41,10 +30,9 @@ from .ecoflow import Ecoflow, AuthenticationFailed
 
 # Setting up the adding and updating of sensor entities
 async def async_setup_entry(hass, config_entry, async_add_entities):
-
     # Retrieve the API instance from the config_entry data
     ecoflow = hass.data[DOMAIN][config_entry.entry_id]
-    device_id = ecoflow.device['serial']
+    device_id = ecoflow.device["serial"]
 
     # Call EcoFlow to get access to the API data
     try:
@@ -100,16 +88,22 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         async_add_entities([sensor], False)
 
     device_specific_sensors = hass.data[DOMAIN]["device_specific_sensors"]
-    _LOGGER.debug(f"{device_id}: List of device_specific_sensors[device_id]: "
-                  f"{device_specific_sensors[device_id]}")
+    _LOGGER.debug(
+        f"{device_id}: List of device_specific_sensors[device_id]: "
+        f"{device_specific_sensors[device_id]}"
+    )
 
     # Log the number of sensors registered (and added to the update list)
-    _LOGGER.debug(f"{device_id}: All '{len(device_specific_sensors[device_id])}' sensors have registered.")
+    _LOGGER.debug(
+        f"{device_id}: All '{len(device_specific_sensors[device_id])}' sensors have registered."
+    )
 
     # Schedule updates
     async def async_update_data(now):
         # If device deleted but HASS not restarted, then don't bother continuing
-        if device_id not in hass.data.get(DOMAIN, {}).get("device_specific_sensors", {}):
+        if device_id not in hass.data.get(DOMAIN, {}).get(
+            "device_specific_sensors", {}
+        ):
             return False
 
         _LOGGER.debug(f"{device_id}: Preparing to update sensors at {now}")
@@ -119,17 +113,20 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             full_data = await hass.async_add_executor_job(ecoflow.fetch_data)
 
         except Exception as e:
-            _LOGGER.error(f"{device_id}: Error fetching data from the device: {e}" + ISSUE_URL_ERROR_MESSAGE )
+            _LOGGER.error(
+                f"{device_id}: Error fetching data from the device: {e}"
+                + ISSUE_URL_ERROR_MESSAGE
+            )
             return
 
         # Fetch the registry and check if sensors are enabled
         registry = entity_registry.async_get(hass)
 
         # Set counters to zero
-        counter_updated = 0    # Successfully updated sensors
-        counter_disabled = 0   # Disabled sensors, not to be updated
+        counter_updated = 0  # Successfully updated sensors
+        counter_disabled = 0  # Disabled sensors, not to be updated
         counter_unchanged = 0  # Skipped sensors since value has not changed
-        counter_error = 0      # Skipped sensors due to some error, such as registry not found or no data from API
+        counter_error = 0  # Skipped sensors due to some error, such as registry not found or no data from API
 
         # Get the list of device specific sensors from hass.data
         if device_id in hass.data.get(DOMAIN, {}).get("device_specific_sensors", {}):
@@ -139,7 +136,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             # Now loop through the sensors to be updated
             # ----------------------------------------------
             for sensor in device_specific_sensors[device_id]:
-                entity_id = registry.async_get_entity_id("sensor", DOMAIN, sensor.unique_id)
+                entity_id = registry.async_get_entity_id(
+                    "sensor", DOMAIN, sensor.unique_id
+                )
                 if entity_id:
                     entity = registry.entities.get(entity_id)  # get entity
                     # entity is enabled
@@ -147,11 +146,16 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         sensor_data = full_data.get(sensor.unique_id)
                         _LOGGER.debug(f"{device_id}: Sensor {sensor.name} enabled.")
                         if sensor_data:
-                            _LOGGER.debug(f"{device_id}: Sensor {sensor.name} has API data to update {sensor_data}")
+                            _LOGGER.debug(
+                                f"{device_id}: Sensor {sensor.name} has API data to update {sensor_data}"
+                            )
 
                             # Check if current state value differs from new API value,
                             # or current state has not initialized
-                            if (str(sensor._state).strip() != str(sensor_data.value).strip()):
+                            if (
+                                str(sensor._state).strip()
+                                != str(sensor_data.value).strip()
+                            ):
                                 _LOGGER.debug(
                                     f"{device_id}: Sensor {sensor.name} marked for update: current state = "
                                     f"{sensor._state} with new value = {sensor_data.value}"
@@ -161,17 +165,21 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                                 update_status = await sensor.async_update(sensor_data)
                                 counter_updated = counter_updated + update_status
                             else:
-                                _LOGGER.debug(f"{device_id}: Sensor {sensor.name} skipped update! Current value = "
-                                              f"{sensor._state}, new value = {sensor_data.value}"
+                                _LOGGER.debug(
+                                    f"{device_id}: Sensor {sensor.name} skipped update! Current value = "
+                                    f"{sensor._state}, new value = {sensor_data.value}"
                                 )
                                 counter_unchanged = counter_unchanged + 1
                         else:
                             _LOGGER.warning(
-                                f"{device_id}: Sensor {sensor.name}: found no data for update!" + ISSUE_URL_ERROR_MESSAGE
+                                f"{device_id}: Sensor {sensor.name}: found no data for update!"
+                                + ISSUE_URL_ERROR_MESSAGE
                             )
                             counter_error = counter_error + 1
                     else:
-                        _LOGGER.debug(f"{device_id}: Sensor {sensor.name} is disabled, skipping update")
+                        _LOGGER.debug(
+                            f"{device_id}: Sensor {sensor.name} is disabled, skipping update"
+                        )
                         counter_disabled = counter_disabled + 1
                 else:
                     _LOGGER.warning(
@@ -184,17 +192,21 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             _LOGGER.debug(
                 f"{device_id}: A total of {counter_updated} sensors have been updated. "
                 f"Number of disabled sensors or skipped updates = {counter_disabled} "
-                f"Number of sensors with constant values = {counter_unchanged} " 
+                f"Number of sensors with constant values = {counter_unchanged} "
                 f"Number of sensors with errors = {counter_error}"
             )
 
         # Device not in list: must have been deleted, will resolve post re-start
         else:
-            _LOGGER.warning(f"{device_id}: Sensor must have been deleted, re-start of HA recommended.")
+            _LOGGER.warning(
+                f"{device_id}: Sensor must have been deleted, re-start of HA recommended."
+            )
 
     # Get the polling interval from the options, defaulting to 5 seconds if not set
-    polling_interval = timedelta(seconds=config_entry.options.get("polling_interval", 5))
-    
+    polling_interval = timedelta(
+        seconds=config_entry.options.get("polling_interval", 5)
+    )
+
     async_track_time_interval(hass, async_update_data, polling_interval)
 
 
@@ -219,7 +231,9 @@ class PowerOceanSensor(SensorEntity):
         self._unique_id = endpoint.internal_unique_id
 
         # Set the icon for the sensor based on its unit, ensure the icon_mapper is defined
-        self._icon = PowerOceanSensor.icon_mapper.get(endpoint.unit)  # Default handled in function
+        self._icon = PowerOceanSensor.icon_mapper.get(
+            endpoint.unit
+        )  # Default handled in function
 
         # The initial state/value of the sensor
         self._state = endpoint.value
@@ -267,9 +281,7 @@ class PowerOceanSensor(SensorEntity):
             return SensorDeviceClass.TEMPERATURE
         elif self._unit == "%":
             return SensorDeviceClass.BATTERY
-        elif self._unit == "Wh":
-            return SensorDeviceClass.ENERGY
-        elif self._unit == "kWh":
+        elif self._unit in {"Wh", "kWh"}:
             return SensorDeviceClass.ENERGY
         elif self._unit == "W":
             return SensorDeviceClass.POWER
@@ -283,19 +295,9 @@ class PowerOceanSensor(SensorEntity):
     @property
     def state_class(self):
         """Return the state class of this entity, if any."""
-        if self._unit == "°C":
+        if self._unit in {"°C", "h", "W", "V", "A"}:
             return SensorStateClass.MEASUREMENT
-        elif self._unit == "h":
-            return SensorStateClass.MEASUREMENT
-        elif self._unit == "W":
-            return SensorStateClass.MEASUREMENT
-        elif self._unit == "V":
-            return SensorStateClass.MEASUREMENT
-        elif self._unit == "A":
-            return SensorStateClass.MEASUREMENT
-        elif self._unit == "Wh":
-            return SensorStateClass.TOTAL_INCREASING
-        elif self._unit == "kWh":
+        elif self._unit in {"Wh", "kWh"}:
             return SensorStateClass.TOTAL_INCREASING
         else:
             return None

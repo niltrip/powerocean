@@ -1,4 +1,5 @@
 """Constants for the PowerOcean integration."""
+
 import logging
 from homeassistant.const import Platform
 

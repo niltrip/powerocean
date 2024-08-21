@@ -136,27 +136,26 @@ class Ecoflow:
 
     def __get_unit(self, key):
         """Function get unit from key Name."""
-        if key.endswith("pwr") or key.endswith("Pwr"):
+        if key.endswith(("pwr", "Pwr")):
             unit = "W"
-        elif key.endswith("amp") or key.endswith("Amp"):
+        elif key.endswith(("amp", "Amp")):
             unit = "A"
-        elif key.endswith("soc") or key.endswith("Soc"):
+        elif key.endswith(("soc", "Soc", "soh", "Soh")):
             unit = "%"
-        elif key.endswith("soh") or key.endswith("Soh"):
-            unit = "%"
-        elif key == "vol":
+        elif key.endswith(("vol", "Vol")):
             unit = "V"
-        elif "Energy" in key:
+        elif key.endswith(("Watth", "Energy")):
             unit = "Wh"
         elif "Generation" in key:
             unit = "kWh"
         else:
-            unit = ""
+            unit = None
 
         return unit
 
     def __get_description(self, key):
         # TODO: hier könnte man noch mehr definieren bzw ein translation dict erstellen +1
+        # Comment: Ich glaube hier brauchen wir n
         description = key  # default description
         if key == "sysLoadPwr":
             description = "Hausnetz"
@@ -197,7 +196,7 @@ class Ecoflow:
         sensors = self.__get_sensors_data(response)
 
         # get sensors from 'JTS1_ENERGY_STREAM_REPORT'
-        sensors = self.__get_sensors_energy_stream(response, sensors)
+        # sensors = self.__get_sensors_energy_stream(response, sensors)
 
         # get sensors from 'JTS1_EMS_CHANGE_REPORT'
         # TODO - QUESTION:  hier würde ich (in der finalen Version) deutlich weniger einlesen bzw. enablen
@@ -211,12 +210,13 @@ class Ecoflow:
         sensors = self.__get_sensors_battery(response, sensors)
 
         # get info from PV strings  => JTS1_EMS_HEARTBEAT
-        sensors = self.__get_sensors_pvstrings(response, sensors)
+        sensors = self.__get_sensors_ems_heartbeat(response, sensors)
 
         return sensors
 
     def __get_sensors_data(self, response):
         d = response["data"].copy()
+        # TODO: nicht notwendig, wenn man sens_select verwendet
         r = d.pop("quota")  # remove quota dict
 
         # sens_all = ['sysLoadPwr', 'sysGridPwr', 'mpptPwr', 'bpPwr', 'bpSoc', 'sysBatChgUpLimit',
@@ -225,12 +225,22 @@ class Ecoflow:
         #             'totalElectricityGeneration','systemName', 'createTime', 'location', 'timezone', 'quota']
 
         # TODO: this would be my suggestion for the selection of sensors
-        # sens_select = ['sysLoadPwr', 'sysGridPwr', 'mpptPwr', 'bpPwr', 'bpSoc', 'online',
-        #                'todayElectricityGeneration', 'monthElectricityGeneration',
-        #                'yearElectricityGeneration', 'totalElectricityGeneration',
-        #                'systemName', 'createTime']
+        # delete bpSoc get from ems_change
+        sens_select = [
+            "sysLoadPwr",
+            "sysGridPwr",
+            "mpptPwr",
+            "bpPwr",
+            "online",
+            "todayElectricityGeneration",
+            "monthElectricityGeneration",
+            "yearElectricityGeneration",
+            "totalElectricityGeneration",
+            "systemName",
+            "createTime",
+        ]
 
-        sens_select = d.keys()  # TODO: in case you want to read in all sensors
+        # sens_select = d.keys()  # TODO: in case you want to read in all sensors
 
         sensors = dict()  # start with empty dict
         for key, value in d.items():
@@ -238,50 +248,48 @@ class Ecoflow:
                 if not isinstance(value, dict):
                     # default uid, unit and descript
                     unique_id = f"{self.sn}_{key}"
-                    unit_tmp = self.__get_unit(key)
-                    description_tmp = self.__get_description(key)
+
                     sensors[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
                         serial=self.sn,
                         name=f"{self.sn}_{key}",
                         friendly_name=key,
                         value=value,
-                        unit=unit_tmp,
-                        description=description_tmp,
+                        unit=self.__get_unit(key),
+                        description=self.__get_description(key),
                     )
 
         return sensors
 
-    def __get_sensors_energy_stream(self, response, sensors):
-        report = "JTS1_ENERGY_STREAM_REPORT"
-        d = response["data"]["quota"][report]
+    # def __get_sensors_energy_stream(self, response, sensors):
+    #     report = "JTS1_ENERGY_STREAM_REPORT"
+    #     d = response["data"]["quota"][report]
 
-        # TODO: note, the prefix name is introduced to avoid doubling the sensor names
-        prefix = (
-            "_".join(report.split("_")[1:3]).lower() + "_"
-        )  # used to construct sensor name
+    #     # TODO: note, the prefix name is introduced to avoid doubling the sensor names
+    #     prefix = (
+    #         "_".join(report.split("_")[1:3]).lower() + "_"
+    #     )  # used to construct sensor name
 
-        # sens_all = ['bpSoc', 'mpptPwr', 'updateTime', 'bpPwr', 'sysLoadPwr', 'sysGridPwr']
-        sens_select = d.keys()
-        data = {}
-        for key, value in d.items():
-            if key in sens_select:  # use only sensors in sens_select
-                # default uid, unit and descript
-                unique_id = f"{self.sn}_{report}_{key}"
-                unit_tmp = self.__get_unit(key)
-                description_tmp = self.__get_description(key)
-                data[unique_id] = PowerOceanEndPoint(
-                    internal_unique_id=unique_id,
-                    serial=self.sn,
-                    name=f"{self.sn}_{prefix+key}",
-                    friendly_name=prefix + key,
-                    value=value,
-                    unit=unit_tmp,
-                    description=description_tmp,
-                )
-        dict.update(sensors, data)
+    #     # sens_all = ['bpSoc', 'mpptPwr', 'updateTime', 'bpPwr', 'sysLoadPwr', 'sysGridPwr']
+    #     sens_select = d.keys()
+    #     data = {}
+    #     for key, value in d.items():
+    #         if key in sens_select:  # use only sensors in sens_select
+    #             # default uid, unit and descript
+    #             unique_id = f"{self.sn}_{report}_{key}"
 
-        return sensors
+    #             data[unique_id] = PowerOceanEndPoint(
+    #                 internal_unique_id=unique_id,
+    #                 serial=self.sn,
+    #                 name=f"{self.sn}_{prefix+key}",
+    #                 friendly_name=prefix + key,
+    #                 value=value,
+    #                 unit=self.__get_unit(key),
+    #                 description=self.__get_description(key),
+    #             )
+    #     dict.update(sensors, data)
+
+    #     return sensors
 
     def __get_sensors_ems_change(self, response, sensors):
         report = "JTS1_EMS_CHANGE_REPORT"
@@ -290,34 +298,35 @@ class Ecoflow:
             "_".join(report.split("_")[1:3]).lower() + "_"
         )  # used to construct sensor name
 
-        # sens_select = ['bpTotalChgEnergy', 'bpTotalDsgEnergy', 'bpSoc', 'bpOnlineSum', 'emsCtrlLedBright'
-        #                # TODO: we need a loop over strings if we want to use the sensors below
-        #                'mppt1WarningCode', 'mppt2WarningCode', 'mppt1FaultCode', 'mppt2FaultCode'
-        #                ]
+        sens_select = [
+            "bpTotalChgEnergy",
+            "bpTotalDsgEnergy",
+            "bpSoc",
+            "bpOnlineSum",
+            "emsCtrlLedBright"
+            # TODO: we need a loop over strings if we want to use the sensors below
+            "mppt1WarningCode",
+            "mppt2WarningCode",
+            "mppt1FaultCode",
+            "mppt2FaultCode",
+        ]
 
         # TODO: here we get more than 200 sensors
-        sens_select = d.keys()
+        # sens_select = d.keys()
         data = {}
         for key, value in d.items():
             if key in sens_select:  # use only sensors in sens_select
-                # Exceptions empty or special structure
-                if key == "evBindList" or key == "emsSgReady":
-                    continue
                 # default uid, unit and descript
                 unique_id = f"{self.sn}_{report}_{key}"
-                unit_tmp = self.__get_unit(key)
-                description_tmp = self.__get_description(
-                    key
-                )  # TODO: update description
 
                 data[unique_id] = PowerOceanEndPoint(
                     internal_unique_id=unique_id,
                     serial=self.sn,
-                    name=f"{self.sn}_{prefix+key}",
-                    friendly_name=prefix + key,
+                    name=f"{self.sn}_{key}",
+                    friendly_name=key,
                     value=value,
-                    unit=unit_tmp,
-                    description=description_tmp,
+                    unit=self.__get_unit(key),
+                    description=self.__get_description(key),
                 )
         dict.update(sensors, data)
 
@@ -336,8 +345,9 @@ class Ecoflow:
 
         sens_select = d.keys()
         data = {}
-        prefix = "bp_"
+        prefix = "bpack"
 
+        # TODO: Ich denke die updateTime kann weg. Was ich sehe ist sie sogar noch in einer falschen Zeitzone
         # collect updateTime
         key = "updateTime"
         name = prefix + key
@@ -349,25 +359,27 @@ class Ecoflow:
             name=f"{self.sn}_{name}",
             friendly_name=name,
             value=value,
-            unit="",
+            unit=None,
             description="Letzte Aktualisierung",
         )
 
+        # TODO: JTS1_EMS_CHANGE_REPORT Parameter bpOnlineSum = 2
+        # Das zeigt 2 Batterien online, dein Parameter nicht notwendig
         # create sensor for number of batteries
-        key = "number_of_batteries"
-        name = prefix + key
-        unique_id = f"{self.sn}_{name}"
-        unit_tmp = ""
-        description_tmp = "Anzahl der Batterien"
-        data[unique_id] = PowerOceanEndPoint(
-            internal_unique_id=unique_id,
-            serial=self.sn,
-            name=f"{self.sn}_{name}",
-            friendly_name=name,
-            value=n_bat,
-            unit=unit_tmp,
-            description=description_tmp,
-        )
+        # key = "number_of_batteries"
+        # name = prefix + key
+        # unique_id = f"{self.sn}_{name}"
+        # unit_tmp = ""
+        # description_tmp = "Anzahl der Batterien"
+        # data[unique_id] = PowerOceanEndPoint(
+        #     internal_unique_id=unique_id,
+        #     serial=self.sn,
+        #     name=f"{self.sn}_{name}",
+        #     friendly_name=name,
+        #     value=n_bat,
+        #     unit=unit_tmp,
+        #     description=description_tmp,
+        # )
 
         # loop over N batteries:
         # TODO: we may want to compute the mean cell temperature
@@ -383,15 +395,15 @@ class Ecoflow:
             "bpAmp",
             "bpCycles",
             "bpSysState",
+            "bpRemainWatth",
         ]
         for ibat, bat in enumerate(batts):
-            name = prefix + "bat%i_" % (ibat + 1)
+            name = prefix + "%i_" % (ibat + 1)
             d_bat = json_loads(d[bat])
             for key, value in d_bat.items():
                 if key in bat_sens_select:
                     # default uid, unit and descript
-                    unique_id = f"{self.sn}_{bat}_{key}"
-                    unit_tmp = self.__get_unit(key)
+                    unique_id = f"{self.sn}_{report}_{bat}_{key}"
                     description_tmp = f"{name}" + self.__get_description(key)
                     data[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
@@ -399,7 +411,7 @@ class Ecoflow:
                         name=f"{self.sn}_{name + key}",
                         friendly_name=name + key,
                         value=value,
-                        unit=unit_tmp,
+                        unit=self.__get_unit(key),
                         description=description_tmp,
                     )
 
@@ -407,53 +419,37 @@ class Ecoflow:
 
         return sensors
 
-    def __get_sensors_pvstrings(self, response, sensors):
-        # TODO - Question: wie kann ich d um einen Schritt für phase erweitern?
-        #                 => Ich muss gestehen, dass ich die Frage nicht verstanden habe
-        #                   Die einfachste Variante: Überreiche der Funktion response ;-)
-        # TODO - Comment: hab die Funktion nahezu so gelassen wie Du sie gemacht hast
-
+    def __get_sensors_ems_heartbeat(self, response, sensors):
         report = "JTS1_EMS_HEARTBEAT"
         d = response["data"]["quota"][report]
-        sens_select = d.keys()  # 68 Felder
+        # sens_select = d.keys()  # 68 Felder
+        sens_select = [
+            "bpRemainWatth",
+            "emsBpAliveNum",
+        ]
         data = {}
-        prefix = "pv_"
+        # prefix = "pv_"
         for key, value in d.items():
-            # Exceptions empty or special structure
-            if (
-                # key == "pcsAPhase"
-                # or key == "pcsBPhase"
-                # or key == "pcsCPhase"
-                # or key == "mpptHeartBeat"
-                isinstance(
-                    value, dict
-                )  # exclude ["pcsAPhase", "pcsBPhase","pcsCPhase", "mpptHeartBeat"]
-                or isinstance(value, list)  # exclude meterData or write extra routine
-            ):
-                continue
+            if key in sens_select:
+                # default uid, unit and descript
+                unique_id = f"{self.sn}_{report}_{key}"
+                description_tmp = self.__get_description(key)
+                data[unique_id] = PowerOceanEndPoint(
+                    internal_unique_id=unique_id,
+                    serial=self.sn,
+                    name=f"{self.sn}_{key}",
+                    friendly_name=key,
+                    value=value,
+                    unit=self.__get_unit(key),
+                    description=description_tmp,
+                )
 
-            name = prefix + key
-            unique_id = f"{self.sn}_{report}_{name}"
-            unit_tmp = self.__get_unit(key)
-            description_tmp = self.__get_description(key)
-            data[unique_id] = PowerOceanEndPoint(
-                internal_unique_id=unique_id,
-                serial=self.sn,
-                name=f"{self.sn}_{name}",
-                friendly_name=name,
-                value=value,
-                unit=unit_tmp,
-                description=description_tmp,
-            )
         # special for phases
-        report = "JTS1_EMS_HEARTBEAT"
         phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
         for i, phase in enumerate(phases):
             for key, value in d[phase].items():
-                name = prefix + phase + "_" + key
+                name = phase + "_" + key
                 unique_id = f"{self.sn}_{report}_{name}"
-                unit_tmp = self.__get_unit(key)
-                description_tmp = self.__get_description(key)
 
                 data[unique_id] = PowerOceanEndPoint(
                     internal_unique_id=unique_id,
@@ -461,27 +457,25 @@ class Ecoflow:
                     name=f"{self.sn}_{name}",
                     friendly_name=f"{name}",
                     value=value,
-                    unit=unit_tmp,
-                    description=description_tmp,
+                    unit=self.__get_unit(key),
+                    description=self.__get_description(key),
                 )
 
         # special for mpptPv
-        report = "JTS1_EMS_HEARTBEAT"
         mpptpvs = ["mpptPv1", "mpptPv2"]
         mpptPv_sum = 0.0
         for i, mpptpv in enumerate(mpptpvs):
             for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
                 unique_id = f"{self.sn}_{report}_mpptHeartBeat_{mpptpv}_{key}"
-                unit_tmp = self.__get_unit(key)
-                description_tmp = self.__get_description(key)
+
                 data[unique_id] = PowerOceanEndPoint(
                     internal_unique_id=unique_id,
                     serial=self.sn,
                     name=f"{self.sn}_{mpptpv}_{key}",
                     friendly_name=f"{mpptpv}_{key}",
                     value=value,
-                    unit=unit_tmp,
-                    description=description_tmp,
+                    unit=self.__get_unit(key),
+                    description=self.__get_description(key),
                 )
                 # sum power of all strings
                 if key == "pwr":
@@ -490,16 +484,15 @@ class Ecoflow:
         # create total power sensor of all strings
         name = "mpptPv_pwrTotal"
         unique_id = f"{self.sn}_{report}_mpptHeartBeat_{name}"
-        unit_tmp = self.__get_unit("pwr")
-        description_tmp = "Solarertrag aller Strings"
+
         data[unique_id] = PowerOceanEndPoint(
             internal_unique_id=unique_id,
             serial=self.sn,
             name=f"{self.sn}_{name}",
             friendly_name=f"{name}",
             value=mpptPv_sum,
-            unit=unit_tmp,
-            description=description_tmp,
+            unit=self.__get_unit(key),
+            description="Solarertrag aller Strings",
         )
 
         dict.update(sensors, data)
