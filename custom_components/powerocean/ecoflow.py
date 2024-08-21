@@ -373,7 +373,7 @@ class Ecoflow:
         # TODO: we may want to compute the mean cell temperature
 
         # batts = keys[1:]
-        batts = [s for s in keys if 12 <= len(s)]
+        batts = [s for s in keys if len(s) > 12]
         ibat = 0
         bat_sens_select = [
             "bpPwr",
@@ -385,19 +385,19 @@ class Ecoflow:
             "bpSysState",
         ]
         for ibat, bat in enumerate(batts):
-            prefix = prefix + "bat%i_" % (ibat + 1)
+            name = prefix + "bat%i_" % (ibat + 1)
             d_bat = json_loads(d[bat])
             for key, value in d_bat.items():
                 if key in bat_sens_select:
                     # default uid, unit and descript
                     unique_id = f"{self.sn}_{bat}_{key}"
                     unit_tmp = self.__get_unit(key)
-                    description_tmp = f"{prefix}" + self.__get_description(key)
+                    description_tmp = f"{name}" + self.__get_description(key)
                     data[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
                         serial=self.sn,
-                        name=f"{self.sn}_{prefix + key}",
-                        friendly_name=prefix + key,
+                        name=f"{self.sn}_{name + key}",
+                        friendly_name=name + key,
                         value=value,
                         unit=unit_tmp,
                         description=description_tmp,
