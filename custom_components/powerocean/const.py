@@ -6,7 +6,7 @@ from homeassistant.const import Platform
 DOMAIN = "powerocean"  # Have requested to add logos via https://github.com/home-assistant/brands/pull/4904
 NAME = "Ecoflow PowerOcean"
 VERSION = "2024.01.01"
-ISSUE_URL = "https://github.com/evercape/powerocean/issues"
+ISSUE_URL = "https://github.com/niltrip/powerocean/issues"
 ISSUE_URL_ERROR_MESSAGE = " Please log any issues here: " + ISSUE_URL
 
 
