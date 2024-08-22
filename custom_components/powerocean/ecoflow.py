@@ -34,7 +34,7 @@ class Ecoflow:
         self.session = requests.Session()
         self.url_iot_app = "https://api.ecoflow.com/auth/login"
         self.url_user_fetch = f"https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}"
-        self.authorize()  # authorize user and get device details
+        # self.authorize()  # authorize user and get device details
 
     def get_device(self):
         """Function get device"""
@@ -43,7 +43,7 @@ class Ecoflow:
             "vendor": "Ecoflow",
             "serial": self.sn,
             "version": "5.1.15",  # TODO: woher bekommt man diese Info?
-            "build": "13",        # TODO: wo finde ich das?
+            "build": "13",  # TODO: wo finde ich das?
             "name": "PowerOcean",
             "features": "Photovoltaik",
         }
@@ -148,7 +148,7 @@ class Ecoflow:
             unit = "Wh"
         elif "Generation" in key:
             unit = "kWh"
-        elif key.startswith('bpTemp'):  # TODO: alternative: 'Temp' in key
+        elif key.startswith("bpTemp"):  # TODO: alternative: 'Temp' in key
             unit = "°C"
         else:
             unit = None
@@ -188,7 +188,6 @@ class Ecoflow:
         return description
 
     def _get_sensors(self, response):
-
         # get sensors from response['data']
         sensors = self.__get_sensors_data(response)
 
@@ -284,14 +283,14 @@ class Ecoflow:
             "bpTotalChgEnergy",
             "bpTotalDsgEnergy",
             "bpSoc",
-            "bpOnlineSum",       # number of batteries
-            "emsCtrlLedBright"
+            "bpOnlineSum",  # number of batteries
+            "emsCtrlLedBright",
         ]
 
         # add mppt Warning/Fault Codes
         keys = d.keys()
-        r = re.compile('mppt.*Code')
-        wfc = list(filter(r.match, keys))     # warning/fault code keys
+        r = re.compile("mppt.*Code")
+        wfc = list(filter(r.match, keys))  # warning/fault code keys
         sens_select += wfc
 
         data = {}
@@ -351,9 +350,9 @@ class Ecoflow:
                         description=description_tmp,
                     )
             # compute mean temperature of cells
-            key = 'bpTemp'
+            key = "bpTemp"
             temp = d_bat[key]
-            value = sum(temp)/len(temp)
+            value = sum(temp) / len(temp)
             unique_id = f"{self.sn}_{report}_{bat}_{key}"
             description_tmp = f"{name}" + self.__get_description(key)
             data[unique_id] = PowerOceanEndPoint(
@@ -412,7 +411,7 @@ class Ecoflow:
                 )
 
         # special for mpptPv
-        n_strings = len(d["mpptHeartBeat"][0]["mpptPv"]) # TODO: auch als Sensor?
+        n_strings = len(d["mpptHeartBeat"][0]["mpptPv"])  # TODO: auch als Sensor?
         mpptpvs = []
         for i in range(1, n_strings + 1):
             mpptpvs.append(f"mpptPv{i}")
