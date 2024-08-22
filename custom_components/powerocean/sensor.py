@@ -144,11 +144,11 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                     # entity is enabled
                     if entity and not entity.disabled_by:
                         sensor_data = full_data.get(sensor.unique_id)
-                        _LOGGER.debug(f"{device_id}: Sensor {sensor.name} enabled.")
+                        # _LOGGER.debug(f"{device_id}: Sensor {sensor.name} enabled.")
                         if sensor_data:
-                            _LOGGER.debug(
-                                f"{device_id}: Sensor {sensor.name} has API data to update {sensor_data}"
-                            )
+                            # _LOGGER.debug(
+                            #     f"{device_id}: Sensor {sensor.name} has API data to update {sensor_data}"
+                            # )
 
                             # Check if current state value differs from new API value,
                             # or current state has not initialized
@@ -156,19 +156,19 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                                 str(sensor._state).strip()
                                 != str(sensor_data.value).strip()
                             ):
-                                _LOGGER.debug(
-                                    f"{device_id}: Sensor {sensor.name} marked for update: current state = "
-                                    f"{sensor._state} with new value = {sensor_data.value}"
-                                )
+                                # _LOGGER.debug(
+                                #     f"{device_id}: Sensor {sensor.name} marked for update: current state = "
+                                #     f"{sensor._state} with new value = {sensor_data.value}"
+                                # )
                                 # Now update the sensor with new values
                                 # update_status returns 1 for upated, 0 for skipped or error
                                 update_status = await sensor.async_update(sensor_data)
                                 counter_updated = counter_updated + update_status
                             else:
-                                _LOGGER.debug(
-                                    f"{device_id}: Sensor {sensor.name} skipped update! Current value = "
-                                    f"{sensor._state}, new value = {sensor_data.value}"
-                                )
+                                # _LOGGER.debug(
+                                #     f"{device_id}: Sensor {sensor.name} skipped update! Current value = "
+                                #     f"{sensor._state}, new value = {sensor_data.value}"
+                                # )
                                 counter_unchanged = counter_unchanged + 1
                         else:
                             _LOGGER.warning(
@@ -177,9 +177,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             )
                             counter_error = counter_error + 1
                     else:
-                        _LOGGER.debug(
-                            f"{device_id}: Sensor {sensor.name} is disabled, skipping update"
-                        )
+                        # _LOGGER.debug(
+                        #     f"{device_id}: Sensor {sensor.name} is disabled, skipping update"
+                        # )
                         counter_disabled = counter_disabled + 1
                 else:
                     _LOGGER.warning(
@@ -231,9 +231,9 @@ class PowerOceanSensor(SensorEntity):
         self._unique_id = endpoint.internal_unique_id
 
         # Set the icon for the sensor based on its unit, ensure the icon_mapper is defined
-        self._icon = PowerOceanSensor.icon_mapper.get(
-            endpoint.unit
-        )  # Default handled in function
+        # Default handled in function
+        # self._icon = PowerOceanSensor.icon_mapper.get(endpoint.unit)
+        self._icon = endpoint.icon
 
         # The initial state/value of the sensor
         self._state = endpoint.value
@@ -328,16 +328,21 @@ class PowerOceanSensor(SensorEntity):
             "manufacturer": "ECOFLOW",
         }
 
-    icon_mapper = defaultdict(
-        lambda: "mdi:alert-circle",
-        {
-            "°C": "mdi:thermometer",
-            "%": "mdi:flash",
-            "s": "mdi:timer",
-            "Wh": "mdi:solar-power-variant-outline",
-            "h": "mdi:timer-sand",
-        },
-    )
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return self._icon
+
+    # icon_mapper = defaultdict(
+    #     lambda: "mdi:alert-circle",
+    #     {
+    #         "°C": "mdi:thermometer",
+    #         "%": "mdi:flash",
+    #         "s": "mdi:timer",
+    #         "Wh": "mdi:solar-power-variant-outline",
+    #         "h": "mdi:timer-sand",
+    #     },
+    # )
 
     # This is to register the icon settings
     async def async_added_to_hass(self):

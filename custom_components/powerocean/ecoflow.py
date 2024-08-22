@@ -15,7 +15,7 @@ from .const import _LOGGER, ISSUE_URL_ERROR_MESSAGE
 # Better storage of PowerOcean endpoint
 PowerOceanEndPoint = namedtuple(
     "PowerOceanEndPoint",
-    "internal_unique_id, serial, name, friendly_name, value, unit, description",
+    "internal_unique_id, serial, name, friendly_name, value, unit, description, icon",
 )
 
 
@@ -43,7 +43,7 @@ class Ecoflow:
             "vendor": "Ecoflow",
             "serial": self.sn,
             "version": "5.1.15",  # TODO: woher bekommt man diese Info?
-            "build": "13",  # TODO: wo finde ich das?
+            "build": "6",  # TODO: wo finde ich das?
             "name": "PowerOcean",
             "features": "Photovoltaik",
         }
@@ -120,7 +120,6 @@ class Ecoflow:
             response = self.get_json_response(request)
 
             _LOGGER.debug(f"{response}")
-            _LOGGER.debug(f"{response['data']}")
 
             return self._get_sensors(response)
 
@@ -233,6 +232,9 @@ class Ecoflow:
                 if not isinstance(value, dict):
                     # default uid, unit and descript
                     unique_id = f"{self.sn}_{key}"
+                    special_icon = None
+                    if key == "mpptPwr":
+                        special_icon = "mdi:solar-power"
 
                     sensors[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
@@ -242,6 +244,7 @@ class Ecoflow:
                         value=value,
                         unit=self.__get_unit(key),
                         description=self.__get_description(key),
+                        icon=special_icon,
                     )
 
         return sensors
@@ -270,6 +273,7 @@ class Ecoflow:
     #                 value=value,
     #                 unit=self.__get_unit(key),
     #                 description=self.__get_description(key),
+    #                 icon=None,
     #             )
     #     dict.update(sensors, data)
     #
@@ -307,6 +311,7 @@ class Ecoflow:
                     value=value,
                     unit=self.__get_unit(key),
                     description=self.__get_description(key),
+                    icon=None,
                 )
         dict.update(sensors, data)
 
@@ -340,6 +345,9 @@ class Ecoflow:
                     # default uid, unit and descript
                     unique_id = f"{self.sn}_{report}_{bat}_{key}"
                     description_tmp = f"{name}" + self.__get_description(key)
+                    special_icon = None
+                    if key == "bpAmp":
+                        special_icon = "mdi:current-dc"
                     data[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
                         serial=self.sn,
@@ -348,6 +356,7 @@ class Ecoflow:
                         value=value,
                         unit=self.__get_unit(key),
                         description=description_tmp,
+                        icon=special_icon,
                     )
             # compute mean temperature of cells
             key = "bpTemp"
@@ -363,6 +372,7 @@ class Ecoflow:
                 value=value,
                 unit=self.__get_unit(key),
                 description=description_tmp,
+                icon=None,
             )
 
         dict.update(sensors, data)
@@ -391,6 +401,7 @@ class Ecoflow:
                     value=value,
                     unit=self.__get_unit(key),
                     description=description_tmp,
+                    icon=None,
                 )
 
         # special for phases
@@ -408,6 +419,7 @@ class Ecoflow:
                     value=value,
                     unit=self.__get_unit(key),
                     description=self.__get_description(key),
+                    icon=None,
                 )
 
         # special for mpptPv
@@ -419,6 +431,11 @@ class Ecoflow:
         for i, mpptpv in enumerate(mpptpvs):
             for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
                 unique_id = f"{self.sn}_{report}_mpptHeartBeat_{mpptpv}_{key}"
+                special_icon = None
+                if key.endswith("amp"):
+                    special_icon = "mdi:current-dc"
+                if key.endswith("pwr"):
+                    special_icon = "mdi:solar-power"
 
                 data[unique_id] = PowerOceanEndPoint(
                     internal_unique_id=unique_id,
@@ -428,6 +445,7 @@ class Ecoflow:
                     value=value,
                     unit=self.__get_unit(key),
                     description=self.__get_description(key),
+                    icon=special_icon,
                 )
                 # sum power of all strings
                 if key == "pwr":
@@ -445,6 +463,7 @@ class Ecoflow:
             value=mpptPv_sum,
             unit=self.__get_unit(key),
             description="Solarertrag aller Strings",
+            icon="mdi:solar-power",
         )
 
         dict.update(sensors, data)
