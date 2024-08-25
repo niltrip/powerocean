@@ -1,27 +1,22 @@
 """config_flow.py: Config flow for PowerOcean integration."""
 from __future__ import annotations
 
-import logging
 import re
 from typing import Any
-
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant import exceptions
-
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.exceptions import IntegrationError
 
 from .const import _LOGGER, DOMAIN, ISSUE_URL_ERROR_MESSAGE
-
-from .ecoflow import ecoflow_api, AuthenticationFailed
+from .ecoflow import Ecoflow, AuthenticationFailed
 
 
 # This is the first step's schema when setting up the integration, or its devices
-# The second schema is defined inside the ConfigFlow class as it has dynamice default values set via API call
+# The second schema is defined inside the ConfigFlow class as it has dynamic default values set via API call
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required("serialnumber", default=""): str,
@@ -31,31 +26,28 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 
-async def validate_input_for_device(
-    hass: HomeAssistant, data: dict[str, Any]
-) -> dict[str, Any]:
+async def validate_input_for_device(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
     """Validate the user input allows us to connect."""
 
-    ecoflow = ecoflow_api(data["serialnumber"], data["username"], data["password"])
+    ecoflow = Ecoflow(data["serialnumber"], data["username"], data["password"])
 
     try:
-        # Call the API with the detect_device method
-        device = await hass.async_add_executor_job(ecoflow.detect_device)
-
-        # Additionally, check for authentication by calling fetch_data_km2
-        auth_check = await hass.async_add_executor_job(ecoflow.fetch_data)
+        # Check for authentication
+        # auth_check = await hass.async_add_executor_job(ecoflow.fetch_data)  # TODO what else is needed from fetch_data?
+        auth_check = await hass.async_add_executor_job(ecoflow.authorize)
         if not auth_check:
             # If authentication check returns False, raise an authentication failure exception
-            raise AuthenticationFailed("Invalid authentication")
+            raise AuthenticationFailed("Invalid authentication!")
+
+        # Get device info
+        device = await hass.async_add_executor_job(ecoflow.get_device)
 
         # Return the device object with the device information
         return device
 
     # Exception if device cannot be found
     except IntegrationError as e:
-        _LOGGER.error(
-            f"Failed to connect to PowerOcean device: {e}" + ISSUE_URL_ERROR_MESSAGE
-        )
+        _LOGGER.error(f"Failed to connect to PowerOcean device: {e}" + ISSUE_URL_ERROR_MESSAGE)
         raise CannotConnect from e
 
     # Exception if authentication fails
@@ -67,30 +59,27 @@ async def validate_input_for_device(
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for PowerOcean."""
 
-    VERSION = 1
+    VERSION = 1.3
 
     # Make sure user input data is passed from one step to the next using user_input_from_step_user
     def __init__(self):
         self.user_input_from_step_user = None
 
     # This is step 1 for the host/port/user/pass function.
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
         if user_input is not None:
             try:
                 # Valide the user input whilst setting up integration or adding new devices.
-                # validate_input_for_devices will try to detect the device and get more info from it, and authenticate and  deal with exceptions
+                # validate_input_for_devices will try to detect the device and get more info from it,
+                # and authenticate and  deal with exceptions
                 device = await validate_input_for_device(self.hass, user_input)
             except CannotConnect:
                 errors["base"] = "cannot_connect"
             except InvalidAuth:
                 errors["base"] = "invalid_auth"
-                return self.async_show_form(
-                    step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
-                )
+                return self.async_show_form(step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors)
             except Exception:
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
@@ -114,17 +103,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_device_options(user_input=None)
 
         # Show the form for step 1 with the user/host/pass as defined in STEP_USER_DATA_SCHEMA
-        return self.async_show_form(
-            step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
-        )
+        return self.async_show_form(step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors)
 
     # This is step 2 for the options such as custom name, group and disable sensors
-    async def async_step_device_options(
-        self,
-        user_input: dict[str, Any] | None = None,
-    ) -> FlowResult:
+    async def async_step_device_options(self, user_input: dict[str, Any] | None = None,) -> FlowResult:
         """Handle the device options step."""
-
         errors: dict[str, str] = {}
 
         if user_input is not None:
@@ -134,21 +117,19 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     user_input["custom_device_name"], self.device_info["name"]
                 )
 
-                # Since we have already set the unique ID and updated host if necessary create the entry with the additional options.
+                # Since we have already set the unique ID and updated host if necessary create
+                # the entry with the additional options.
                 # The title of the integration is the custom friendly device name given by the user in step 2
                 title = user_input["custom_device_name"]
-                return self.async_create_entry(
-                    title=title,
-                    data={
-                        "user_input": self.user_input_from_step_user,  # from previous step
-                        "device_info": self.device_info,  # from device detection
-                        "options": user_input,  # new options from this step
-                    },
+                return self.async_create_entry(title=title,
+                            data={
+                                "user_input": self.user_input_from_step_user,  # from previous step
+                                "device_info": self.device_info,  # from device detection
+                                "options": user_input,  # new options from this step
+                            },
                 )
             except Exception as e:
-                _LOGGER.error(
-                    f"Failed to handle device options: {e}" + ISSUE_URL_ERROR_MESSAGE
-                )
+                _LOGGER.error(f"Failed to handle device options: {e}" + ISSUE_URL_ERROR_MESSAGE)
                 errors["base"] = "option_error"
 
         # Prepare the second form's schema as it has dynamic values based on the API call
@@ -161,11 +142,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         step_device_options_schema = vol.Schema(
             {
                 vol.Required("custom_device_name", default=default_device_name): str,
-                vol.Required("polling_time", default=60): vol.All(
+                # vol.Required("polling_time", default=60): vol.All(
+                vol.Required("polling_time", default=5): vol.All(
                     vol.Coerce(int), vol.Clamp(min=60)
                 ),
                 vol.Required("group_sensors", default=True): bool,
-                vol.Required("disable_sensors", default=False): bool,
+                #vol.Required("disable_sensors", default=False): bool,
+                vol.Required("disable_sensors", default=True): bool,
             }
         )
 
@@ -198,9 +181,8 @@ def sanitize_device_name(device_name: str, fall_back: str, max_length=255) -> st
 
     # Length check
     if len(name) > max_length:
-        name = name[:max_length].rsplit(" ", 1)[
-            0
-        ]  # Split at the last space to avoid cutting off in the middle of a word
+        # Split at the last space to avoid cutting off in the middle of a word
+        name = name[:max_length].rsplit(" ", 1)[0]
 
     # Fallback name
     if not name:

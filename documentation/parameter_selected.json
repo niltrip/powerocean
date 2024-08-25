@@ -1,0 +1,93 @@
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "online": 1,
+        "todayElectricityGeneration": "25.05",
+        "monthElectricityGeneration": "422.66",
+        "yearElectricityGeneration": "4432.88",
+        "totalElectricityGeneration": "4535.35",
+        "systemName": "systemName",
+        "createTime": "createTime",
+        "location": "location",
+        "timezone": "timezone",
+        "quota": {
+            "JTS1_ENERGY_STREAM_REPORT": {
+                "mpptPwr": 0.0,
+                "updateTime": "2024-08-16 04:49:45",
+                "bpPwr": -502.0,
+                "sysLoadPwr": 502.0,
+                "sysGridPwr": 0.0
+            },
+            "JTS1_EMS_CHANGE_REPORT": { //emsCtrlLedBright setpoint LED
+                "mppt1WarningCode": 0,
+                "bpOnlineSum": 2,
+                "mppt2WarningCode": 0,
+                "mppt2FaultCode": 2,
+                "mppt1FaultCode": 2,
+                "bpTotalChgEnergy": 1138584,
+                "bpSoc": 82,
+                "emsCtrlLedBright": 10,
+                "bpTotalDsgEnergy": 1071090,
+            },
+            "JTS1_BP_STA_REPORT": {
+                "SN_BATTERIEPACK1": "{\n  \"bpPwr\": -0.5963705,\n  \"bpSoc\": 83,\n  \"bpSoh\": 100,\n  \"bpTemp\": [29.0, 31.0, 30.0, 29.0, 31.0, 28.0, 29.0, 30.0, 30.0],\n  \"bpCellMaxVol\": 3327.0,\n  \"bpCellMinVol\": 3326.0,\n  \"bpRunSta\": \"RUNSTA_RUN\",\n  \"bpVol\": 53.161,\n  \"bpAmp\": -0.011218196,\n  \"bpBusVol\": 801.23615,\n  \"bpErrCode\": 0,\n  \"bpCellVol\": [3327.0, 3327.0, 3327.0, 3327.0, 3327.0, 3327.0, 3326.0, 3327.0, 3326.0, 3326.0, 3327.0, 3327.0, 3327.0, 3327.0, 3327.0, 3327.0],\n  \"bpDsrc\": 2,\n  \"bpSn\": \"SEozMlpESDRaRjhVMDEyNg==\",\n  \"bpCycles\": 123,\n  \"bpBalanceState\": 0,\n  \"bpHvMosTemp\": 38.0,\n  \"bpLvMosTemp\": 36.0,\n  \"bpPtcTemp\": 30.0,\n  \"bpHtsTemp\": 35.0,\n  \"bpBusNegTemp\": 35.0,\n  \"bpBusPosTemp\": 36.0,\n  \"bpEnvTemp\": 35.0,\n  \"bpAccuChgCap\": 10485219,\n  \"bpAccuDsgCap\": 10443022,\n  \"bpDesignCap\": 100000,\n  \"bpFullCap\": 101937,\n  \"bpMaxCellTemp\": 31.0,\n  \"bpMinCellTemp\": 28.0,\n  \"bpMaxMosTemp\": 38.0,\n  \"bpMinMosTemp\": 36.0,\n  \"bpBmsFault\": 0,\n  \"bpEcloundSoc\": 65535,\n  \"bpHeartbeatVer\": 33,\n  \"bpTimestamp\": 1723754956,\n  \"bpRealSoc\": 82.0,\n  \"bpRealSoh\": 101.93712,\n  \"bpGlobalProtect\": 0,\n  \"bpDownLimitSoc\": 14,\n  \"bpUpLimitSoc\": 100,\n  \"bpActiveCalReqStat\": 0,\n  \"bpActiveCalRunStat\": 0,\n  \"moduleProductInfo\": 21251,\n  \"moduleProgramSta\": 1,\n  \"moduleAplSwVer\": 67176201,\n  \"moduleLoaderSwVer\": 67174401,\n  \"bmsRunSta\": \"PB_BMS_STATE_NORMAL\",\n  \"bmsChgDsgSta\": \"PB_STANDBY_STATE\",\n  \"dabModSta\": \"PB_MOD_STA_NORMAL\",\n  \"bpChgSop\": 50,\n  \"bpDsgSop\": 80,\n  \"bpRemainWatth\": 4412.363,\n  \"bpTargetSoc\": 83.196014,\n  \"bpDiffSoc\": 2.333374,\n  \"bpMaxSoc\": 83.65963,\n  \"bpMinSoc\": 81.33876,\n  \"bpLimitSoc\": 0.5,\n  \"bpCalendarSoh\": 100.0,\n  \"bpCycleSoh\": 100.0,\n  \"bpAcRechargeFlag\": false,\n  \"bpPtcHeatFlag\": false,\n  \"bpPtcExitEvent\": \"PB_PTC_OT_STATE\",\n  \"bpAccuChgEnergy\": 536111,\n  \"bpAccuDsgEnergy\": 517515,\n  \"bpPtcTemp2\": 31.0,\n  \"bpSysState\": \"NORMAL_STATE\"\n}",
+                "": "{\n  \"bpTemp\": [],\n  \"bpCellVol\": []\n}",
+                "updateTime": "2024-08-16 04:49:20",
+                "SN_BATTERIEPACK2": "{\n  \"bpPwr\": -509.56927,\n  \"bpSoc\": 83,\n  \"bpSoh\": 100,\n  \"bpTemp\": [30.0, 31.0, 30.0, 31.0, 31.0, 29.0, 30.0, 30.0, 31.0],\n  \"bpCellMaxVol\": 3311.0,\n  \"bpCellMinVol\": 3309.0,\n  \"bpRunSta\": \"RUNSTA_RUN\",\n  \"bpVol\": 52.957,\n  \"bpAmp\": -9.622321,\n  \"bpBusVol\": 800.7783,\n  \"bpErrCode\": 0,\n  \"bpCellVol\": [3311.0, 3311.0, 3310.0, 3310.0, 3310.0, 3311.0, 3310.0, 3311.0, 3310.0, 3309.0, 3310.0, 3310.0, 3311.0, 3310.0, 3310.0, 3311.0],\n  \"bpDsrc\": 1,\n  \"bpSn\": \"SEozMlpESDRaRjhVMDE2Nw==\",\n  \"bpCycles\": 129,\n  \"bpBalanceState\": 0,\n  \"bpHvMosTemp\": 41.0,\n  \"bpLvMosTemp\": 40.0,\n  \"bpPtcTemp\": 31.0,\n  \"bpHtsTemp\": 36.0,\n  \"bpBusNegTemp\": 36.0,\n  \"bpBusPosTemp\": 37.0,\n  \"bpEnvTemp\": 37.0,\n  \"bpAccuChgCap\": 10595094,\n  \"bpAccuDsgCap\": 10531372,\n  \"bpDesignCap\": 100000,\n  \"bpFullCap\": 101681,\n  \"bpMaxCellTemp\": 31.0,\n  \"bpMinCellTemp\": 29.0,\n  \"bpMaxMosTemp\": 41.0,\n  \"bpMinMosTemp\": 40.0,\n  \"bpBmsFault\": 0,\n  \"bpEcloundSoc\": 65535,\n  \"bpHeartbeatVer\": 33,\n  \"bpTimestamp\": 1723754955,\n  \"bpRealSoc\": 82.0,\n  \"bpRealSoh\": 101.68145,\n  \"bpGlobalProtect\": 0,\n  \"bpDownLimitSoc\": 14,\n  \"bpUpLimitSoc\": 100,\n  \"bpActiveCalReqStat\": 0,\n  \"bpActiveCalRunStat\": 0,\n  \"moduleProductInfo\": 21251,\n  \"moduleProgramSta\": 1,\n  \"moduleAplSwVer\": 67176201,\n  \"moduleLoaderSwVer\": 67174401,\n  \"bmsRunSta\": \"PB_BMS_STATE_NORMAL\",\n  \"bmsChgDsgSta\": \"PB_STANDBY_STATE\",\n  \"dabModSta\": \"PB_MOD_STA_NORMAL\",\n  \"bpChgSop\": 50,\n  \"bpDsgSop\": 80,\n  \"bpRemainWatth\": 4395.431,\n  \"bpTargetSoc\": 83.16742,\n  \"bpDiffSoc\": 3.0,\n  \"bpMaxSoc\": 83.756485,\n  \"bpMinSoc\": 80.75656,\n  \"bpLimitSoc\": 0.5,\n  \"bpCalendarSoh\": 100.0,\n  \"bpCycleSoh\": 100.0,\n  \"bpAcRechargeFlag\": false,\n  \"bpPtcHeatFlag\": false,\n  \"bpPtcExitEvent\": \"PB_PTC_OT_STATE\",\n  \"bpAccuChgEnergy\": 539787,\n  \"bpAccuDsgEnergy\": 521340,\n  \"bpPtcTemp2\": 32.0,\n  \"bpSysState\": \"NORMAL_STATE\"\n}"
+            },
+            "JTS1_EMS_HEARTBEAT": {
+                "pcsCPhase": {
+                    "vol": 238.08665,
+                    "amp": 1.032396,
+                    "actPwr": 34.867657,
+                    "reactPwr": 243.31407,
+                    "apparentPwr": 245.7997
+                },
+                "bpRemainWatth": 8829.0,
+                "emsBpAliveNum": 2,
+                "emsBpDsg": -6600.0005,
+                "pcsBPhase": {
+                    "vol": 235.04233,
+                    "amp": 0.51798195,
+                    "actPwr": -69.76831,
+                    "reactPwr": 99.77415,
+                    "apparentPwr": 121.74768
+                },
+                "mpptHeartBeat": [
+                    {
+                        "mpptPv": [
+                            {
+                                "vol": 20.676046,
+                                "amp": 0.0,
+                                "lightSta": true,
+                                "pwr": 0.0
+                            },
+                            {
+                                "vol": 14.947158,
+                                "amp": 0.0,
+                                "lightSta": true,
+                                "pwr": 0.0
+                            }
+                        ],
+                        "mpptTempVal": [
+                            37.4,
+                            39.9,
+                            39.8
+                        ],
+                        "mpptInsResist": 679.71265
+                    }
+                ],
+                "pcsAPhase": {
+                    "vol": 230.28967,
+                    "amp": 1.1428562,
+                    "actPwr": 130.27432,
+                    "reactPwr": 228.68431,
+                    "apparentPwr": 263.188
+                }
+			}	
+        }
+    },
+    "eagleEyeTraceId": "lange id",
+    "tid": ""
+}
