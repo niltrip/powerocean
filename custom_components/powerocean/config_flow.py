@@ -142,13 +142,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         step_device_options_schema = vol.Schema(
             {
                 vol.Required("custom_device_name", default=default_device_name): str,
-                # vol.Required("polling_time", default=60): vol.All(
                 vol.Required("polling_time", default=5): vol.All(
-                    vol.Coerce(int), vol.Clamp(min=60)
+                    vol.Coerce(int), vol.Clamp(min=5)
                 ),
                 vol.Required("group_sensors", default=True): bool,
-                #vol.Required("disable_sensors", default=False): bool,
-                vol.Required("disable_sensors", default=True): bool,
+                vol.Required("disable_sensors", default=False): bool,
             }
         )
 
