@@ -135,7 +135,7 @@ class Ecoflow:
 
     def __get_unit(self, key):
         """Function get unit from key Name."""
-        if key.endswith(("pwr", "Pwr")):
+        if key.endswith(("pwr", "Pwr", "Power")):
             unit = "W"
         elif key.endswith(("amp", "Amp")):
             unit = "A"
@@ -386,6 +386,10 @@ class Ecoflow:
         sens_select = [
             "bpRemainWatth",
             "emsBpAliveNum",
+            "emsBpPower",
+            "pcsActPwr",
+            "pcsMeterPower",
+
         ]
         data = {}
         for key, value in d.items():
