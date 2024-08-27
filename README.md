@@ -36,7 +36,7 @@ Follow the flow.
 ### Sensors
 Sensors are registered to device as `sensor.{device_name}_{sensor_name}` with an friendly name of `sensor_name`. Additional attributes are presented on each sensor:
 - Product Description, Destination Name, Source Name: internal names
-- Internal Unique ID: `{serial}_{sensor_name}` or `{serial}_{report from response}_{sensor_name}`
+- Internal Unique ID: `{serial}_{sensor_name}` or `{serial}_{report}_{sensor_name}`
 - Device Name: `{serial}`
 - Vendor Product Serial: serial number of the PowerOcean inverter
 - Vendor Firmware Version: 5.1.15
@@ -44,7 +44,9 @@ Sensors are registered to device as `sensor.{device_name}_{sensor_name}` with an
   
 ![sensor](documentation/sensor.PNG)
 
-![sensor](documentation/mpptPvPwr_Total.PNG)
+##Neuer Sensor (berechnet aus einzelnen Strings)
+
+![sensor](documentation/mpptPv_pwrTotal.PNG)
 
 
 ## Troubleshooting
