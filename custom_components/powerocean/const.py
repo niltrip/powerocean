@@ -3,9 +3,9 @@
 import logging
 from homeassistant.const import Platform
 
-DOMAIN = "powerocean"  # Have requested to add logos via https://github.com/home-assistant/brands/pull/4904
+DOMAIN = "powerocean"
 NAME = "Ecoflow PowerOcean"
-VERSION = "2024.08.25"
+VERSION = "2024.08.27"
 ISSUE_URL = "https://github.com/niltrip/powerocean/issues"
 ISSUE_URL_ERROR_MESSAGE = " Please log any issues here: " + ISSUE_URL
 
