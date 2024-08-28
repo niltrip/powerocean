@@ -148,7 +148,7 @@ class Ecoflow:
         elif "Generation" in key:
             unit = "kWh"
         # elif key.startswith("bpTemp"):
-        elif key.startswith("Temp"):  # allows to collect other temperatures (e.g., "mpptTempVal")
+        elif key.find("Temp") >= 0:        # allows to collect other temperatures (e.g., "mpptTempVal")
             unit = "°C"
         else:
             unit = None
