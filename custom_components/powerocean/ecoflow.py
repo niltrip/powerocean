@@ -367,7 +367,7 @@ class Ecoflow:
             # compute mean temperature of cells
             key = "bpTemp"
             temp = d_bat[key]
-            value = sum(temp) / len(temp)
+            value = round(10 * sum(temp) / len(temp))/10  # accuracy: 0.1C
             unique_id = f"{self.sn}_{report}_{bat}_{key}"
             description_tmp = f"{name}" + self.__get_description(key)
             data[unique_id] = PowerOceanEndPoint(
@@ -389,7 +389,7 @@ class Ecoflow:
             serial=self.sn,
             name=f"{self.sn}_{name}",
             friendly_name=f"{name}",
-            value=pb_pwrTotal,
+            value=round(10*pb_pwrTotal)/10,  # accuracy: 0.1W
             unit=self.__get_unit(key),
             description="Gesamtleistung der Batterien",
             icon=special_icon,
@@ -484,7 +484,7 @@ class Ecoflow:
             serial=self.sn,
             name=f"{self.sn}_{name}",
             friendly_name=f"{name}",
-            value=mpptPv_sum,
+            value=round(10*mpptPv_sum)/10,  # accuracy: 0.1W
             unit=self.__get_unit(key),
             description="Solarertrag aller Strings",
             icon="mdi:solar-power",
