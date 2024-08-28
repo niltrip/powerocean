@@ -143,11 +143,12 @@ class Ecoflow:
             unit = "%"
         elif key.endswith(("vol", "Vol")):
             unit = "V"
-        elif key.endswith(("Watth", "Energy")):
+        elif key.endswith(("Watth", "Energy")):  # TODO: maybe Energy in kWh ?
             unit = "Wh"
         elif "Generation" in key:
             unit = "kWh"
-        elif key.startswith("bpTemp"):  # TODO: alternative: 'Temp' in key
+        # elif key.startswith("bpTemp"):
+        elif key.startswith("Temp"):  # allows to collect other temperatures (e.g., "mpptTempVal")
             unit = "°C"
         else:
             unit = None
@@ -337,6 +338,7 @@ class Ecoflow:
 
         data = {}
         prefix = "bpack"
+        pb_pwrTotal = 0.0
         for ibat, bat in enumerate(batts):
             name = prefix + "%i_" % (ibat + 1)
             d_bat = json_loads(d[bat])
@@ -346,6 +348,9 @@ class Ecoflow:
                     unique_id = f"{self.sn}_{report}_{bat}_{key}"
                     description_tmp = f"{name}" + self.__get_description(key)
                     special_icon = None
+                    # sum power of all strings
+                    if key == "bpPwr":
+                        pb_pwrTotal += value
                     if key == "bpAmp":
                         special_icon = "mdi:current-dc"
                     data[unique_id] = PowerOceanEndPoint(
@@ -358,6 +363,7 @@ class Ecoflow:
                         description=description_tmp,
                         icon=special_icon,
                     )
+
             # compute mean temperature of cells
             key = "bpTemp"
             temp = d_bat[key]
@@ -374,6 +380,20 @@ class Ecoflow:
                 description=description_tmp,
                 icon=None,
             )
+
+        # create total power sensor of all bat packs
+        name = "pb_pwrTotal"
+        unique_id = f"{self.sn}_{report}_{bat}_{name}"
+        data[unique_id] = PowerOceanEndPoint(
+            internal_unique_id=unique_id,
+            serial=self.sn,
+            name=f"{self.sn}_{name}",
+            friendly_name=f"{name}",
+            value=pb_pwrTotal,
+            unit=self.__get_unit(key),
+            description="Gesamtleistung der Batterien",
+            icon=special_icon,
+        )
 
         dict.update(sensors, data)
 
