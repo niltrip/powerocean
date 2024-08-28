@@ -242,11 +242,13 @@ class PowerOceanSensor(SensorEntity):
         self._unit = endpoint.unit
 
         # Set entity category to diagnostic for sensors with no unit
-        if ecoflow.options.get("group_sensors") and not endpoint.unit:
-            self._attr_entity_category = EntityCategory.DIAGNOSTIC
+        # if ecoflow.options.get("group_sensors") and not endpoint.unit:
+        if ecoflow.options.get("group_sensors") and endpoint.is_diagnostic:
+                self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
         # If diagnostics entity then disable sensor by default
-        if ecoflow.options.get("disable_sensors") and not endpoint.unit:
+        # if ecoflow.options.get("disable_sensors") and not endpoint.unit:
+        if ecoflow.options.get("disable_sensors") and endpoint.is_diagnostic:
             self._attr_entity_registry_enabled_default = False
 
     @property

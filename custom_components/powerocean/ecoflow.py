@@ -15,7 +15,7 @@ from .const import _LOGGER, ISSUE_URL_ERROR_MESSAGE
 # Better storage of PowerOcean endpoint
 PowerOceanEndPoint = namedtuple(
     "PowerOceanEndPoint",
-    "internal_unique_id, serial, name, friendly_name, value, unit, description, icon",
+    "internal_unique_id, serial, name, friendly_name, value, unit, description, is_diagnostic, icon",
 )
 
 
@@ -187,6 +187,31 @@ class Ecoflow:
 
         return description
 
+
+    def __check_is_diagnostic(self, key):
+        # definition of non diagnostic sensors
+        non_diag = ["pwr",
+                    "power",
+                    "bpsoc",
+                    "bpsoh",
+                    "bpcycles"
+                    "temp",
+                    "vol",
+                    "amp",
+                    "online",
+                    "energy",
+                    "generation",
+                    "watth",
+                    "emsctrlledbright",
+                    ]
+        is_diag = True
+        for k in non_diag:
+            if key.lower().find(k):
+                is_diag = False
+
+        return is_diag
+
+
     def _get_sensors(self, response):
         # get sensors from response['data']
         sensors = self.__get_sensors_data(response)
@@ -245,6 +270,7 @@ class Ecoflow:
                         value=value,
                         unit=self.__get_unit(key),
                         description=self.__get_description(key),
+                        is_diagnostic = self.__check_is_diagnostic(key),
                         icon=special_icon,
                     )
 
@@ -274,6 +300,7 @@ class Ecoflow:
     #                 value=value,
     #                 unit=self.__get_unit(key),
     #                 description=self.__get_description(key),
+    #                 is_diagnostic = self.__check_is_diagnostic(key),
     #                 icon=None,
     #             )
     #     dict.update(sensors, data)
@@ -312,6 +339,7 @@ class Ecoflow:
                     value=value,
                     unit=self.__get_unit(key),
                     description=self.__get_description(key),
+                    is_diagnostic= self.__check_is_diagnostic(key),
                     icon=None,
                 )
         dict.update(sensors, data)
@@ -361,6 +389,7 @@ class Ecoflow:
                         value=value,
                         unit=self.__get_unit(key),
                         description=description_tmp,
+                        is_diagnostic= self.__check_is_diagnostic(key),
                         icon=special_icon,
                     )
 
@@ -378,6 +407,7 @@ class Ecoflow:
                 value=value,
                 unit=self.__get_unit(key),
                 description=description_tmp,
+                is_diagnostic=self.__check_is_diagnostic(key),
                 icon=None,
             )
 
@@ -392,6 +422,7 @@ class Ecoflow:
             value=round(10*pb_pwrTotal)/10,  # accuracy: 0.1W
             unit=self.__get_unit(key),
             description="Gesamtleistung der Batterien",
+            is_diagnostic=self.__check_is_diagnostic(key),
             icon=special_icon,
         )
 
@@ -425,6 +456,7 @@ class Ecoflow:
                     value=value,
                     unit=self.__get_unit(key),
                     description=description_tmp,
+                    is_diagnostic=self.__check_is_diagnostic(key),
                     icon=None,
                 )
 
@@ -443,6 +475,7 @@ class Ecoflow:
                     value=value,
                     unit=self.__get_unit(key),
                     description=self.__get_description(key),
+                    is_diagnostic=self.__check_is_diagnostic(key),
                     icon=None,
                 )
 
@@ -469,6 +502,7 @@ class Ecoflow:
                     value=value,
                     unit=self.__get_unit(key),
                     description=self.__get_description(key),
+                    is_diagnostic=self.__check_is_diagnostic(key),
                     icon=special_icon,
                 )
                 # sum power of all strings
@@ -487,6 +521,7 @@ class Ecoflow:
             value=round(10*mpptPv_sum)/10,  # accuracy: 0.1W
             unit=self.__get_unit(key),
             description="Solarertrag aller Strings",
+            is_diagnostic=self.__check_is_diagnostic(key),
             icon="mdi:solar-power",
         )
 
