@@ -115,7 +115,10 @@ class Ecoflow:
 
         url = self.url_user_fetch
         try:
-            headers = {"authorization": f"Bearer {self.token}"}
+            headers = {
+                "authorization": f"Bearer {self.token}",
+                "user-agent": "Firefox/133.0",
+            }
             request = requests.get(self.url_user_fetch, headers=headers, timeout=30)
             response = self.get_json_response(request)
 
@@ -389,7 +392,6 @@ class Ecoflow:
             "emsBpPower",
             "pcsActPwr",
             "pcsMeterPower",
-
         ]
         data = {}
         for key, value in d.items():
