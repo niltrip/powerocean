@@ -11,6 +11,10 @@ from homeassistant.util.json import json_loads
 
 from .const import _LOGGER, ISSUE_URL_ERROR_MESSAGE
 
+# Mock Pfad zu validem json File
+# os.path.join("/workspaces/powerocean/documentation/response_modified_dcfit_2025.json")
+FAKEDATA = None
+
 
 # Better storage of PowerOcean endpoint
 PowerOceanEndPoint = namedtuple(
@@ -121,7 +125,10 @@ class Ecoflow:
             }
             request = requests.get(self.url_user_fetch, headers=headers, timeout=30)
             response = self.get_json_response(request)
-
+            # TESTING!!! create response file and use it as data
+            if FAKEDATA is not None:
+                with open(FAKEDATA, "r", encoding="utf-8") as datei:
+                    response = json_loads(datei.read())
             _LOGGER.debug(f"{response}")
 
             return self._get_sensors(response)
