@@ -364,65 +364,67 @@ class Ecoflow:
 
         # special for phases
         phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
-        for i, phase in enumerate(phases):
-            for key, value in d[phase].items():
-                name = phase + "_" + key
-                unique_id = f"{self.sn}_{report}_{name}"
+        if phases[1] in d:
+            for i, phase in enumerate(phases):
+                for key, value in d[phase].items():
+                    name = phase + "_" + key
+                    unique_id = f"{self.sn}_{report}_{name}"
 
-                data[unique_id] = PowerOceanEndPoint(
-                    internal_unique_id=unique_id,
-                    serial=self.sn,
-                    name=f"{self.sn}_{name}",
-                    friendly_name=f"{name}",
-                    value=value,
-                    unit=self.__get_unit(key),
-                    description=self.__get_description(key),
-                    icon=None,
-                )
+                    data[unique_id] = PowerOceanEndPoint(
+                        internal_unique_id=unique_id,
+                        serial=self.sn,
+                        name=f"{self.sn}_{name}",
+                        friendly_name=f"{name}",
+                        value=value,
+                        unit=self.__get_unit(key),
+                        description=self.__get_description(key),
+                        icon=None,
+                    )
 
         # special for mpptPv
-        n_strings = len(d["mpptHeartBeat"][0]["mpptPv"])  # TODO: auch als Sensor?
-        mpptpvs = []
-        for i in range(1, n_strings + 1):
-            mpptpvs.append(f"mpptPv{i}")
-        mpptPv_sum = 0.0
-        for i, mpptpv in enumerate(mpptpvs):
-            for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
-                unique_id = f"{self.sn}_{report}_mpptHeartBeat_{mpptpv}_{key}"
-                special_icon = None
-                if key.endswith("amp"):
-                    special_icon = "mdi:current-dc"
-                if key.endswith("pwr"):
-                    special_icon = "mdi:solar-power"
+        if "mpptHeartBeat" in d:
+            n_strings = len(d["mpptHeartBeat"][0]["mpptPv"])  # TODO: auch als Sensor?
+            mpptpvs = []
+            for i in range(1, n_strings + 1):
+                mpptpvs.append(f"mpptPv{i}")
+            mpptPv_sum = 0.0
+            for i, mpptpv in enumerate(mpptpvs):
+                for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
+                    unique_id = f"{self.sn}_{report}_mpptHeartBeat_{mpptpv}_{key}"
+                    special_icon = None
+                    if key.endswith("amp"):
+                        special_icon = "mdi:current-dc"
+                    if key.endswith("pwr"):
+                        special_icon = "mdi:solar-power"
 
-                data[unique_id] = PowerOceanEndPoint(
-                    internal_unique_id=unique_id,
-                    serial=self.sn,
-                    name=f"{self.sn}_{mpptpv}_{key}",
-                    friendly_name=f"{mpptpv}_{key}",
-                    value=value,
-                    unit=self.__get_unit(key),
-                    description=self.__get_description(key),
-                    icon=special_icon,
-                )
-                # sum power of all strings
-                if key == "pwr":
-                    mpptPv_sum += value
+                    data[unique_id] = PowerOceanEndPoint(
+                        internal_unique_id=unique_id,
+                        serial=self.sn,
+                        name=f"{self.sn}_{mpptpv}_{key}",
+                        friendly_name=f"{mpptpv}_{key}",
+                        value=value,
+                        unit=self.__get_unit(key),
+                        description=self.__get_description(key),
+                        icon=special_icon,
+                    )
+                    # sum power of all strings
+                    if key == "pwr":
+                        mpptPv_sum += value
 
-        # create total power sensor of all strings
-        name = "mpptPv_pwrTotal"
-        unique_id = f"{self.sn}_{report}_mpptHeartBeat_{name}"
+            # create total power sensor of all strings
+            name = "mpptPv_pwrTotal"
+            unique_id = f"{self.sn}_{report}_mpptHeartBeat_{name}"
 
-        data[unique_id] = PowerOceanEndPoint(
-            internal_unique_id=unique_id,
-            serial=self.sn,
-            name=f"{self.sn}_{name}",
-            friendly_name=f"{name}",
-            value=mpptPv_sum,
-            unit=self.__get_unit(key),
-            description="Solarertrag aller Strings",
-            icon="mdi:solar-power",
-        )
+            data[unique_id] = PowerOceanEndPoint(
+                internal_unique_id=unique_id,
+                serial=self.sn,
+                name=f"{self.sn}_{name}",
+                friendly_name=f"{name}",
+                value=mpptPv_sum,
+                unit=self.__get_unit(key),
+                description="Solarertrag aller Strings",
+                icon="mdi:solar-power",
+            )
 
         dict.update(sensors, data)
 
