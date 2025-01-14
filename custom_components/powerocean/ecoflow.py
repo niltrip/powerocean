@@ -1,20 +1,21 @@
 """ecoflow.py: API for PowerOcean integration."""
 
-import requests
 import base64
 import re
 from collections import namedtuple
-from requests.exceptions import RequestException
+from pathlib import Path
 
+import requests
 from homeassistant.exceptions import IntegrationError
 from homeassistant.util.json import json_loads
+from requests.exceptions import RequestException
 
 from .const import _LOGGER, ISSUE_URL_ERROR_MESSAGE
 
-# Mock Pfad zu validem json File
-# os.path.join("/workspaces/powerocean/documentation/response_modified_dcfit_2025.json")
-FAKEDATA = None
-
+# Mock path to response.json file
+FAKEDATA = Path("documentation/response.json")
+# Dict with entity names to use
+SENSSELECT = Path("custom_components/powerocean/datapoints.json")
 
 # Better storage of PowerOcean endpoint
 PowerOceanEndPoint = namedtuple(
@@ -28,7 +29,7 @@ PowerOceanEndPoint = namedtuple(
 class Ecoflow:
     """Class representing Ecoflow"""
 
-    def __init__(self, serialnumber, username, password):
+    def __init__(self, serialnumber: str, username: str, password: str):
         self.sn = serialnumber
         self.unique_id = serialnumber
         self.ecoflow_username = username
@@ -41,7 +42,7 @@ class Ecoflow:
         # self.authorize()  # authorize user and get device details
 
     def get_device(self):
-        """Function get device"""
+        """Get device info."""
         self.device = {
             "product": "PowerOcean",
             "vendor": "Ecoflow",
@@ -68,7 +69,7 @@ class Ecoflow:
         try:
             url = self.url_iot_app
             _LOGGER.info("Login to EcoFlow API %s", {url})
-            request = requests.post(url, json=data, headers=headers)
+            request = requests.post(url, json=data, headers=headers, timeout=10)
             response = self.get_json_response(request)
 
         except ConnectionError:
@@ -78,13 +79,13 @@ class Ecoflow:
 
         try:
             self.token = response["data"]["token"]
-            self.user_id = response["data"]["user"]["userId"]
-            user_name = response["data"]["user"].get("name", "<no user name>")
+            # self.user_id = response["data"]["user"]["userId"]
+            # user_name = response["data"]["user"].get("name", "<no user name>")
             auth_ok = True
         except KeyError as key:
             raise Exception(f"Failed to extract key {key} from response: {response}")
 
-        _LOGGER.info("Successfully logged in: %s", {user_name})
+        _LOGGER.info("Successfully logged in.")
 
         self.get_device()  # collect device info
 
@@ -113,10 +114,7 @@ class Ecoflow:
 
     # Fetch the data from the PowerOcean device, which then constitues the Sensors
     def fetch_data(self):
-        """Function fetch data from Url."""
-        # curl 'https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}}' \
-        # -H 'authorization: Bearer {self.token}'
-
+        """Fetch data from Url."""
         url = self.url_user_fetch
         try:
             headers = {
@@ -125,12 +123,19 @@ class Ecoflow:
             }
             request = requests.get(self.url_user_fetch, headers=headers, timeout=30)
             response = self.get_json_response(request)
-            # TESTING!!! create response file and use it as data
-            if FAKEDATA is not None:
-                with open(FAKEDATA, "r", encoding="utf-8") as datei:
-                    response = json_loads(datei.read())
-            _LOGGER.debug(f"{response}")
 
+            try:
+                # TESTING!!! create response file and use it as data
+                with Path.open(FAKEDATA, "r", encoding="utf-8") as datei:
+                    response = json_loads(datei.read())
+            except FileExistsError:
+                error = f"Data from: {FAKEDATA}"
+                _LOGGER.warning(error)
+            except FileNotFoundError:
+                error = f"Responsefile not present: {FAKEDATA}"
+                _LOGGER.debug(error)
+
+            _LOGGER.debug(f"{response}")
             return self._get_sensors(response)
 
         except ConnectionError:
@@ -144,7 +149,7 @@ class Ecoflow:
             raise IntegrationError(error)
 
     def __get_unit(self, key):
-        """Function get unit from key Name."""
+        """Get unit from key name."""
         if key.endswith(("pwr", "Pwr", "Power")):
             unit = "W"
         elif key.endswith(("amp", "Amp")):
@@ -157,7 +162,7 @@ class Ecoflow:
             unit = "Wh"
         elif "Generation" in key:
             unit = "kWh"
-        elif key.startswith("bpTemp"):  # TODO: alternative: 'Temp' in key
+        elif key.startswith("bpTemp"):
             unit = "°C"
         else:
             unit = None
@@ -196,6 +201,13 @@ class Ecoflow:
 
         return description
 
+    def __get_sens_select(self, report):
+        # open File an read
+        with Path.open(SENSSELECT) as file:
+            config = json_loads(file.read())
+
+        return config[report]
+
     def _get_sensors(self, response):
         # get sensors from response['data']
         sensors = self.__get_sensors_data(response)
@@ -218,23 +230,7 @@ class Ecoflow:
     def __get_sensors_data(self, response):
         d = response["data"].copy()
 
-        # sensors not in use: note, bpSoc is taken from the EMS CHANGE report
-        # [ 'bpSoc', 'sysBatChgUpLimit', 'sysBatDsgDownLimit','sysGridSta', 'sysOnOffMachineStat',
-        #   'location', 'timezone', 'quota']
-
-        sens_select = [
-            "sysLoadPwr",
-            "sysGridPwr",
-            "mpptPwr",
-            "bpPwr",
-            "online",
-            "todayElectricityGeneration",
-            "monthElectricityGeneration",
-            "yearElectricityGeneration",
-            "totalElectricityGeneration",
-            "systemName",
-            "createTime",
-        ]
+        sens_select = self.__get_sens_select("data")
 
         sensors = dict()  # start with empty dict
         for key, value in d.items():
@@ -259,47 +255,11 @@ class Ecoflow:
 
         return sensors
 
-    # Note, this report is currently not in use. Sensors are taken from response['data']
-    # def __get_sensors_energy_stream(self, response, sensors):
-    #     report = "JTS1_ENERGY_STREAM_REPORT"
-    #     d = response["data"]["quota"][report]
-    #     prefix = (
-    #         "_".join(report.split("_")[1:3]).lower() + "_"
-    #     )  # used to construct sensor name
-    #
-    #     # sens_all = ['bpSoc', 'mpptPwr', 'updateTime', 'bpPwr', 'sysLoadPwr', 'sysGridPwr']
-    #     sens_select = d.keys()
-    #     data = {}
-    #     for key, value in d.items():
-    #         if key in sens_select:  # use only sensors in sens_select
-    #             # default uid, unit and descript
-    #             unique_id = f"{self.sn}_{report}_{key}"
-    #
-    #             data[unique_id] = PowerOceanEndPoint(
-    #                 internal_unique_id=unique_id,
-    #                 serial=self.sn,
-    #                 name=f"{self.sn}_{prefix+key}",
-    #                 friendly_name=prefix + key,
-    #                 value=value,
-    #                 unit=self.__get_unit(key),
-    #                 description=self.__get_description(key),
-    #                 icon=None,
-    #             )
-    #     dict.update(sensors, data)
-    #
-    #     return sensors
-
     def __get_sensors_ems_change(self, response, sensors):
         report = "JTS1_EMS_CHANGE_REPORT"
         d = response["data"]["quota"][report]
 
-        sens_select = [
-            "bpTotalChgEnergy",
-            "bpTotalDsgEnergy",
-            "bpSoc",
-            "bpOnlineSum",  # number of batteries
-            "emsCtrlLedBright",
-        ]
+        sens_select = self.__get_sens_select(report)
 
         # add mppt Warning/Fault Codes
         keys = d.keys()
@@ -334,16 +294,7 @@ class Ecoflow:
 
         # loop over N batteries:
         batts = [s for s in keys if len(s) > 12]
-        bat_sens_select = [
-            "bpPwr",
-            "bpSoc",
-            "bpSoh",
-            "bpVol",
-            "bpAmp",
-            "bpCycles",
-            "bpSysState",
-            "bpRemainWatth",
-        ]
+        bat_sens_select = self.__get_sens_select(report)
 
         data = {}
         prefix = "bpack"
@@ -392,14 +343,8 @@ class Ecoflow:
     def __get_sensors_ems_heartbeat(self, response, sensors):
         report = "JTS1_EMS_HEARTBEAT"
         d = response["data"]["quota"][report]
-        # sens_select = d.keys()  # 68 Felder
-        sens_select = [
-            "bpRemainWatth",
-            "emsBpAliveNum",
-            "emsBpPower",
-            "pcsActPwr",
-            "pcsMeterPower",
-        ]
+        sens_select = self.__get_sens_select(report)
+
         data = {}
         for key, value in d.items():
             if key in sens_select:
