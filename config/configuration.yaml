@@ -10,3 +10,65 @@ logger:
   default: info
   logs:
     custom_components.powerocean: debug
+
+template:
+  - sensor:
+      - name: "PowerOcean Solar All"
+        unique_id: "powerocean_solar_all"
+        unit_of_measurement: "W"
+        device_class: "power"
+        icon: mdi:home-lightning-bolt
+        state: >
+          {% set val = states('sensor.powerocean_mpptpv_pwrtotal')|float(0) %}
+          {{ val if val > 0 else 0 }}
+        availability: >
+          {{ has_value('sensor.powerocean_mpptpv_pwrtotal') }}
+      - name: "PowerOcean Solar String 01"
+        unique_id: "powerocean_solar_string_01"
+        unit_of_measurement: "W"
+        device_class: "power"
+        icon: mdi:home-lightning-bolt
+        state: >
+          {% set val = states('sensor.powerocean_mpptpv1_pwr')|float(0) %}
+          {{ val if val > 0 else 0 }}
+        availability: >
+          {{ has_value('sensor.powerocean_mpptpv1_pwr') }}
+      - name: "PowerOcean Solar String 02"
+        unique_id: "powerocean_solar_string_02"
+        unit_of_measurement: "W"
+        device_class: "power"
+        icon: mdi:home-lightning-bolt
+        state: >
+          {% set val = states('sensor.powerocean_mpptpv2_pwr')|float(0) %}
+          {{ val if val > 0 else 0 }}
+        availability: >
+          {{ has_value('sensor.powerocean_mpptpv2_pwr') }}
+
+sensor:
+  # Integrale für PowerOcean
+  - platform: integration
+    source: sensor.powerocean_solar_all
+    name: "PowerOcean Solar All kWh"
+    unique_id: powerocean_solar_all_kWh
+    unit_prefix: k
+    unit_time: h
+    round: 2
+    method: left
+
+  - platform: integration
+    source: sensor.powerocean_solar_string_01
+    name: "PowerOcean Solar String 01 kWh"
+    unique_id: powerocean_solar_string_01_kWh
+    unit_prefix: k
+    unit_time: h
+    round: 2
+    method: left
+
+  - platform: integration
+    source: sensor.powerocean_solar_string_02
+    name: "PowerOcean Solar String 02 kWh"
+    unique_id: powerocean_solar_string_02_kWh
+    unit_prefix: k
+    unit_time: h
+    round: 2
+    method: left
