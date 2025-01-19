@@ -1,6 +1,5 @@
 {
-    "data":
-    [
+	"data": [
 		"sysLoadPwr",
 		"sysGridPwr",
 		"mpptPwr",
@@ -14,16 +13,19 @@
 		"systemName",
 		"createTime"
 	],
-	"JTS1_EMS_CHANGE_REPORT": 
-	[
+	"JTS1_ENERGY_STREAM_REPORT": [
+		"pv1Pwr",
+		"pvInvPwr",
+		"pv2Pwr"
+	],
+	"JTS1_EMS_CHANGE_REPORT": [
 		"bpTotalChgEnergy",
 		"bpTotalDsgEnergy",
 		"bpSoc",
 		"bpOnlineSum",
 		"emsCtrlLedBright"
-    ],
-	"JTS1_BP_STA_REPORT":
-	[
+	],
+	"JTS1_BP_STA_REPORT": [
 		"bpPwr",
 		"bpSoc",
 		"bpSoh",
@@ -32,9 +34,8 @@
 		"bpCycles",
 		"bpSysState",
 		"bpRemainWatth"
-    ],
-	"JTS1_EMS_HEARTBEAT": 
-	[
+	],
+	"JTS1_EMS_HEARTBEAT": [
 		"bpRemainWatth",
 		"emsBpAliveNum",
 		"emsBpPower",
