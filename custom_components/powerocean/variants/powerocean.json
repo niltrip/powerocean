@@ -1,0 +1,45 @@
+{
+	"data": [
+		"sysLoadPwr",
+		"sysGridPwr",
+		"mpptPwr",
+		"bpPwr",
+		"online",
+		"dcdcPwr",
+		"todayElectricityGeneration",
+		"monthElectricityGeneration",
+		"yearElectricityGeneration",
+		"totalElectricityGeneration",
+		"systemName",
+		"createTime"
+	],
+	"JTS1_ENERGY_STREAM_REPORT": [
+		"pv1Pwr",
+		"pvInvPwr",
+		"pv2Pwr"
+	],
+	"JTS1_EMS_CHANGE_REPORT": [
+		"bpTotalChgEnergy",
+		"bpTotalDsgEnergy",
+		"bpSoc",
+		"bpOnlineSum",
+		"emsCtrlLedBright"
+	],
+	"JTS1_BP_STA_REPORT": [
+		"bpPwr",
+		"bpSoc",
+		"bpSoh",
+		"bpVol",
+		"bpAmp",
+		"bpCycles",
+		"bpSysState",
+		"bpRemainWatth"
+	],
+	"JTS1_EMS_HEARTBEAT": [
+		"bpRemainWatth",
+		"emsBpAliveNum",
+		"emsBpPower",
+		"pcsActPwr",
+		"pcsMeterPower"
+	]
+}
