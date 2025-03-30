@@ -2,35 +2,35 @@
     "code": "0",
     "message": "Success",
     "data": {
-        "sysLoadPwr": 546.0,
-        "sysGridPwr": 546.0,
+        "sysLoadPwr": 697.0,
+        "sysGridPwr": 50.0,
         "mpptPwr": 0.0,
-        "bpPwr": 0.0,
-        "bpSoc": 5,
+        "bpPwr": -647.0,
+        "bpSoc": 32,
         "sysBatChgUpLimit": 0,
         "sysBatDsgDownLimit": 0,
         "sysGridSta": 0,
         "sysOnOffMachineStat": 0,
         "online": 1,
-        "todayElectricityGeneration": "2.12",
-        "monthElectricityGeneration": "35.93",
-        "yearElectricityGeneration": "35.93",
-        "totalElectricityGeneration": "6049.60",
+        "todayElectricityGeneration": "11.49",
+        "monthElectricityGeneration": "63.26",
+        "yearElectricityGeneration": "163.15",
+        "totalElectricityGeneration": "6176.82",
         "systemName": "systemName",
         "createTime": "createTime",
         "location": "location",
         "timezone": "timezone",
         "quota": {
             "JTS1_ENERGY_STREAM_REPORT": {
-                "bpSoc": 5,
+                "bpSoc": 32,
                 "mpptPwr": 0.0,
-                "bpPwr": 0.0,
+                "bpPwr": -647.0,
                 "pv1Pwr": 0.0,
                 "pvInvPwr": 0.0,
-                "updateTime": "2025-01-15 03:05:46",
+                "updateTime": "2025-02-10 02:21:21",
                 "pv2Pwr": 0.0,
-                "sysLoadPwr": 546.0,
-                "sysGridPwr": 546.0
+                "sysLoadPwr": 697.0,
+                "sysGridPwr": 50.0
             },
             "JTS1_EMS_CHANGE_REPORT": {
                 "pcsUnderFreqIncrementEndDelay": 0.0,
@@ -197,7 +197,7 @@
                     ]
                 },
                 "pcsOverFreqDeratingStartDelay": 0.0,
-                "sysBatDsgDownLimit": 5,
+                "sysBatDsgDownLimit": 0,
                 "pcsLowFreqRecover": 47.530000000000001,
                 "parallelTypeSet": 0,
                 "pcsActivePowerSoftStartRate": 0.10000000000000001,
@@ -208,13 +208,13 @@
                 "pcsQuTimeConst": 10.0,
                 "pcsReactPwrModeSelect": 0,
                 "iot4gOn": 1,
-                "bpTotalChgEnergy": 1651685,
+                "bpTotalChgEnergy": 1712609,
                 "pcsLowFreqOnGrid": 47.530000000000001,
                 "pcsRunFsmState": 75778146,
                 "afciFaultFlagCh1": 0,
                 "pcsOverFreqDeratingFrozeSwitch": 0,
                 "afciFaultFlagCh2": 0,
-                "updateTime": "2025-01-15 02:56:18",
+                "updateTime": "2025-02-10 02:20:40",
                 "pcsHighVolOnGrid": 253.0,
                 "pcsOverVolDeratingStart": 253.0,
                 "pcsUfpProtectCnt": 0,
@@ -233,7 +233,7 @@
                 "pcsHvrtLvrtSwitch": 1,
                 "pcsQuLockinPower": 0.0,
                 "pcsActivePowerDeratingSwitch": 0,
-                "bpChgDsgSta": 2,
+                "bpChgDsgSta": 0,
                 "pcsFreqRecoverTime": 1000,
                 "emsKeepSoc": 0,
                 "pcsFaultRecoverOnGridWaitTime": 60000,
@@ -242,7 +242,7 @@
                 "afciEnSet": 0,
                 "pcsVolRecoverTime": 1000,
                 "pcsOnGridWaitTime": 60000,
-                "bpSoc": 5,
+                "bpSoc": 32,
                 "pcsReconnectGridDetectSwitch": 1,
                 "pcsLowFreq1": 47.5,
                 "pcsLowFreq2": 47.5,
@@ -264,7 +264,7 @@
                 "pcsUnderFreqIncrementStartDelay": 0.0,
                 "pcsFreqExternalSignal": 0,
                 "pcsRelayStateShow": 13732943,
-                "bpTotalDsgEnergy": 1577367,
+                "bpTotalDsgEnergy": 1633869,
                 "pcsLowVolOnGrid": 195.5,
                 "afciEnableCmdState": 0,
                 "pcsIslandDetectSwitch": 1,
@@ -273,10 +273,10 @@
             "JTS1_HP_TIMER_TASK_REPORT": {
             },
             "JTS1_BP_STA_REPORT": {
-                "HJ32ZDH4ZF8U0126": "{\n  \"bpPwr\": -0.21927305,\n  \"bpSoc\": 10,\n  \"bpSoh\": 100,\n  \"bpTemp\": [23.0, 23.0, 23.0, 22.0, 23.0, 22.0, 22.0, 22.0, 22.0],\n  \"bpCellMaxVol\": 3215.0,\n  \"bpCellMinVol\": 3207.0,\n  \"bpRunSta\": \"RUNSTA_RUN\",\n  \"bpVol\": 51.352,\n  \"bpAmp\": -0.00427,\n  \"bpBusVol\": 770.543,\n  \"bpErrCode\": 1,\n  \"bpCellVol\": [3210.0, 3210.0, 3212.0, 3211.0, 3210.0, 3212.0, 3211.0, 3213.0, 3210.0, 3210.0, 3210.0, 3207.0, 3212.0, 3215.0, 3208.0, 3209.0],\n  \"bpDsrc\": 2,\n  \"bpSn\": \"SEozMlpESDRaRjhVMDEyNg==\",\n  \"bpCycles\": 179,\n  \"bpBalanceState\": 0,\n  \"bpHvMosTemp\": 23.0,\n  \"bpLvMosTemp\": 23.0,\n  \"bpPtcTemp\": 23.0,\n  \"bpHtsTemp\": 24.0,\n  \"bpBusNegTemp\": 23.0,\n  \"bpBusPosTemp\": 25.0,\n  \"bpEnvTemp\": 23.0,\n  \"bpAccuChgCap\": 15262479,\n  \"bpAccuDsgCap\": 15299062,\n  \"bpDesignCap\": 100000,\n  \"bpFullCap\": 100000,\n  \"bpMaxCellTemp\": 23.0,\n  \"bpMinCellTemp\": 22.0,\n  \"bpMaxMosTemp\": 23.0,\n  \"bpMinMosTemp\": 23.0,\n  \"bpBmsFault\": 0,\n  \"bpEcloundSoc\": 65535,\n  \"bpHeartbeatVer\": 33,\n  \"bpTimestamp\": 1736881498,\n  \"bpRealSoc\": 11.0,\n  \"bpRealSoh\": 101.24649,\n  \"bpGlobalProtect\": 0,\n  \"bpDownLimitSoc\": 9,\n  \"bpUpLimitSoc\": 100,\n  \"bpActiveCalReqStat\": 0,\n  \"bpActiveCalRunStat\": 0,\n  \"moduleProductInfo\": 21251,\n  \"moduleProgramSta\": 1,\n  \"moduleAplSwVer\": 67176967,\n  \"moduleLoaderSwVer\": 67174401,\n  \"bmsRunSta\": \"PB_BMS_STATE_CHARGEABLE\",\n  \"bmsChgDsgSta\": \"PB_STANDBY_STATE\",\n  \"dabModSta\": \"PB_MOD_STA_WARNNING\",\n  \"bpChgSop\": 50,\n  \"bpDsgSop\": 80,\n  \"bpRemainWatth\": 512.0,\n  \"bpTargetSoc\": 10.0,\n  \"bpDiffSoc\": 2.4165955,\n  \"bpMaxSoc\": 12.333252,\n  \"bpMinSoc\": 9.9166565,\n  \"bpLimitSoc\": 1.6999998,\n  \"bpCalendarSoh\": 100.0,\n  \"bpCycleSoh\": 100.0,\n  \"bpAcRechargeFlag\": false,\n  \"bpPtcHeatFlag\": false,\n  \"bpPtcExitEvent\": \"PB_PTC_OT_STATE\",\n  \"bpAccuChgEnergy\": 792801,\n  \"bpAccuDsgEnergy\": 770522,\n  \"bpPtcTemp2\": 23.0,\n  \"bpSysState\": \"NORMAL_STATE\",\n  \"bpAuxCellVol01\": 3209.0\n}",
+                "SN_BATTERIEPACK1": "{\n  \"bpPwr\": -633.26514,\n  \"bpSoc\": 36,\n  \"bpSoh\": 100,\n  \"bpTemp\": [25.0, 27.0, 26.0, 25.0, 27.0, 24.0, 24.0, 25.0, 26.0],\n  \"bpCellMaxVol\": 3260.0,\n  \"bpCellMinVol\": 3257.0,\n  \"bpRunSta\": \"RUNSTA_RUN\",\n  \"bpVol\": 52.094,\n  \"bpAmp\": -12.1562,\n  \"bpBusVol\": 799.1128,\n  \"bpErrCode\": 0,\n  \"bpCellVol\": [3260.0, 3259.0, 3259.0, 3258.0, 3258.0, 3259.0, 3258.0, 3259.0, 3257.0, 3258.0, 3259.0, 3257.0, 3259.0, 3258.0, 3258.0, 3259.0],\n  \"bpDsrc\": 2,\n  \"bpSn\": \"SEozMlpESDRaRjhVMDEyNg==\",\n  \"bpCycles\": 185,\n  \"bpBalanceState\": 0,\n  \"bpHvMosTemp\": 37.0,\n  \"bpLvMosTemp\": 35.0,\n  \"bpPtcTemp\": 25.0,\n  \"bpHtsTemp\": 31.0,\n  \"bpBusNegTemp\": 32.0,\n  \"bpBusPosTemp\": 33.0,\n  \"bpEnvTemp\": 32.0,\n  \"bpAccuChgCap\": 15835621,\n  \"bpAccuDsgCap\": 15850683,\n  \"bpDesignCap\": 100000,\n  \"bpFullCap\": 100000,\n  \"bpMaxCellTemp\": 27.0,\n  \"bpMinCellTemp\": 24.0,\n  \"bpMaxMosTemp\": 37.0,\n  \"bpMinMosTemp\": 35.0,\n  \"bpBmsFault\": 0,\n  \"bpEcloundSoc\": 65535,\n  \"bpHeartbeatVer\": 33,\n  \"bpTimestamp\": 1739125006,\n  \"bpRealSoc\": 37.0,\n  \"bpRealSoh\": 101.24649,\n  \"bpGlobalProtect\": 0,\n  \"bpDownLimitSoc\": 5,\n  \"bpUpLimitSoc\": 100,\n  \"bpActiveCalReqStat\": 0,\n  \"bpActiveCalRunStat\": 0,\n  \"moduleProductInfo\": 21251,\n  \"moduleProgramSta\": 1,\n  \"moduleAplSwVer\": 67176967,\n  \"moduleLoaderSwVer\": 67174401,\n  \"bmsRunSta\": \"PB_BMS_STATE_NORMAL\",\n  \"bmsChgDsgSta\": \"PB_DSG_STATE\",\n  \"dabModSta\": \"PB_MOD_STA_NORMAL\",\n  \"bpChgSop\": 50,\n  \"bpDsgSop\": 80,\n  \"bpRemainWatth\": 1843.2001,\n  \"bpTargetSoc\": 35.986893,\n  \"bpDiffSoc\": 0.93301773,\n  \"bpMaxSoc\": 37.096035,\n  \"bpMinSoc\": 36.163235,\n  \"bpLimitSoc\": 0.7999997,\n  \"bpCalendarSoh\": 100.0,\n  \"bpCycleSoh\": 100.0,\n  \"bpAcRechargeFlag\": false,\n  \"bpPtcHeatFlag\": false,\n  \"bpPtcExitEvent\": \"PB_PTC_OT_STATE\",\n  \"bpAccuChgEnergy\": 823248,\n  \"bpAccuDsgEnergy\": 798745,\n  \"bpPtcTemp2\": 27.0,\n  \"bpSysState\": \"NORMAL_STATE\",\n  \"bpAuxCellVol01\": 3260.0\n}",
                 "": "{\n  \"bpTemp\": [],\n  \"bpCellVol\": []\n}",
-                "updateTime": "2025-01-15 03:05:07",
-                "HJ32ZDH4ZF8U0167": "{\n  \"bpPwr\": -0.11608554,\n  \"bpSoc\": 10,\n  \"bpSoh\": 100,\n  \"bpTemp\": [23.0, 23.0, 23.0, 24.0, 24.0, 22.0, 23.0, 23.0, 23.0],\n  \"bpCellMaxVol\": 3222.0,\n  \"bpCellMinVol\": 3214.0,\n  \"bpRunSta\": \"RUNSTA_RUN\",\n  \"bpVol\": 51.456,\n  \"bpAmp\": -0.0022560155,\n  \"bpBusVol\": 769.89215,\n  \"bpErrCode\": 1,\n  \"bpCellVol\": [3215.0, 3216.0, 3217.0, 3220.0, 3217.0, 3217.0, 3217.0, 3217.0, 3221.0, 3214.0, 3219.0, 3217.0, 3222.0, 3219.0, 3217.0, 3219.0],\n  \"bpDsrc\": 1,\n  \"bpSn\": \"SEozMlpESDRaRjhVMDE2Nw==\",\n  \"bpCycles\": 187,\n  \"bpBalanceState\": 0,\n  \"bpHvMosTemp\": 24.0,\n  \"bpLvMosTemp\": 24.0,\n  \"bpPtcTemp\": 23.0,\n  \"bpHtsTemp\": 25.0,\n  \"bpBusNegTemp\": 24.0,\n  \"bpBusPosTemp\": 25.0,\n  \"bpEnvTemp\": 24.0,\n  \"bpAccuChgCap\": 15365596,\n  \"bpAccuDsgCap\": 15369113,\n  \"bpDesignCap\": 100000,\n  \"bpFullCap\": 100000,\n  \"bpMaxCellTemp\": 24.0,\n  \"bpMinCellTemp\": 22.0,\n  \"bpMaxMosTemp\": 24.0,\n  \"bpMinMosTemp\": 24.0,\n  \"bpBmsFault\": 0,\n  \"bpEcloundSoc\": 65535,\n  \"bpHeartbeatVer\": 33,\n  \"bpTimestamp\": 1736881503,\n  \"bpRealSoc\": 13.0,\n  \"bpRealSoh\": 101.13858,\n  \"bpGlobalProtect\": 0,\n  \"bpDownLimitSoc\": 9,\n  \"bpUpLimitSoc\": 100,\n  \"bpActiveCalReqStat\": 0,\n  \"bpActiveCalRunStat\": 0,\n  \"moduleProductInfo\": 21251,\n  \"moduleProgramSta\": 1,\n  \"moduleAplSwVer\": 67176967,\n  \"moduleLoaderSwVer\": 67174401,\n  \"bmsRunSta\": \"PB_BMS_STATE_CHARGEABLE\",\n  \"bmsChgDsgSta\": \"PB_STANDBY_STATE\",\n  \"dabModSta\": \"PB_MOD_STA_WARNNING\",\n  \"bpChgSop\": 50,\n  \"bpDsgSop\": 80,\n  \"bpRemainWatth\": 512.0,\n  \"bpTargetSoc\": 11.011071,\n  \"bpDiffSoc\": 2.333252,\n  \"bpMaxSoc\": 14.333252,\n  \"bpMinSoc\": 12.0,\n  \"bpLimitSoc\": 1.4000001,\n  \"bpCalendarSoh\": 100.0,\n  \"bpCycleSoh\": 100.0,\n  \"bpAcRechargeFlag\": false,\n  \"bpPtcHeatFlag\": false,\n  \"bpPtcExitEvent\": \"PB_PTC_OT_STATE\",\n  \"bpAccuChgEnergy\": 796053,\n  \"bpAccuDsgEnergy\": 773842,\n  \"bpPtcTemp2\": 24.0,\n  \"bpSysState\": \"NORMAL_STATE\",\n  \"bpAuxCellVol01\": 3214.0\n}"
+                "updateTime": "2025-02-10 02:16:54",
+                "SN_BATTERIEPACK2": "{\n  \"bpPwr\": -0.40975335,\n  \"bpSoc\": 37,\n  \"bpSoh\": 100,\n  \"bpTemp\": [25.0, 27.0, 26.0, 27.0, 27.0, 25.0, 26.0, 26.0, 27.0],\n  \"bpCellMaxVol\": 3285.0,\n  \"bpCellMinVol\": 3284.0,\n  \"bpRunSta\": \"RUNSTA_RUN\",\n  \"bpVol\": 52.533,\n  \"bpAmp\": -0.007799923,\n  \"bpBusVol\": 799.6247,\n  \"bpErrCode\": 0,\n  \"bpCellVol\": [3285.0, 3284.0, 3284.0, 3284.0, 3284.0, 3284.0, 3284.0, 3284.0, 3284.0, 3284.0, 3284.0, 3284.0, 3284.0, 3284.0, 3284.0, 3284.0],\n  \"bpDsrc\": 1,\n  \"bpSn\": \"SEozMlpESDRaRjhVMDE2Nw==\",\n  \"bpCycles\": 193,\n  \"bpBalanceState\": 0,\n  \"bpHvMosTemp\": 36.0,\n  \"bpLvMosTemp\": 35.0,\n  \"bpPtcTemp\": 27.0,\n  \"bpHtsTemp\": 33.0,\n  \"bpBusNegTemp\": 32.0,\n  \"bpBusPosTemp\": 33.0,\n  \"bpEnvTemp\": 32.0,\n  \"bpAccuChgCap\": 15938852,\n  \"bpAccuDsgCap\": 15918970,\n  \"bpDesignCap\": 100000,\n  \"bpFullCap\": 100000,\n  \"bpMaxCellTemp\": 27.0,\n  \"bpMinCellTemp\": 25.0,\n  \"bpMaxMosTemp\": 36.0,\n  \"bpMinMosTemp\": 35.0,\n  \"bpBmsFault\": 0,\n  \"bpEcloundSoc\": 65535,\n  \"bpHeartbeatVer\": 33,\n  \"bpTimestamp\": 1739125002,\n  \"bpRealSoc\": 37.0,\n  \"bpRealSoh\": 101.13858,\n  \"bpGlobalProtect\": 0,\n  \"bpDownLimitSoc\": 5,\n  \"bpUpLimitSoc\": 100,\n  \"bpActiveCalReqStat\": 0,\n  \"bpActiveCalRunStat\": 0,\n  \"moduleProductInfo\": 21251,\n  \"moduleProgramSta\": 1,\n  \"moduleAplSwVer\": 67176967,\n  \"moduleLoaderSwVer\": 67174401,\n  \"bmsRunSta\": \"PB_BMS_STATE_NORMAL\",\n  \"bmsChgDsgSta\": \"PB_STANDBY_STATE\",\n  \"dabModSta\": \"PB_MOD_STA_NORMAL\",\n  \"bpChgSop\": 50,\n  \"bpDsgSop\": 80,\n  \"bpRemainWatth\": 1894.4,\n  \"bpTargetSoc\": 36.52576,\n  \"bpDiffSoc\": 0.5861244,\n  \"bpMaxSoc\": 37.215137,\n  \"bpMinSoc\": 36.629047,\n  \"bpLimitSoc\": 0.5,\n  \"bpCalendarSoh\": 100.0,\n  \"bpCycleSoh\": 100.0,\n  \"bpAcRechargeFlag\": false,\n  \"bpPtcHeatFlag\": false,\n  \"bpPtcExitEvent\": \"PB_PTC_OT_STATE\",\n  \"bpAccuChgEnergy\": 826485,\n  \"bpAccuDsgEnergy\": 802060,\n  \"bpPtcTemp2\": 28.0,\n  \"bpSysState\": \"NORMAL_STATE\",\n  \"bpAuxCellVol01\": 3283.0\n}"
             },
             "JTS1_LOGY_DEV_REPORT": {
                 "HPReport": {
@@ -284,7 +284,7 @@
                     "online": 0,
                     "errorCode": ""
                 },
-                "updateTime": "2025-01-15 02:56:17"
+                "updateTime": "2025-02-10 02:14:01"
             },
             "JTS1_EMS_PARAM_CHANGE_REPORT": {
                 "smartCtrl": false,
@@ -293,7 +293,7 @@
                 "breakerEnableState": true,
                 "bpBurst": false,
                 "devSoc": 100,
-                "updateTime": "2025-01-15 02:56:17",
+                "updateTime": "2025-02-10 02:14:01",
                 "lowerPowerStat": false,
                 "sysZone": 8,
                 "sysTimeTab": 19662120
@@ -305,7 +305,7 @@
             "JTS1_EMS_ALL_TIMER_TASK_REPORT": {
                 "timeTaskCfg": [
                 ],
-                "updateTime": "2025-01-14 10:12:36"
+                "updateTime": "2025-02-09 12:53:51"
             },
             "JTS1_HEATING_ROD_TIMER_TASK_REPORT": {
             },
@@ -315,37 +315,37 @@
             },
             "JTS1_EMS_PV_INV_ENERGY_STREAM_REPORT": {
                 "pvInvPwr": 0.0,
-                "updateTime": "2025-01-15 03:05:46"
+                "updateTime": "2025-02-10 02:21:21"
             },
             "JTS1_EMS_PARALLEL_DEVICE_LIST": {
             },
             "JT303_EDEV_PRIORITY_LIST_REPORT": {
                 "devPrioReport": [
                 ],
-                "updateTime": "2025-01-14 10:12:37"
+                "updateTime": "2025-02-09 12:53:51"
             },
             "JTS1_ERROR_CHANGE_REPORT": {
-                "updateTime": "2025-01-15 02:56:20",
+                "updateTime": "2025-02-10 02:14:05",
                 "pcsErrCode": {
                     "errCode": [
                     ],
-                    "moduleSn": "SEozMTIwMDBCRjdXMDQ4Mw=="
+                    "moduleSn": "moduleSn"
                 },
                 "emsErrCode": {
                     "errCode": [
                     ],
-                    "moduleSn": "SEozMVpESDRaRjhRMDIzMg=="
+                    "moduleSn": "moduleSn"
                 },
                 "bpErrCode": [
                     {
                         "errCode": [
                         ],
-                        "moduleSn": "SEozMlpESDRaRjhVMDE2Nw=="
+                        "moduleSn": "moduleSn"
                     },
                     {
                         "errCode": [
                         ],
-                        "moduleSn": "SEozMlpESDRaRjhVMDEyNg=="
+                        "moduleSn": "moduleSn"
                     }
                 ]
             },
@@ -386,11 +386,11 @@
                     0,
                     0
                 ],
-                "updateTime": "2025-01-14 10:12:37"
+                "updateTime": "2025-02-09 12:53:50"
             },
             "JTS1_EDEV_BIND_LIST_REPORT": {
                 "213": "{\n  \"devAddr\": 213,\n  \"devItem\": []\n}",
-                "updateTime": "2025-01-14 10:12:32"
+                "updateTime": "2025-02-09 12:53:50"
             },
             "JT303_EDEV_SYS_REPORT": {
                 "solarFlag": 921,
@@ -399,13 +399,13 @@
                     "devSubInfoVar": [
                     ]
                 },
-                "pclPwrBase": -5586.7084999999997,
+                "pclPwrBase": -5627.6206000000002,
                 "stratType": 0,
                 "sysFlag": 35,
                 "devLastMinInfo": 31,
                 "socDev": 100,
                 "devLastInfo": 31,
-                "updateTime": "2025-01-15 03:04:55",
+                "updateTime": "2025-02-10 02:21:13",
                 "feedPwrCap": 10000.0,
                 "devInfoFix": {
                     "devSubInfoFix": [
@@ -415,76 +415,76 @@
                 "usedNum": 0,
                 "startState": 0,
                 "devFirstInfo": 31,
-                "socCur": 9.9769550000000002
+                "socCur": 35.820549999999997
             },
             "JTS1_EMS_HEARTBEAT": {
                 "emsPcsStartupState": 1,
-                "pcsBpPower": 0.0,
+                "pcsBpPower": -597.8451,
                 "pcsPfcCurRef": 0.0,
                 "pcsCPhase": {
-                    "vol": 230.97441000000001,
-                    "amp": 1.0088564,
-                    "actPwr": 129.04519999999999,
-                    "reactPwr": 194.0249,
-                    "apparentPwr": 233.02001999999999
+                    "vol": 232.74915999999999,
+                    "amp": 0.73476534999999998,
+                    "actPwr": -42.353442999999999,
+                    "reactPwr": 165.68845999999999,
+                    "apparentPwr": 171.01602
                 },
-                "pcsActivePowerRef": 10000.0,
-                "pcsReactivePowerRef": 150.0,
-                "bpRemainWatth": 1027.0,
+                "pcsActivePowerRef": 445.58902,
+                "pcsReactivePowerRef": -50.0,
+                "bpRemainWatth": 3752.0,
                 "emsMpptModStat": 1,
                 "pcsAverageVoltage": 0.0,
                 "emsBpAliveNum": 2,
-                "pcsDci": 8.5368379999999999E-05,
-                "emsBpDsg": 0.0,
-                "pcsActivePowerLimitUp": 10000.0,
+                "pcsDci": -0.0048659979999999999,
+                "emsBpDsg": -6598.8519999999999,
+                "pcsActivePowerLimitUp": 445.58902,
                 "emsSelfUsedCnt": 14701148,
                 "pcsBPhase": {
-                    "vol": 228.809,
-                    "amp": 0.51578385000000004,
-                    "actPwr": 76.594184999999996,
-                    "reactPwr": 89.783659999999998,
-                    "apparentPwr": 118.01599
+                    "vol": 232.06532000000001,
+                    "amp": 0.54508840000000003,
+                    "actPwr": -54.41433,
+                    "reactPwr": 114.19434,
+                    "apparentPwr": 126.49612
                 },
                 "pcsDcv": 0.0,
                 "pcsVbusRef": 770.0,
                 "emsStartFsmState": 1078644260,
-                "emsBusVolt": 769.58789999999999,
-                "emsBpChg": 4999.1133,
-                "bpDsgTime": 600000,
-                "emsAcMakeupTriggleSoc": 7,
-                "pcsLeakAmp": -0.32226561999999997,
+                "emsBusVolt": 799.25836000000004,
+                "emsBpChg": 4999.1300000000001,
+                "bpDsgTime": 373,
+                "emsAcMakeupTriggleSoc": 3,
+                "pcsLeakAmp": -1.7724609,
                 "emsLpStateFlag": 0,
-                "pcsBusVolt": 770.07665999999995,
+                "pcsBusVolt": 799.4615,
                 "pcsActivePowerLimitDn": -10000.0,
                 "emsMpptStartupState": 1,
-                "pcsGridSafetyStateRecord": 49244,
+                "pcsGridSafetyStateRecord": 9896028,
                 "pcsCommInterfaceState": 17120,
-                "pcsMeterPower": 524.90819999999997,
+                "pcsMeterPower": -23.545898000000001,
                 "emsLpState": 16578,
                 "emsStopCmd": 34,
                 "emsPcsSelfcheckState": 1,
-                "emsAcMakeupExitSoc": 9,
-                "emsBusVoltErrSlidFilter": 0.29208173999999998,
+                "emsAcMakeupExitSoc": 5,
+                "emsBusVoltErrSlidFilter": 0.45039099999999999,
                 "emsMpptHbState": 17,
                 "emsBpChgRequest": 0,
                 "emsPvInvPwr": 0.0,
                 "pcsLoadInfo": [
                     {
-                        "vol": 223.80073999999999,
+                        "vol": 224.71843999999999,
                         "amp": 0.0,
-                        "freq": 49.967440000000003,
+                        "freq": 50.001792999999999,
                         "pwr": 0.0
                     },
                     {
-                        "vol": 228.809,
+                        "vol": 232.06532000000001,
                         "amp": 0.0,
-                        "freq": 49.967236,
+                        "freq": 50.001669999999997,
                         "pwr": 0.0
                     },
                     {
-                        "vol": 230.97441000000001,
+                        "vol": 232.74915999999999,
                         "amp": 0.0,
-                        "freq": 49.967167000000003,
+                        "freq": 50.001637000000002,
                         "pwr": 0.0
                     }
                 ],
@@ -492,68 +492,68 @@
                     {
                         "mpptPv": [
                             {
-                                "vol": 24.969806999999999,
+                                "vol": 24.858255,
                                 "amp": 0.0,
                                 "lightSta": true,
                                 "pwr": 0.0
                             },
                             {
-                                "vol": 17.752012000000001,
+                                "vol": 17.552109000000002,
                                 "amp": 0.0,
                                 "lightSta": true,
                                 "pwr": 0.0
                             }
                         ],
                         "mpptTempVal": [
-                            30.899999999999999,
-                            33.299999999999997,
-                            33.100000000000001
+                            32.5,
+                            35.100000000000001,
+                            35.0
                         ],
                         "mpptInsResist": 0.0
                     }
                 ],
-                "emsBusVoltRipple": 1.5615844999999999,
+                "emsBusVoltRipple": 1.5616455,
                 "emsLpType": 0,
-                "pcsBpPowerChgLimit": 4999.1133,
+                "pcsBpPowerChgLimit": 5000.0,
                 "emsSocCalibRequest": 0,
-                "pcsAcFreq": 49.960000000000001,
+                "pcsAcFreq": 50.0,
                 "emsBpStartupState": 1,
                 "emsSysCfg": 7,
                 "emsAcMakeupMinSoc": 0,
-                "emsLpMpptCnt": 0,
-                "emsBpPower": 0.0,
+                "emsLpMpptCnt": 1800,
+                "emsBpPower": -591.68240000000003,
                 "emsBpSelfcheckState": 1,
                 "emsActiveOffGridCmd": 0,
-                "pcsActPwr": 459.45069999999998,
+                "pcsActPwr": 23.988544000000001,
                 "emsLpBpCnt": 0,
-                "emsNtcTempMax": 33.299999999999997,
+                "emsNtcTempMax": 35.100000000000001,
                 "emsAcMakeupCnt": 0,
                 "emsSocCalibState": 0,
                 "pcsRelayStateShow": 13732943,
-                "updateTime": "2025-01-15 03:05:15",
+                "updateTime": "2025-02-10 02:21:14",
                 "emsMpptRunState": 0,
-                "pcsVgridThd": 0.20170421999999999,
+                "pcsVgridThd": 0.20597391000000001,
                 "pcsAPhase": {
-                    "vol": 223.80073999999999,
-                    "amp": 1.7028364,
-                    "actPwr": 253.81134,
-                    "reactPwr": 284.27800000000002,
-                    "apparentPwr": 381.09604000000002
+                    "vol": 224.71843999999999,
+                    "amp": 1.3859513000000001,
+                    "actPwr": 120.75632,
+                    "reactPwr": 287.08584999999999,
+                    "apparentPwr": 311.44882000000001
                 },
                 "pcsInterruptOccupancyRate": 86.0,
                 "emsMpptSelfcheckState": 1,
                 "pcsPfcCurReal": 0.0,
                 "pcsGridSafetyFuncRecord": 234905698,
-                "pcsGridInvErrorRms": 11.626607,
+                "pcsGridInvErrorRms": 12.433918,
                 "meterHeartBeat": [
                     {
                         "meterAddr": 106,
                         "meterType": 11,
                         "meterData": [
-                            330.16016000000002,
-                            88.699219999999997,
-                            140.61913999999999,
-                            559.47850000000005
+                            168.30468999999999,
+                            -115.10644499999999,
+                            -79.287599999999998,
+                            -26.089355000000001
                         ]
                     }
                 ]
@@ -567,7 +567,7 @@
             "JTS1_ECOLOGY_DEV_BIND_LIST_REPORT": {
                 "devItem": [
                 ],
-                "updateTime": "2025-01-14 10:12:32"
+                "updateTime": "2025-02-09 12:53:51"
             },
             "JTS1_EDEV_TIMERTASK_REPORT": {
             },
@@ -579,6 +579,6 @@
             }
         }
     },
-    "eagleEyeTraceId": "ea1a2a582917368815479188462d0007",
+    "eagleEyeTraceId": "eagleEyeTraceId",
     "tid": ""
 }

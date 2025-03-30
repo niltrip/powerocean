@@ -1,9 +1,10 @@
 """Constants for the PowerOcean integration."""
 
 import logging
+
 from homeassistant.const import Platform
 
-DOMAIN = "powerocean"
+DOMAIN = "Ecoflow"
 NAME = "Ecoflow PowerOcean"
 VERSION = "2024.08.27"
 ISSUE_URL = "https://github.com/niltrip/powerocean/issues"
