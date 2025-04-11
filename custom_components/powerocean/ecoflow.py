@@ -10,12 +10,12 @@ from homeassistant.exceptions import IntegrationError
 from homeassistant.util.json import json_loads
 from requests.exceptions import RequestException
 
-from .const import _LOGGER, ISSUE_URL_ERROR_MESSAGE
+from .const import _LOGGER, ISSUE_URL_ERROR_MESSAGE, DOMAIN
 
 # Mock path to response.json file
-FAKEDATA = Path("documentation/response.json")
+mocked_response = Path("documentation/response.json")
 # Dict with entity names to use
-SENSSELECT = Path("custom_components/powerocean/datapoints.json")
+SENSSELECT = Path(f"custom_components/{DOMAIN}/datapoints.json")
 
 # Better storage of PowerOcean endpoint
 PowerOceanEndPoint = namedtuple(
@@ -39,7 +39,6 @@ class Ecoflow:
         self.session = requests.Session()
         self.url_iot_app = "https://api.ecoflow.com/auth/login"
         self.url_user_fetch = f"https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}"
-        # self.authorize()  # authorize user and get device details
 
     def get_device(self):
         """Get device info."""
@@ -47,8 +46,8 @@ class Ecoflow:
             "product": "PowerOcean",
             "vendor": "Ecoflow",
             "serial": self.sn,
-            "version": "5.1.15",  # TODO: woher bekommt man diese Info?
-            "build": "6",  # TODO: wo finde ich das?
+            "version": "5.1.25",  # TODO: woher bekommt man diese Info?
+            "build": "8",  # TODO: wo finde ich das?
             "name": "PowerOcean",
             "features": "Photovoltaik",
         }
@@ -119,20 +118,23 @@ class Ecoflow:
         try:
             headers = {
                 "authorization": f"Bearer {self.token}",
+                # "accept": "application/json, text/plain, */*",
                 "user-agent": "Firefox/133.0",
+                # "platform": "web",
+                "product-type": "83",
             }
             request = requests.get(self.url_user_fetch, headers=headers, timeout=30)
             response = self.get_json_response(request)
 
             try:
                 # TESTING!!! create response file and use it as data
-                with Path.open(FAKEDATA, "r", encoding="utf-8") as datei:
+                with Path.open(mocked_response, "r", encoding="utf-8") as datei:
                     response = json_loads(datei.read())
             except FileExistsError:
-                error = f"Data from: {FAKEDATA}"
+                error = f"Data from: {mocked_response}"
                 _LOGGER.warning(error)
             except FileNotFoundError:
-                error = f"Responsefile not present: {FAKEDATA}"
+                error = f"Responsefile not present: {mocked_response}"
                 _LOGGER.debug(error)
 
             _LOGGER.debug(f"{response}")

@@ -4,7 +4,7 @@ import logging
 
 from homeassistant.const import Platform
 
-DOMAIN = "Ecoflow"
+DOMAIN = "powerocean"
 NAME = "Ecoflow PowerOcean"
 VERSION = "2024.08.27"
 ISSUE_URL = "https://github.com/niltrip/powerocean/issues"
@@ -13,7 +13,7 @@ ISSUE_URL_ERROR_MESSAGE = " Please log any issues here: " + ISSUE_URL
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
-_LOGGER = logging.getLogger("custom_components.powerocean")
+_LOGGER = logging.getLogger(f"custom_components.{DOMAIN}")
 
 ATTR_PRODUCT_DESCRIPTION = "Product Description"
 ATTR_DESTINATION_NAME = "Destination Name"
