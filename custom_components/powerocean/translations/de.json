@@ -14,7 +14,8 @@
                 "data": {
                     "serialnumber": "Seriennummer des Wechselrichters",
                     "password": "Passwort",
-                    "username": "Benutzername"
+                    "username": "Benutzername",
+                    "variant": "System ID"
                 }
             },
             "device_options": {

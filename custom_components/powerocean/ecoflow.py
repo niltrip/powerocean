@@ -14,8 +14,6 @@ from .const import _LOGGER, ISSUE_URL_ERROR_MESSAGE, DOMAIN
 
 # Mock path to response.json file
 mocked_response = Path("documentation/response.json")
-# Dict with entity names to use
-SENSSELECT = Path(f"custom_components/{DOMAIN}/datapoints.json")
 
 # Better storage of PowerOcean endpoint
 PowerOceanEndPoint = namedtuple(
@@ -29,11 +27,12 @@ PowerOceanEndPoint = namedtuple(
 class Ecoflow:
     """Class representing Ecoflow"""
 
-    def __init__(self, serialnumber: str, username: str, password: str):
+    def __init__(self, serialnumber: str, username: str, password: str, variant: str):
         self.sn = serialnumber
         self.unique_id = serialnumber
         self.ecoflow_username = username
         self.ecoflow_password = password
+        self.ecoflow_variant = variant
         self.token = None
         self.device = None
         self.session = requests.Session()
@@ -70,6 +69,7 @@ class Ecoflow:
             _LOGGER.info("Login to EcoFlow API %s", {url})
             request = requests.post(url, json=data, headers=headers, timeout=10)
             response = self.get_json_response(request)
+            _LOGGER.debug(f"{response}")
 
         except ConnectionError:
             error = f"Unable to connect to {self.url_iot_app}. Device might be offline."
@@ -205,20 +205,30 @@ class Ecoflow:
 
     def __get_sens_select(self, report):
         # open File an read
-        with Path.open(SENSSELECT) as file:
-            config = json_loads(file.read())
+        # Dict with entity names to use
+        datapointfile = Path(
+            f"custom_components/{DOMAIN}/variants/{self.ecoflow_variant}.json"
+        )
+        with Path.open(datapointfile) as file:
+            datapoints = json_loads(file.read())
 
-        return config[report]
+        return datapoints[report]
 
     def _get_sensors(self, response):
         # get sensors from response['data']
         sensors = self.__get_sensors_data(response)
 
         # get sensors from 'JTS1_ENERGY_STREAM_REPORT'
-        sensors = self.__get_sensors_energy_stream(response, sensors)
+        # sensors = self.__get_sensors_energy_stream(response, sensors)
+        sensors = self.__get_sensors_from_response(
+            response, sensors, "JTS1_ENERGY_STREAM_REPORT"
+        )
 
         # get sensors from 'JTS1_EMS_CHANGE_REPORT'
-        sensors = self.__get_sensors_ems_change(response, sensors)
+        # sensors = self.__get_sensors_ems_change(response, sensors)
+        sensors = self.__get_sensors_from_response(
+            response, sensors, "JTS1_EMS_CHANGE_REPORT"
+        )
 
         # get info from batteries  => JTS1_BP_STA_REPORT
         sensors = self.__get_sensors_battery(response, sensors)
@@ -323,147 +333,203 @@ class Ecoflow:
 
         return sensors
 
-    def __get_sensors_battery(self, response, sensors):
-        report = "JTS1_BP_STA_REPORT"
-        d = response["data"]["quota"][report]
-        keys = list(d.keys())
+    def __get_sensors_from_response(self, response, sensors, report_data):
+        """Get sensors from response data based on report_data."""
+        if report_data not in response["data"]["quota"]:
+            report_data = re.sub(r"JTS1_", "RE307_", report_data)
+        d = response["data"]["quota"][report_data]
 
-        # loop over N batteries:
-        batts = [s for s in keys if len(s) > 12]
-        bat_sens_select = self.__get_sens_select(report)
+        try:
+            # remove prefix from report_data
+            report = re.sub(r"^[^_]+_", "", report_data)
+            # get sensors to select from datapoints.json
+            sens_select = self.__get_sens_select(report)
 
-        data = {}
-        prefix = "bpack"
-        for ibat, bat in enumerate(batts):
-            name = prefix + "%i_" % (ibat + 1)
-            d_bat = json_loads(d[bat])
-            for key, value in d_bat.items():
-                if key in bat_sens_select:
+            data = {}
+            for key, value in d.items():
+                if key in sens_select:  # use only sensors in sens_select
                     # default uid, unit and descript
-                    unique_id = f"{self.sn}_{report}_{bat}_{key}"
-                    description_tmp = f"{name}" + self.__get_description(key)
+                    unique_id = f"{self.sn}_{report}_{key}"
                     special_icon = None
-                    if key == "bpAmp":
-                        special_icon = "mdi:current-dc"
+                    if key.startswith(("pv1", "pv2")):
+                        special_icon = "mdi:solar-power"
+
                     data[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
                         serial=self.sn,
-                        name=f"{self.sn}_{name + key}",
-                        friendly_name=name + key,
+                        name=f"{self.sn}_{key}",
+                        friendly_name=key,
                         value=value,
                         unit=self.__get_unit(key),
-                        description=description_tmp,
+                        description=self.__get_description(key),
                         icon=special_icon,
                     )
-            # compute mean temperature of cells
-            key = "bpTemp"
-            temp = d_bat[key]
-            value = sum(temp) / len(temp)
-            unique_id = f"{self.sn}_{report}_{bat}_{key}"
-            description_tmp = f"{name}" + self.__get_description(key)
-            data[unique_id] = PowerOceanEndPoint(
-                internal_unique_id=unique_id,
-                serial=self.sn,
-                name=f"{self.sn}_{name + key}",
-                friendly_name=name + key,
-                value=value,
-                unit=self.__get_unit(key),
-                description=description_tmp,
-                icon=None,
-            )
+            dict.update(sensors, data)
 
-        dict.update(sensors, data)
-
+        except KeyError:
+            _LOGGER.error(f"Report {report} not found in datapoints.json.")
         return sensors
 
-    def __get_sensors_ems_heartbeat(self, response, sensors):
-        report = "JTS1_EMS_HEARTBEAT"
+    def __get_sensors_battery(self, response, sensors):
+        report = "JTS1_BP_STA_REPORT"
+        if report not in response["data"]["quota"]:
+            report = "RE307_BP_STA_REPORT"
         d = response["data"]["quota"][report]
-        sens_select = self.__get_sens_select(report)
 
-        data = {}
-        for key, value in d.items():
-            if key in sens_select:
-                # default uid, unit and descript
-                unique_id = f"{self.sn}_{report}_{key}"
-                description_tmp = self.__get_description(key)
+        try:
+            report = re.sub(r"^[^_]+_", "", report)
+            keys = list(d.keys())
+
+            # loop over N batteries:
+            batts = [s for s in keys if len(s) > 12]
+            bat_sens_select = self.__get_sens_select(report)
+
+            data = {}
+            prefix = "bpack"
+            for ibat, bat in enumerate(batts):
+                name = prefix + "%i_" % (ibat + 1)
+                d_bat = json_loads(d[bat])
+                for key, value in d_bat.items():
+                    if key in bat_sens_select:
+                        # default uid, unit and descript
+                        # unique_id = f"{self.sn}_{report}_{bat}_{key}"
+                        unique_id = f"{bat}_{report}_{key}"
+                        description_tmp = f"{name}" + self.__get_description(key)
+                        special_icon = None
+                        if key == "bpAmp":
+                            special_icon = "mdi:current-dc"
+                        data[unique_id] = PowerOceanEndPoint(
+                            internal_unique_id=unique_id,
+                            serial=self.sn,
+                            name=f"{self.sn}_{name + key}",
+                            friendly_name=name + key,
+                            value=value,
+                            unit=self.__get_unit(key),
+                            description=description_tmp,
+                            icon=special_icon,
+                        )
+                # compute mean temperature of cells
+                key = "bpTemp"
+                temp = d_bat[key]
+                value = sum(temp) / len(temp)
+                # unique_id = f"{self.sn}_{report}_{bat}_{key}"
+                unique_id = f"{bat}_{report}_{key}"
+                description_tmp = f"{name}" + self.__get_description(key)
                 data[unique_id] = PowerOceanEndPoint(
                     internal_unique_id=unique_id,
                     serial=self.sn,
-                    name=f"{self.sn}_{key}",
-                    friendly_name=key,
+                    # name=f"{self.sn}_{name + key}",
+                    name=f"{bat}_{name + key}",
+                    friendly_name=name + key,
                     value=value,
                     unit=self.__get_unit(key),
                     description=description_tmp,
                     icon=None,
                 )
 
-        # special for phases
-        phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
-        if phases[1] in d:
-            for i, phase in enumerate(phases):
-                for key, value in d[phase].items():
-                    name = phase + "_" + key
-                    unique_id = f"{self.sn}_{report}_{name}"
+            dict.update(sensors, data)
 
+        except KeyError:
+            _LOGGER.error(f"Report {report} not found in datapoints.json.")
+        return sensors
+
+    def __get_sensors_ems_heartbeat(self, response, sensors):
+        report = "JTS1_EMS_HEARTBEAT"
+        if report not in response["data"]["quota"]:
+            report = "RE307_EMS_HEARTBEAT"
+        d = response["data"]["quota"][report]
+
+        try:
+            report = re.sub(r"^[^_]+_", "", report)
+            sens_select = self.__get_sens_select(report)
+
+            data = {}
+            for key, value in d.items():
+                if key in sens_select:
+                    # default uid, unit and descript
+                    unique_id = f"{self.sn}_{report}_{key}"
+                    description_tmp = self.__get_description(key)
                     data[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
                         serial=self.sn,
-                        name=f"{self.sn}_{name}",
-                        friendly_name=f"{name}",
+                        name=f"{self.sn}_{key}",
+                        friendly_name=key,
                         value=value,
                         unit=self.__get_unit(key),
-                        description=self.__get_description(key),
+                        description=description_tmp,
                         icon=None,
                     )
 
-        # special for mpptPv
-        if "mpptHeartBeat" in d:
-            n_strings = len(d["mpptHeartBeat"][0]["mpptPv"])  # TODO: auch als Sensor?
-            mpptpvs = []
-            for i in range(1, n_strings + 1):
-                mpptpvs.append(f"mpptPv{i}")
-            mpptPv_sum = 0.0
-            for i, mpptpv in enumerate(mpptpvs):
-                for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
-                    unique_id = f"{self.sn}_{report}_mpptHeartBeat_{mpptpv}_{key}"
-                    special_icon = None
-                    if key.endswith("amp"):
-                        special_icon = "mdi:current-dc"
-                    if key.endswith("pwr"):
-                        special_icon = "mdi:solar-power"
+            # special for phases
+            phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
+            if phases[1] in d:
+                for i, phase in enumerate(phases):
+                    for key, value in d[phase].items():
+                        name = phase + "_" + key
+                        unique_id = f"{self.sn}_{report}_{name}"
 
-                    data[unique_id] = PowerOceanEndPoint(
-                        internal_unique_id=unique_id,
-                        serial=self.sn,
-                        name=f"{self.sn}_{mpptpv}_{key}",
-                        friendly_name=f"{mpptpv}_{key}",
-                        value=value,
-                        unit=self.__get_unit(key),
-                        description=self.__get_description(key),
-                        icon=special_icon,
-                    )
-                    # sum power of all strings
-                    if key == "pwr":
-                        mpptPv_sum += value
+                        data[unique_id] = PowerOceanEndPoint(
+                            internal_unique_id=unique_id,
+                            serial=self.sn,
+                            name=f"{self.sn}_{name}",
+                            friendly_name=f"{name}",
+                            value=value,
+                            unit=self.__get_unit(key),
+                            description=self.__get_description(key),
+                            icon=None,
+                        )
 
-            # create total power sensor of all strings
-            name = "mpptPv_pwrTotal"
-            unique_id = f"{self.sn}_{report}_mpptHeartBeat_{name}"
+            # special for mpptPv
+            if "mpptHeartBeat" in d:
+                n_strings = len(
+                    d["mpptHeartBeat"][0]["mpptPv"]
+                )  # TODO: auch als Sensor?
+                mpptpvs = []
+                for i in range(1, n_strings + 1):
+                    mpptpvs.append(f"mpptPv{i}")
+                mpptPv_sum = 0.0
+                for i, mpptpv in enumerate(mpptpvs):
+                    for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
+                        unique_id = f"{self.sn}_{report}_mpptHeartBeat_{mpptpv}_{key}"
+                        special_icon = None
+                        if key.endswith("amp"):
+                            special_icon = "mdi:current-dc"
+                        if key.endswith("pwr"):
+                            special_icon = "mdi:solar-power"
 
-            data[unique_id] = PowerOceanEndPoint(
-                internal_unique_id=unique_id,
-                serial=self.sn,
-                name=f"{self.sn}_{name}",
-                friendly_name=f"{name}",
-                value=mpptPv_sum,
-                unit=self.__get_unit(key),
-                description="Solarertrag aller Strings",
-                icon="mdi:solar-power",
-            )
+                        data[unique_id] = PowerOceanEndPoint(
+                            internal_unique_id=unique_id,
+                            serial=self.sn,
+                            name=f"{self.sn}_{mpptpv}_{key}",
+                            friendly_name=f"{mpptpv}_{key}",
+                            value=value,
+                            unit=self.__get_unit(key),
+                            description=self.__get_description(key),
+                            icon=special_icon,
+                        )
+                        # sum power of all strings
+                        if key == "pwr":
+                            mpptPv_sum += value
 
-        dict.update(sensors, data)
+                # create total power sensor of all strings
+                name = "mpptPv_pwrTotal"
+                unique_id = f"{self.sn}_{report}_mpptHeartBeat_{name}"
 
+                data[unique_id] = PowerOceanEndPoint(
+                    internal_unique_id=unique_id,
+                    serial=self.sn,
+                    name=f"{self.sn}_{name}",
+                    friendly_name=f"{name}",
+                    value=mpptPv_sum,
+                    unit=self.__get_unit(key),
+                    description="Solarertrag aller Strings",
+                    icon="mdi:solar-power",
+                )
+
+            dict.update(sensors, data)
+
+        except KeyError:
+            _LOGGER.error(f"Report {report} not found in datapoints.json.")
         return sensors
 
 

@@ -1,13 +1,14 @@
 """config_flow.py: Config flow for PowerOcean integration."""
+
 from __future__ import annotations
 
 import re
 from typing import Any
 import voluptuous as vol
 
-from homeassistant import config_entries
+from homeassistant import config_entries, data_entry_flow
 from homeassistant.core import HomeAssistant
-from homeassistant.data_entry_flow import FlowResult
+
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.exceptions import IntegrationError
 
@@ -22,14 +23,19 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Required("serialnumber", default=""): str,
         vol.Required("username", default=""): str,
         vol.Required("password", default=""): str,
+        vol.Required("variant", default="83"): str,
     }
 )
 
 
-async def validate_input_for_device(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
+async def validate_input_for_device(
+    hass: HomeAssistant, data: dict[str, Any]
+) -> dict[str, Any]:
     """Validate the user input allows us to connect."""
 
-    ecoflow = Ecoflow(data["serialnumber"], data["username"], data["password"])
+    ecoflow = Ecoflow(
+        data["serialnumber"], data["username"], data["password"], data["variant"]
+    )
 
     try:
         # Check for authentication
@@ -47,7 +53,9 @@ async def validate_input_for_device(hass: HomeAssistant, data: dict[str, Any]) -
 
     # Exception if device cannot be found
     except IntegrationError as e:
-        _LOGGER.error(f"Failed to connect to PowerOcean device: {e}" + ISSUE_URL_ERROR_MESSAGE)
+        _LOGGER.error(
+            f"Failed to connect to PowerOcean device: {e}" + ISSUE_URL_ERROR_MESSAGE
+        )
         raise CannotConnect from e
 
     # Exception if authentication fails
@@ -66,7 +74,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.user_input_from_step_user = None
 
     # This is step 1 for the host/port/user/pass function.
-    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> data_entry_flow.FlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
         if user_input is not None:
@@ -79,7 +89,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "cannot_connect"
             except InvalidAuth:
                 errors["base"] = "invalid_auth"
-                return self.async_show_form(step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors)
+                return self.async_show_form(
+                    step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
+                )
             except Exception:
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
@@ -103,10 +115,17 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_device_options(user_input=None)
 
         # Show the form for step 1 with the user/host/pass as defined in STEP_USER_DATA_SCHEMA
-        return self.async_show_form(step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors)
+        return self.async_show_form(
+            step_id="user",
+            data_schema=STEP_USER_DATA_SCHEMA,
+            errors=errors,
+        )
 
     # This is step 2 for the options such as custom name, group and disable sensors
-    async def async_step_device_options(self, user_input: dict[str, Any] | None = None,) -> FlowResult:
+    async def async_step_device_options(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> data_entry_flow.FlowResult:
         """Handle the device options step."""
         errors: dict[str, str] = {}
 
@@ -121,15 +140,18 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 # the entry with the additional options.
                 # The title of the integration is the custom friendly device name given by the user in step 2
                 title = user_input["custom_device_name"]
-                return self.async_create_entry(title=title,
-                            data={
-                                "user_input": self.user_input_from_step_user,  # from previous step
-                                "device_info": self.device_info,  # from device detection
-                                "options": user_input,  # new options from this step
-                            },
+                return self.async_create_entry(
+                    title=title,
+                    data={
+                        "user_input": self.user_input_from_step_user,  # from previous step
+                        "device_info": self.device_info,  # from device detection
+                        "options": user_input,  # new options from this step
+                    },
                 )
             except Exception as e:
-                _LOGGER.error(f"Failed to handle device options: {e}" + ISSUE_URL_ERROR_MESSAGE)
+                _LOGGER.error(
+                    f"Failed to handle device options: {e}" + ISSUE_URL_ERROR_MESSAGE
+                )
                 errors["base"] = "option_error"
 
         # Prepare the second form's schema as it has dynamic values based on the API call
