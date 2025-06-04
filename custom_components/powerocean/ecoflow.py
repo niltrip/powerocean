@@ -150,26 +150,38 @@ class Ecoflow:
             _LOGGER.warning(error + ISSUE_URL_ERROR_MESSAGE)
             raise IntegrationError(error)
 
-    def __get_unit(self, key):
-        """Get unit from key name."""
-        if key.endswith(("pwr", "Pwr", "Power")):
-            unit = "W"
-        elif key.endswith(("amp", "Amp")):
-            unit = "A"
-        elif key.endswith(("soc", "Soc", "soh", "Soh")):
-            unit = "%"
-        elif key.endswith(("vol", "Vol")):
-            unit = "V"
-        elif key.endswith(("Watth", "Energy")):
-            unit = "Wh"
-        elif "Generation" in key:
-            unit = "kWh"
-        elif key.startswith("bpTemp"):
-            unit = "°C"
-        else:
-            unit = None
+    def __get_unit(self, key: str) -> str | None:
+        """Get unit from key name using a dictionary mapping."""
+        unit_mapping = {
+            "pwr": "W",
+            "Pwr": "W",
+            "Power": "W",
+            "amp": "A",
+            "Amp": "A",
+            "soc": "%",
+            "Soc": "%",
+            "soh": "%",
+            "Soh": "%",
+            "vol": "V",
+            "Vol": "V",
+            "Watth": "Wh",
+            "Energy": "Wh",
+        }
 
-        return unit
+        # Check for direct matches using dictionary lookup
+        for suffix, unit in unit_mapping.items():
+            if key.endswith(suffix):
+                return unit
+
+        # Special case for "Generation" in key
+        if "Generation" in key:
+            return "kWh"
+
+        # Special case for keys starting with "bpTemp"
+        if key.startswith("bpTemp"):
+            return "°C"
+
+        return None  # Default if no match found
 
     def __get_description(self, key):
         # TODO: hier könnte man noch mehr definieren bzw ein translation dict erstellen +1
