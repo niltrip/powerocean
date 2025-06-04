@@ -177,8 +177,8 @@ class Ecoflow:
         if "Generation" in key:
             return "kWh"
 
-        # Special case for keys starting with "bpTemp"
-        if key.startswith("bpTemp"):
+        # Special case for keys ending with "Temp"
+        if key.endswith("Temp"):
             return "°C"
 
         return None  # Default if no match found
@@ -240,26 +240,26 @@ class Ecoflow:
         sensors = self.__get_sensors_data(response)
 
         # get sensors from 'JTS1_ENERGY_STREAM_REPORT'
-        # sensors = self.__get_sensors_energy_stream(response, sensors)
         sensors = self.__get_sensors_from_response(
             response, sensors, "JTS1_ENERGY_STREAM_REPORT"
         )
 
         # get sensors from 'JTS1_EMS_CHANGE_REPORT'
-        # sensors = self.__get_sensors_ems_change(response, sensors)
         sensors = self.__get_sensors_from_response(
             response, sensors, "JTS1_EMS_CHANGE_REPORT"
         )
 
         # get info from batteries  => JTS1_BP_STA_REPORT
-        sensors = self.__get_sensors_battery(response, sensors)
+        sensors = self.__get_sensors_battery(response, sensors, "JTS1_BP_STA_REPORT")
 
         # get info from PV strings  => JTS1_EMS_HEARTBEAT
-        sensors = self.__get_sensors_ems_heartbeat(response, sensors)
+        sensors = self.__get_sensors_ems_heartbeat(
+            response, sensors, "JTS1_EMS_HEARTBEAT"
+        )
 
         return sensors
 
-    def __get_sensors_data(self, response):
+    def __get_sensors_data(self, response) -> dict:
         d = response["data"].copy()
 
         sens_select = self.__get_sens_select("data")
@@ -284,17 +284,17 @@ class Ecoflow:
 
         return sensors
 
-    def __get_sensors_from_response(self, response, sensors, report_data):
+    def __get_sensors_from_response(self, response, sensors, report) -> dict:
         """Get sensors from response data based on report_data."""
-        if report_data not in response["data"]["quota"]:
-            report_data = re.sub(r"JTS1_", "RE307_", report_data)
-        d = response["data"]["quota"][report_data]
+        if report not in response["data"]["quota"]:
+            report = re.sub(r"JTS1_", "RE307_", report)
+        d = response["data"]["quota"][report]
 
         try:
-            # remove prefix from report_data
-            report = re.sub(r"^[^_]+_", "", report_data)
+            # remove prefix from report
+            report_data = re.sub(r"^[^_]+_", "", report)
             # get sensors to select from datapoints.json
-            sens_select = self.__get_sens_select(report)
+            sens_select = self.__get_sens_select(report_data)
 
             data = {}
             for key, value in d.items():
@@ -317,19 +317,18 @@ class Ecoflow:
             _LOGGER.error(f"Report {report} not found in datapoints.json.")
         return sensors
 
-    def __get_sensors_battery(self, response, sensors):
-        report = "JTS1_BP_STA_REPORT"
+    def __get_sensors_battery(self, response, sensors, report) -> dict:
         if report not in response["data"]["quota"]:
-            report = "RE307_BP_STA_REPORT"
+            report = re.sub(r"JTS1_", "RE307_", report)
         d = response["data"]["quota"][report]
 
         try:
-            report = re.sub(r"^[^_]+_", "", report)
+            report_data = re.sub(r"^[^_]+_", "", report)
             keys = list(d.keys())
 
             # loop over N batteries:
             batts = [s for s in keys if len(s) > 12]
-            bat_sens_select = self.__get_sens_select(report)
+            bat_sens_select = self.__get_sens_select(report_data)
 
             data = {}
             prefix = "bpack"
@@ -352,24 +351,6 @@ class Ecoflow:
                             description=description_tmp,
                             icon=self.__get_special_icon(key),
                         )
-                # compute mean temperature of cells
-                key = "bpTemp"
-                temp = d_bat[key]
-                value = sum(temp) / len(temp)
-                # unique_id = f"{self.sn}_{report}_{bat}_{key}"
-                unique_id = f"{bat}_{report}_{key}"
-                description_tmp = f"{name}" + self.__get_description(key)
-                data[unique_id] = PowerOceanEndPoint(
-                    internal_unique_id=unique_id,
-                    serial=self.sn,
-                    # name=f"{self.sn}_{name + key}",
-                    name=f"{bat}_{name + key}",
-                    friendly_name=name + key,
-                    value=value,
-                    unit=self.__get_unit(key),
-                    description=description_tmp,
-                    icon=None,
-                )
 
             dict.update(sensors, data)
 
@@ -377,15 +358,14 @@ class Ecoflow:
             _LOGGER.error(f"Report {report} not found in datapoints.json.")
         return sensors
 
-    def __get_sensors_ems_heartbeat(self, response, sensors):
-        report = "JTS1_EMS_HEARTBEAT"
+    def __get_sensors_ems_heartbeat(self, response, sensors, report) -> dict:
         if report not in response["data"]["quota"]:
-            report = "RE307_EMS_HEARTBEAT"
+            report = re.sub(r"JTS1_", "RE307_", report)
         d = response["data"]["quota"][report]
 
         try:
-            report = re.sub(r"^[^_]+_", "", report)
-            sens_select = self.__get_sens_select(report)
+            report_data = re.sub(r"^[^_]+_", "", report)
+            sens_select = self.__get_sens_select(report_data)
 
             data = {}
             for key, value in d.items():

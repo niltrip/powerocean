@@ -10,8 +10,7 @@
 		"monthElectricityGeneration",
 		"yearElectricityGeneration",
 		"totalElectricityGeneration",
-		"systemName",
-		"createTime"
+		"systemName"
 	],
 	"ENERGY_STREAM_REPORT": [
 		"pv1Pwr",
@@ -37,7 +36,11 @@
 		"bpAmp",
 		"bpCycles",
 		"bpSysState",
-		"bpRemainWatth"
+		"bpRemainWatth",
+		"bmsRunSta",
+		"bpEnvTemp",
+		"bpMinCellTemp",
+		"bpMaxCellTemp"
 	],
 	"EMS_HEARTBEAT": [
 		"bpRemainWatth",
