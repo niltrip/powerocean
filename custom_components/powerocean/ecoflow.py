@@ -2,8 +2,8 @@
 
 import base64
 import re
-from collections import namedtuple
 from pathlib import Path
+from typing import NamedTuple
 
 import requests
 from homeassistant.exceptions import IntegrationError
@@ -15,19 +15,42 @@ from .const import _LOGGER, DOMAIN, ISSUE_URL_ERROR_MESSAGE
 # Mock path to response.json file
 mocked_response = Path("documentation/response.json")
 
+
 # Better storage of PowerOcean endpoint
-PowerOceanEndPoint = namedtuple(
-    "PowerOceanEndPoint",
-    "internal_unique_id, serial, name, friendly_name, value, unit, description, icon",
-)
+class PowerOceanEndPoint(NamedTuple):
+    """
+    Represents a PowerOcean endpoint with metadata and value.
+
+    Attributes:
+        internal_unique_id (str): Unique identifier for the endpoint.
+        serial (str): Serial number of the device.
+        name (str): Name of the endpoint.
+        friendly_name (str): Human-readable name.
+        value (object): Value of the endpoint.
+        unit (str | None): Unit of measurement.
+        description (str): Description of the endpoint.
+        icon (str | None): Icon representing the endpoint.
+
+    """
+
+    internal_unique_id: str
+    serial: str
+    name: str
+    friendly_name: str
+    value: object
+    unit: str | None
+    description: str
+    icon: str | None
 
 
 # ecoflow_api to detect device and get device info, fetch the actual data from the PowerOcean device, and parse it
 # Rename, there is an official API since june
 class Ecoflow:
-    """Class representing Ecoflow"""
+    """Class representing Ecoflow."""
 
-    def __init__(self, serialnumber: str, username: str, password: str, variant: str):
+    def __init__(
+        self, serialnumber: str, username: str, password: str, variant: str
+    ) -> None:
         self.sn = serialnumber
         self.unique_id = serialnumber
         self.ecoflow_username = username
@@ -39,7 +62,7 @@ class Ecoflow:
         self.url_iot_app = "https://api.ecoflow.com/auth/login"
         self.url_user_fetch = f"https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}"
 
-    def get_device(self):
+    def get_device(self) -> dict:
         """Get device info."""
         self.device = {
             "product": "PowerOcean",
