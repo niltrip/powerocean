@@ -10,7 +10,7 @@ from homeassistant.exceptions import IntegrationError
 from homeassistant.util.json import json_loads
 from requests.exceptions import RequestException
 
-from .const import _LOGGER, ISSUE_URL_ERROR_MESSAGE, DOMAIN
+from .const import _LOGGER, DOMAIN, ISSUE_URL_ERROR_MESSAGE
 
 # Mock path to response.json file
 mocked_response = Path("documentation/response.json")
@@ -183,37 +183,26 @@ class Ecoflow:
 
         return None  # Default if no match found
 
-    def __get_description(self, key):
-        # TODO: hier könnte man noch mehr definieren bzw ein translation dict erstellen +1
-        # Comment: Ich glaube hier brauchen wir n
-        description = key  # default description
-        if key == "sysLoadPwr":
-            description = "Hausnetz"
-        if key == "sysGridPwr":
-            description = "Stromnetz"
-        if key == "mpptPwr":
-            description = "Solarertrag"
-        if key == "bpPwr":
-            description = "Batterieleistung"
-        if key == "bpSoc":
-            description = "Ladezustand der Batterie"
-        if key == "online":
-            description = "Online"
-        if key == "systemName":
-            description = "System Name"
-        if key == "createTime":
-            description = "Installations Datum"
-        # Battery descriptions
-        if key == "bpVol":
-            description = "Batteriespannung"
-        if key == "bpAmp":
-            description = "Batteriestrom"
-        if key == "bpCycles":
-            description = "Ladezyklen"
-        if key == "bpTemp":
-            description = "Temperatur der Batteriezellen"
+    def __get_description(self, key: str) -> str:
+        """Get description from key name using a dictionary mapping."""
+        # Dictionary for key-to-description mapping
+        description_mapping = {
+            "sysLoadPwr": "Hausnetz",
+            "sysGridPwr": "Stromnetz",
+            "mpptPwr": "Solarertrag",
+            "bpPwr": "Batterieleistung",
+            "bpSoc": "Ladezustand der Batterie",
+            "online": "Online",
+            "systemName": "System Name",
+            "createTime": "Installations Datum",
+            "bpVol": "Batteriespannung",
+            "bpAmp": "Batteriestrom",
+            "bpCycles": "Ladezyklen",
+            "bpTemp": "Temperatur der Batteriezellen",
+        }
 
-        return description
+        # Use .get() to avoid KeyErrors and return default value
+        return description_mapping.get(key, key)  # Default to key if not found
 
     def __get_sens_select(self, report):
         # open File an read
