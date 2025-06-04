@@ -204,6 +204,26 @@ class Ecoflow:
         # Use .get() to avoid KeyErrors and return default value
         return description_mapping.get(key, key)  # Default to key if not found
 
+    def __get_special_icon(self, key: str) -> str | None:
+        """Get special icon for a key."""
+        # Dictionary für die Zuordnung von Keys zu Icons
+        icon_mapping = {
+            "mpptPwr": "mdi:solar-power",
+            "online": "mdi:cloud-check",
+            "sysGridPwr": "mdi:transmission-tower-import",
+            "sysLoadPwr": "mdi:home-import-outline",
+            "bpAmp": "mdi:current-dc",
+        }
+
+        # Standardwert setzen
+        special_icon = icon_mapping.get(key)
+
+        # Zusätzliche Prüfung für Keys, die mit "pv1" oder "pv2" beginnen
+        if key.startswith(("pv1", "pv2")):
+            special_icon = "mdi:solar-power"
+
+        return special_icon
+
     def __get_sens_select(self, report):
         # open File an read
         # Dict with entity names to use
@@ -250,15 +270,6 @@ class Ecoflow:
                 if not isinstance(value, dict):
                     # default uid, unit and descript
                     unique_id = f"{self.sn}_{key}"
-                    special_icon = None
-                    if key == "mpptPwr":
-                        special_icon = "mdi:solar-power"
-                    if key == "online":
-                        special_icon = "mdi:cloud-check"
-                    if key == "sysGridPwr":
-                        special_icon = "mdi:transmission-tower-import"
-                    if key == "sysLoadPwr":
-                        special_icon = "mdi:home-import-outline"
 
                     sensors[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
@@ -268,69 +279,8 @@ class Ecoflow:
                         value=value,
                         unit=self.__get_unit(key),
                         description=self.__get_description(key),
-                        icon=special_icon,
+                        icon=self.__get_special_icon(key),
                     )
-
-        return sensors
-
-    def __get_sensors_energy_stream(self, response, sensors):
-        report = "JTS1_ENERGY_STREAM_REPORT"
-        d = response["data"]["quota"][report]
-        sens_select = self.__get_sens_select(report)
-
-        data = {}
-        for key, value in d.items():
-            if key in sens_select:
-                # default uid, unit and descript
-                unique_id = f"{self.sn}_{report}_{key}"
-                special_icon = None
-                if key.startswith(("pv1", "pv2")):
-                    special_icon = "mdi:solar-power"
-                description_tmp = self.__get_description(key)
-                data[unique_id] = PowerOceanEndPoint(
-                    internal_unique_id=unique_id,
-                    serial=self.sn,
-                    name=f"{self.sn}_{key}",
-                    friendly_name=key,
-                    value=value,
-                    unit=self.__get_unit(key),
-                    description=description_tmp,
-                    icon=special_icon,
-                )
-
-        dict.update(sensors, data)
-
-        return sensors
-
-    def __get_sensors_ems_change(self, response, sensors):
-        report = "JTS1_EMS_CHANGE_REPORT"
-        d = response["data"]["quota"][report]
-
-        sens_select = self.__get_sens_select(report)
-
-        # add mppt Warning/Fault Codes
-        keys = d.keys()
-        r = re.compile("mppt.*Code")
-        wfc = list(filter(r.match, keys))  # warning/fault code keys
-        sens_select += wfc
-
-        data = {}
-        for key, value in d.items():
-            if key in sens_select:  # use only sensors in sens_select
-                # default uid, unit and descript
-                unique_id = f"{self.sn}_{report}_{key}"
-
-                data[unique_id] = PowerOceanEndPoint(
-                    internal_unique_id=unique_id,
-                    serial=self.sn,
-                    name=f"{self.sn}_{key}",
-                    friendly_name=key,
-                    value=value,
-                    unit=self.__get_unit(key),
-                    description=self.__get_description(key),
-                    icon=None,
-                )
-        dict.update(sensors, data)
 
         return sensors
 
@@ -351,10 +301,6 @@ class Ecoflow:
                 if key in sens_select:  # use only sensors in sens_select
                     # default uid, unit and descript
                     unique_id = f"{self.sn}_{report}_{key}"
-                    special_icon = None
-                    if key.startswith(("pv1", "pv2")):
-                        special_icon = "mdi:solar-power"
-
                     data[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
                         serial=self.sn,
@@ -363,7 +309,7 @@ class Ecoflow:
                         value=value,
                         unit=self.__get_unit(key),
                         description=self.__get_description(key),
-                        icon=special_icon,
+                        icon=self.__get_special_icon(key),
                     )
             dict.update(sensors, data)
 
@@ -396,9 +342,6 @@ class Ecoflow:
                         # unique_id = f"{self.sn}_{report}_{bat}_{key}"
                         unique_id = f"{bat}_{report}_{key}"
                         description_tmp = f"{name}" + self.__get_description(key)
-                        special_icon = None
-                        if key == "bpAmp":
-                            special_icon = "mdi:current-dc"
                         data[unique_id] = PowerOceanEndPoint(
                             internal_unique_id=unique_id,
                             serial=self.sn,
@@ -407,7 +350,7 @@ class Ecoflow:
                             value=value,
                             unit=self.__get_unit(key),
                             description=description_tmp,
-                            icon=special_icon,
+                            icon=self.__get_special_icon(key),
                         )
                 # compute mean temperature of cells
                 key = "bpTemp"
