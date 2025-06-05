@@ -6,7 +6,8 @@
         "data": {
           "serialnumber": "[%key:common::config_flow::data::serialnumber%]",
           "username": "[%key:common::config_flow::data::username%]",
-          "password": "[%key:common::config_flow::data::password%]"
+          "password": "[%key:common::config_flow::data::password%]",
+          "variant": "[%key:common::config_flow::data::variant%]"
         }
       },
       "device_options": {

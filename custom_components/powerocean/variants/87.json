@@ -1,0 +1,68 @@
+{
+	"data": [
+		"sysLoadPwr",
+		"sysGridPwr",
+		"mpptPwr",
+		"bpPwr",
+		"online",
+		"dcdcPwr",
+		"todayElectricityGeneration",
+		"monthElectricityGeneration",
+		"yearElectricityGeneration",
+		"totalElectricityGeneration",
+		"systemName"
+	],
+	"ENERGY_STREAM_REPORT": [
+		"pv1Pwr",
+		"pvInvPwr",
+		"pv2Pwr",
+		"pv3Pwr"
+	],
+	"EMS_CHANGE_REPORT": [
+		"bpTotalChgEnergy",
+		"bpTotalDsgEnergy",
+		"bpSoc",
+		"bpOnlineSum",
+		"emsCtrlLedBright",
+		"mppt1FaultCode",
+		"mppt1WarningCode",
+		"mppt2FaultCode",
+		"mppt2WarningCode"
+	],
+	"BP_STA_REPORT": [
+		"bpPwr",
+		"bpSoc",
+		"bpSoh",
+		"bpVol",
+		"bpAmp",
+		"bpCycles",
+		"bpSysState",
+		"bpRemainWatth",
+		"bmsRunSta",
+		"bpEnvTemp",
+		"bpMinCellTemp",
+		"bpMaxCellTemp"
+	],
+	"EMS_HEARTBEAT": [
+		"bpRemainWatth",
+		"emsBpAliveNum",
+		"emsBpPower",
+		"pcsActPwr",
+		"pcsMeterPower"
+	],
+	"EVCHARGING_REPORT": [
+		"evSn",
+		"workMode",
+		"useGridFirst",
+		"evOnoffSet",
+		"orderStartTimestamp",
+		"onlineBits",
+		"errorCode",
+		"evUserManual",
+		"evChargingEnergy",
+		"evCurrSet",
+		"chargeVehicleId",
+		"chargingStatus",
+		"evPwr"
+	]
+}
