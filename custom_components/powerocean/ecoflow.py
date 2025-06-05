@@ -12,7 +12,7 @@ from homeassistant.util.json import json_loads
 from .const import _LOGGER, DOMAIN, ISSUE_URL_ERROR_MESSAGE
 
 # Mock path to response.json file
-mocked_response = Path("documentation/response.json")
+mocked_response = Path("documentation/response_modified.json")
 
 
 # Better storage of PowerOcean endpoint
@@ -60,6 +60,7 @@ class Ecoflow:
         self.session = requests.Session()
         self.url_iot_app = "https://api.ecoflow.com/auth/login"
         self.url_user_fetch = f"https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}"
+        self.use_mocked_response = False  # Set to True to use mocked response
 
     def get_device(self) -> dict:
         """Get device info."""
@@ -154,18 +155,16 @@ class Ecoflow:
             request = requests.get(self.url_user_fetch, headers=headers, timeout=30)
             response = self.get_json_response(request)
 
-            try:
-                # TESTING!!! create response file and use it as data
-                with Path.open(mocked_response, "r", encoding="utf-8") as datei:
-                    response = json_loads(datei.read())
-            except FileExistsError:
-                error = f"Data from: {mocked_response}"
-                _LOGGER.warning(error)
-            except FileNotFoundError:
-                error = f"Responsefile not present: {mocked_response}"
-                _LOGGER.debug(error)
+            if self.use_mocked_response:
+                try:
+                    with Path.open(mocked_response, "r", encoding="utf-8") as file:
+                        response = json_loads(file.read())
+                except FileNotFoundError:
+                    _LOGGER.debug(
+                        f"Mocked response file not present: {mocked_response}"
+                    )
 
-            _LOGGER.debug(f"{response}")
+            # _LOGGER.debug(f"{response}")
             # Ensure response is a dictionary before passing to _get_sensors
             if isinstance(response, dict):
                 return self._get_sensors(response)
@@ -268,7 +267,7 @@ class Ecoflow:
             _LOGGER.error(f"File not found: {datapointfile}")
             return {}
 
-        except json_loads.JSONDecodeError:
+        except AttributeError:
             _LOGGER.error(f"Error decoding JSON in file: {datapointfile}")
             return {}
 
@@ -314,7 +313,7 @@ class Ecoflow:
 
         sens_select = self.__get_sens_select("data")
 
-        # sensors = dict()  # start with empty dict
+        sensors = {}  # start with empty dict
         for key, value in d.items():
             if key in sens_select:  # use only sensors in sens_select
                 if not isinstance(value, dict):
@@ -340,7 +339,13 @@ class Ecoflow:
         """Get sensors from response data based on report_data."""
         if report not in response["data"]["quota"]:
             report = re.sub(r"JTS1_", "RE307_", report)
-        d = response["data"]["quota"][report]
+
+        try:
+            d = response["data"]["quota"][report]
+            # d = response.get("data", {}).get("quota", {}).get(report, {})
+        except KeyError:
+            _LOGGER.warning(f"Missing report: {report}")
+            return sensors
 
         try:
             # remove prefix from report
@@ -372,7 +377,13 @@ class Ecoflow:
     def __get_sensors_battery(self, response: dict, sensors: dict, report: str) -> dict:
         if report not in response["data"]["quota"]:
             report = re.sub(r"JTS1_", "RE307_", report)
-        d = response["data"]["quota"][report]
+
+        try:
+            d = response["data"]["quota"][report]
+            # d = response.get("data", {}).get("quota", {}).get(report, {})
+        except KeyError:
+            _LOGGER.warning(f"Missing report: {report}")
+            return sensors
 
         try:
             report_data = re.sub(r"^[^_]+_", "", report)
@@ -390,13 +401,13 @@ class Ecoflow:
                 for key, value in d_bat.items():
                     if key in bat_sens_select:
                         # default uid, unit and descript
-                        # unique_id = f"{self.sn}_{report}_{bat}_{key}"
-                        unique_id = f"{bat}_{report}_{key}"
-                        description_tmp = f"{name}" + self.__get_description(key)
+                        unique_id = f"{self.sn}_{report}_{bat}_{key}"
+                        # unique_id = f"{bat}_{report}_{key}"
+                        description_tmp = f"{name}{self.__get_description(key)}"
                         data[unique_id] = PowerOceanEndPoint(
                             internal_unique_id=unique_id,
                             serial=self.sn,
-                            name=f"{self.sn}_{name + key}",
+                            name=f"{self.sn}_{name}{key}",
                             friendly_name=name + key,
                             value=value,
                             unit=self.__get_unit(key),
@@ -415,7 +426,13 @@ class Ecoflow:
     ) -> dict:
         if report not in response["data"]["quota"]:
             report = re.sub(r"JTS1_", "RE307_", report)
-        d = response["data"]["quota"][report]
+
+        try:
+            d = response["data"]["quota"][report]
+            # d = response.get("data", {}).get("quota", {}).get(report, {})
+        except KeyError:
+            _LOGGER.warning(f"Missing report: {report}")
+            return sensors
 
         try:
             report_data = re.sub(r"^[^_]+_", "", report)
@@ -492,7 +509,6 @@ class Ecoflow:
                 # create total power sensor of all strings
                 name = "mpptPv_pwrTotal"
                 unique_id = f"{self.sn}_{report}_mpptHeartBeat_{name}"
-
                 data[unique_id] = PowerOceanEndPoint(
                     internal_unique_id=unique_id,
                     serial=self.sn,
