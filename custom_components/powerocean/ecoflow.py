@@ -8,7 +8,6 @@ from typing import NamedTuple
 import requests
 from homeassistant.exceptions import IntegrationError
 from homeassistant.util.json import json_loads
-from requests.exceptions import RequestException
 
 from .const import _LOGGER, DOMAIN, ISSUE_URL_ERROR_MESSAGE
 
@@ -76,9 +75,8 @@ class Ecoflow:
 
         return self.device
 
-    def authorize(self):
-        """Function authorize"""
-        auth_ok = False  # default
+    def authorize(self) -> bool:
+        """Authorize user and retrieve authentication token."""
         headers = {"lang": "en_US", "content-type": "application/json"}
         data = {
             "email": self.ecoflow_username,
@@ -87,64 +85,71 @@ class Ecoflow:
             "userType": "ECOFLOW",
         }
 
-        try:
-            url = self.url_iot_app
-            _LOGGER.info("Login to EcoFlow API %s", {url})
-            request = requests.post(url, json=data, headers=headers, timeout=10)
-            response = self.get_json_response(request)
-            _LOGGER.debug(f"{response}")
-
-        except ConnectionError:
-            error = f"Unable to connect to {self.url_iot_app}. Device might be offline."
-            _LOGGER.warning(error + ISSUE_URL_ERROR_MESSAGE)
-            raise IntegrationError(error)
+        url = self.url_iot_app
+        _LOGGER.info(f"Attempting to log in to EcoFlow API: {url}")
 
         try:
-            self.token = response["data"]["token"]
-            # self.user_id = response["data"]["user"]["userId"]
-            # user_name = response["data"]["user"].get("name", "<no user name>")
-            auth_ok = True
-        except KeyError as key:
-            raise Exception(f"Failed to extract key {key} from response: {response}")
+            response = requests.post(url, json=data, headers=headers, timeout=10)
+            response_data = self.get_json_response(response)
+            _LOGGER.debug(f"API Response: {response_data}")
 
-        _LOGGER.info("Successfully logged in.")
+            self.token = response_data.get("data", {}).get("token")
+            if not self.token:
+                msg = "Missing 'token' in response data"
+                _LOGGER.error(msg)
+                raise AuthenticationFailed(msg)
 
-        self.get_device()  # collect device info
+        except ConnectionError as err:
+            error_msg = f"Unable to connect to {url}. Device might be offline."
+            _LOGGER.warning(error_msg + ISSUE_URL_ERROR_MESSAGE)
+            raise IntegrationError(error_msg) from err
 
-        return auth_ok
+        except KeyError as key_error:
+            _LOGGER.error(
+                f"Failed to extract key {key_error} from response: "
+                f"{locals().get('response_data', {})}"
+            )
+            msg = f"Missing {key_error} in response"
+            raise FailedToExtractKeyError(
+                msg, locals().get("response_data", {})
+            ) from None
 
-    def get_json_response(self, request):
-        """Function get json response"""
+        else:
+            _LOGGER.info("Successfully logged in.")
+            self.get_device()
+            return True
+
+    def get_json_response(self, request: requests.Response) -> dict:
+        """Parse JSON response and validate message status."""
         if request.status_code != 200:
-            raise Exception(
-                f"Got HTTP status code {request.status_code}: {request.text}"
-            )
+            msg = f"HTTP {request.status_code}: {request.text}"
+            raise Exception(msg)
+
         try:
-            response = json_loads(request.text)
-            response_message = response["message"]
-        except KeyError as key:
-            raise Exception(
-                f"Failed to extract key {key} from {json_loads(request.text)}"
-            )
-        except Exception as error:
-            raise Exception(f"Failed to parse response: {request.text} Error: {error}")
+            response_data = json_loads(request.text)
+        except ValueError as error:
+            msg = f"Failed to parse JSON response: {request.text} — Error: {error}"
+            raise json_loads.JsonParseError(request.text, error) from error
 
-        if response_message.lower() != "success":
-            raise Exception(f"{response_message}")
+        # Validate message key
+        message = response_data.get("message")
+        if message is None:
+            raise KeyError(f"'message' key missing in response: {response_data}")
 
-        return response
+        if message.lower() != "success":
+            raise Exception(f"API Error: {message}")
+
+        return response_data
 
     # Fetch the data from the PowerOcean device, which then constitues the Sensors
-    def fetch_data(self):
+    def fetch_data(self) -> dict:
         """Fetch data from Url."""
         url = self.url_user_fetch
         try:
             headers = {
                 "authorization": f"Bearer {self.token}",
-                # "accept": "application/json, text/plain, */*",
                 "user-agent": "Firefox/133.0",
-                # "platform": "web",
-                "product-type": "83",
+                "product-type": self.ecoflow_variant,
             }
             request = requests.get(self.url_user_fetch, headers=headers, timeout=30)
             response = self.get_json_response(request)
@@ -161,17 +166,15 @@ class Ecoflow:
                 _LOGGER.debug(error)
 
             _LOGGER.debug(f"{response}")
-            return self._get_sensors(response)
+            # Ensure response is a dictionary before passing to _get_sensors
+            if isinstance(response, dict):
+                return self._get_sensors(response)
+            raise ResponseTypeError(type(response).__name__)
 
-        except ConnectionError:
-            error = f"ConnectionError in fetch_data: Unable to connect to {url}. Device might be offline."
+        except ConnectionError as err:
+            error = f"ConnectionError in fetch_data: Unable to connect to {url}."
             _LOGGER.warning(error + ISSUE_URL_ERROR_MESSAGE)
-            raise IntegrationError(error)
-
-        except RequestException as e:
-            error = f"RequestException in fetch_data: Error while fetching data from {url}: {e}"
-            _LOGGER.warning(error + ISSUE_URL_ERROR_MESSAGE)
-            raise IntegrationError(error)
+            raise IntegrationError(error) from err
 
     def __get_unit(self, key: str) -> str | None:
         """Get unit from key name using a dictionary mapping."""
@@ -247,47 +250,71 @@ class Ecoflow:
 
         return special_icon
 
-    def __get_sens_select(self, report):
-        # open File an read
-        # Dict with entity names to use
+    def __get_sens_select(self, report: str) -> dict:
+        """Retrieve sensor selection from JSON file."""
         datapointfile = Path(
             f"custom_components/{DOMAIN}/variants/{self.ecoflow_variant}.json"
         )
-        with Path.open(datapointfile) as file:
-            datapoints = json_loads(file.read())
 
-        return datapoints[report]
+        try:
+            with datapointfile.open("r", encoding="utf-8") as file:
+                datapoints = json_loads(
+                    file.read()
+                )  # Directly load JSON without reading as a string
 
-    def _get_sensors(self, response):
+            return datapoints.get(report, {})  # Use .get() to avoid KeyErrors
+
+        except FileNotFoundError:
+            _LOGGER.error(f"File not found: {datapointfile}")
+            return {}
+
+        except json_loads.JSONDecodeError:
+            _LOGGER.error(f"Error decoding JSON in file: {datapointfile}")
+            return {}
+
+    def _get_sensors(self, response: dict) -> dict:
+        sensors = {}  # start with empty dict
+        # error handling for response
+        data = response.get("data")
+        if not isinstance(data, dict):
+            _LOGGER.error("No 'data' in response.")
+            return sensors  # return empty dict if no data
+
         # get sensors from response['data']
-        sensors = self.__get_sensors_data(response)
+        sensors.update(self.__get_sensors_data(response, sensors))
 
         # get sensors from 'JTS1_ENERGY_STREAM_REPORT'
-        sensors = self.__get_sensors_from_response(
-            response, sensors, "JTS1_ENERGY_STREAM_REPORT"
+        sensors.update(
+            self.__get_sensors_from_response(
+                response, sensors, "JTS1_ENERGY_STREAM_REPORT"
+            )
         )
 
         # get sensors from 'JTS1_EMS_CHANGE_REPORT'
-        sensors = self.__get_sensors_from_response(
-            response, sensors, "JTS1_EMS_CHANGE_REPORT"
+        sensors.update(
+            self.__get_sensors_from_response(
+                response, sensors, "JTS1_EMS_CHANGE_REPORT"
+            )
         )
 
         # get info from batteries  => JTS1_BP_STA_REPORT
-        sensors = self.__get_sensors_battery(response, sensors, "JTS1_BP_STA_REPORT")
+        sensors.update(
+            self.__get_sensors_battery(response, sensors, "JTS1_BP_STA_REPORT")
+        )
 
         # get info from PV strings  => JTS1_EMS_HEARTBEAT
-        sensors = self.__get_sensors_ems_heartbeat(
-            response, sensors, "JTS1_EMS_HEARTBEAT"
+        sensors.update(
+            self.__get_sensors_ems_heartbeat(response, sensors, "JTS1_EMS_HEARTBEAT")
         )
 
         return sensors
 
-    def __get_sensors_data(self, response) -> dict:
+    def __get_sensors_data(self, response: dict, sensors: dict) -> dict:
         d = response["data"].copy()
 
         sens_select = self.__get_sens_select("data")
 
-        sensors = dict()  # start with empty dict
+        # sensors = dict()  # start with empty dict
         for key, value in d.items():
             if key in sens_select:  # use only sensors in sens_select
                 if not isinstance(value, dict):
@@ -307,7 +334,9 @@ class Ecoflow:
 
         return sensors
 
-    def __get_sensors_from_response(self, response, sensors, report) -> dict:
+    def __get_sensors_from_response(
+        self, response: dict, sensors: dict, report: str
+    ) -> dict:
         """Get sensors from response data based on report_data."""
         if report not in response["data"]["quota"]:
             report = re.sub(r"JTS1_", "RE307_", report)
@@ -340,7 +369,7 @@ class Ecoflow:
             _LOGGER.error(f"Report {report} not found in datapoints.json.")
         return sensors
 
-    def __get_sensors_battery(self, response, sensors, report) -> dict:
+    def __get_sensors_battery(self, response: dict, sensors: dict, report: str) -> dict:
         if report not in response["data"]["quota"]:
             report = re.sub(r"JTS1_", "RE307_", report)
         d = response["data"]["quota"][report]
@@ -381,7 +410,9 @@ class Ecoflow:
             _LOGGER.error(f"Report {report} not found in datapoints.json.")
         return sensors
 
-    def __get_sensors_ems_heartbeat(self, response, sensors, report) -> dict:
+    def __get_sensors_ems_heartbeat(
+        self, response: dict, sensors: dict, report: str
+    ) -> dict:
         if report not in response["data"]["quota"]:
             report = re.sub(r"JTS1_", "RE307_", report)
         d = response["data"]["quota"][report]
@@ -480,5 +511,21 @@ class Ecoflow:
         return sensors
 
 
+class ResponseTypeError(TypeError):
+    """Exception raised when the response is not a dict."""
+
+    def __init__(self, typename):
+        super().__init__(f"Expected response to be a dict, got {typename}")
+
+
 class AuthenticationFailed(Exception):
     """Exception to indicate authentication failure."""
+
+
+class FailedToExtractKeyError(Exception):
+    """Exception raised when a required key cannot be extracted from a response."""
+
+    def __init__(self, key, response):
+        self.key = key
+        self.response = response
+        super().__init__(f"Failed to extract key {key} from response: {response}")
