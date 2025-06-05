@@ -164,7 +164,7 @@ class Ecoflow:
                         f"Mocked response file not present: {mocked_response}"
                     )
 
-            # _LOGGER.debug(f"{response}")
+            _LOGGER.debug(f"{response}")
             # Ensure response is a dictionary before passing to _get_sensors
             if isinstance(response, dict):
                 return self._get_sensors(response)
@@ -244,7 +244,7 @@ class Ecoflow:
         special_icon = icon_mapping.get(key)
 
         # Zusätzliche Prüfung für Keys, die mit "pv1" oder "pv2" beginnen
-        if key.startswith(("pv1", "pv2")):
+        if key.startswith(("pv1", "pv2", "pv3")):
             special_icon = "mdi:solar-power"
 
         return special_icon
@@ -282,19 +282,14 @@ class Ecoflow:
         # get sensors from response['data']
         sensors.update(self.__get_sensors_data(response, sensors))
 
-        # get sensors from 'JTS1_ENERGY_STREAM_REPORT'
-        sensors.update(
-            self.__get_sensors_from_response(
-                response, sensors, "JTS1_ENERGY_STREAM_REPORT"
+        for report_type in [
+            "JTS1_ENERGY_STREAM_REPORT",
+            "JTS1_EMS_CHANGE_REPORT",
+            "JTS1_EVCHARGING_REPORT",
+        ]:
+            sensors.update(
+                self.__get_sensors_from_response(response, sensors, report_type)
             )
-        )
-
-        # get sensors from 'JTS1_EMS_CHANGE_REPORT'
-        sensors.update(
-            self.__get_sensors_from_response(
-                response, sensors, "JTS1_EMS_CHANGE_REPORT"
-            )
-        )
 
         # get info from batteries  => JTS1_BP_STA_REPORT
         sensors.update(
@@ -309,7 +304,7 @@ class Ecoflow:
         return sensors
 
     def __get_sensors_data(self, response: dict, sensors: dict) -> dict:
-        d = response["data"].copy()
+        d = response["data"]
 
         sens_select = self.__get_sens_select("data")
 
@@ -344,7 +339,9 @@ class Ecoflow:
             d = response["data"]["quota"][report]
             # d = response.get("data", {}).get("quota", {}).get(report, {})
         except KeyError:
-            _LOGGER.warning(f"Missing report: {report}")
+            _LOGGER.debug(
+                f"Missing report in response: {re.sub(r'^[^_]+_', '', report)}"
+            )
             return sensors
 
         try:
@@ -353,12 +350,12 @@ class Ecoflow:
             # get sensors to select from datapoints.json
             sens_select = self.__get_sens_select(report_data)
 
-            data = {}
+            # data = {}
             for key, value in d.items():
                 if key in sens_select:  # use only sensors in sens_select
                     # default uid, unit and descript
                     unique_id = f"{self.sn}_{report}_{key}"
-                    data[unique_id] = PowerOceanEndPoint(
+                    sensors[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
                         serial=self.sn,
                         name=f"{self.sn}_{key}",
@@ -368,10 +365,12 @@ class Ecoflow:
                         description=self.__get_description(key),
                         icon=self.__get_special_icon(key),
                     )
-            dict.update(sensors, data)
+            # dict.update(sensors, data)
 
         except KeyError:
-            _LOGGER.error(f"Report {report} not found in datapoints.json.")
+            _LOGGER.error(
+                f"Report {report_data} not found in {self.ecoflow_variant}.json."
+            )
         return sensors
 
     def __get_sensors_battery(self, response: dict, sensors: dict, report: str) -> dict:
@@ -393,7 +392,7 @@ class Ecoflow:
             batts = [s for s in keys if len(s) > 12]
             bat_sens_select = self.__get_sens_select(report_data)
 
-            data = {}
+            # data = {}
             prefix = "bpack"
             for ibat, bat in enumerate(batts):
                 name = prefix + "%i_" % (ibat + 1)
@@ -404,7 +403,7 @@ class Ecoflow:
                         unique_id = f"{self.sn}_{report}_{bat}_{key}"
                         # unique_id = f"{bat}_{report}_{key}"
                         description_tmp = f"{name}{self.__get_description(key)}"
-                        data[unique_id] = PowerOceanEndPoint(
+                        sensors[unique_id] = PowerOceanEndPoint(
                             internal_unique_id=unique_id,
                             serial=self.sn,
                             name=f"{self.sn}_{name}{key}",
@@ -415,7 +414,7 @@ class Ecoflow:
                             icon=self.__get_special_icon(key),
                         )
 
-            dict.update(sensors, data)
+            # dict.update(sensors, data)
 
         except KeyError:
             _LOGGER.error(f"Report {report} not found in datapoints.json.")
@@ -438,13 +437,13 @@ class Ecoflow:
             report_data = re.sub(r"^[^_]+_", "", report)
             sens_select = self.__get_sens_select(report_data)
 
-            data = {}
+            # data = {}
             for key, value in d.items():
                 if key in sens_select:
                     # default uid, unit and descript
                     unique_id = f"{self.sn}_{report}_{key}"
                     description_tmp = self.__get_description(key)
-                    data[unique_id] = PowerOceanEndPoint(
+                    sensors[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
                         serial=self.sn,
                         name=f"{self.sn}_{key}",
@@ -460,10 +459,10 @@ class Ecoflow:
             if phases[1] in d:
                 for i, phase in enumerate(phases):
                     for key, value in d[phase].items():
-                        name = phase + "_" + key
+                        name = f"{phase}_{key}"
                         unique_id = f"{self.sn}_{report}_{name}"
 
-                        data[unique_id] = PowerOceanEndPoint(
+                        sensors[unique_id] = PowerOceanEndPoint(
                             internal_unique_id=unique_id,
                             serial=self.sn,
                             name=f"{self.sn}_{name}",
@@ -492,7 +491,7 @@ class Ecoflow:
                         if key.endswith("pwr"):
                             special_icon = "mdi:solar-power"
 
-                        data[unique_id] = PowerOceanEndPoint(
+                        sensors[unique_id] = PowerOceanEndPoint(
                             internal_unique_id=unique_id,
                             serial=self.sn,
                             name=f"{self.sn}_{mpptpv}_{key}",
@@ -509,7 +508,7 @@ class Ecoflow:
                 # create total power sensor of all strings
                 name = "mpptPv_pwrTotal"
                 unique_id = f"{self.sn}_{report}_mpptHeartBeat_{name}"
-                data[unique_id] = PowerOceanEndPoint(
+                sensors[unique_id] = PowerOceanEndPoint(
                     internal_unique_id=unique_id,
                     serial=self.sn,
                     name=f"{self.sn}_{name}",
@@ -520,7 +519,7 @@ class Ecoflow:
                     icon="mdi:solar-power",
                 )
 
-            dict.update(sensors, data)
+            # dict.update(sensors, data)
 
         except KeyError:
             _LOGGER.error(f"Report {report} not found in datapoints.json.")
