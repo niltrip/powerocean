@@ -12,7 +12,7 @@ from homeassistant.util.json import json_loads
 from .const import _LOGGER, DOMAIN, ISSUE_URL_ERROR_MESSAGE
 
 # Mock path to response.json file
-mocked_response = Path("documentation/response_modified.json")
+mocked_response = Path("documentation/response.json")
 
 
 # Better storage of PowerOcean endpoint
