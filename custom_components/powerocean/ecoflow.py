@@ -164,6 +164,7 @@ class Ecoflow:
                         f"Mocked response file not present: {mocked_response}"
                     )
 
+            # Debugging output for the response
             _LOGGER.debug(f"{response}")
             # Ensure response is a dictionary before passing to _get_sensors
             if isinstance(response, dict):
@@ -179,23 +180,18 @@ class Ecoflow:
         """Get unit from key name using a dictionary mapping."""
         unit_mapping = {
             "pwr": "W",
-            "Pwr": "W",
-            "Power": "W",
+            "power": "W",
             "amp": "A",
-            "Amp": "A",
             "soc": "%",
-            "Soc": "%",
             "soh": "%",
-            "Soh": "%",
             "vol": "V",
-            "Vol": "V",
-            "Watth": "Wh",
-            "Energy": "Wh",
+            "watth": "Wh",
+            "energy": "Wh",
         }
 
         # Check for direct matches using dictionary lookup
         for suffix, unit in unit_mapping.items():
-            if key.endswith(suffix):
+            if key.lower().endswith(suffix):
                 return unit
 
         # Special case for "Generation" in key
