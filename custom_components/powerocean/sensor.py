@@ -1,31 +1,29 @@
 from datetime import timedelta
-from collections import defaultdict
 
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.components.sensor import SensorStateClass
-from homeassistant.helpers.entity import EntityCategory
-from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.helpers import entity_registry
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
+from homeassistant.const import EntityCategory
 from homeassistant.exceptions import IntegrationError
+from homeassistant.helpers import entity_registry
+from homeassistant.helpers.event import async_track_time_interval
 
 from .const import (
-    DOMAIN,
     _LOGGER,
-    ATTR_PRODUCT_DESCRIPTION,
-    ATTR_DESTINATION_NAME,
-    ATTR_SOURCE_NAME,
-    ATTR_UNIQUE_ID,
-    ATTR_PRODUCT_SERIAL,
-    ATTR_PRODUCT_NAME,
-    ATTR_PRODUCT_VENDOR,
     ATTR_PRODUCT_BUILD,
-    ATTR_PRODUCT_VERSION,
+    ATTR_PRODUCT_DESCRIPTION,
     ATTR_PRODUCT_FEATURES,
+    ATTR_PRODUCT_NAME,
+    ATTR_PRODUCT_SERIAL,
+    ATTR_PRODUCT_VENDOR,
+    ATTR_PRODUCT_VERSION,
+    ATTR_UNIQUE_ID,
+    DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
 )
-
-from .ecoflow import Ecoflow, AuthenticationFailed
+from .ecoflow import AuthenticationFailed, Ecoflow
 
 
 # Setting up the adding and updating of sensor entities
@@ -203,9 +201,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             )
 
     # Get the polling interval from the options, defaulting to 5 seconds if not set
-    polling_interval = timedelta(
-        seconds=config_entry.options.get("polling_interval", 5)
-    )
+    polling_interval = timedelta(seconds=ecoflow.options.get("polling_interval"))
 
     async_track_time_interval(hass, async_update_data, polling_interval)
 
@@ -242,7 +238,7 @@ class PowerOceanSensor(SensorEntity):
         self._unit = endpoint.unit
 
         # Set entity category to diagnostic for sensors with no unit
-        if ecoflow.options.get("group_sensors") and not endpoint.unit:
+        if not endpoint.unit:
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
         # If diagnostics entity then disable sensor by default
@@ -332,17 +328,6 @@ class PowerOceanSensor(SensorEntity):
     def icon(self):
         """Return the icon of the sensor."""
         return self._icon
-
-    # icon_mapper = defaultdict(
-    #     lambda: "mdi:alert-circle",
-    #     {
-    #         "°C": "mdi:thermometer",
-    #         "%": "mdi:flash",
-    #         "s": "mdi:timer",
-    #         "Wh": "mdi:solar-power-variant-outline",
-    #         "h": "mdi:timer-sand",
-    #     },
-    # )
 
     # This is to register the icon settings
     async def async_added_to_hass(self):
