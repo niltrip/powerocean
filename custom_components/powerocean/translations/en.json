@@ -15,14 +15,14 @@
                     "serialnumber": "Inverter serial number",
                     "password": "Password",
                     "username": "Username",
-                    "variant": "System ID"
+                    "model_id": "Model ID"
                 }
             },
             "device_options": {
                 "description": "Please select the following options:",
                 "data": {
                     "custom_device_name": "Friendly device name",
-                    "polling_time": "Polling time (in seconds) to update sensors from device",
+                    "polling_interval": "Polling time (in seconds) to update sensors from device",
                     "group_sensors": "Group sensors on device page",
                     "disable_sensors": "Disable diagnostics sensors"
                 }
