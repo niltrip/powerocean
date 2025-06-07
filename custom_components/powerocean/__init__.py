@@ -3,32 +3,29 @@
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    CONF_MODEL_ID,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
 from .const import (
-    DOMAIN,
-    PLATFORMS,
     _LOGGER,
     DOMAIN,
-    ISSUE_URL_ERROR_MESSAGE,
+    PLATFORMS,
     STARTUP_MESSAGE,
 )
 from .ecoflow import Ecoflow
-
 
 _LOGGER.info(STARTUP_MESSAGE)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up PowerOcean from a config entry."""
-
     # Setup DOMAIN as default
     hass.data.setdefault(DOMAIN, {})
-
     # Setup device specific sensor list (used in updates) on HASS so it is available within integration (reuqired for unload)
     hass.data[DOMAIN]["device_specific_sensors"] = {}
-
     # Store an instance of the API instance in hass.data[domain]
     user_input = entry.data[
         "user_input"
@@ -45,7 +42,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         user_input["serialnumber"],
         user_input["username"],
         user_input["password"],
-        user_input["variant"],
+        user_input[CONF_MODEL_ID],
     )
 
     if device_info:
@@ -74,9 +71,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 "custom_device_name"
             ),  # Custom device name from user step 2 (options)
             model=device_info.get("product"),
+            model_id=user_input.get(CONF_MODEL_ID),
             sw_version=device_info.get("version"),
             configuration_url="https://api-e.ecoflow.com",
-            suggested_area="Boiler Room",
         )
 
     return True

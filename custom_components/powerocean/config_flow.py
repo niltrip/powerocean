@@ -4,26 +4,50 @@ from __future__ import annotations
 
 import re
 from typing import Any
+
 import voluptuous as vol
-
-from homeassistant import config_entries, data_entry_flow
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.const import (
+    CONF_MODEL_ID,
+)
 from homeassistant.core import HomeAssistant
-
-from homeassistant.exceptions import HomeAssistantError
-from homeassistant.exceptions import IntegrationError
+from homeassistant.exceptions import HomeAssistantError, IntegrationError
+from homeassistant.helpers.selector import selector
 
 from .const import _LOGGER, DOMAIN, ISSUE_URL_ERROR_MESSAGE
-from .ecoflow import Ecoflow, AuthenticationFailed
-
+from .ecoflow import AuthenticationFailed, Ecoflow
 
 # This is the first step's schema when setting up the integration, or its devices
-# The second schema is defined inside the ConfigFlow class as it has dynamic default values set via API call
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required("serialnumber", default=""): str,
         vol.Required("username", default=""): str,
         vol.Required("password", default=""): str,
-        vol.Required("variant", default="83"): str,
+        vol.Required(CONF_MODEL_ID, default="83"): selector(
+            {
+                "select": {
+                    "options": [
+                        {
+                            "label": "PowerOcean",
+                            "value": "83",
+                        },
+                        {
+                            "label": "PowerOcean DC Fit",
+                            "value": "85",
+                        },
+                        {
+                            "label": "PowerOcean Single Phase",
+                            "value": "86",
+                        },
+                        {
+                            "label": "PowerOcean Plus",
+                            "value": "87",
+                        },
+                    ],
+                    "mode": "dropdown",
+                }
+            }
+        ),
     }
 )
 
@@ -32,9 +56,8 @@ async def validate_input_for_device(
     hass: HomeAssistant, data: dict[str, Any]
 ) -> dict[str, Any]:
     """Validate the user input allows us to connect."""
-
     ecoflow = Ecoflow(
-        data["serialnumber"], data["username"], data["password"], data["variant"]
+        data["serialnumber"], data["username"], data["password"], data[CONF_MODEL_ID]
     )
 
     try:
@@ -64,7 +87,7 @@ async def validate_input_for_device(
         raise InvalidAuth from e
 
 
-class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for PowerOcean."""
 
     VERSION = 1.3
@@ -76,7 +99,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     # This is step 1 for the host/port/user/pass function.
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
-    ) -> data_entry_flow.FlowResult:
+    ) -> ConfigFlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
         if user_input is not None:
@@ -125,7 +148,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_device_options(
         self,
         user_input: dict[str, Any] | None = None,
-    ) -> data_entry_flow.FlowResult:
+    ) -> ConfigFlowResult:
         """Handle the device options step."""
         errors: dict[str, str] = {}
 
@@ -164,8 +187,15 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         step_device_options_schema = vol.Schema(
             {
                 vol.Required("custom_device_name", default=default_device_name): str,
-                vol.Required("polling_time", default=10): vol.All(
-                    vol.Coerce(int), vol.Clamp(min=5)
+                vol.Required("polling_interval", default=10): selector(
+                    {
+                        "number": {
+                            "min": 10,
+                            "max": 60,
+                            "unit_of_measurement": "s",
+                            "mode": "box",
+                        }
+                    }
                 ),
                 vol.Required("group_sensors", default=True): bool,
                 vol.Required("disable_sensors", default=False): bool,
