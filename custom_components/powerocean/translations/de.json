@@ -12,19 +12,18 @@
             "user": {
                 "description": "Bitte geben Sie unten Ihre PowerOcean Geräteinformationen ein:",
                 "data": {
-                    "serialnumber": "Seriennummer des Wechselrichters",
+                    "device_id": "Seriennummer des Wechselrichters",
+                    "email": "Email Adresse",
                     "password": "Passwort",
-                    "username": "Benutzername",
-                    "model_id": "Model ID"
+                    "model_id": "PowerOcean Model"
                 }
             },
             "device_options": {
                 "description": "Bitte wählen Sie die folgenden Optionen aus:",
                 "data": {
-                    "custom_device_name": "Benutzerfreundlicher Gerätename",
-                    "polling_interval": "Abfragezeit (in Sekunden), um Sensoren vom Gerät zu aktualisieren",
-                    "group_sensors": "Gruppieren Sie Sensoren auf der Geräteseite",
-                    "disable_sensors": "Diagnosesensoren deaktivieren"
+                    "friendly_name": "Benutzerfreundlicher Gerätename",
+                    "scan_interval": "Abfragezeit (in Sekunden), um Sensoren vom Gerät zu aktualisieren",
+                    "choose": "Bitte wählen Sie die zu überwachenden Sensoren aus"
                 }
             }
         }

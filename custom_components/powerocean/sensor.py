@@ -1,11 +1,22 @@
+"""
+PowerOcean sensor integration for Home Assistant.
+
+This module defines the setup and management of PowerOcean sensor entities,
+including data fetching, entity registration, and periodic updates.
+"""  # noqa: EXE002
+
 from datetime import timedelta
+from typing import ClassVar, NamedTuple
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
-from homeassistant.const import EntityCategory
+from homeassistant.const import (
+    CONF_SCAN_INTERVAL,
+    EntityCategory,
+)
 from homeassistant.exceptions import IntegrationError
 from homeassistant.helpers import entity_registry
 from homeassistant.helpers.event import async_track_time_interval
@@ -27,62 +38,77 @@ from .ecoflow import AuthenticationFailed, Ecoflow
 
 
 # Setting up the adding and updating of sensor entities
-async def async_setup_entry(hass, config_entry, async_add_entities):
-    # Retrieve the API instance from the config_entry data
+async def async_setup_entry(hass, config_entry, async_add_entities) -> None:
+    """
+    Set up PowerOcean sensor entities for a config entry.
+
+    This function initializes and registers sensor entities, schedules periodic updates,
+    and manages device-specific sensor lists for the PowerOcean integration.
+    """
     ecoflow = hass.data[DOMAIN][config_entry.entry_id]
+    _LOGGER.debug(f"ecoflow.device: {ecoflow.device}")
     device_id = ecoflow.device["serial"]
 
-    # Call EcoFlow to get access to the API data
+    if not await _authorize_device(hass, ecoflow, device_id):
+        return
+
+    data = await _fetch_initial_data(hass, ecoflow, device_id)
+    if not data:
+        return
+
+    _register_sensors(hass, ecoflow, device_id, data, async_add_entities)
+
+    polling_interval = timedelta(
+        seconds=config_entry.options.get(CONF_SCAN_INTERVAL, 10)
+    )
+
+    async def async_update_data(now) -> None:
+        await _update_sensors(hass, ecoflow, device_id, now)
+
+    async_track_time_interval(hass, async_update_data, polling_interval)
+
+
+async def _authorize_device(hass, ecoflow, device_id) -> bool:
+    """Authorize the device and log warnings if authorization fails."""
     try:
         auth_check = await hass.async_add_executor_job(ecoflow.authorize)
-
         if not auth_check:
-            # If device returns False or is empty, log an error and return
             _LOGGER.warning(
                 f"{device_id}: It appears the PowerOcean device is offline or has changed host."
                 + ISSUE_URL_ERROR_MESSAGE
             )
-
+            return False
+        return True
     except AuthenticationFailed as error:
         _LOGGER.warning(f"{device_id}: Authentication failed: {error}")
-        return
+        return False
 
+
+async def _fetch_initial_data(hass, ecoflow, device_id):
+    """Fetch initial sensor data from the device."""
     try:
-        # Fetch the sensor data from the device
         data = await hass.async_add_executor_job(ecoflow.fetch_data)
-
         if not data:
-            # If data returns False or is empty, log an error and return
             _LOGGER.warning(
                 f"{device_id}: Failed to fetch sensor data => authentication failed or no data."
                 + ISSUE_URL_ERROR_MESSAGE
             )
-            return
-
-    # Exception if data cannot be fetched
+            return None
+        return data
     except IntegrationError as error:
         _LOGGER.warning(
             f"{device_id}: Failed to fetch sensor data: {error}"
             + ISSUE_URL_ERROR_MESSAGE
         )
-        return
+        return None
 
-    # Get device id and then reset the device specific list of sensors for updates
-    # to ensure it's empty before adding new entries
 
-    # Initialize or clear the sensor list for this device
+def _register_sensors(hass, ecoflow, device_id, data, async_add_entities):
+    """Register sensor entities and add them to the device-specific list."""
     hass.data[DOMAIN]["device_specific_sensors"][device_id] = []
-
-    # Register entities and add them to the list for schedule updates on each device
-    # which is stored within hass.data
     for unique_id, endpoint in data.items():
-        # Get individual sensor entry from API
         sensor = PowerOceanSensor(ecoflow, endpoint)
-
-        # Add sensors to the device specific list of sensors to be updated, via hass.data as also used in unload
         hass.data[DOMAIN]["device_specific_sensors"][device_id].append(sensor)
-
-        # Register sensor
         async_add_entities([sensor], False)
 
     device_specific_sensors = hass.data[DOMAIN]["device_specific_sensors"]
@@ -90,173 +116,152 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         f"{device_id}: List of device_specific_sensors[device_id]: "
         f"{device_specific_sensors[device_id]}"
     )
-
-    # Log the number of sensors registered (and added to the update list)
     _LOGGER.debug(
         f"{device_id}: All '{len(device_specific_sensors[device_id])}' sensors have registered."
     )
 
-    # Schedule updates
-    async def async_update_data(now):
-        # If device deleted but HASS not restarted, then don't bother continuing
-        if device_id not in hass.data.get(DOMAIN, {}).get(
-            "device_specific_sensors", {}
-        ):
-            return False
 
-        _LOGGER.debug(f"{device_id}: Preparing to update sensors at {now}")
+async def _update_sensors(hass, ecoflow, device_id, now):
+    """Update all registered sensors for the device."""
+    if device_id not in hass.data.get(DOMAIN, {}).get("device_specific_sensors", {}):
+        return False
 
-        # Fetch the full dataset once from the API
-        try:
-            full_data = await hass.async_add_executor_job(ecoflow.fetch_data)
+    _LOGGER.debug(f"{device_id}: Preparing to update sensors at {now}")
 
-        except Exception as e:
-            _LOGGER.error(
-                f"{device_id}: Error fetching data from the device: {e}"
-                + ISSUE_URL_ERROR_MESSAGE
-            )
-            return
+    try:
+        full_data = await hass.async_add_executor_job(ecoflow.fetch_data)
+    except Exception as e:
+        _LOGGER.error(
+            f"{device_id}: Error fetching data from the device: {e}"
+            + ISSUE_URL_ERROR_MESSAGE
+        )
+        return
 
-        # Fetch the registry and check if sensors are enabled
-        registry = entity_registry.async_get(hass)
+    registry = entity_registry.async_get(hass)
+    device_specific_sensors = hass.data[DOMAIN]["device_specific_sensors"]
 
-        # Set counters to zero
-        counter_updated = 0  # Successfully updated sensors
-        counter_disabled = 0  # Disabled sensors, not to be updated
-        counter_unchanged = 0  # Skipped sensors since value has not changed
-        counter_error = 0  # Skipped sensors due to some error, such as registry not found or no data from API
+    counter_updated = 0
+    counter_disabled = 0
+    counter_unchanged = 0
+    counter_error = 0
 
-        # Get the list of device specific sensors from hass.data
-        if device_id in hass.data.get(DOMAIN, {}).get("device_specific_sensors", {}):
-            device_specific_sensors = hass.data[DOMAIN]["device_specific_sensors"]
-
-            # ----------------------------------------------
-            # Now loop through the sensors to be updated
-            # ----------------------------------------------
-            for sensor in device_specific_sensors[device_id]:
-                entity_id = registry.async_get_entity_id(
-                    "sensor", DOMAIN, sensor.unique_id
-                )
-                if entity_id:
-                    entity = registry.entities.get(entity_id)  # get entity
-                    # entity is enabled
-                    if entity and not entity.disabled_by:
-                        sensor_data = full_data.get(sensor.unique_id)
-                        # _LOGGER.debug(f"{device_id}: Sensor {sensor.name} enabled.")
-                        if sensor_data:
-                            # _LOGGER.debug(
-                            #     f"{device_id}: Sensor {sensor.name} has API data to update {sensor_data}"
-                            # )
-
-                            # Check if current state value differs from new API value,
-                            # or current state has not initialized
-                            if (
-                                str(sensor._state).strip()
-                                != str(sensor_data.value).strip()
-                            ):
-                                # _LOGGER.debug(
-                                #     f"{device_id}: Sensor {sensor.name} marked for update: current state = "
-                                #     f"{sensor._state} with new value = {sensor_data.value}"
-                                # )
-                                # Now update the sensor with new values
-                                # update_status returns 1 for upated, 0 for skipped or error
-                                update_status = await sensor.async_update(sensor_data)
-                                counter_updated = counter_updated + update_status
-                            else:
-                                # _LOGGER.debug(
-                                #     f"{device_id}: Sensor {sensor.name} skipped update! Current value = "
-                                #     f"{sensor._state}, new value = {sensor_data.value}"
-                                # )
-                                counter_unchanged = counter_unchanged + 1
-                        else:
-                            _LOGGER.warning(
-                                f"{device_id}: Sensor {sensor.name}: found no data for update!"
-                                + ISSUE_URL_ERROR_MESSAGE
-                            )
-                            counter_error = counter_error + 1
+    for sensor in device_specific_sensors[device_id]:
+        entity_id = registry.async_get_entity_id("sensor", DOMAIN, sensor.unique_id)
+        if entity_id:
+            entity = registry.entities.get(entity_id)
+            if entity and not entity.disabled_by:
+                sensor_data = full_data.get(sensor.unique_id)
+                if sensor_data:
+                    if str(sensor._state).strip() != str(sensor_data.value).strip():
+                        update_status = await sensor.async_update(sensor_data)
+                        counter_updated += update_status
                     else:
-                        # _LOGGER.debug(
-                        #     f"{device_id}: Sensor {sensor.name} is disabled, skipping update"
-                        # )
-                        counter_disabled = counter_disabled + 1
+                        counter_unchanged += 1
                 else:
                     _LOGGER.warning(
-                        f"{device_id}: Sensor {sensor.name} not found in the registry, skipping update"
+                        f"{device_id}: Sensor {sensor.name}: found no data for update!"
                         + ISSUE_URL_ERROR_MESSAGE
                     )
-                    counter_error = counter_error + 1
-
-            # Log summary of updates
-            _LOGGER.debug(
-                f"{device_id}: A total of {counter_updated} sensors have been updated. "
-                f"Number of disabled sensors or skipped updates = {counter_disabled} "
-                f"Number of sensors with constant values = {counter_unchanged} "
-                f"Number of sensors with errors = {counter_error}"
-            )
-
-        # Device not in list: must have been deleted, will resolve post re-start
+                    counter_error += 1
+            else:
+                counter_disabled += 1
         else:
             _LOGGER.warning(
-                f"{device_id}: Sensor must have been deleted, re-start of HA recommended."
+                f"{device_id}: Sensor {sensor.name} not found in the registry, skipping update"
+                + ISSUE_URL_ERROR_MESSAGE
             )
+            counter_error += 1
 
-    # Get the polling interval from the options, defaulting to 5 seconds if not set
-    polling_interval = timedelta(seconds=ecoflow.options.get("polling_interval"))
+    _LOGGER.debug(
+        f"{device_id}: A total of {counter_updated} sensors have been updated. "
+        f"Number of disabled sensors or skipped updates = {counter_disabled} "
+        f"Number of sensors with constant values = {counter_unchanged} "
+        f"Number of sensors with errors = {counter_error}"
+    )
+    return None
 
-    async_track_time_interval(hass, async_update_data, polling_interval)
+
+class SensorMapping:
+    """Provides mappings from sensor units to HomeAssistant device and state classes."""
+
+    SENSOR_CLASS_MAPPING: ClassVar[dict] = {
+        "°C": SensorDeviceClass.TEMPERATURE,
+        "%": SensorDeviceClass.BATTERY,
+        "Wh": SensorDeviceClass.ENERGY,
+        "kWh": SensorDeviceClass.ENERGY,
+        "W": SensorDeviceClass.POWER,
+        "V": SensorDeviceClass.VOLTAGE,
+        "A": SensorDeviceClass.CURRENT,
+    }
+
+    STATE_CLASS_MAPPING: ClassVar[dict] = {
+        "°C": SensorStateClass.MEASUREMENT,
+        "h": SensorStateClass.MEASUREMENT,
+        "W": SensorStateClass.MEASUREMENT,
+        "V": SensorStateClass.MEASUREMENT,
+        "A": SensorStateClass.MEASUREMENT,
+        "Wh": SensorStateClass.TOTAL_INCREASING,
+        "kWh": SensorStateClass.TOTAL_INCREASING,
+    }
+
+    @staticmethod
+    def get_sensor_device_class(unit: str) -> str | None:
+        """Gibt die Geräteklasse anhand der Einheit zurück."""
+        return SensorMapping.SENSOR_CLASS_MAPPING.get(unit, None)
+
+    @staticmethod
+    def get_sensor_state_class(unit: str) -> str | None:
+        """Gibt die State-Klasse anhand der Einheit zurück."""
+        return SensorMapping.STATE_CLASS_MAPPING.get(unit, None)
 
 
-# This is the actual instance of SensorEntity class
 class PowerOceanSensor(SensorEntity):
     """Representation of a PowerOcean Sensor."""
 
-    def __init__(self, ecoflow: Ecoflow, endpoint):
+    def __init__(self, ecoflow: Ecoflow, endpoint: NamedTuple) -> None:
         """Initialize the sensor."""
         # Make Ecoflow and the endpoint parameters from the Sensor API available
         self.ecoflow = ecoflow
         self.endpoint = endpoint
 
         # Set Friendly name when sensor is first created
-        self._attr_unique_id = endpoint.name
+        self._attr_unique_id = getattr(endpoint, "name", None)
         self._attr_has_entity_name = True
-        self._attr_name = endpoint.friendly_name
-        self._name = endpoint.friendly_name
+        self._attr_name = getattr(endpoint, "friendly_name", None)
+        self._name = getattr(endpoint, "friendly_name", None)
+        self._attr_entity_category = None
 
         # The unique identifier for this sensor within Home Assistant
-        # has nothing to do with the entity_id, it is the internal unique_id of the sensor entity registry
-        self._unique_id = endpoint.internal_unique_id
+        # has nothing to do with the entity_id,
+        # it is the internal unique_id of the sensor entity registry
+        self._unique_id = getattr(endpoint, "internal_unique_id", None)
 
         # Set the icon for the sensor based on its unit, ensure the icon_mapper is defined
         # Default handled in function
-        # self._icon = PowerOceanSensor.icon_mapper.get(endpoint.unit)
-        self._icon = endpoint.icon
+        self._icon = getattr(endpoint, "icon", None)
 
         # The initial state/value of the sensor
-        self._state = endpoint.value
+        self._state = getattr(endpoint, "value", None)
 
         # The unit of measurement for the sensor
-        self._unit = endpoint.unit
+        self._unit = getattr(endpoint, "unit", None)
 
         # Set entity category to diagnostic for sensors with no unit
-        if not endpoint.unit:
+        if not self._unit:
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
-        # If diagnostics entity then disable sensor by default
-        if ecoflow.options.get("disable_sensors") and not endpoint.unit:
-            self._attr_entity_registry_enabled_default = False
-
     @property
-    def should_poll(self):
+    def should_poll(self) -> bool:
         """async_track_time_intervals handles updates."""
         return False
 
     @property
-    def unique_id(self):
+    def unique_id(self) -> str | None:
         """Return the unique ID of the sensor."""
         return self._unique_id
 
     @property
-    def name(self):
+    def name(self) -> str | None:
         """Return the name of the sensor."""
         return self._name
 
@@ -266,58 +271,56 @@ class PowerOceanSensor(SensorEntity):
         return self._state
 
     @property
-    def unit_of_measurement(self):
+    def unit_of_measurement(self) -> str | None:
         """Return the unit of measurement."""
         return self._unit
 
     @property
     def device_class(self):
         """Return the device class of this entity, if any."""
-        if self._unit == "°C":
-            return SensorDeviceClass.TEMPERATURE
-        elif self._unit == "%":
-            return SensorDeviceClass.BATTERY
-        elif self._unit in {"Wh", "kWh"}:
-            return SensorDeviceClass.ENERGY
-        elif self._unit == "W":
-            return SensorDeviceClass.POWER
-        elif self._unit == "V":
-            return SensorDeviceClass.VOLTAGE
-        elif self._unit == "A":
-            return SensorDeviceClass.CURRENT
-        else:
-            return None
+        if self._unit is not None:
+            return SensorMapping.get_sensor_device_class(self._unit)
+        return None
 
     @property
     def state_class(self):
         """Return the state class of this entity, if any."""
-        if self._unit in {"°C", "h", "W", "V", "A"}:
-            return SensorStateClass.MEASUREMENT
-        elif self._unit in {"Wh", "kWh"}:
-            return SensorStateClass.TOTAL_INCREASING
-        else:
-            return None
+        if self._unit is not None:
+            return SensorMapping.get_sensor_state_class(self._unit)
+        return None
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes of this device."""
         attr = {}
 
-        attr[ATTR_PRODUCT_DESCRIPTION] = self.endpoint.description
-        attr[ATTR_UNIQUE_ID] = self.endpoint.internal_unique_id
-        attr[ATTR_PRODUCT_VENDOR] = self.ecoflow.device["vendor"]
-        attr[ATTR_PRODUCT_NAME] = self.ecoflow.device["name"]
-        attr[ATTR_PRODUCT_SERIAL] = self.endpoint.serial
-        attr[ATTR_PRODUCT_VERSION] = self.ecoflow.device["version"]
-        attr[ATTR_PRODUCT_BUILD] = self.ecoflow.device["build"]
-        attr[ATTR_PRODUCT_FEATURES] = self.ecoflow.device["features"]
+        attr[ATTR_PRODUCT_DESCRIPTION] = getattr(self.endpoint, "description", None)
+        attr[ATTR_UNIQUE_ID] = getattr(self.endpoint, "internal_unique_id", None)
+        attr[ATTR_PRODUCT_VENDOR] = (
+            self.ecoflow.device["vendor"] if self.ecoflow.device else None
+        )
+        attr[ATTR_PRODUCT_NAME] = (
+            self.ecoflow.device["name"] if self.ecoflow.device else None
+        )
+        attr[ATTR_PRODUCT_SERIAL] = getattr(self.endpoint, "serial", None)
+        attr[ATTR_PRODUCT_VERSION] = (
+            self.ecoflow.device["version"] if self.ecoflow.device else None
+        )
+        attr[ATTR_PRODUCT_BUILD] = (
+            self.ecoflow.device["build"] if self.ecoflow.device else None
+        )
+        attr[ATTR_PRODUCT_FEATURES] = (
+            self.ecoflow.device["features"] if self.ecoflow.device else None
+        )
 
         return attr
 
     @property
-    def device_info(self):
+    def device_info(self) -> dict | None:
         """Return device specific attributes."""
         # The unique identifier of the device is the serial number
+        if self.ecoflow.device is None:
+            return None
         return {
             "identifiers": {(DOMAIN, self.ecoflow.device["serial"])},
             "name": self.ecoflow.device["name"],
@@ -338,8 +341,9 @@ class PowerOceanSensor(SensorEntity):
     async def async_update(self, sensor_data=None):
         """Update the sensor with the provided data."""
         if sensor_data is None:
+            serial = self.ecoflow.device["serial"] if self.ecoflow.device else "unknown"
             _LOGGER.warning(
-                f"{self.ecoflow.device['serial']}: No new data provided for sensor '{self.name}' update"
+                f"{serial}: No new data provided for sensor '{self.name}' update"
                 + ISSUE_URL_ERROR_MESSAGE
             )
             update_status = 0
@@ -351,8 +355,9 @@ class PowerOceanSensor(SensorEntity):
             self.async_write_ha_state()
 
         except Exception as error:
+            serial = self.ecoflow.device["serial"] if self.ecoflow.device else "unknown"
             _LOGGER.error(
-                f"{self.ecoflow.device['serial']}: Error updating sensor {self.name}: {error}"
+                f"{serial}: Error updating sensor {self.name}: {error}"
                 + ISSUE_URL_ERROR_MESSAGE
             )
             update_status = 0

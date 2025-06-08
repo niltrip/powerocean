@@ -12,13 +12,13 @@
 		"totalElectricityGeneration",
 		"systemName"
 	],
-	"ENERGY_STREAM_REPORT": [
+	"RE307_ENERGY_STREAM_REPORT": [
 		"pv1Pwr",
 		"pvInvPwr",
 		"pv2Pwr",
 		"pv3Pwr"
 	],
-	"EMS_CHANGE_REPORT": [
+	"RE307_EMS_CHANGE_REPORT": [
 		"bpTotalChgEnergy",
 		"bpTotalDsgEnergy",
 		"bpSoc",
@@ -29,7 +29,7 @@
 		"mppt2FaultCode",
 		"mppt2WarningCode"
 	],
-	"BP_STA_REPORT": [
+	"RE307_BP_STA_REPORT": [
 		"bpPwr",
 		"bpSoc",
 		"bpSoh",
@@ -43,14 +43,14 @@
 		"bpMinCellTemp",
 		"bpMaxCellTemp"
 	],
-	"EMS_HEARTBEAT": [
+	"RE307_EMS_HEARTBEAT": [
 		"bpRemainWatth",
 		"emsBpAliveNum",
 		"emsBpPower",
 		"pcsActPwr",
 		"pcsMeterPower"
 	],
-	"EVCHARGING_REPORT": [
+	"RE307_EVCHARGING_REPORT": [
 		"evSn",
 		"workMode",
 		"useGridFirst",

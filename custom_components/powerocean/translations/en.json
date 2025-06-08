@@ -12,19 +12,18 @@
             "user": {
                 "description": "Please enter your PowerOcean device information below:",
                 "data": {
-                    "serialnumber": "Inverter serial number",
+                    "device_id": "Inverter serial number",
+                    "email": "Email",
                     "password": "Password",
-                    "username": "Username",
-                    "model_id": "Model ID"
+                    "model_id": "PowerOcean Model"
                 }
             },
             "device_options": {
                 "description": "Please select the following options:",
                 "data": {
-                    "custom_device_name": "Friendly device name",
-                    "polling_interval": "Polling time (in seconds) to update sensors from device",
-                    "group_sensors": "Group sensors on device page",
-                    "disable_sensors": "Disable diagnostics sensors"
+                    "friendly_name": "Friendly device name",
+                    "scan_interval": "Polling time (in seconds) to update sensors from device",
+                    "choose": "Please select the sensors to monitor"
                 }
             }
         }
