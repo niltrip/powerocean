@@ -1,37 +1,53 @@
 """__init__.py: The PowerOcean integration."""
+
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    CONF_MODEL_ID,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from .const import DOMAIN, PLATFORMS, _LOGGER, DOMAIN, ISSUE_URL_ERROR_MESSAGE, STARTUP_MESSAGE
+from .const import (
+    _LOGGER,
+    DOMAIN,
+    PLATFORMS,
+    STARTUP_MESSAGE,
+)
 from .ecoflow import Ecoflow
-
 
 _LOGGER.info(STARTUP_MESSAGE)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up PowerOcean from a config entry."""
-
     # Setup DOMAIN as default
     hass.data.setdefault(DOMAIN, {})
-
     # Setup device specific sensor list (used in updates) on HASS so it is available within integration (reuqired for unload)
     hass.data[DOMAIN]["device_specific_sensors"] = {}
-
     # Store an instance of the API instance in hass.data[domain]
-    user_input = entry.data["user_input"]        # This user_input object was stored after the device
-                                                 # was setup and has the user/pass/serial info
-    device_info = entry.data.get("device_info")  # This device_info object was stored after the device
-                                                 # was setup and has the name and serial needed etc.
-    options = entry.data["options"]              # These are the options during setup, including custom device name
-    ecoflow = Ecoflow(user_input["serialnumber"], user_input["username"], user_input["password"])
+    user_input = entry.data[
+        "user_input"
+    ]  # This user_input object was stored after the device
+    # was setup and has the user/pass/serial info
+    device_info = entry.data.get(
+        "device_info"
+    )  # This device_info object was stored after the device
+    # was setup and has the name and serial needed etc.
+    options = entry.data[
+        "options"
+    ]  # These are the options during setup, including custom device name
+    ecoflow = Ecoflow(
+        user_input["serialnumber"],
+        user_input["username"],
+        user_input["password"],
+        user_input[CONF_MODEL_ID],
+    )
 
     if device_info:
-        ecoflow.device = device_info   # Store the device information
-        ecoflow.options = options      # Store the options
+        ecoflow.device = device_info  # Store the device information
+        ecoflow.options = options  # Store the options
     hass.data[DOMAIN][entry.entry_id] = ecoflow
 
     # Forward to sensor platform
@@ -51,11 +67,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             identifiers={(DOMAIN, device_info["serial"])},
             manufacturer=device_info.get("vendor", "ECOFLOW"),
             serial_number=device_info.get("serial"),
-            name=options.get("custom_device_name"),  # Custom device name from user step 2 (options)
+            name=options.get(
+                "custom_device_name"
+            ),  # Custom device name from user step 2 (options)
             model=device_info.get("product"),
+            model_id=user_input.get(CONF_MODEL_ID),
             sw_version=device_info.get("version"),
             configuration_url="https://api-e.ecoflow.com",
-            suggested_area="Boiler Room",
         )
 
     return True

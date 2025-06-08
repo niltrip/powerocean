@@ -14,14 +14,15 @@
                 "data": {
                     "serialnumber": "Seriennummer des Wechselrichters",
                     "password": "Passwort",
-                    "username": "Benutzername"
+                    "username": "Benutzername",
+                    "model_id": "Model ID"
                 }
             },
             "device_options": {
                 "description": "Bitte wählen Sie die folgenden Optionen aus:",
                 "data": {
                     "custom_device_name": "Benutzerfreundlicher Gerätename",
-                    "polling_time": "Abfragezeit (in Sekunden), um Sensoren vom Gerät zu aktualisieren",
+                    "polling_interval": "Abfragezeit (in Sekunden), um Sensoren vom Gerät zu aktualisieren",
                     "group_sensors": "Gruppieren Sie Sensoren auf der Geräteseite",
                     "disable_sensors": "Diagnosesensoren deaktivieren"
                 }

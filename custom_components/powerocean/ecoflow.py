@@ -2,45 +2,67 @@
 
 import base64
 import re
-from collections import namedtuple
 from pathlib import Path
+from typing import NamedTuple
 
 import requests
 from homeassistant.exceptions import IntegrationError
 from homeassistant.util.json import json_loads
-from requests.exceptions import RequestException
 
-from .const import _LOGGER, ISSUE_URL_ERROR_MESSAGE, DOMAIN
+from .const import _LOGGER, DOMAIN, ISSUE_URL_ERROR_MESSAGE
 
 # Mock path to response.json file
 mocked_response = Path("documentation/response.json")
-# Dict with entity names to use
-SENSSELECT = Path(f"custom_components/{DOMAIN}/datapoints.json")
+
 
 # Better storage of PowerOcean endpoint
-PowerOceanEndPoint = namedtuple(
-    "PowerOceanEndPoint",
-    "internal_unique_id, serial, name, friendly_name, value, unit, description, icon",
-)
+class PowerOceanEndPoint(NamedTuple):
+    """
+    Represents a PowerOcean endpoint with metadata and value.
+
+    Attributes:
+        internal_unique_id (str): Unique identifier for the endpoint.
+        serial (str): Serial number of the device.
+        name (str): Name of the endpoint.
+        friendly_name (str): Human-readable name.
+        value (object): Value of the endpoint.
+        unit (str | None): Unit of measurement.
+        description (str): Description of the endpoint.
+        icon (str | None): Icon representing the endpoint.
+
+    """
+
+    internal_unique_id: str
+    serial: str
+    name: str
+    friendly_name: str
+    value: object
+    unit: str | None
+    description: str
+    icon: str | None
 
 
 # ecoflow_api to detect device and get device info, fetch the actual data from the PowerOcean device, and parse it
 # Rename, there is an official API since june
 class Ecoflow:
-    """Class representing Ecoflow"""
+    """Class representing Ecoflow."""
 
-    def __init__(self, serialnumber: str, username: str, password: str):
+    def __init__(
+        self, serialnumber: str, username: str, password: str, variant: str
+    ) -> None:
         self.sn = serialnumber
         self.unique_id = serialnumber
         self.ecoflow_username = username
         self.ecoflow_password = password
+        self.ecoflow_variant = variant
         self.token = None
         self.device = None
         self.session = requests.Session()
         self.url_iot_app = "https://api.ecoflow.com/auth/login"
         self.url_user_fetch = f"https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}"
+        self.use_mocked_response = False  # Set to True to use mocked response
 
-    def get_device(self):
+    def get_device(self) -> dict:
         """Get device info."""
         self.device = {
             "product": "PowerOcean",
@@ -54,9 +76,8 @@ class Ecoflow:
 
         return self.device
 
-    def authorize(self):
-        """Function authorize"""
-        auth_ok = False  # default
+    def authorize(self) -> bool:
+        """Authorize user and retrieve authentication token."""
         headers = {"lang": "en_US", "content-type": "application/json"}
         data = {
             "email": self.ecoflow_username,
@@ -65,189 +86,230 @@ class Ecoflow:
             "userType": "ECOFLOW",
         }
 
-        try:
-            url = self.url_iot_app
-            _LOGGER.info("Login to EcoFlow API %s", {url})
-            request = requests.post(url, json=data, headers=headers, timeout=10)
-            response = self.get_json_response(request)
-
-        except ConnectionError:
-            error = f"Unable to connect to {self.url_iot_app}. Device might be offline."
-            _LOGGER.warning(error + ISSUE_URL_ERROR_MESSAGE)
-            raise IntegrationError(error)
+        url = self.url_iot_app
+        _LOGGER.info(f"Attempting to log in to EcoFlow API: {url}")
 
         try:
-            self.token = response["data"]["token"]
-            # self.user_id = response["data"]["user"]["userId"]
-            # user_name = response["data"]["user"].get("name", "<no user name>")
-            auth_ok = True
-        except KeyError as key:
-            raise Exception(f"Failed to extract key {key} from response: {response}")
+            response = requests.post(url, json=data, headers=headers, timeout=10)
+            response_data = self.get_json_response(response)
+            _LOGGER.debug(f"API Response: {response_data}")
 
-        _LOGGER.info("Successfully logged in.")
+            self.token = response_data.get("data", {}).get("token")
+            if not self.token:
+                msg = "Missing 'token' in response data"
+                _LOGGER.error(msg)
+                raise AuthenticationFailed(msg)
 
-        self.get_device()  # collect device info
+        except ConnectionError as err:
+            error_msg = f"Unable to connect to {url}. Device might be offline."
+            _LOGGER.warning(error_msg + ISSUE_URL_ERROR_MESSAGE)
+            raise IntegrationError(error_msg) from err
 
-        return auth_ok
+        except KeyError as key_error:
+            _LOGGER.error(
+                f"Failed to extract key {key_error} from response: "
+                f"{locals().get('response_data', {})}"
+            )
+            msg = f"Missing {key_error} in response"
+            raise FailedToExtractKeyError(
+                msg, locals().get("response_data", {})
+            ) from None
 
-    def get_json_response(self, request):
-        """Function get json response"""
+        else:
+            _LOGGER.info("Successfully logged in.")
+            self.get_device()
+            return True
+
+    def get_json_response(self, request: requests.Response) -> dict:
+        """Parse JSON response and validate message status."""
         if request.status_code != 200:
-            raise Exception(
-                f"Got HTTP status code {request.status_code}: {request.text}"
-            )
+            msg = f"HTTP {request.status_code}: {request.text}"
+            raise Exception(msg)
+
         try:
-            response = json_loads(request.text)
-            response_message = response["message"]
-        except KeyError as key:
-            raise Exception(
-                f"Failed to extract key {key} from {json_loads(request.text)}"
-            )
-        except Exception as error:
-            raise Exception(f"Failed to parse response: {request.text} Error: {error}")
+            response_data = json_loads(request.text)
+        except ValueError as error:
+            msg = f"Failed to parse JSON response: {request.text} — Error: {error}"
+            raise json_loads.JsonParseError(request.text, error) from error
 
-        if response_message.lower() != "success":
-            raise Exception(f"{response_message}")
+        # Validate message key
+        message = response_data.get("message")
+        if message is None:
+            raise KeyError(f"'message' key missing in response: {response_data}")
 
-        return response
+        if message.lower() != "success":
+            raise Exception(f"API Error: {message}")
+
+        return response_data
 
     # Fetch the data from the PowerOcean device, which then constitues the Sensors
-    def fetch_data(self):
+    def fetch_data(self) -> dict:
         """Fetch data from Url."""
         url = self.url_user_fetch
         try:
             headers = {
                 "authorization": f"Bearer {self.token}",
-                # "accept": "application/json, text/plain, */*",
                 "user-agent": "Firefox/133.0",
-                # "platform": "web",
-                "product-type": "83",
+                "product-type": self.ecoflow_variant,
             }
             request = requests.get(self.url_user_fetch, headers=headers, timeout=30)
             response = self.get_json_response(request)
 
-            try:
-                # TESTING!!! create response file and use it as data
-                with Path.open(mocked_response, "r", encoding="utf-8") as datei:
-                    response = json_loads(datei.read())
-            except FileExistsError:
-                error = f"Data from: {mocked_response}"
-                _LOGGER.warning(error)
-            except FileNotFoundError:
-                error = f"Responsefile not present: {mocked_response}"
-                _LOGGER.debug(error)
+            if self.use_mocked_response:
+                try:
+                    with Path.open(mocked_response, "r", encoding="utf-8") as file:
+                        response = json_loads(file.read())
+                except FileNotFoundError:
+                    _LOGGER.debug(
+                        f"Mocked response file not present: {mocked_response}"
+                    )
 
+            # Debugging output for the response
             _LOGGER.debug(f"{response}")
-            return self._get_sensors(response)
+            # Ensure response is a dictionary before passing to _get_sensors
+            if isinstance(response, dict):
+                return self._get_sensors(response)
+            raise ResponseTypeError(type(response).__name__)
 
-        except ConnectionError:
-            error = f"ConnectionError in fetch_data: Unable to connect to {url}. Device might be offline."
+        except ConnectionError as err:
+            error = f"ConnectionError in fetch_data: Unable to connect to {url}."
             _LOGGER.warning(error + ISSUE_URL_ERROR_MESSAGE)
-            raise IntegrationError(error)
+            raise IntegrationError(error) from err
 
-        except RequestException as e:
-            error = f"RequestException in fetch_data: Error while fetching data from {url}: {e}"
-            _LOGGER.warning(error + ISSUE_URL_ERROR_MESSAGE)
-            raise IntegrationError(error)
+    def __get_unit(self, key: str) -> str | None:
+        """Get unit from key name using a dictionary mapping."""
+        unit_mapping = {
+            "pwr": "W",
+            "power": "W",
+            "amp": "A",
+            "soc": "%",
+            "soh": "%",
+            "vol": "V",
+            "watth": "Wh",
+            "energy": "Wh",
+        }
 
-    def __get_unit(self, key):
-        """Get unit from key name."""
-        if key.endswith(("pwr", "Pwr", "Power")):
-            unit = "W"
-        elif key.endswith(("amp", "Amp")):
-            unit = "A"
-        elif key.endswith(("soc", "Soc", "soh", "Soh")):
-            unit = "%"
-        elif key.endswith(("vol", "Vol")):
-            unit = "V"
-        elif key.endswith(("Watth", "Energy")):
-            unit = "Wh"
-        elif "Generation" in key:
-            unit = "kWh"
-        elif key.startswith("bpTemp"):
-            unit = "°C"
-        else:
-            unit = None
+        # Check for direct matches using dictionary lookup
+        for suffix, unit in unit_mapping.items():
+            if key.lower().endswith(suffix):
+                return unit
 
-        return unit
+        # Special case for "Generation" in key
+        if "Generation" in key:
+            return "kWh"
 
-    def __get_description(self, key):
-        # TODO: hier könnte man noch mehr definieren bzw ein translation dict erstellen +1
-        # Comment: Ich glaube hier brauchen wir n
-        description = key  # default description
-        if key == "sysLoadPwr":
-            description = "Hausnetz"
-        if key == "sysGridPwr":
-            description = "Stromnetz"
-        if key == "mpptPwr":
-            description = "Solarertrag"
-        if key == "bpPwr":
-            description = "Batterieleistung"
-        if key == "bpSoc":
-            description = "Ladezustand der Batterie"
-        if key == "online":
-            description = "Online"
-        if key == "systemName":
-            description = "System Name"
-        if key == "createTime":
-            description = "Installations Datum"
-        # Battery descriptions
-        if key == "bpVol":
-            description = "Batteriespannung"
-        if key == "bpAmp":
-            description = "Batteriestrom"
-        if key == "bpCycles":
-            description = "Ladezyklen"
-        if key == "bpTemp":
-            description = "Temperatur der Batteriezellen"
+        # Special case for keys ending with "Temp"
+        if key.endswith("Temp"):
+            return "°C"
 
-        return description
+        return None  # Default if no match found
 
-    def __get_sens_select(self, report):
-        # open File an read
-        with Path.open(SENSSELECT) as file:
-            config = json_loads(file.read())
+    def __get_description(self, key: str) -> str:
+        """Get description from key name using a dictionary mapping."""
+        # Dictionary for key-to-description mapping
+        description_mapping = {
+            "sysLoadPwr": "Hausnetz",
+            "sysGridPwr": "Stromnetz",
+            "mpptPwr": "Solarertrag",
+            "bpPwr": "Batterieleistung",
+            "bpSoc": "Ladezustand der Batterie",
+            "online": "Online",
+            "systemName": "System Name",
+            "createTime": "Installations Datum",
+            "bpVol": "Batteriespannung",
+            "bpAmp": "Batteriestrom",
+            "bpCycles": "Ladezyklen",
+            "bpTemp": "Temperatur der Batteriezellen",
+        }
 
-        return config[report]
+        # Use .get() to avoid KeyErrors and return default value
+        return description_mapping.get(key, key)  # Default to key if not found
 
-    def _get_sensors(self, response):
+    def __get_special_icon(self, key: str) -> str | None:
+        """Get special icon for a key."""
+        # Dictionary für die Zuordnung von Keys zu Icons
+        icon_mapping = {
+            "mpptPwr": "mdi:solar-power",
+            "online": "mdi:cloud-check",
+            "sysGridPwr": "mdi:transmission-tower-import",
+            "sysLoadPwr": "mdi:home-import-outline",
+            "bpAmp": "mdi:current-dc",
+        }
+
+        # Standardwert setzen
+        special_icon = icon_mapping.get(key)
+
+        # Zusätzliche Prüfung für Keys, die mit "pv1" oder "pv2" beginnen
+        if key.startswith(("pv1", "pv2", "pv3")):
+            special_icon = "mdi:solar-power"
+
+        return special_icon
+
+    def __get_sens_select(self, report: str) -> dict:
+        """Retrieve sensor selection from JSON file."""
+        datapointfile = Path(
+            f"custom_components/{DOMAIN}/variants/{self.ecoflow_variant}.json"
+        )
+
+        try:
+            with datapointfile.open("r", encoding="utf-8") as file:
+                datapoints = json_loads(
+                    file.read()
+                )  # Directly load JSON without reading as a string
+
+            return datapoints.get(report, {})  # Use .get() to avoid KeyErrors
+
+        except FileNotFoundError:
+            _LOGGER.error(f"File not found: {datapointfile}")
+            return {}
+
+        except AttributeError:
+            _LOGGER.error(f"Error decoding JSON in file: {datapointfile}")
+            return {}
+
+    def _get_sensors(self, response: dict) -> dict:
+        sensors = {}  # start with empty dict
+        # error handling for response
+        data = response.get("data")
+        if not isinstance(data, dict):
+            _LOGGER.error("No 'data' in response.")
+            return sensors  # return empty dict if no data
+
         # get sensors from response['data']
-        sensors = self.__get_sensors_data(response)
+        sensors.update(self.__get_sensors_data(response, sensors))
 
-        # get sensors from 'JTS1_ENERGY_STREAM_REPORT'
-        sensors = self.__get_sensors_energy_stream(response, sensors)
-
-        # get sensors from 'JTS1_EMS_CHANGE_REPORT'
-        sensors = self.__get_sensors_ems_change(response, sensors)
+        for report_type in [
+            "JTS1_ENERGY_STREAM_REPORT",
+            "JTS1_EMS_CHANGE_REPORT",
+            "JTS1_EVCHARGING_REPORT",
+        ]:
+            sensors.update(
+                self.__get_sensors_from_response(response, sensors, report_type)
+            )
 
         # get info from batteries  => JTS1_BP_STA_REPORT
-        sensors = self.__get_sensors_battery(response, sensors)
+        sensors.update(
+            self.__get_sensors_battery(response, sensors, "JTS1_BP_STA_REPORT")
+        )
 
         # get info from PV strings  => JTS1_EMS_HEARTBEAT
-        sensors = self.__get_sensors_ems_heartbeat(response, sensors)
+        sensors.update(
+            self.__get_sensors_ems_heartbeat(response, sensors, "JTS1_EMS_HEARTBEAT")
+        )
 
         return sensors
 
-    def __get_sensors_data(self, response):
-        d = response["data"].copy()
+    def __get_sensors_data(self, response: dict, sensors: dict) -> dict:
+        d = response["data"]
 
         sens_select = self.__get_sens_select("data")
 
-        sensors = dict()  # start with empty dict
+        sensors = {}  # start with empty dict
         for key, value in d.items():
             if key in sens_select:  # use only sensors in sens_select
                 if not isinstance(value, dict):
                     # default uid, unit and descript
                     unique_id = f"{self.sn}_{key}"
-                    special_icon = None
-                    if key == "mpptPwr":
-                        special_icon = "mdi:solar-power"
-                    if key == "online":
-                        special_icon = "mdi:cloud-check"
-                    if key == "sysGridPwr":
-                        special_icon = "mdi:transmission-tower-import"
-                    if key == "sysLoadPwr":
-                        special_icon = "mdi:home-import-outline"
 
                     sensors[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
@@ -257,215 +319,224 @@ class Ecoflow:
                         value=value,
                         unit=self.__get_unit(key),
                         description=self.__get_description(key),
-                        icon=special_icon,
+                        icon=self.__get_special_icon(key),
                     )
 
         return sensors
 
-    def __get_sensors_energy_stream(self, response, sensors):
-        report = "JTS1_ENERGY_STREAM_REPORT"
-        d = response["data"]["quota"][report]
-        sens_select = self.__get_sens_select(report)
+    def __get_sensors_from_response(
+        self, response: dict, sensors: dict, report: str
+    ) -> dict:
+        """Get sensors from response data based on report_data."""
+        if report not in response["data"]["quota"]:
+            report = re.sub(r"JTS1_", "RE307_", report)
 
-        data = {}
-        for key, value in d.items():
-            if key in sens_select:
-                # default uid, unit and descript
-                unique_id = f"{self.sn}_{report}_{key}"
-                special_icon = None
-                if key.startswith(("pv1", "pv2")):
-                    special_icon = "mdi:solar-power"
-                description_tmp = self.__get_description(key)
-                data[unique_id] = PowerOceanEndPoint(
-                    internal_unique_id=unique_id,
-                    serial=self.sn,
-                    name=f"{self.sn}_{key}",
-                    friendly_name=key,
-                    value=value,
-                    unit=self.__get_unit(key),
-                    description=description_tmp,
-                    icon=special_icon,
-                )
+        try:
+            d = response["data"]["quota"][report]
+            # d = response.get("data", {}).get("quota", {}).get(report, {})
+        except KeyError:
+            _LOGGER.debug(
+                f"Missing report in response: {re.sub(r'^[^_]+_', '', report)}"
+            )
+            return sensors
 
-        dict.update(sensors, data)
+        try:
+            # remove prefix from report
+            report_data = re.sub(r"^[^_]+_", "", report)
+            # get sensors to select from datapoints.json
+            sens_select = self.__get_sens_select(report_data)
 
-        return sensors
-
-    def __get_sensors_ems_change(self, response, sensors):
-        report = "JTS1_EMS_CHANGE_REPORT"
-        d = response["data"]["quota"][report]
-
-        sens_select = self.__get_sens_select(report)
-
-        # add mppt Warning/Fault Codes
-        keys = d.keys()
-        r = re.compile("mppt.*Code")
-        wfc = list(filter(r.match, keys))  # warning/fault code keys
-        sens_select += wfc
-
-        data = {}
-        for key, value in d.items():
-            if key in sens_select:  # use only sensors in sens_select
-                # default uid, unit and descript
-                unique_id = f"{self.sn}_{report}_{key}"
-
-                data[unique_id] = PowerOceanEndPoint(
-                    internal_unique_id=unique_id,
-                    serial=self.sn,
-                    name=f"{self.sn}_{key}",
-                    friendly_name=key,
-                    value=value,
-                    unit=self.__get_unit(key),
-                    description=self.__get_description(key),
-                    icon=None,
-                )
-        dict.update(sensors, data)
-
-        return sensors
-
-    def __get_sensors_battery(self, response, sensors):
-        report = "JTS1_BP_STA_REPORT"
-        d = response["data"]["quota"][report]
-        keys = list(d.keys())
-
-        # loop over N batteries:
-        batts = [s for s in keys if len(s) > 12]
-        bat_sens_select = self.__get_sens_select(report)
-
-        data = {}
-        prefix = "bpack"
-        for ibat, bat in enumerate(batts):
-            name = prefix + "%i_" % (ibat + 1)
-            d_bat = json_loads(d[bat])
-            for key, value in d_bat.items():
-                if key in bat_sens_select:
+            # data = {}
+            for key, value in d.items():
+                if key in sens_select:  # use only sensors in sens_select
                     # default uid, unit and descript
-                    unique_id = f"{self.sn}_{report}_{bat}_{key}"
-                    description_tmp = f"{name}" + self.__get_description(key)
-                    special_icon = None
-                    if key == "bpAmp":
-                        special_icon = "mdi:current-dc"
-                    data[unique_id] = PowerOceanEndPoint(
+                    unique_id = f"{self.sn}_{report}_{key}"
+                    sensors[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
                         serial=self.sn,
-                        name=f"{self.sn}_{name + key}",
-                        friendly_name=name + key,
+                        name=f"{self.sn}_{key}",
+                        friendly_name=key,
+                        value=value,
+                        unit=self.__get_unit(key),
+                        description=self.__get_description(key),
+                        icon=self.__get_special_icon(key),
+                    )
+            # dict.update(sensors, data)
+
+        except KeyError:
+            _LOGGER.error(
+                f"Report {report_data} not found in {self.ecoflow_variant}.json."
+            )
+        return sensors
+
+    def __get_sensors_battery(self, response: dict, sensors: dict, report: str) -> dict:
+        if report not in response["data"]["quota"]:
+            report = re.sub(r"JTS1_", "RE307_", report)
+
+        try:
+            d = response["data"]["quota"][report]
+            # d = response.get("data", {}).get("quota", {}).get(report, {})
+        except KeyError:
+            _LOGGER.warning(f"Missing report: {report}")
+            return sensors
+
+        try:
+            report_data = re.sub(r"^[^_]+_", "", report)
+            keys = list(d.keys())
+
+            # loop over N batteries:
+            batts = [s for s in keys if len(s) > 12]
+            bat_sens_select = self.__get_sens_select(report_data)
+
+            # data = {}
+            prefix = "bpack"
+            for ibat, bat in enumerate(batts):
+                name = prefix + "%i_" % (ibat + 1)
+                d_bat = json_loads(d[bat])
+                for key, value in d_bat.items():
+                    if key in bat_sens_select:
+                        # default uid, unit and descript
+                        unique_id = f"{self.sn}_{report}_{bat}_{key}"
+                        # unique_id = f"{bat}_{report}_{key}"
+                        description_tmp = f"{name}{self.__get_description(key)}"
+                        sensors[unique_id] = PowerOceanEndPoint(
+                            internal_unique_id=unique_id,
+                            serial=self.sn,
+                            name=f"{self.sn}_{name}{key}",
+                            friendly_name=name + key,
+                            value=value,
+                            unit=self.__get_unit(key),
+                            description=description_tmp,
+                            icon=self.__get_special_icon(key),
+                        )
+
+            # dict.update(sensors, data)
+
+        except KeyError:
+            _LOGGER.error(f"Report {report} not found in datapoints.json.")
+        return sensors
+
+    def __get_sensors_ems_heartbeat(
+        self, response: dict, sensors: dict, report: str
+    ) -> dict:
+        if report not in response["data"]["quota"]:
+            report = re.sub(r"JTS1_", "RE307_", report)
+
+        try:
+            d = response["data"]["quota"][report]
+            # d = response.get("data", {}).get("quota", {}).get(report, {})
+        except KeyError:
+            _LOGGER.warning(f"Missing report: {report}")
+            return sensors
+
+        try:
+            report_data = re.sub(r"^[^_]+_", "", report)
+            sens_select = self.__get_sens_select(report_data)
+
+            # data = {}
+            for key, value in d.items():
+                if key in sens_select:
+                    # default uid, unit and descript
+                    unique_id = f"{self.sn}_{report}_{key}"
+                    description_tmp = self.__get_description(key)
+                    sensors[unique_id] = PowerOceanEndPoint(
+                        internal_unique_id=unique_id,
+                        serial=self.sn,
+                        name=f"{self.sn}_{key}",
+                        friendly_name=key,
                         value=value,
                         unit=self.__get_unit(key),
                         description=description_tmp,
-                        icon=special_icon,
-                    )
-            # compute mean temperature of cells
-            key = "bpTemp"
-            temp = d_bat[key]
-            value = sum(temp) / len(temp)
-            unique_id = f"{self.sn}_{report}_{bat}_{key}"
-            description_tmp = f"{name}" + self.__get_description(key)
-            data[unique_id] = PowerOceanEndPoint(
-                internal_unique_id=unique_id,
-                serial=self.sn,
-                name=f"{self.sn}_{name + key}",
-                friendly_name=name + key,
-                value=value,
-                unit=self.__get_unit(key),
-                description=description_tmp,
-                icon=None,
-            )
-
-        dict.update(sensors, data)
-
-        return sensors
-
-    def __get_sensors_ems_heartbeat(self, response, sensors):
-        report = "JTS1_EMS_HEARTBEAT"
-        d = response["data"]["quota"][report]
-        sens_select = self.__get_sens_select(report)
-
-        data = {}
-        for key, value in d.items():
-            if key in sens_select:
-                # default uid, unit and descript
-                unique_id = f"{self.sn}_{report}_{key}"
-                description_tmp = self.__get_description(key)
-                data[unique_id] = PowerOceanEndPoint(
-                    internal_unique_id=unique_id,
-                    serial=self.sn,
-                    name=f"{self.sn}_{key}",
-                    friendly_name=key,
-                    value=value,
-                    unit=self.__get_unit(key),
-                    description=description_tmp,
-                    icon=None,
-                )
-
-        # special for phases
-        phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
-        if phases[1] in d:
-            for i, phase in enumerate(phases):
-                for key, value in d[phase].items():
-                    name = phase + "_" + key
-                    unique_id = f"{self.sn}_{report}_{name}"
-
-                    data[unique_id] = PowerOceanEndPoint(
-                        internal_unique_id=unique_id,
-                        serial=self.sn,
-                        name=f"{self.sn}_{name}",
-                        friendly_name=f"{name}",
-                        value=value,
-                        unit=self.__get_unit(key),
-                        description=self.__get_description(key),
                         icon=None,
                     )
 
-        # special for mpptPv
-        if "mpptHeartBeat" in d:
-            n_strings = len(d["mpptHeartBeat"][0]["mpptPv"])  # TODO: auch als Sensor?
-            mpptpvs = []
-            for i in range(1, n_strings + 1):
-                mpptpvs.append(f"mpptPv{i}")
-            mpptPv_sum = 0.0
-            for i, mpptpv in enumerate(mpptpvs):
-                for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
-                    unique_id = f"{self.sn}_{report}_mpptHeartBeat_{mpptpv}_{key}"
-                    special_icon = None
-                    if key.endswith("amp"):
-                        special_icon = "mdi:current-dc"
-                    if key.endswith("pwr"):
-                        special_icon = "mdi:solar-power"
+            # special for phases
+            phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
+            if phases[1] in d:
+                for i, phase in enumerate(phases):
+                    for key, value in d[phase].items():
+                        name = f"{phase}_{key}"
+                        unique_id = f"{self.sn}_{report}_{name}"
 
-                    data[unique_id] = PowerOceanEndPoint(
-                        internal_unique_id=unique_id,
-                        serial=self.sn,
-                        name=f"{self.sn}_{mpptpv}_{key}",
-                        friendly_name=f"{mpptpv}_{key}",
-                        value=value,
-                        unit=self.__get_unit(key),
-                        description=self.__get_description(key),
-                        icon=special_icon,
-                    )
-                    # sum power of all strings
-                    if key == "pwr":
-                        mpptPv_sum += value
+                        sensors[unique_id] = PowerOceanEndPoint(
+                            internal_unique_id=unique_id,
+                            serial=self.sn,
+                            name=f"{self.sn}_{name}",
+                            friendly_name=f"{name}",
+                            value=value,
+                            unit=self.__get_unit(key),
+                            description=self.__get_description(key),
+                            icon=None,
+                        )
 
-            # create total power sensor of all strings
-            name = "mpptPv_pwrTotal"
-            unique_id = f"{self.sn}_{report}_mpptHeartBeat_{name}"
+            # special for mpptPv
+            if "mpptHeartBeat" in d:
+                n_strings = len(
+                    d["mpptHeartBeat"][0]["mpptPv"]
+                )  # TODO: auch als Sensor?
+                mpptpvs = []
+                for i in range(1, n_strings + 1):
+                    mpptpvs.append(f"mpptPv{i}")
+                mpptPv_sum = 0.0
+                for i, mpptpv in enumerate(mpptpvs):
+                    for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
+                        unique_id = f"{self.sn}_{report}_mpptHeartBeat_{mpptpv}_{key}"
+                        special_icon = None
+                        if key.endswith("amp"):
+                            special_icon = "mdi:current-dc"
+                        if key.endswith("pwr"):
+                            special_icon = "mdi:solar-power"
 
-            data[unique_id] = PowerOceanEndPoint(
-                internal_unique_id=unique_id,
-                serial=self.sn,
-                name=f"{self.sn}_{name}",
-                friendly_name=f"{name}",
-                value=mpptPv_sum,
-                unit=self.__get_unit(key),
-                description="Solarertrag aller Strings",
-                icon="mdi:solar-power",
-            )
+                        sensors[unique_id] = PowerOceanEndPoint(
+                            internal_unique_id=unique_id,
+                            serial=self.sn,
+                            name=f"{self.sn}_{mpptpv}_{key}",
+                            friendly_name=f"{mpptpv}_{key}",
+                            value=value,
+                            unit=self.__get_unit(key),
+                            description=self.__get_description(key),
+                            icon=special_icon,
+                        )
+                        # sum power of all strings
+                        if key == "pwr":
+                            mpptPv_sum += value
 
-        dict.update(sensors, data)
+                # create total power sensor of all strings
+                name = "mpptPv_pwrTotal"
+                unique_id = f"{self.sn}_{report}_mpptHeartBeat_{name}"
+                sensors[unique_id] = PowerOceanEndPoint(
+                    internal_unique_id=unique_id,
+                    serial=self.sn,
+                    name=f"{self.sn}_{name}",
+                    friendly_name=f"{name}",
+                    value=mpptPv_sum,
+                    unit=self.__get_unit(key),
+                    description="Solarertrag aller Strings",
+                    icon="mdi:solar-power",
+                )
 
+            # dict.update(sensors, data)
+
+        except KeyError:
+            _LOGGER.error(f"Report {report} not found in datapoints.json.")
         return sensors
+
+
+class ResponseTypeError(TypeError):
+    """Exception raised when the response is not a dict."""
+
+    def __init__(self, typename):
+        super().__init__(f"Expected response to be a dict, got {typename}")
 
 
 class AuthenticationFailed(Exception):
     """Exception to indicate authentication failure."""
+
+
+class FailedToExtractKeyError(Exception):
+    """Exception raised when a required key cannot be extracted from a response."""
+
+    def __init__(self, key, response):
+        self.key = key
+        self.response = response
+        super().__init__(f"Failed to extract key {key} from response: {response}")

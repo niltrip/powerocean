@@ -10,22 +10,25 @@
 		"monthElectricityGeneration",
 		"yearElectricityGeneration",
 		"totalElectricityGeneration",
-		"systemName",
-		"createTime"
+		"systemName"
 	],
-	"JTS1_ENERGY_STREAM_REPORT": [
+	"ENERGY_STREAM_REPORT": [
 		"pv1Pwr",
 		"pvInvPwr",
 		"pv2Pwr"
 	],
-	"JTS1_EMS_CHANGE_REPORT": [
+	"EMS_CHANGE_REPORT": [
 		"bpTotalChgEnergy",
 		"bpTotalDsgEnergy",
 		"bpSoc",
 		"bpOnlineSum",
-		"emsCtrlLedBright"
+		"emsCtrlLedBright",
+		"mppt1FaultCode",
+		"mppt1WarningCode",
+		"mppt2FaultCode",
+		"mppt2WarningCode"
 	],
-	"JTS1_BP_STA_REPORT": [
+	"BP_STA_REPORT": [
 		"bpPwr",
 		"bpSoc",
 		"bpSoh",
@@ -33,9 +36,13 @@
 		"bpAmp",
 		"bpCycles",
 		"bpSysState",
-		"bpRemainWatth"
+		"bpRemainWatth",
+		"bmsRunSta",
+		"bpEnvTemp",
+		"bpMinCellTemp",
+		"bpMaxCellTemp"
 	],
-	"JTS1_EMS_HEARTBEAT": [
+	"EMS_HEARTBEAT": [
 		"bpRemainWatth",
 		"emsBpAliveNum",
 		"emsBpPower",
