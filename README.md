@@ -3,7 +3,7 @@
 
 [Home Assistant](https://home-assistant.io/) custom component to get access to my PowerOcean system from EcoFlow.
 
-This component was inspired by [tolwi/hassio-ecoflow-cloud](https://github.com/tolwi/hassio-ecoflow-cloud) and is a copy of [evercape/hass-resol-KM2](https://github.com/evercape/hass-resol-KM2).  
+This component was inspired by [tolwi/hassio-ecoflow-cloud](https://github.com/tolwi/hassio-ecoflow-cloud) and is a copy of [evercape/hass-resol-KM2](https://github.com/evercape/hass-resol-KM2).
 
 Temporary quick solution to my problem.
 I hope of an integrate PowerOcean into [tolwi/hassio-ecoflow-cloud](https://github.com/tolwi/hassio-ecoflow-cloud) with an official API.
@@ -34,14 +34,17 @@ Follow the flow.
 
 
 ### Sensors
-Sensors are registered to device as `sensor.{device_name}_{sensor_name}` with an friendly name of `sensor_name`. Additional attributes are presented on each sensor:
+Sensors are registered to device as `sensor.{device_name}_{sensor_name}` with an friendly name of `sensor_name`.
+Additional attributes are presented on each sensor:
 - Product Description, Destination Name, Source Name: internal names
 - Internal Unique ID: `{serial}_{sensor_name}` or `{serial}_{report}_{sensor_name}`
 - Device Name: `{serial}`
 - Vendor Product Serial: serial number of the PowerOcean inverter
-- Vendor Firmware Version: 5.1.15
-- Vendor Product Build: 6
-  
+- Vendor Firmware Version: 5.1.27
+- Vendor Product Build: 28
+
+The versions are from my system.
+
 ![sensor](documentation/sensor.PNG)
 
 ##Neuer Sensor (berechnet aus einzelnen Strings)

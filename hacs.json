@@ -1,4 +1,9 @@
 {
   "name": "EcoFlow PowerOcean",
+  "description": "Integration für PowerOcean Wechselrichter",
+  "url": "https://github.com/niltrip/powerocean",
+  "domains": [
+    "sensor"
+  ],
   "homeassistant": "2024.12.5"
 }

@@ -68,8 +68,8 @@ class Ecoflow:
             "product": "PowerOcean",
             "vendor": "Ecoflow",
             "serial": self.sn,
-            "version": "5.1.25",  # TODO: woher bekommt man diese Info?
-            "build": "8",  # TODO: wo finde ich das?
+            "version": "5.1.27",  # TODO: woher bekommt man diese Info?
+            "build": "28",  # TODO: wo finde ich das?
             "name": "PowerOcean",
             "features": "Photovoltaik",
         }

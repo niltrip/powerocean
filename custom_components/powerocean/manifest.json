@@ -1,12 +1,12 @@
 {
   "domain": "powerocean",
   "name": "Ecoflow PowerOcean",
+  "version": "2025.06.08",
   "codeowners": [
     "@niltrip"
   ],
   "config_flow": true,
   "documentation": "https://github.com/niltrip/powerocean",
-  "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/niltrip/powerocean/issues",
-  "version": "2025.01.07"
+  "iot_class": "cloud_polling"
 }
