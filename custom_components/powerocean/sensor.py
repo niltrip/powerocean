@@ -5,18 +5,24 @@ This module defines the setup and management of PowerOcean sensor entities,
 including data fetching, entity registration, and periodic updates.
 """  # noqa: EXE002
 
-from datetime import timedelta
-from typing import ClassVar, NamedTuple
+from collections.abc import Callable
+from datetime import date, timedelta
+from time import time
+from typing import Any, ClassVar, NamedTuple
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
+
+# Setting up the adding and updating of sensor entities
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_SCAN_INTERVAL,
     EntityCategory,
 )
+from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import IntegrationError
 from homeassistant.helpers import entity_registry
 from homeassistant.helpers.event import async_track_time_interval
@@ -37,8 +43,11 @@ from .const import (
 from .ecoflow import AuthenticationFailed, Ecoflow
 
 
-# Setting up the adding and updating of sensor entities
-async def async_setup_entry(hass, config_entry, async_add_entities) -> None:
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: Callable[[list, bool], Any],
+) -> None:
     """
     Set up PowerOcean sensor entities for a config entry.
 
@@ -74,7 +83,7 @@ async def _authorize_device(hass, ecoflow, device_id) -> bool:
         auth_check = await hass.async_add_executor_job(ecoflow.authorize)
         if not auth_check:
             _LOGGER.warning(
-                f"{device_id}: It appears the PowerOcean device is offline or has changed host."
+                f"{device_id}: PowerOcean device is offline or has changed host."
                 + ISSUE_URL_ERROR_MESSAGE
             )
             return False
@@ -84,13 +93,15 @@ async def _authorize_device(hass, ecoflow, device_id) -> bool:
         return False
 
 
-async def _fetch_initial_data(hass, ecoflow, device_id):
+async def _fetch_initial_data(
+    hass: HomeAssistant, ecoflow: Ecoflow, device_id: str
+) -> dict | None:
     """Fetch initial sensor data from the device."""
     try:
         data = await hass.async_add_executor_job(ecoflow.fetch_data)
         if not data:
             _LOGGER.warning(
-                f"{device_id}: Failed to fetch sensor data => authentication failed or no data."
+                f"{device_id}: Failed to fetch sensor data => no data."
                 + ISSUE_URL_ERROR_MESSAGE
             )
             return None
@@ -105,6 +116,8 @@ async def _fetch_initial_data(hass, ecoflow, device_id):
 
 def _register_sensors(hass, ecoflow, device_id, data, async_add_entities):
     """Register sensor entities and add them to the device-specific list."""
+    # ✅ Sicherstellen, dass device_specific_sensors existiert
+    hass.data.setdefault(DOMAIN, {}).setdefault("device_specific_sensors", {})
     hass.data[DOMAIN]["device_specific_sensors"][device_id] = []
     for unique_id, endpoint in data.items():
         sensor = PowerOceanSensor(ecoflow, endpoint)
@@ -121,7 +134,9 @@ def _register_sensors(hass, ecoflow, device_id, data, async_add_entities):
     )
 
 
-async def _update_sensors(hass, ecoflow, device_id, now):
+async def _update_sensors(
+    hass: HomeAssistant, ecoflow: Ecoflow, device_id: str, now: date
+) -> bool | None:
     """Update all registered sensors for the device."""
     if device_id not in hass.data.get(DOMAIN, {}).get("device_specific_sensors", {}):
         return False

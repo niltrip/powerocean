@@ -86,28 +86,6 @@ STEP_DEVICE_OPTIONS_SCHEMA = vol.Schema(
                 }
             }
         ),
-        vol.Required(CONF_CHOOSE): selector(
-            {
-                "select": {
-                    "options": [
-                        {
-                            "value": "ENERGY_STREAM_REPORT",
-                            "label": "Energy Stream Report",
-                        },
-                        {
-                            "value": "EMS_CHANGE_REPORT",
-                            "label": "Energiemanagement Report",
-                        },
-                        {
-                            "value": "EVCHARGING_REPORT",
-                            "label": "Wallbox",
-                        },
-                    ],
-                    "mode": "list",
-                    "multiple": True,
-                }
-            }
-        ),
     }
 )
 

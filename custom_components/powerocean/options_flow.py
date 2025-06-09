@@ -1,58 +1,52 @@
-"""Options flow for PowerOcean integration."""
-
 from __future__ import annotations
 
-from typing import Any
-
 import voluptuous as vol
-from homeassistant import config_entries
-from homeassistant.const import CONF_CHOOSE, CONF_FRIENDLY_NAME, CONF_SCAN_INTERVAL
-from homeassistant.helpers import config_validation as cv
+from homeassistant.config_entries import ConfigEntry, OptionsFlow
+from homeassistant.const import CONF_FRIENDLY_NAME, CONF_SCAN_INTERVAL, CONF_CHOOSE
 
 from .const import DOMAIN
+from .config_flow import sanitize_device_name
+
+OPTIONS = ["PV", "Battery", "Grid"]
 
 
-class PowerOceanOptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle PowerOcean options."""
+class PowerOceanOptionsFlowHandler(OptionsFlow):
+    """Handle options for the PowerOcean integration."""
 
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+    def __init__(self, config_entry: ConfigEntry) -> None:
         """Initialize PowerOcean options flow."""
         self.config_entry = config_entry
 
-    async def async_step_init(self, user_input: dict[str, Any] | None = None):
-        """Manage the options."""
-        errors: dict[str, str] = {}
-        current = self.config_entry.options
-
+    async def async_step_init(self, user_input=None):
+        """Manage the PowerOcean options."""
+        errors = {}
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            try:
+                device_name = self.config_entry.data["device_info"].get(
+                    "name", "PowerOcean"
+                )
+                user_input[CONF_FRIENDLY_NAME] = sanitize_device_name(
+                    user_input[CONF_FRIENDLY_NAME], device_name
+                )
+                return self.async_create_entry(title="", data=user_input)
+            except Exception as e:
+                errors["base"] = "reconfig_error"
 
+        # Lade vorhandene Optionen oder verwende Defaults
+        options = self.config_entry.data.get("options", {})
+        step_device_options_schema = vol.Schema(
+            {
+                vol.Required(
+                    CONF_FRIENDLY_NAME,
+                    default=options.get(CONF_FRIENDLY_NAME, "PowerOcean"),
+                ): str,
+                vol.Required(
+                    CONF_SCAN_INTERVAL, default=options.get(CONF_SCAN_INTERVAL)
+                ): int,
+            }
+        )
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_FRIENDLY_NAME,
-                        default=current.get(CONF_FRIENDLY_NAME, "PowerOcean"),
-                    ): str,
-                    vol.Required(
-                        CONF_SCAN_INTERVAL,
-                        default=current.get(CONF_SCAN_INTERVAL, 10),
-                    ): vol.All(vol.Coerce(int), vol.Range(min=10, max=60)),
-                    vol.Required(
-                        CONF_CHOOSE,
-                        default=current.get(
-                            CONF_CHOOSE,
-                            ["ENERGY_STREAM_REPORT", "EMS_CHANGE_REPORT"],
-                        ),
-                    ): cv.multi_select(
-                        [
-                            "ENERGY_STREAM_REPORT",
-                            "EMS_CHANGE_REPORT",
-                            "EVCHARGING_REPORT",
-                        ]
-                    ),
-                }
-            ),
+            data_schema=step_device_options_schema,
             errors=errors,
         )
