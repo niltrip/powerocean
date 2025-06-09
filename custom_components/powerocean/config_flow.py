@@ -6,8 +6,14 @@ import re
 from typing import TYPE_CHECKING, Any
 
 import voluptuous as vol
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
 from homeassistant.exceptions import HomeAssistantError, IntegrationError
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.selector import selector
 
 from .const import _LOGGER, DOMAIN, ISSUE_URL_ERROR_MESSAGE
@@ -25,6 +31,13 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_SCAN_INTERVAL,
 )
+
+MODEL_OPTIONS = [
+    {"label": "PowerOcean", "value": "83"},
+    {"label": "PowerOcean DC Fit", "value": "85"},
+    {"label": "PowerOcean Single Phase", "value": "86"},
+    {"label": "PowerOcean Plus", "value": "87"},
+]
 
 # This are the step's schema when setting up the integration, or its devices
 STEP_USER_DATA_SCHEMA = vol.Schema(
@@ -145,6 +158,7 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
         """Initialize the PowerOceanConfigFlow instance."""
         self.user_input_from_step_user = {}
         self._title: str
+        self.options = {}
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -159,9 +173,6 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "cannot_connect"
             except InvalidAuth:
                 errors["base"] = "invalid_auth"
-                return self.async_show_form(
-                    step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
-                )
             except Exception:  # noqa: BLE001
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
@@ -190,17 +201,18 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
                     user_input[CONF_FRIENDLY_NAME], self.device_info["name"]
                 )
 
-                title = user_input[CONF_FRIENDLY_NAME]
+                self._title = user_input[CONF_FRIENDLY_NAME]
+                self.options = user_input
                 if not await validate_settings(self.hass, user_input):
                     errors["base"] = "invalid_settings"
 
                 if "base" not in errors:
                     return self.async_create_entry(
-                        title=title,
+                        title=self._title,
                         data={
                             "user_input": self.user_input_from_step_user,  # from step 1
                             "device_info": self.device_info,  # from device detection
-                            "options": user_input,  # new options from this step
+                            "options": self.options,  # new options from this step
                         },
                     )
             except Exception as e:  # noqa: BLE001
@@ -214,6 +226,51 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=STEP_DEVICE_OPTIONS_SCHEMA,
             errors=errors,
         )
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle reconfiguration of the integration options."""
+
+        errors: dict[str, str] = {}
+
+        current_entry = self._async_current_entries()[0]  # Hole den aktuellen Eintrag
+        current_data = current_entry.data.get("device_info", {})
+        current_options = current_entry.data.get("options", {})
+        # current_data = self.data.get("device_info", {})
+        default_name = current_data.get("friendly_name", "PowerOcean")
+
+        if user_input is not None:
+            try:
+                user_input[CONF_FRIENDLY_NAME] = sanitize_device_name(
+                    user_input[CONF_FRIENDLY_NAME], default_name
+                )
+                return self.async_create_entry(title="", data=user_input)
+            except Exception as e:
+                _LOGGER.exception(f"Error during reconfiguration: {e}")
+                errors["base"] = "reconfig_error"
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=STEP_DEVICE_OPTIONS_SCHEMA,
+            errors=errors,
+        )
+
+    @staticmethod
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        """
+        Return the options flow handler for the PowerOcean integration.
+
+        Args:
+            config_entry: The configuration entry for which to get the options flow.
+
+        Returns:
+            OptionsFlow: The options flow handler instance.
+
+        """
+        from .options_flow import PowerOceanOptionsFlowHandler
+
+        return PowerOceanOptionsFlowHandler(config_entry)
 
 
 class CannotConnect(HomeAssistantError):
