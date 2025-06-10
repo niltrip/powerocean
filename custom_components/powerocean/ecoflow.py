@@ -74,6 +74,7 @@ class Ecoflow:
 
         """
         self.sn = serialnumber
+        self.sn_inverter = None  # Slave serial number, if available
         self.unique_id = serialnumber
         self.ecoflow_username = username
         self.ecoflow_password = password
@@ -310,30 +311,83 @@ class Ecoflow:
             _LOGGER.error("No 'data' in response.")
             return sensors  # return empty dict if no data
 
+        # Handle generic 'data' report
         reports_data = self.__get_reports()
+        reports = []
         if "data" in reports_data:
             # Special case for 'data' report
             sensors.update(self._get_sensors_data(response, sensors))
             reports = [x for x in reports_data if x != "data"]
-        _LOGGER.debug(f"{reports}")
-        for report in reports:
-            # get sensors from response['data']
-            if "BP_STA_REPORT" in report:
-                sensors.update(
-                    self._extract_sensors_from_report(
-                        response, sensors, report, battery_mode=True
+        _LOGGER.debug(f"Reports to look for: {reports}")
+
+        # Single inverter installation
+        if "quota" in data:
+            response_base = data["quota"]
+            self.sn_inverter = self.sn
+
+            for report in reports:
+                # get sensors from response['data']
+                if "BP_STA_REPORT" in report:
+                    sensors.update(
+                        self._extract_sensors_from_report(
+                            response_base, sensors, report, battery_mode=True
+                        )
                     )
-                )
-            elif "EMS_HEARTBEAT" in report:
-                sensors.update(
-                    self._extract_sensors_from_report(
-                        response, sensors, report, ems_heartbeat_mode=True
+                elif "EMS_HEARTBEAT" in report:
+                    sensors.update(
+                        self._extract_sensors_from_report(
+                            response_base,
+                            sensors,
+                            report,
+                            ems_heartbeat_mode=True,
+                        )
                     )
-                )
-            else:  # Default report handling
-                sensors.update(
-                    self._extract_sensors_from_report(response, sensors, report)
-                )
+                else:  # Default report handling
+                    sensors.update(
+                        self._extract_sensors_from_report(
+                            response_base, sensors, report
+                        )
+                    )
+        # Dual inverter installation
+        elif "parallel" in data:
+            response_parallel = data["parallel"]
+            inverters = list(response_parallel.keys())
+
+            for element in inverters or [self.sn]:
+                self.sn_inverter = element
+                response_base = response_parallel.get(element, {})
+                _LOGGER.debug(f"Processing inverter: {element}")
+
+                for report in reports:
+                    # get sensors from response['data']
+                    if "BP_STA_REPORT" in report:
+                        sensors.update(
+                            self._extract_sensors_from_report(
+                                response_base, sensors, report, battery_mode=True
+                            )
+                        )
+                    elif "EMS_HEARTBEAT" in report:
+                        sensors.update(
+                            self._extract_sensors_from_report(
+                                response_base,
+                                sensors,
+                                report,
+                                ems_heartbeat_mode=True,
+                            )
+                        )
+                    else:  # Default report handling
+                        # Besonderheit: JTS1_ENERGY_STREAM_REPORT
+                        if "ENERGY_STREAM_REPORT" in report:
+                            report = re.sub(r"JTS1_", "JTS1_PARALLEL_", report)
+                        sensors.update(
+                            self._extract_sensors_from_report(
+                                response_base, sensors, report
+                            )
+                        )
+        else:
+            _LOGGER.warning(
+                "Neither 'quota' nor 'parallel' inverter data found in response."
+            )
         return sensors
 
     def _get_sensors_data(self, response: dict, sensors: dict) -> dict:
@@ -381,11 +435,11 @@ class Ecoflow:
 
         """
         # Report-Key ggf. anpassen
-        if report not in response["data"]["quota"]:
+        if report not in response:
             report = re.sub(r"JTS1_", "RE307_", report)
 
         try:
-            d = response["data"]["quota"][report]
+            d = response[report]
         except KeyError:
             _LOGGER.warning(f"Missing report: {report}")
             return sensors
@@ -401,12 +455,12 @@ class Ecoflow:
                 d_bat = json_loads(d[bat])
                 for key, value in d_bat.items():
                     if key in sens_select:
-                        unique_id = f"{self.sn}_{report}_{bat}_{key}"
+                        unique_id = f"{self.sn_inverter}_{report}_{bat}_{key}"
                         description_tmp = f"{name}{self.__get_description(key)}"
                         sensors[unique_id] = PowerOceanEndPoint(
                             internal_unique_id=unique_id,
-                            serial=self.sn,
-                            name=f"{self.sn}_{name}{key}",
+                            serial=f"{self.sn_inverter}",
+                            name=f"{self.sn_inverter}_{name}{key}",
                             friendly_name=f"{name}{key}",
                             value=value,
                             unit=self.__get_unit(key),
@@ -417,11 +471,11 @@ class Ecoflow:
             # EMS Heartbeat: ggf. verschachtelte Strukturen, spezielle Behandlung
             for key, value in d.items():
                 if key in sens_select:
-                    unique_id = f"{self.sn}_{report}_{key}"
+                    unique_id = f"{self.sn_inverter}_{report}_{key}"
                     sensors[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
-                        serial=self.sn,
-                        name=f"{self.sn}_{key}",
+                        serial=f"{self.sn_inverter}",
+                        name=f"{self.sn_inverter}_{key}",
                         friendly_name=key,
                         value=value,
                         unit=self.__get_unit(key),
@@ -434,11 +488,11 @@ class Ecoflow:
                 for i, phase in enumerate(phases):
                     for key, value in d[phase].items():
                         name = f"{phase}_{key}"
-                        unique_id = f"{self.sn}_{report}_{name}"
+                        unique_id = f"{self.sn_inverter}_{report}_{name}"
                         sensors[unique_id] = PowerOceanEndPoint(
                             internal_unique_id=unique_id,
-                            serial=self.sn,
-                            name=f"{self.sn}_{name}",
+                            serial=f"{self.sn_inverter}",
+                            name=f"{self.sn_inverter}_{name}",
                             friendly_name=name,
                             value=value,
                             unit=self.__get_unit(key),
@@ -450,9 +504,7 @@ class Ecoflow:
                 n_strings = len(d["mpptHeartBeat"][0]["mpptPv"])
                 for i in range(n_strings):
                     for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
-                        unique_id = (
-                            f"{self.sn}_{report}_mpptHeartBeat_mpptPv{i + 1}_{key}"
-                        )
+                        unique_id = f"{self.sn_inverter}_{report}_mpptHeartBeat_mpptPv{i + 1}_{key}"
                         special_icon = None
                         if key.endswith("amp"):
                             special_icon = "mdi:current-dc"
@@ -460,8 +512,8 @@ class Ecoflow:
                             special_icon = "mdi:solar-power"
                         sensors[unique_id] = PowerOceanEndPoint(
                             internal_unique_id=unique_id,
-                            serial=self.sn,
-                            name=f"{self.sn}_mpptPv{i + 1}_{key}",
+                            serial=f"{self.sn_inverter}",
+                            name=f"{self.sn_inverter}_mpptPv{i + 1}_{key}",
                             friendly_name=f"mpptPv{i + 1}_{key}",
                             value=value,
                             unit=self.__get_unit(key),
@@ -473,11 +525,11 @@ class Ecoflow:
                     d["mpptHeartBeat"][0]["mpptPv"][i].get("pwr", 0)
                     for i in range(n_strings)
                 )
-                unique_id = f"{self.sn}_{report}_mpptHeartBeat_mpptPv_pwrTotal"
+                unique_id = f"{self.sn_inverter}_{report}_mpptHeartBeat_mpptPv_pwrTotal"
                 sensors[unique_id] = PowerOceanEndPoint(
                     internal_unique_id=unique_id,
-                    serial=self.sn,
-                    name=f"{self.sn}_mpptPv_pwrTotal",
+                    serial=f"{self.sn_inverter}",
+                    name=f"{self.sn_inverter}_mpptPv_pwrTotal",
                     friendly_name="mpptPv_pwrTotal",
                     value=total_power,
                     unit="W",
@@ -488,11 +540,11 @@ class Ecoflow:
             # Standardverarbeitung: einfache key-value Paare
             for key, value in d.items():
                 if key in sens_select and not isinstance(value, dict):
-                    unique_id = f"{self.sn}_{report}_{key}"
+                    unique_id = f"{self.sn_inverter}_{report}_{key}"
                     sensors[unique_id] = PowerOceanEndPoint(
                         internal_unique_id=unique_id,
-                        serial=self.sn,
-                        name=f"{self.sn}_{key}",
+                        serial=f"{self.sn_inverter}",
+                        name=f"{self.sn_inverter}_{key}",
                         friendly_name=key,
                         value=value,
                         unit=self.__get_unit(key),
