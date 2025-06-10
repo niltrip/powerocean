@@ -19,15 +19,19 @@
 		"pv3Pwr"
 	],
 	"RE307_EMS_CHANGE_REPORT": [
+		"emsCtrlLedBright"
+	],
+	"RE307_EMS_STATE_CHANGE_REPORT": [
+		"bpSoc",
 		"bpTotalChgEnergy",
 		"bpTotalDsgEnergy",
-		"bpSoc",
 		"bpOnlineSum",
-		"emsCtrlLedBright",
 		"mppt1FaultCode",
 		"mppt1WarningCode",
 		"mppt2FaultCode",
-		"mppt2WarningCode"
+		"mppt2WarningCode",
+		"mppt3FaultCode",
+		"mppt3WarningCode"
 	],
 	"RE307_BP_STA_REPORT": [
 		"bpPwr",
