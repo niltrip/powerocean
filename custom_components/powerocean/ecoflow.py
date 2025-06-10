@@ -326,28 +326,15 @@ class Ecoflow:
             self.sn_inverter = self.sn
 
             for report in reports:
-                # get sensors from response['data']
-                if "BP_STA_REPORT" in report:
-                    sensors.update(
-                        self._extract_sensors_from_report(
-                            response_base, sensors, report, battery_mode=True
-                        )
+                sensors.update(
+                    self._extract_sensors_from_report(
+                        response_base,
+                        sensors,
+                        report,
+                        battery_mode="BP_STA_REPORT" in report,
+                        ems_heartbeat_mode="EMS_HEARTBEAT" in report,
                     )
-                elif "EMS_HEARTBEAT" in report:
-                    sensors.update(
-                        self._extract_sensors_from_report(
-                            response_base,
-                            sensors,
-                            report,
-                            ems_heartbeat_mode=True,
-                        )
-                    )
-                else:  # Default report handling
-                    sensors.update(
-                        self._extract_sensors_from_report(
-                            response_base, sensors, report
-                        )
-                    )
+                )
         # Dual inverter installation
         elif "parallel" in data:
             response_parallel = data["parallel"]
@@ -359,31 +346,19 @@ class Ecoflow:
                 _LOGGER.debug(f"Processing inverter: {element}")
 
                 for report in reports:
-                    # get sensors from response['data']
-                    if "BP_STA_REPORT" in report:
-                        sensors.update(
-                            self._extract_sensors_from_report(
-                                response_base, sensors, report, battery_mode=True
-                            )
+                    # Besonderheit: JTS1_ENERGY_STREAM_REPORT
+                    if "ENERGY_STREAM_REPORT" in report:
+                        report = re.sub(r"JTS1_", "JTS1_PARALLEL_", report)
+
+                    sensors.update(
+                        self._extract_sensors_from_report(
+                            response_base,
+                            sensors,
+                            report,
+                            battery_mode="BP_STA_REPORT" in report,
+                            ems_heartbeat_mode="EMS_HEARTBEAT" in report,
                         )
-                    elif "EMS_HEARTBEAT" in report:
-                        sensors.update(
-                            self._extract_sensors_from_report(
-                                response_base,
-                                sensors,
-                                report,
-                                ems_heartbeat_mode=True,
-                            )
-                        )
-                    else:  # Default report handling
-                        # Besonderheit: JTS1_ENERGY_STREAM_REPORT
-                        if "ENERGY_STREAM_REPORT" in report:
-                            report = re.sub(r"JTS1_", "JTS1_PARALLEL_", report)
-                        sensors.update(
-                            self._extract_sensors_from_report(
-                                response_base, sensors, report
-                            )
-                        )
+                    )
         else:
             _LOGGER.warning(
                 "Neither 'quota' nor 'parallel' inverter data found in response."
