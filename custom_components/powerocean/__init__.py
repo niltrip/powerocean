@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from homeassistant.const import (
-    CONF_CHOOSE,
     CONF_DEVICE_ID,
     CONF_EMAIL,
     CONF_FRIENDLY_NAME,
@@ -39,32 +38,36 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         # Legacy config without options? Patch it.
         updated = False
-        options = dict(entry.options)
+        _LOGGER.debug(f"start async_setup_entry: {entry.data}")
+        options = entry.data["options"]
 
         if CONF_SCAN_INTERVAL not in options:
             options[CONF_SCAN_INTERVAL] = 10
             updated = True
 
         if CONF_FRIENDLY_NAME not in options:
-            options[CONF_FRIENDLY_NAME] = entry.data.get("device_info", {}).get(
-                "name", "PowerOcean"
+            options[CONF_FRIENDLY_NAME] = entry.data.get("options", {}).get(
+                "custom_device_name"
             )
-            updated = True
-
-        if CONF_CHOOSE not in options:
-            options[CONF_CHOOSE] = ["ENERGY_STREAM_REPORT"]  # or a better fallback
             updated = True
 
         if updated:
             hass.config_entries.async_update_entry(entry, options=options)
             _LOGGER.info(f"Migrated missing options for {entry.title}: {options}")
+        _LOGGER.debug(f"update async_setup_entry: {entry.data}")
+
+        device_id = entry.data["user_input"][
+            CONF_DEVICE_ID
+        ]  # dein eigenes gespeichertes Feld
+        model = entry.data["user_input"][CONF_MODEL_ID]
+        name = entry.data["options"].get(CONF_FRIENDLY_NAME)
 
         # Init your device
         ecoflow = Ecoflow(
             entry.data["user_input"][CONF_DEVICE_ID],
             entry.data["user_input"][CONF_EMAIL],
             entry.data["user_input"][CONF_PASSWORD],
-            entry.data["user_input"][CONF_MODEL_ID],
+            model,
             options,
         )
 
@@ -74,6 +77,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         hass.data.setdefault(DOMAIN, {})[entry.entry_id] = ecoflow
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+        device_registry = dr.async_get(hass)
+
+        # Fetching device info from device registry
+        # During the config flow, the device info is saved in the entry's data under 'device_info' key.
+        device_info = entry.data.get("device_info")
+
+        # If the device_info was provided, register the device
+        if device_info:
+            device_registry.async_get_or_create(
+                config_entry_id=entry.entry_id,
+                identifiers={(DOMAIN, device_id)},
+                manufacturer=device_info.get("vendor", "ECOFLOW"),
+                serial_number=device_id,
+                name=name,
+                model=device_info.get("product"),
+                model_id=model,
+                sw_version=device_info.get("version"),
+                configuration_url="https://api-e.ecoflow.com",
+            )
+
         return True
 
     except Exception as e:
@@ -94,7 +118,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN].pop(entry.entry_id, None)
 
     # Optional cleanup of custom sensor mapping
-    device_id = entry.data.get("device_info", {}).get(CONF_DEVICE_ID)
+    device_id = entry.data.get("user_input", {}).get(CONF_DEVICE_ID)
     device_name = entry.options.get(CONF_FRIENDLY_NAME)
     if device_id and device_id in hass.data.get(DOMAIN, {}).get(
         "device_specific_sensors", {}
@@ -140,5 +164,17 @@ async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     await hass.config_entries.async_reload(entry.entry_id)
 
 
-async def async_get_options_flow(config_entry):
+async def async_get_options_flow(
+    config_entry: ConfigEntry,
+) -> PowerOceanOptionsFlowHandler:
+    """
+    Return the options flow handler for the PowerOcean integration.
+
+    Args:
+        config_entry (ConfigEntry): The configuration entry for which to get the options flow.
+
+    Returns:
+        PowerOceanOptionsFlowHandler: The options flow handler instance.
+
+    """
     return PowerOceanOptionsFlowHandler(config_entry)

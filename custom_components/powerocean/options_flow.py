@@ -2,12 +2,10 @@ from __future__ import annotations
 
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry, OptionsFlow
-from homeassistant.const import CONF_FRIENDLY_NAME, CONF_SCAN_INTERVAL, CONF_CHOOSE
+from homeassistant.const import CONF_FRIENDLY_NAME, CONF_SCAN_INTERVAL
 
-from .const import DOMAIN
 from .config_flow import sanitize_device_name
-
-OPTIONS = ["PV", "Battery", "Grid"]
+from .const import DOMAIN
 
 
 class PowerOceanOptionsFlowHandler(OptionsFlow):

@@ -40,7 +40,7 @@ from .const import (
     DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
 )
-from .ecoflow import AuthenticationFailed, Ecoflow
+from .ecoflow import Ecoflow, PowerOceanEndPoint, AuthenticationFailedError
 
 
 async def async_setup_entry(
@@ -88,7 +88,7 @@ async def _authorize_device(hass, ecoflow, device_id) -> bool:
             )
             return False
         return True
-    except AuthenticationFailed as error:
+    except AuthenticationFailedError as error:
         _LOGGER.warning(f"{device_id}: Authentication failed: {error}")
         return False
 
@@ -114,13 +114,19 @@ async def _fetch_initial_data(
         return None
 
 
-def _register_sensors(hass, ecoflow, device_id, data, async_add_entities):
+def _register_sensors(
+    hass: HomeAssistant,
+    ecoflow: Ecoflow,
+    device_id: str,
+    data: dict,
+    async_add_entities: Callable[[list, bool], Any],
+) -> None:
     """Register sensor entities and add them to the device-specific list."""
     # ✅ Sicherstellen, dass device_specific_sensors existiert
     hass.data.setdefault(DOMAIN, {}).setdefault("device_specific_sensors", {})
     hass.data[DOMAIN]["device_specific_sensors"][device_id] = []
     for unique_id, endpoint in data.items():
-        sensor = PowerOceanSensor(ecoflow, endpoint)
+        sensor = PowerOceanSensor(ecoflow, endpoint, device_id)
         hass.data[DOMAIN]["device_specific_sensors"][device_id].append(sensor)
         async_add_entities([sensor], False)
 
@@ -145,7 +151,7 @@ async def _update_sensors(
 
     try:
         full_data = await hass.async_add_executor_job(ecoflow.fetch_data)
-    except Exception as e:
+    except IntegrationError as e:
         _LOGGER.error(
             f"{device_id}: Error fetching data from the device: {e}"
             + ISSUE_URL_ERROR_MESSAGE
@@ -167,7 +173,7 @@ async def _update_sensors(
             if entity and not entity.disabled_by:
                 sensor_data = full_data.get(sensor.unique_id)
                 if sensor_data:
-                    if str(sensor._state).strip() != str(sensor_data.value).strip():
+                    if str(sensor.state).strip() != str(sensor_data.value).strip():
                         update_status = await sensor.async_update(sensor_data)
                         counter_updated += update_status
                     else:
@@ -233,11 +239,14 @@ class SensorMapping:
 class PowerOceanSensor(SensorEntity):
     """Representation of a PowerOcean Sensor."""
 
-    def __init__(self, ecoflow: Ecoflow, endpoint: NamedTuple) -> None:
+    def __init__(
+        self, ecoflow: Ecoflow, endpoint: PowerOceanEndPoint, device_id: str
+    ) -> None:
         """Initialize the sensor."""
         # Make Ecoflow and the endpoint parameters from the Sensor API available
         self.ecoflow = ecoflow
         self.endpoint = endpoint
+        self.device_id = device_id
 
         # Set Friendly name when sensor is first created
         self._attr_unique_id = getattr(endpoint, "name", None)
@@ -291,21 +300,21 @@ class PowerOceanSensor(SensorEntity):
         return self._unit
 
     @property
-    def device_class(self):
+    def device_class(self) -> str | None:
         """Return the device class of this entity, if any."""
         if self._unit is not None:
             return SensorMapping.get_sensor_device_class(self._unit)
         return None
 
     @property
-    def state_class(self):
+    def state_class(self) -> str | None:
         """Return the state class of this entity, if any."""
         if self._unit is not None:
             return SensorMapping.get_sensor_state_class(self._unit)
         return None
 
     @property
-    def extra_state_attributes(self):
+    def extra_state_attributes(self) -> dict:
         """Return the state attributes of this device."""
         attr = {}
 
@@ -333,27 +342,27 @@ class PowerOceanSensor(SensorEntity):
     @property
     def device_info(self) -> dict | None:
         """Return device specific attributes."""
-        # The unique identifier of the device is the serial number
-        if self.ecoflow.device is None:
-            return None
         return {
-            "identifiers": {(DOMAIN, self.ecoflow.device["serial"])},
+            "identifiers": {(DOMAIN, self.device_id)},
             "name": self.ecoflow.device["name"],
-            "manufacturer": "ECOFLOW",
-        }
+            "manufacturer": "EcoFlow",
+            "model": "PowerOcean",
+        }  # The unique identifier of the device is the serial number
 
     @property
-    def icon(self):
+    def icon(self) -> str | None:
         """Return the icon of the sensor."""
         return self._icon
 
     # This is to register the icon settings
-    async def async_added_to_hass(self):
+    async def async_added_to_hass(self) -> None:
         """Call when the sensor is added to Home Assistant."""
         self.async_write_ha_state()
 
     # Update of Sensor values
-    async def async_update(self, sensor_data=None):
+    async def async_update(
+        self, sensor_data: PowerOceanEndPoint | None = None
+    ) -> int | None:
         """Update the sensor with the provided data."""
         if sensor_data is None:
             serial = self.ecoflow.device["serial"] if self.ecoflow.device else "unknown"
@@ -369,7 +378,7 @@ class PowerOceanSensor(SensorEntity):
             update_status = 1
             self.async_write_ha_state()
 
-        except Exception as error:
+        except (AttributeError, TypeError) as error:
             serial = self.ecoflow.device["serial"] if self.ecoflow.device else "unknown"
             _LOGGER.error(
                 f"{serial}: Error updating sensor {self.name}: {error}"

@@ -125,7 +125,7 @@ class Ecoflow:
             if not isinstance(data_block, dict) or "token" not in data_block:
                 msg = "Missing or malformed 'data' block in response"
                 _LOGGER.error(msg)
-                raise AuthenticationFailed(msg)
+                raise AuthenticationFailedError(msg)
 
             self.token = data_block["token"]
 
@@ -515,7 +515,7 @@ class ResponseTypeError(TypeError):
         super().__init__(f"Expected response to be a dict, got {typename}")
 
 
-class AuthenticationFailed(Exception):
+class AuthenticationFailedError(Exception):
     """Exception to indicate authentication failure."""
 
 
