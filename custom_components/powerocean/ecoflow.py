@@ -18,7 +18,7 @@ from .const import (
 )
 
 # Mock path to response.json file
-mocked_response = Path("documentation/response.json")
+mocked_response = Path("documentation/response_modified_po_dual.json")
 
 
 # Better storage of PowerOcean endpoint
@@ -320,23 +320,8 @@ class Ecoflow:
             reports = [x for x in reports_data if x != "data"]
         _LOGGER.debug(f"Reports to look for: {reports}")
 
-        # Single inverter installation
-        if "quota" in data:
-            response_base = data["quota"]
-            self.sn_inverter = self.sn
-
-            for report in reports:
-                sensors.update(
-                    self._extract_sensors_from_report(
-                        response_base,
-                        sensors,
-                        report,
-                        battery_mode="BP_STA_REPORT" in report,
-                        ems_heartbeat_mode="EMS_HEARTBEAT" in report,
-                    )
-                )
         # Dual inverter installation
-        elif "parallel" in data:
+        if "parallel" in data:
             response_parallel = data["parallel"]
             inverters = list(response_parallel.keys())
 
@@ -357,8 +342,25 @@ class Ecoflow:
                             report,
                             battery_mode="BP_STA_REPORT" in report,
                             ems_heartbeat_mode="EMS_HEARTBEAT" in report,
+                            parallel_energy_stream_mode="PARALLEL_ENERGY_STREAM_REPORT"
+                            in report,
                         )
                     )
+        # Single inverter installation
+        elif "quota" in data:
+            response_base = data["quota"]
+            self.sn_inverter = self.sn
+
+            for report in reports:
+                sensors.update(
+                    self._extract_sensors_from_report(
+                        response_base,
+                        sensors,
+                        report,
+                        battery_mode="BP_STA_REPORT" in report,
+                        ems_heartbeat_mode="EMS_HEARTBEAT" in report,
+                    )
+                )
         else:
             _LOGGER.warning(
                 "Neither 'quota' nor 'parallel' inverter data found in response."
@@ -394,6 +396,7 @@ class Ecoflow:
         report: str,
         battery_mode: bool = False,  # noqa: FBT001, FBT002
         ems_heartbeat_mode: bool = False,  # noqa: FBT001, FBT002
+        parallel_energy_stream_mode: bool = False,  # noqa: FBT001, FBT002
     ) -> dict:
         """
         Allgemeine Methode zum Extrahieren von Sensoren aus einem Report.
@@ -427,7 +430,16 @@ class Ecoflow:
             prefix = "bpack"
             for ibat, bat in enumerate(batts):
                 name = f"{prefix}{ibat + 1}_"
-                d_bat = json_loads(d[bat])
+                raw_data = d.get(bat)
+                if isinstance(raw_data, str):
+                    d_bat = json_loads(raw_data)
+                elif isinstance(raw_data, dict):
+                    d_bat = raw_data
+                else:
+                    _LOGGER.error(
+                        f"Unexpected type for battery report '{bat}': {type(raw_data)}"
+                    )
+
                 for key, value in d_bat.items():
                     if key in sens_select:
                         unique_id = f"{self.sn_inverter}_{report}_{bat}_{key}"
@@ -511,6 +523,35 @@ class Ecoflow:
                     description="Solarertrag aller Strings",
                     icon="mdi:solar-power",
                 )
+        elif parallel_energy_stream_mode:
+            if "paraEnergyStream" in d:
+                para_list = d.get("paraEnergyStream", [])
+                for device_data in para_list:
+                    dev_sn = device_data.get("devSn", "unknown")
+                    if not dev_sn or len(dev_sn) < LENGTH_BATTERIE_SN:
+                        dev_sn = "unknown"  # Fallback für unbekannte Seriennummer
+                    _LOGGER.debug(f"Processing parallel device: {dev_sn}")
+                    if dev_sn == self.sn:
+                        add_string = "_master"
+                    elif dev_sn != "unknown":
+                        add_string = "_slave"
+                    else:
+                        add_string = ""
+
+                    for key, value in device_data.items():
+                        if key == "devSn":
+                            continue  # Überspringe das Seriennummernfeld selbst
+                        unique_id = f"{dev_sn}_{report}_paraEnergyStream_{key}"
+                        sensors[unique_id] = PowerOceanEndPoint(
+                            internal_unique_id=unique_id,
+                            serial=dev_sn,
+                            name=f"{dev_sn}_{key}",
+                            friendly_name=f"{key}{add_string}",
+                            value=value,
+                            unit=self.__get_unit(key),
+                            description=self.__get_description(key),
+                            icon=self.__get_special_icon(key),
+                        )
         else:
             # Standardverarbeitung: einfache key-value Paare
             for key, value in d.items():
