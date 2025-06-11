@@ -4,8 +4,8 @@
       "user": {
         "description": "[%key:common::config_flow::data::description%]",
         "data": {
-          "serialnumber": "[%key:common::config_flow::data::serialnumber%]",
-          "username": "[%key:common::config_flow::data::username%]",
+          "device_id": "[%key:common::config_flow::data::device_id%]",
+          "email": "[%key:common::config_flow::data::email%]",
           "password": "[%key:common::config_flow::data::password%]",
           "model_id": "[%key:common::config_flow::data::model_id%]"
         }
@@ -13,10 +13,9 @@
       "device_options": {
         "description": "[%key:common::config_flow::data::description%]",
         "data": {
-          "custom_device_name": "[%key:common::config_flow::data::custom_device_name%]",
-          "polling_interval": "[%key:common::config_flow::data::polling_interval%]",
-          "group_sensors": "[%key:common::config_flow::data::group_sensors%]",
-          "disable_sensors": "[%key:common::config_flow::data::disable_sensors%]"
+          "friendly_name": "[%key:common::config_flow::data::custom_device_name%]",
+          "scan_interval": "[%key:common::config_flow::data::polling_interval%]",
+          "choose": "[%key:common::config_flow::data::choose%]"
         }
       }
     },
