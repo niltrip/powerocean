@@ -7,8 +7,7 @@ including data fetching, entity registration, and periodic updates.
 
 from collections.abc import Callable
 from datetime import date, timedelta
-from time import time
-from typing import Any, ClassVar, NamedTuple
+from typing import Any, ClassVar
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -40,7 +39,7 @@ from .const import (
     DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
 )
-from .ecoflow import Ecoflow, PowerOceanEndPoint, AuthenticationFailedError
+from .ecoflow import AuthenticationFailedError, Ecoflow, PowerOceanEndPoint
 
 
 async def async_setup_entry(
@@ -59,7 +58,7 @@ async def async_setup_entry(
     device_id = ecoflow.device["serial"]
 
     if not await _authorize_device(hass, ecoflow, device_id):
-        return
+        return None
 
     data = await _fetch_initial_data(hass, ecoflow, device_id)
     if not data:
@@ -71,13 +70,15 @@ async def async_setup_entry(
         seconds=config_entry.options.get(CONF_SCAN_INTERVAL, 10)
     )
 
-    async def async_update_data(now) -> None:
+    async def async_update_data(now: date) -> None:
         await _update_sensors(hass, ecoflow, device_id, now)
 
     async_track_time_interval(hass, async_update_data, polling_interval)
 
 
-async def _authorize_device(hass, ecoflow, device_id) -> bool:
+async def _authorize_device(
+    hass: HomeAssistant, ecoflow: Ecoflow, device_id: str
+) -> bool:
     """Authorize the device and log warnings if authorization fails."""
     try:
         auth_check = await hass.async_add_executor_job(ecoflow.authorize)
@@ -87,10 +88,11 @@ async def _authorize_device(hass, ecoflow, device_id) -> bool:
                 + ISSUE_URL_ERROR_MESSAGE
             )
             return False
-        return True
     except AuthenticationFailedError as error:
         _LOGGER.warning(f"{device_id}: Authentication failed: {error}")
         return False
+    else:
+        return True
 
 
 async def _fetch_initial_data(
@@ -105,13 +107,14 @@ async def _fetch_initial_data(
                 + ISSUE_URL_ERROR_MESSAGE
             )
             return None
-        return data
     except IntegrationError as error:
         _LOGGER.warning(
             f"{device_id}: Failed to fetch sensor data: {error}"
             + ISSUE_URL_ERROR_MESSAGE
         )
         return None
+    else:
+        return data
 
 
 def _register_sensors(
@@ -125,7 +128,7 @@ def _register_sensors(
     # ✅ Sicherstellen, dass device_specific_sensors existiert
     hass.data.setdefault(DOMAIN, {}).setdefault("device_specific_sensors", {})
     hass.data[DOMAIN]["device_specific_sensors"][device_id] = []
-    for unique_id, endpoint in data.items():
+    for _unique_id, endpoint in data.items():
         sensor = PowerOceanSensor(ecoflow, endpoint, device_id)
         hass.data[DOMAIN]["device_specific_sensors"][device_id].append(sensor)
         async_add_entities([sensor], False)
@@ -136,7 +139,8 @@ def _register_sensors(
         f"{device_specific_sensors[device_id]}"
     )
     _LOGGER.debug(
-        f"{device_id}: All '{len(device_specific_sensors[device_id])}' sensors have registered."
+        f"{device_id}: All '{len(device_specific_sensors[device_id])}' "
+        "sensors have registered."
     )
 
 
@@ -156,7 +160,7 @@ async def _update_sensors(
             f"{device_id}: Error fetching data from the device: {e}"
             + ISSUE_URL_ERROR_MESSAGE
         )
-        return
+        return None
 
     registry = entity_registry.async_get(hass)
     device_specific_sensors = hass.data[DOMAIN]["device_specific_sensors"]
@@ -188,7 +192,7 @@ async def _update_sensors(
                 counter_disabled += 1
         else:
             _LOGGER.warning(
-                f"{device_id}: Sensor {sensor.name} not found in the registry, skipping update"
+                f"{device_id}: Sensor {sensor.name} not in registry, skipping update"
                 + ISSUE_URL_ERROR_MESSAGE
             )
             counter_error += 1
@@ -260,7 +264,6 @@ class PowerOceanSensor(SensorEntity):
         # it is the internal unique_id of the sensor entity registry
         self._unique_id = getattr(endpoint, "internal_unique_id", None)
 
-        # Set the icon for the sensor based on its unit, ensure the icon_mapper is defined
         # Default handled in function
         self._icon = getattr(endpoint, "icon", None)
 
@@ -290,7 +293,7 @@ class PowerOceanSensor(SensorEntity):
         return self._name
 
     @property
-    def state(self):
+    def state(self) -> Any:
         """Return the state of the sensor."""
         return self._state
 
@@ -342,9 +345,14 @@ class PowerOceanSensor(SensorEntity):
     @property
     def device_info(self) -> dict | None:
         """Return device specific attributes."""
+        device_name = (
+            self.ecoflow.device["name"]
+            if self.ecoflow.device and "name" in self.ecoflow.device
+            else None
+        )
         return {
             "identifiers": {(DOMAIN, self.device_id)},
-            "name": self.ecoflow.device["name"],
+            "name": device_name,
             "manufacturer": "EcoFlow",
             "model": "PowerOcean",
         }  # The unique identifier of the device is the serial number
@@ -371,7 +379,7 @@ class PowerOceanSensor(SensorEntity):
                 + ISSUE_URL_ERROR_MESSAGE
             )
             update_status = 0
-            return
+            return None
 
         try:
             self._state = sensor_data.value

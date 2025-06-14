@@ -81,7 +81,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device_registry = dr.async_get(hass)
 
         # Fetching device info from device registry
-        # During the config flow, the device info is saved in the entry's data under 'device_info' key.
+        # During the config flow, the device info is saved in the entry's data
+        # under 'device_info' key.
         device_info = entry.data.get("device_info")
 
         # If the device_info was provided, register the device
@@ -98,11 +99,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 configuration_url="https://api-e.ecoflow.com",
             )
 
-        return True
-
-    except Exception as e:
+    except (KeyError, TypeError, AttributeError) as e:
         _LOGGER.exception("Error setting up PowerOcean: %s", e)
         return False
+    else:
+        return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -171,7 +172,7 @@ async def async_get_options_flow(
     Return the options flow handler for the PowerOcean integration.
 
     Args:
-        config_entry (ConfigEntry): The configuration entry for which to get the options flow.
+        config_entry (ConfigEntry): The entry for which to get the options flow.
 
     Returns:
         PowerOceanOptionsFlowHandler: The options flow handler instance.
