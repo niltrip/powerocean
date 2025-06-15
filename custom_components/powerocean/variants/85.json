@@ -11,10 +11,9 @@
 		"location",
 		"timezone"
 	],
-	"ENERGY_STREAM_REPORT": [],
-	"EMS_CHANGE_REPORT": [],
-	"BP_STA_REPORT": [],
-	"ENERGY_STREAM_REPORT": [
+	"JTS1_EMS_CHANGE_REPORT": [],
+	"JTS1_BP_STA_REPORT": [],
+	"JTS1_ENERGY_STREAM_REPORT": [
 		"bpSoc",
 		"heatingPower",
 		"dcdcPwr",
@@ -26,7 +25,7 @@
 		"updateTime",
 		"timestamp"
 	],
-	"EMS_HEARTBEAT": [
+	"JTS1_EMS_HEARTBEAT": [
 		"emsSystemState",
 		"mpptRatePower",
 		"gridOutDayEnergy",

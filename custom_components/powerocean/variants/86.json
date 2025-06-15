@@ -1,9 +1,5 @@
 {
 	"data": [
-		"sysLoadPwr",
-		"sysGridPwr",
-		"mpptPwr",
-		"bpPwr",
 		"online",
 		"dcdcPwr",
 		"todayElectricityGeneration",
@@ -12,12 +8,17 @@
 		"totalElectricityGeneration",
 		"systemName"
 	],
-	"ENERGY_STREAM_REPORT": [
+	"JTS1_ENERGY_STREAM_REPORT": [
+		"bpSoc",
+		"mpptPwr",
+		"bpPwr",
 		"pv1Pwr",
 		"pvInvPwr",
-		"pv2Pwr"
+		"pv2Pwr",
+		"sysLoadPwr",
+		"sysGridPwr"
 	],
-	"EMS_CHANGE_REPORT": [
+	"JTS1_EMS_CHANGE_REPORT": [
 		"bpTotalChgEnergy",
 		"bpTotalDsgEnergy",
 		"bpSoc",
@@ -28,7 +29,7 @@
 		"mppt2FaultCode",
 		"mppt2WarningCode"
 	],
-	"BP_STA_REPORT": [
+	"JTS1_BP_STA_REPORT": [
 		"bpPwr",
 		"bpSoc",
 		"bpSoh",
@@ -42,7 +43,7 @@
 		"bpMinCellTemp",
 		"bpMaxCellTemp"
 	],
-	"EMS_HEARTBEAT": [
+	"JTS1_EMS_HEARTBEAT": [
 		"bpRemainWatth",
 		"emsBpAliveNum",
 		"emsBpPower",
