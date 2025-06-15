@@ -2,8 +2,9 @@
 
 import base64
 import re
+from enum import Enum
 from pathlib import Path
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 import requests
 from homeassistant.exceptions import IntegrationError
@@ -16,6 +17,26 @@ from .const import (
     LENGTH_BATTERIE_SN,
     USE_MOCKED_RESPONSE,
 )
+
+
+class ReportMode(Enum):
+    """Enumeration for different report modes in the PowerOcean integration."""
+
+    DEFAULT = "data"
+    BATTERY = "BP_STA_REPORT"
+    EMS = "EMS_HEARTBEAT"
+    PARALLEL = "PARALLEL_ENERGY_STREAM_REPORT"
+    EMS_CHANGE = "EMS_CHANGE_REPORT"
+
+
+class DeviceRole(str, Enum):
+    """Enumeration for device roles in the PowerOcean integration."""
+
+    MASTER = "_master"
+    SLAVE = "_slave"
+    ALL = "_all"
+    EMPTY = ""  # Used when no specific role is assigned
+
 
 # Mock path to response.json file
 mocked_response = Path("documentation/response_modified_po_dual.json")
@@ -46,6 +67,82 @@ class PowerOceanEndPoint(NamedTuple):
     unit: str | None
     description: str
     icon: str | None
+
+
+class SensorMetaHelper:
+    """Helper class for sensor metadata such as units, descriptions, and icons."""
+
+    @staticmethod
+    def get_unit(key: str) -> str | None:
+        """Get unit from key name using a dictionary mapping."""
+        unit_mapping = {
+            "pwr": "W",
+            "power": "W",
+            "amp": "A",
+            "soc": "%",
+            "soh": "%",
+            "vol": "V",
+            "watth": "Wh",
+            "energy": "Wh",
+        }
+
+        # Check for direct matches using dictionary lookup
+        for suffix, unit in unit_mapping.items():
+            if key.lower().endswith(suffix):
+                return unit
+
+        # Special case for "Generation" in key
+        if "Generation" in key:
+            return "kWh"
+
+        # Special case for keys ending with "Temp"
+        if key.endswith("Temp"):
+            return "°C"
+
+        return None  # Default if no match found
+
+    @staticmethod
+    def get_description(key: str) -> str:
+        """Get description from key name using a dictionary mapping."""
+        # Dictionary for key-to-description mapping
+        description_mapping = {
+            "sysLoadPwr": "Hausnetz",
+            "sysGridPwr": "Stromnetz",
+            "mpptPwr": "Solarertrag",
+            "bpPwr": "Batterieleistung",
+            "bpSoc": "Ladezustand der Batterie",
+            "online": "Online",
+            "systemName": "System Name",
+            "createTime": "Installations Datum",
+            "bpVol": "Batteriespannung",
+            "bpAmp": "Batteriestrom",
+            "bpCycles": "Ladezyklen",
+            "bpTemp": "Temperatur der Batteriezellen",
+        }
+
+        # Use .get() to avoid KeyErrors and return default value
+        return description_mapping.get(key, key)  # Default to key if not found
+
+    @staticmethod
+    def get_special_icon(key: str) -> str | None:
+        """Get special icon for a key."""
+        # Dictionary für die Zuordnung von Keys zu Icons
+        icon_mapping = {
+            "mpptPwr": "mdi:solar-power",
+            "online": "mdi:cloud-check",
+            "sysGridPwr": "mdi:transmission-tower-import",
+            "sysLoadPwr": "mdi:home-import-outline",
+            "bpAmp": "mdi:current-dc",
+        }
+
+        # Standardwert setzen
+        special_icon = icon_mapping.get(key)
+
+        # Zusätzliche Prüfung für Keys, die mit "pv1" oder "pv2" beginnen
+        if key.startswith(("pv1", "pv2", "pv3")):
+            special_icon = "mdi:solar-power"
+
+        return special_icon
 
 
 # ecoflow_api to detect device and get device info,
@@ -206,75 +303,6 @@ class Ecoflow:
             _LOGGER.warning(error + ISSUE_URL_ERROR_MESSAGE)
             raise IntegrationError(error) from err
 
-    def __get_unit(self, key: str) -> str | None:
-        """Get unit from key name using a dictionary mapping."""
-        unit_mapping = {
-            "pwr": "W",
-            "power": "W",
-            "amp": "A",
-            "soc": "%",
-            "soh": "%",
-            "vol": "V",
-            "watth": "Wh",
-            "energy": "Wh",
-        }
-
-        # Check for direct matches using dictionary lookup
-        for suffix, unit in unit_mapping.items():
-            if key.lower().endswith(suffix):
-                return unit
-
-        # Special case for "Generation" in key
-        if "Generation" in key:
-            return "kWh"
-
-        # Special case for keys ending with "Temp"
-        if key.endswith("Temp"):
-            return "°C"
-
-        return None  # Default if no match found
-
-    def __get_description(self, key: str) -> str:
-        """Get description from key name using a dictionary mapping."""
-        # Dictionary for key-to-description mapping
-        description_mapping = {
-            "sysLoadPwr": "Hausnetz",
-            "sysGridPwr": "Stromnetz",
-            "mpptPwr": "Solarertrag",
-            "bpPwr": "Batterieleistung",
-            "bpSoc": "Ladezustand der Batterie",
-            "online": "Online",
-            "systemName": "System Name",
-            "createTime": "Installations Datum",
-            "bpVol": "Batteriespannung",
-            "bpAmp": "Batteriestrom",
-            "bpCycles": "Ladezyklen",
-            "bpTemp": "Temperatur der Batteriezellen",
-        }
-
-        # Use .get() to avoid KeyErrors and return default value
-        return description_mapping.get(key, key)  # Default to key if not found
-
-    def __get_special_icon(self, key: str) -> str | None:
-        """Get special icon for a key."""
-        # Dictionary für die Zuordnung von Keys zu Icons
-        icon_mapping = {
-            "mpptPwr": "mdi:solar-power",
-            "online": "mdi:cloud-check",
-            "sysGridPwr": "mdi:transmission-tower-import",
-            "sysLoadPwr": "mdi:home-import-outline",
-            "bpAmp": "mdi:current-dc",
-        }
-
-        # Standardwert setzen
-        special_icon = icon_mapping.get(key)
-
-        # Zusätzliche Prüfung für Keys, die mit "pv1" oder "pv2" beginnen
-        if key.startswith(("pv1", "pv2", "pv3")):
-            special_icon = "mdi:solar-power"
-
-        return special_icon
-
     def __read_json_file(self) -> dict:
         try:
             with self.datapointfile.open("r", encoding="utf-8") as file:
@@ -291,14 +319,14 @@ class Ecoflow:
             _LOGGER.error(f"Error decoding JSON in file: {self.datapointfile}")
         return {}
 
-    def __get_reports(self) -> list:
-        """Retrieve sensor selection from JSON file."""
+    def _get_reports(self) -> list:
+        """Retrieve report selection from JSON file."""
         reports = self.__read_json_file()
         if isinstance(reports, dict):
             return list(reports.keys())
         return []
 
-    def __get_sens_select(self, report: str) -> list:
+    def _get_sens_select(self, report: str) -> list:
         """Retrieve sensor selection from JSON file."""
         datapoints = self.__read_json_file()
         if isinstance(datapoints, dict):
@@ -308,7 +336,7 @@ class Ecoflow:
         # If value is not a list, return an empty list
         return []
 
-    def __create_sensor(self, endpoint: PowerOceanEndPoint) -> PowerOceanEndPoint:
+    def _create_sensor(self, endpoint: PowerOceanEndPoint) -> PowerOceanEndPoint:
         return endpoint
 
     def _get_sensors(self, response: dict) -> dict:
@@ -321,11 +349,18 @@ class Ecoflow:
             return sensors  # return empty dict if no data
 
         # Handle generic 'data' report
-        reports_data = self.__get_reports()
+        reports_data = self._get_reports()
         reports = []
-        if "data" in reports_data:
+        report = ReportMode.DEFAULT.value
+        if report in reports_data:
             # Special case for 'data' report
-            sensors.update(self._get_sensors_data(response, sensors))
+            sensors.update(
+                self._extract_sensors_from_report(
+                    response,
+                    sensors,
+                    report,
+                )
+            )
             reports = [x for x in reports_data if x != "data"]
         _LOGGER.debug(f"Reports to look for: {reports}")
 
@@ -338,7 +373,11 @@ class Ecoflow:
                 self.sn_inverter = element
                 response_base = response_parallel.get(element, {})
                 _LOGGER.debug(f"Processing inverter: {element}")
-                suffix = "_master" if element == self.sn else "_slave"
+                suffix = (
+                    DeviceRole.MASTER.value
+                    if element == self.sn
+                    else DeviceRole.SLAVE.value
+                )
                 for report in reports:
                     # Besonderheit: JTS1_ENERGY_STREAM_REPORT  # noqa: ERA001
                     if "ENERGY_STREAM_REPORT" in report:
@@ -352,9 +391,9 @@ class Ecoflow:
                             sensors,
                             report_key,
                             suffix=suffix,
-                            battery_mode="BP_STA_REPORT" in report_key,
-                            ems_heartbeat_mode="EMS_HEARTBEAT" in report_key,
-                            parallel_energy_stream_mode="PARALLEL_ENERGY_STREAM_REPORT"
+                            battery_mode=ReportMode.BATTERY.value in report_key,
+                            ems_heartbeat_mode=ReportMode.EMS.value in report_key,
+                            parallel_energy_stream_mode=ReportMode.PARALLEL.value
                             in report_key,
                         )
                     )
@@ -367,8 +406,8 @@ class Ecoflow:
                         response_base,
                         sensors,
                         report,
-                        battery_mode="BP_STA_REPORT" in report,
-                        ems_heartbeat_mode="EMS_HEARTBEAT" in report,
+                        battery_mode=ReportMode.BATTERY.value in report,
+                        ems_heartbeat_mode=ReportMode.EMS.value in report,
                     )
                 )
         else:
@@ -377,40 +416,17 @@ class Ecoflow:
             )
         return sensors
 
-    def _get_sensors_data(self, response: dict, sensors: dict) -> dict:
-        d = response["data"]
-
-        sens_select = self.__get_sens_select("data")
-
-        sensors = {}  # start with empty dict
-        for key, value in d.items():
-            if key in sens_select and not isinstance(value, dict):
-                unique_id = f"{self.sn}_{key}"
-                sensors[unique_id] = self.__create_sensor(
-                    PowerOceanEndPoint(
-                        unique_id,
-                        self.sn_inverter,
-                        f"{self.sn_inverter}_{key}",
-                        f"{key}",
-                        value,
-                        self.__get_unit(key),
-                        self.__get_description(key),
-                        self.__get_special_icon(key),
-                    )
-                )
-
-        return sensors
-
-    def _extract_sensors_from_report(  # noqa: C901, D417, PLR0912, PLR0913, PLR0915
+    def _extract_sensors_from_report(  # noqa: PLR0913
         self,
-        response: dict,
-        sensors: dict,
+        response: dict[str, Any],
+        sensors: dict[str, PowerOceanEndPoint],
         report: str,
         suffix: str = "",
-        battery_mode: bool = False,  # noqa: FBT001, FBT002
-        ems_heartbeat_mode: bool = False,  # noqa: FBT001, FBT002
-        parallel_energy_stream_mode: bool = False,  # noqa: FBT001, FBT002
-    ) -> dict:
+        *,
+        battery_mode: bool = False,
+        ems_heartbeat_mode: bool = False,
+        parallel_energy_stream_mode: bool = False,
+    ) -> dict[str, PowerOceanEndPoint]:
         """
         Allgemeine Methode zum Extrahieren von Sensoren aus einem Report.
 
@@ -418,8 +434,12 @@ class Ecoflow:
             response: API Antwort als dict
             sensors: bisher gesammelte Sensoren (wird erweitert)
             report: Name des Reports im JSON
+            suffix: Suffix, das an die Namen der Sensoren angehängt wird
+                (z.B. für Master/Slave).
             battery_mode: Wenn True, werden Batteriedaten speziell behandelt
             ems_heartbeat_mode: Wenn True, wird die spezielle EMS-Heartbeat-Verarbeitung
+            parallel_energy_stream_mode: Wenn True, wird die spezielle Verarbeitung
+                für parallele Energie-Streams verwendet.
 
         Returns:
             Erweitertes sensors dict mit neuen Sensoren
@@ -429,179 +449,231 @@ class Ecoflow:
         if report not in response:
             report = re.sub(r"JTS1_", "RE307_", report)
 
-        try:
-            d = response[report]
-        except KeyError:
-            _LOGGER.warning(f"Missing report: {report}")
+        d = response.get(report)
+        if not d:
+            _LOGGER.debug(f"Missing report '{report}' in response.")
             return sensors
 
-        sens_select = self.__get_sens_select(report)
+        sens_select = self._get_sens_select(report)
         if battery_mode:
-            # Batteriedaten: d enthält JSON Strings pro Batterie
-            keys = list(d.keys())
-            batts = [s for s in keys if len(s) > LENGTH_BATTERIE_SN]
-            prefix = "bpack"
-            for ibat, bat in enumerate(reversed(batts)):
-                name = f"{prefix}{ibat + 1}_"
-                raw_data = d.get(bat)
-                if isinstance(raw_data, str):
-                    d_bat = json_loads(raw_data)
-                elif isinstance(raw_data, dict):
-                    d_bat = raw_data
-                else:
-                    _LOGGER.error(
-                        f"Unexpected type for battery report '{bat}': {type(raw_data)}"
-                    )
-                if isinstance(d_bat, dict):
-                    for key, value in d_bat.items():
-                        if key in sens_select:
-                            unique_id = f"{self.sn_inverter}_{report}_{bat}_{key}"
-                            description_tmp = f"{name}{self.__get_description(key)}"
-                            sensors[unique_id] = self.__create_sensor(
-                                PowerOceanEndPoint(
-                                    internal_unique_id=unique_id,
-                                    serial=f"{self.sn_inverter}",
-                                    name=f"{self.sn_inverter}_{name}{key}{suffix}",
-                                    friendly_name=f"{name}{key}{suffix}",
-                                    value=value,
-                                    unit=self.__get_unit(key),
-                                    description=description_tmp,
-                                    icon=self.__get_special_icon(key),
-                                )
-                            )
-                else:
-                    _LOGGER.error(
-                        f"Battery data for '{bat}' is not a dict: {type(d_bat)}"
-                    )
-        elif ems_heartbeat_mode:
-            # EMS Heartbeat: ggf. verschachtelte Strukturen, spezielle Behandlung
-            for key, value in d.items():
-                if key in sens_select:
-                    unique_id = f"{self.sn_inverter}_{report}_{key}"
-                    sensors[unique_id] = self.__create_sensor(
-                        PowerOceanEndPoint(
-                            internal_unique_id=unique_id,
-                            serial=f"{self.sn_inverter}",
-                            name=f"{self.sn_inverter}_{key}{suffix}",
-                            friendly_name=f"{key}{suffix}",
-                            value=value,
-                            unit=self.__get_unit(key),
-                            description=self.__get_description(key),
-                            icon=None,
-                        )
-                    )
-            # Besonderheiten Phasen
-            phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
-            if phases[1] in d:
-                for _, phase in enumerate(phases):
-                    for key, value in d[phase].items():
-                        name = f"{phase}_{key}"
-                        unique_id = f"{self.sn_inverter}_{report}_{name}"
-                        sensors[unique_id] = self.__create_sensor(
+            return self._handle_battery_mode(d, sensors, report, sens_select, suffix)
+        # EMS Heartbeat Mode
+        if ems_heartbeat_mode:
+            return self._handle_ems_heartbeat_mode(
+                d, sensors, report, sens_select, suffix
+            )
+        # Parallel Energy Stream Mode
+        if parallel_energy_stream_mode:
+            return self._handle_parallel_energy_stream(
+                d, sensors, report, sens_select, suffix
+            )
+        # Standardverarbeitung
+        return self._handle_standard_mode(d, sensors, report, sens_select, suffix)
+
+    def _handle_battery_mode(
+        self,
+        d: dict,
+        sensors: dict[str, PowerOceanEndPoint],
+        report: str,
+        sens_select: list,
+        suffix: str = "",
+    ) -> dict[str, PowerOceanEndPoint]:
+        """Handle battery mode data extraction."""
+        # Batteriedaten: d enthält JSON Strings pro Batterie
+        keys = list(d.keys())
+        batts = [s for s in keys if len(s) > LENGTH_BATTERIE_SN]
+        prefix = "bpack"
+        for ibat, bat in enumerate(reversed(batts)):
+            name = f"{prefix}{ibat + 1}_"
+            raw_data = d.get(bat)
+            d_bat = self._parse_battery_data(raw_data)
+            if isinstance(d_bat, dict):
+                for key, value in d_bat.items():
+                    if key in sens_select:
+                        unique_id = f"{self.sn_inverter}_{report}_{bat}_{key}"
+                        sensors[unique_id] = self._create_sensor(
                             PowerOceanEndPoint(
                                 internal_unique_id=unique_id,
                                 serial=f"{self.sn_inverter}",
-                                name=f"{self.sn_inverter}_{name}{suffix}",
-                                friendly_name=f"{name}{suffix}",
+                                name=f"{self.sn_inverter}_{name}{key}{suffix}",
+                                friendly_name=f"{name}{key}{suffix}",
                                 value=value,
-                                unit=self.__get_unit(key),
-                                description=self.__get_description(key),
-                                icon=None,
+                                unit=SensorMetaHelper.get_unit(key),
+                                description=f"{name}{SensorMetaHelper.get_description(key)}",
+                                icon=SensorMetaHelper.get_special_icon(key),
                             )
                         )
-            # Besonderheit mpptPv
-            if "mpptHeartBeat" in d:
-                n_strings = len(d["mpptHeartBeat"][0]["mpptPv"])
-                for i in range(n_strings):
-                    for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
-                        unique_id = (
-                            f"{self.sn_inverter}_{report}_mpptHeartBeat_mpptPv"
-                            f"{i + 1}_{key}"
-                        )
-                        special_icon = None
-                        if key.endswith("amp"):
-                            special_icon = "mdi:current-dc"
-                        elif key.endswith("pwr"):
-                            special_icon = "mdi:solar-power"
-                        sensors[unique_id] = self.__create_sensor(
-                            PowerOceanEndPoint(
-                                internal_unique_id=unique_id,
-                                serial=f"{self.sn_inverter}",
-                                name=f"{self.sn_inverter}_mpptPv{i + 1}_{key}{suffix}",
-                                friendly_name=f"mpptPv{i + 1}_{key}{suffix}",
-                                value=value,
-                                unit=self.__get_unit(key),
-                                description=self.__get_description(key),
-                                icon=special_icon,
-                            )
-                        )
-                # Gesamtleistung mpptPv
-                total_power = sum(
-                    d["mpptHeartBeat"][0]["mpptPv"][i].get("pwr", 0)
-                    for i in range(n_strings)
-                )
-                unique_id = f"{self.sn_inverter}_{report}_mpptHeartBeat_mpptPv_pwrTotal"
-                sensors[unique_id] = self.__create_sensor(
+            else:
+                _LOGGER.error(f"Battery data for '{bat}' is not a dict: {type(d_bat)}")
+        return sensors
+
+    def _parse_battery_data(self, raw_data: dict | str | None) -> dict | None:
+        if isinstance(raw_data, str):
+            data = json_loads(raw_data)
+            if isinstance(data, dict):
+                return data
+            _LOGGER.error(f"Parsed battery data is not a dict: {type(data)}")
+            return None
+        if isinstance(raw_data, dict):
+            return raw_data
+        _LOGGER.error(f"Unexpected battery data type: {type(raw_data)}")
+        return None
+
+    def _handle_ems_heartbeat_mode(
+        self,
+        d: dict,
+        sensors: dict[str, PowerOceanEndPoint],
+        report: str,
+        sens_select: list,
+        suffix: str = "",
+    ) -> dict[str, PowerOceanEndPoint]:
+        # EMS Heartbeat: ggf. verschachtelte Strukturen, spezielle Behandlung
+        for key, value in d.items():
+            if key in sens_select:
+                unique_id = f"{self.sn_inverter}_{report}_{key}"
+                sensors[unique_id] = self._create_sensor(
                     PowerOceanEndPoint(
                         internal_unique_id=unique_id,
                         serial=f"{self.sn_inverter}",
-                        name=f"{self.sn_inverter}_mpptPv_pwrTotal{suffix}",
-                        friendly_name=f"mpptPv_pwrTotal{suffix}",
-                        value=total_power,
-                        unit="W",
-                        description="Solarertrag aller Strings",
-                        icon="mdi:solar-power",
+                        name=f"{self.sn_inverter}_{key}{suffix}",
+                        friendly_name=f"{key}{suffix}",
+                        value=value,
+                        unit=SensorMetaHelper.get_unit(key),
+                        description=SensorMetaHelper.get_description(key),
+                        icon=None,
                     )
                 )
-        elif parallel_energy_stream_mode:
-            if "paraEnergyStream" in d:
-                para_list = d.get("paraEnergyStream", [])
-                for device_data in para_list:
-                    dev_sn = device_data.get("devSn", "")
-                    if not dev_sn or len(dev_sn) < LENGTH_BATTERIE_SN:
-                        dev_sn = ""  # Fallback für unbekannte Seriennummer
-                    _LOGGER.debug(f"Processing parallel dev_sn: {dev_sn}")
-                    if dev_sn == self.sn:
-                        add_string = "_master"
-                    elif dev_sn != "":
-                        add_string = "_slave"
-                    else:
-                        add_string = "_all"
-
-                    for key, value in device_data.items():
-                        if key == "devSn":
-                            continue  # Überspringe das Seriennummernfeld selbst
-                        unique_id = f"{dev_sn}_{report}_paraEnergyStream_{key}"
-                        sensors[unique_id] = self.__create_sensor(
-                            PowerOceanEndPoint(
-                                internal_unique_id=unique_id,
-                                serial=dev_sn,
-                                name=f"{dev_sn}_{key}",
-                                friendly_name=f"{key}{add_string}",
-                                value=value,
-                                unit=self.__get_unit(key),
-                                description=self.__get_description(key),
-                                icon=self.__get_special_icon(key),
-                            )
-                        )
-        else:
-            # Standardverarbeitung: einfache key-value Paare
-            for key, value in d.items():
-                if key in sens_select and not isinstance(value, dict):
-                    unique_id = f"{self.sn_inverter}_{report}_{key}"
-                    sensors[unique_id] = self.__create_sensor(
+        # Besonderheiten Phasen
+        phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
+        if phases[1] in d:
+            for _, phase in enumerate(phases):
+                for key, value in d[phase].items():
+                    name = f"{phase}_{key}"
+                    unique_id = f"{self.sn_inverter}_{report}_{name}"
+                    sensors[unique_id] = self._create_sensor(
                         PowerOceanEndPoint(
                             internal_unique_id=unique_id,
                             serial=f"{self.sn_inverter}",
-                            name=f"{self.sn_inverter}_{key}{suffix}",
-                            friendly_name=f"{key}{suffix}",
+                            name=f"{self.sn_inverter}_{name}{suffix}",
+                            friendly_name=f"{name}{suffix}",
                             value=value,
-                            unit=self.__get_unit(key),
-                            description=self.__get_description(key),
-                            icon=self.__get_special_icon(key),
+                            unit=SensorMetaHelper.get_unit(key),
+                            description=SensorMetaHelper.get_description(key),
+                            icon=None,
                         )
                     )
+        # Besonderheit mpptPv
+        if "mpptHeartBeat" in d:
+            n_strings = len(d["mpptHeartBeat"][0]["mpptPv"])
+            for i in range(n_strings):
+                for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
+                    unique_id = (
+                        f"{self.sn_inverter}_{report}_mpptHeartBeat_mpptPv{i + 1}_{key}"
+                    )
+                    special_icon = None
+                    if key.endswith("amp"):
+                        special_icon = "mdi:current-dc"
+                    elif key.endswith("pwr"):
+                        special_icon = "mdi:solar-power"
+                    sensors[unique_id] = self._create_sensor(
+                        PowerOceanEndPoint(
+                            internal_unique_id=unique_id,
+                            serial=f"{self.sn_inverter}",
+                            name=f"{self.sn_inverter}_mpptPv{i + 1}_{key}{suffix}",
+                            friendly_name=f"mpptPv{i + 1}_{key}{suffix}",
+                            value=value,
+                            unit=SensorMetaHelper.get_unit(key),
+                            description=SensorMetaHelper.get_description(key),
+                            icon=special_icon,
+                        )
+                    )
+            # Gesamtleistung mpptPv
+            total_power = sum(
+                d["mpptHeartBeat"][0]["mpptPv"][i].get("pwr", 0)
+                for i in range(n_strings)
+            )
+            unique_id = f"{self.sn_inverter}_{report}_mpptHeartBeat_mpptPv_pwrTotal"
+            sensors[unique_id] = self._create_sensor(
+                PowerOceanEndPoint(
+                    internal_unique_id=unique_id,
+                    serial=f"{self.sn_inverter}",
+                    name=f"{self.sn_inverter}_mpptPv_pwrTotal{suffix}",
+                    friendly_name=f"mpptPv_pwrTotal{suffix}",
+                    value=total_power,
+                    unit="W",
+                    description="Solarertrag aller Strings",
+                    icon="mdi:solar-power",
+                )
+            )
+        return sensors
 
+    def _handle_parallel_energy_stream(
+        self,
+        d: dict,
+        sensors: dict[str, PowerOceanEndPoint],
+        report: str,
+        sens_select: list,
+        suffix: str = "",
+    ) -> dict[str, PowerOceanEndPoint]:
+        """Handle parallel energy stream data extraction."""
+        if "paraEnergyStream" in d:
+            para_list = d.get("paraEnergyStream", [])
+            for device_data in para_list:
+                dev_sn = device_data.get("devSn")
+                if not dev_sn or len(dev_sn) < LENGTH_BATTERIE_SN:
+                    dev_sn = ""  # Fallback für unbekannte Seriennummer
+                _LOGGER.debug(f"Processing parallel dev_sn: {dev_sn}")
+                if dev_sn == self.sn:
+                    suffix = DeviceRole.MASTER.value
+                elif dev_sn != "":
+                    suffix = DeviceRole.SLAVE.value
+                else:
+                    suffix = DeviceRole.ALL.value
+
+                for key, value in device_data.items():
+                    unique_id = f"{dev_sn}_{report}_paraEnergyStream_{key}"
+                    sensors[unique_id] = self._create_sensor(
+                        PowerOceanEndPoint(
+                            internal_unique_id=unique_id,
+                            serial=dev_sn,
+                            name=f"{dev_sn}_{key}{suffix}",
+                            friendly_name=f"{key}{suffix}",
+                            value=value,
+                            unit=SensorMetaHelper.get_unit(key),
+                            description=SensorMetaHelper.get_description(key),
+                            icon=SensorMetaHelper.get_special_icon(key),
+                        )
+                    )
+        return sensors
+
+    def _handle_standard_mode(
+        self,
+        d: dict,
+        sensors: dict[str, PowerOceanEndPoint],
+        report: str,
+        sens_select: list,
+        suffix: str = "",
+    ) -> dict[str, PowerOceanEndPoint]:
+        # Standardverarbeitung: einfache key-value Paare
+        report_string = f"_{report}"
+        # spezielle Behandlung für 'data' Report
+        if report == ReportMode.DEFAULT.value:
+            report_string = ""
+        for key, value in d.items():
+            if key in sens_select and not isinstance(value, dict):
+                unique_id = f"{self.sn_inverter}{report_string}_{key}"
+                sensors[unique_id] = self._create_sensor(
+                    PowerOceanEndPoint(
+                        internal_unique_id=unique_id,
+                        serial=f"{self.sn_inverter}",
+                        name=f"{self.sn_inverter}_{key}{suffix}",
+                        friendly_name=f"{key}{suffix}",
+                        value=value,
+                        unit=SensorMetaHelper.get_unit(key),
+                        description=SensorMetaHelper.get_description(key),
+                        icon=SensorMetaHelper.get_special_icon(key),
+                    )
+                )
         return sensors
 
 
