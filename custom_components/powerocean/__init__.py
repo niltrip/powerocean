@@ -14,8 +14,6 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers.device_registry import async_get as async_get_device_registry
-from homeassistant.helpers.entity_registry import async_get as async_get_entity_registry
 
 from .const import (
     _LOGGER,
@@ -129,33 +127,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             f"{device_id}: Cleared sensor update list for device with custom name "
             f"'{device_name}'"
         )
-    # Optional: Clean up device registry if no entities are left
-    # # Clean up device registry if no entities are left
-    # device_registry = await async_get_device_registry(hass)
-    # entity_registry = await async_get_entity_registry(hass)
-
-    # # entity_registry = async_get_entity_registry(hass)
-
-    # serial = entry.data.get("device_info", {}).get("serial")
-    # if not serial:
-    #     _LOGGER.debug(f"No serial found in entry.data, skipping device cleanup.")
-    #     return True
-
-    # device = device_registry.async_get_device(identifiers={(DOMAIN, serial)})
-    # if device:
-    #     entities = entity_registry.entities_for_device(
-    #         device.id, include_disabled_entities=True
-    #     )
-    #     if not entities:
-    #         _LOGGER.debug(
-    #             f"Removing device {device.name} ({device.id}) from device registry."
-    #         )
-    #         device_registry.async_remove_device(device.id)
-    #     else:
-    #         _LOGGER.debug(
-    #             f"Device {device.name} ({device.id}) not removed, it still has entities: "
-    #             f"{[e.entity_id for e in entities]}"
-    #         )
 
     return True
 

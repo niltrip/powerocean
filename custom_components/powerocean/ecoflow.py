@@ -74,7 +74,7 @@ class Ecoflow:
 
         """
         self.sn = serialnumber
-        self.sn_inverter = None  # Slave serial number, if available
+        self.sn_inverter = ""
         self.unique_id = serialnumber
         self.ecoflow_username = username
         self.ecoflow_password = password
@@ -158,19 +158,20 @@ class Ecoflow:
             msg = f"Failed to parse JSON: {response.text} — Error: {error}"
             raise json_loads.JsonParseError(msg) from error
 
-        if "message" not in response_data:  # type: ignore
+        if not isinstance(response_data, dict) or "message" not in response_data:
             msg = f"'message' key missing in response: {response_data}"
             raise KeyError(msg)
 
-        if response_data["message"].lower() != "success":  # type: ignore
-            msg = f"API Error: {response_data['message']}"  # type: ignore
+        message = response_data.get("message")
+        if not isinstance(message, str) or message.lower() != "success":
+            msg = f"API Error: {message}"
             raise ApiResponseError(msg)
 
-        if "data" not in response_data:  # type: ignore
+        if "data" not in response_data:
             msg = f"'data' key missing or invalid: {response_data}"
             raise KeyError(msg)
 
-        return response_data  # type: ignore
+        return response_data
 
     # Fetch the data from the PowerOcean device, which then constitues the Sensors
     def fetch_data(self) -> dict:
@@ -274,47 +275,45 @@ class Ecoflow:
 
         return special_icon
 
-    def __get_reports(self) -> list:
-        """Retrieve sensor selection from JSON file."""
+    def __read_json_file(self) -> dict:
         try:
             with self.datapointfile.open("r", encoding="utf-8") as file:
-                reports = json_loads(file.read())
-                if isinstance(reports, dict):
-                    return list(reports.keys())
-                return []
-
+                data = json_loads(file.read())
+                if isinstance(data, dict):
+                    return data
+                _LOGGER.error(
+                    f"JSON content is not a dict in file: {self.datapointfile}"
+                )
+                return {}
         except FileNotFoundError:
             _LOGGER.error(f"File not found: {self.datapointfile}")
-            return []
         except json_loads.JSONDecodeError:
             _LOGGER.error(f"Error decoding JSON in file: {self.datapointfile}")
-            return []
+        return {}
+
+    def __get_reports(self) -> list:
+        """Retrieve sensor selection from JSON file."""
+        reports = self.__read_json_file()
+        if isinstance(reports, dict):
+            return list(reports.keys())
+        return []
 
     def __get_sens_select(self, report: str) -> list:
         """Retrieve sensor selection from JSON file."""
-        try:
-            with self.datapointfile.open("r", encoding="utf-8") as file:
-                datapoints = json_loads(file.read())
-            if isinstance(datapoints, dict):
-                value = datapoints.get(report, [])
-                if isinstance(value, list):
-                    return value
-                # If value is not a list, return an empty list
-                return []
-
-        except FileNotFoundError:
-            _LOGGER.error(f"File not found: {self.datapointfile}")
-            return []
-
-        except json_loads.JSONDecodeError:
-            _LOGGER.error(f"Error decoding JSON in file: {self.datapointfile}")
-            return []
-
-        # Ensure a list is always returned
+        datapoints = self.__read_json_file()
+        if isinstance(datapoints, dict):
+            value = datapoints.get(report, [])
+        if isinstance(value, list):
+            return value
+        # If value is not a list, return an empty list
         return []
+
+    def __create_sensor(self, endpoint: PowerOceanEndPoint) -> PowerOceanEndPoint:
+        return endpoint
 
     def _get_sensors(self, response: dict) -> dict:
         sensors = {}  # start with empty dict
+        self.sn_inverter = self.sn
         # error handling for response
         data = response.get("data")
         if not isinstance(data, dict):
@@ -362,7 +361,6 @@ class Ecoflow:
         # Single inverter installation
         elif "quota" in data:
             response_base = data["quota"]
-            self.sn_inverter = self.sn
             for report in reports:
                 sensors.update(
                     self._extract_sensors_from_report(
@@ -388,15 +386,17 @@ class Ecoflow:
         for key, value in d.items():
             if key in sens_select and not isinstance(value, dict):
                 unique_id = f"{self.sn}_{key}"
-                sensors[unique_id] = PowerOceanEndPoint(
-                    internal_unique_id=unique_id,
-                    serial=self.sn,
-                    name=f"{self.sn}_{key}",
-                    friendly_name=key,
-                    value=value,
-                    unit=self.__get_unit(key),
-                    description=self.__get_description(key),
-                    icon=self.__get_special_icon(key),
+                sensors[unique_id] = self.__create_sensor(
+                    PowerOceanEndPoint(
+                        unique_id,
+                        self.sn_inverter,
+                        f"{self.sn_inverter}_{key}",
+                        f"{key}",
+                        value,
+                        self.__get_unit(key),
+                        self.__get_description(key),
+                        self.__get_special_icon(key),
+                    )
                 )
 
         return sensors
@@ -457,15 +457,17 @@ class Ecoflow:
                         if key in sens_select:
                             unique_id = f"{self.sn_inverter}_{report}_{bat}_{key}"
                             description_tmp = f"{name}{self.__get_description(key)}"
-                            sensors[unique_id] = PowerOceanEndPoint(
-                                internal_unique_id=unique_id,
-                                serial=f"{self.sn_inverter}",
-                                name=f"{self.sn_inverter}_{name}{key}{suffix}",
-                                friendly_name=f"{name}{key}{suffix}",
-                                value=value,
-                                unit=self.__get_unit(key),
-                                description=description_tmp,
-                                icon=self.__get_special_icon(key),
+                            sensors[unique_id] = self.__create_sensor(
+                                PowerOceanEndPoint(
+                                    internal_unique_id=unique_id,
+                                    serial=f"{self.sn_inverter}",
+                                    name=f"{self.sn_inverter}_{name}{key}{suffix}",
+                                    friendly_name=f"{name}{key}{suffix}",
+                                    value=value,
+                                    unit=self.__get_unit(key),
+                                    description=description_tmp,
+                                    icon=self.__get_special_icon(key),
+                                )
                             )
                 else:
                     _LOGGER.error(
@@ -476,15 +478,17 @@ class Ecoflow:
             for key, value in d.items():
                 if key in sens_select:
                     unique_id = f"{self.sn_inverter}_{report}_{key}"
-                    sensors[unique_id] = PowerOceanEndPoint(
-                        internal_unique_id=unique_id,
-                        serial=f"{self.sn_inverter}",
-                        name=f"{self.sn_inverter}_{key}{suffix}",
-                        friendly_name=f"{key}{suffix}",
-                        value=value,
-                        unit=self.__get_unit(key),
-                        description=self.__get_description(key),
-                        icon=None,
+                    sensors[unique_id] = self.__create_sensor(
+                        PowerOceanEndPoint(
+                            internal_unique_id=unique_id,
+                            serial=f"{self.sn_inverter}",
+                            name=f"{self.sn_inverter}_{key}{suffix}",
+                            friendly_name=f"{key}{suffix}",
+                            value=value,
+                            unit=self.__get_unit(key),
+                            description=self.__get_description(key),
+                            icon=None,
+                        )
                     )
             # Besonderheiten Phasen
             phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
@@ -493,15 +497,17 @@ class Ecoflow:
                     for key, value in d[phase].items():
                         name = f"{phase}_{key}"
                         unique_id = f"{self.sn_inverter}_{report}_{name}"
-                        sensors[unique_id] = PowerOceanEndPoint(
-                            internal_unique_id=unique_id,
-                            serial=f"{self.sn_inverter}",
-                            name=f"{self.sn_inverter}_{name}{suffix}",
-                            friendly_name=f"{name}{suffix}",
-                            value=value,
-                            unit=self.__get_unit(key),
-                            description=self.__get_description(key),
-                            icon=None,
+                        sensors[unique_id] = self.__create_sensor(
+                            PowerOceanEndPoint(
+                                internal_unique_id=unique_id,
+                                serial=f"{self.sn_inverter}",
+                                name=f"{self.sn_inverter}_{name}{suffix}",
+                                friendly_name=f"{name}{suffix}",
+                                value=value,
+                                unit=self.__get_unit(key),
+                                description=self.__get_description(key),
+                                icon=None,
+                            )
                         )
             # Besonderheit mpptPv
             if "mpptHeartBeat" in d:
@@ -517,15 +523,17 @@ class Ecoflow:
                             special_icon = "mdi:current-dc"
                         elif key.endswith("pwr"):
                             special_icon = "mdi:solar-power"
-                        sensors[unique_id] = PowerOceanEndPoint(
-                            internal_unique_id=unique_id,
-                            serial=f"{self.sn_inverter}",
-                            name=f"{self.sn_inverter}_mpptPv{i + 1}_{key}{suffix}",
-                            friendly_name=f"mpptPv{i + 1}_{key}{suffix}",
-                            value=value,
-                            unit=self.__get_unit(key),
-                            description=self.__get_description(key),
-                            icon=special_icon,
+                        sensors[unique_id] = self.__create_sensor(
+                            PowerOceanEndPoint(
+                                internal_unique_id=unique_id,
+                                serial=f"{self.sn_inverter}",
+                                name=f"{self.sn_inverter}_mpptPv{i + 1}_{key}{suffix}",
+                                friendly_name=f"mpptPv{i + 1}_{key}{suffix}",
+                                value=value,
+                                unit=self.__get_unit(key),
+                                description=self.__get_description(key),
+                                icon=special_icon,
+                            )
                         )
                 # Gesamtleistung mpptPv
                 total_power = sum(
@@ -533,15 +541,17 @@ class Ecoflow:
                     for i in range(n_strings)
                 )
                 unique_id = f"{self.sn_inverter}_{report}_mpptHeartBeat_mpptPv_pwrTotal"
-                sensors[unique_id] = PowerOceanEndPoint(
-                    internal_unique_id=unique_id,
-                    serial=f"{self.sn_inverter}",
-                    name=f"{self.sn_inverter}_mpptPv_pwrTotal{suffix}",
-                    friendly_name=f"mpptPv_pwrTotal{suffix}",
-                    value=total_power,
-                    unit="W",
-                    description="Solarertrag aller Strings",
-                    icon="mdi:solar-power",
+                sensors[unique_id] = self.__create_sensor(
+                    PowerOceanEndPoint(
+                        internal_unique_id=unique_id,
+                        serial=f"{self.sn_inverter}",
+                        name=f"{self.sn_inverter}_mpptPv_pwrTotal{suffix}",
+                        friendly_name=f"mpptPv_pwrTotal{suffix}",
+                        value=total_power,
+                        unit="W",
+                        description="Solarertrag aller Strings",
+                        icon="mdi:solar-power",
+                    )
                 )
         elif parallel_energy_stream_mode:
             if "paraEnergyStream" in d:
@@ -562,30 +572,34 @@ class Ecoflow:
                         if key == "devSn":
                             continue  # Überspringe das Seriennummernfeld selbst
                         unique_id = f"{dev_sn}_{report}_paraEnergyStream_{key}"
-                        sensors[unique_id] = PowerOceanEndPoint(
-                            internal_unique_id=unique_id,
-                            serial=dev_sn,
-                            name=f"{dev_sn}_{key}",
-                            friendly_name=f"{key}{add_string}",
-                            value=value,
-                            unit=self.__get_unit(key),
-                            description=self.__get_description(key),
-                            icon=self.__get_special_icon(key),
+                        sensors[unique_id] = self.__create_sensor(
+                            PowerOceanEndPoint(
+                                internal_unique_id=unique_id,
+                                serial=dev_sn,
+                                name=f"{dev_sn}_{key}",
+                                friendly_name=f"{key}{add_string}",
+                                value=value,
+                                unit=self.__get_unit(key),
+                                description=self.__get_description(key),
+                                icon=self.__get_special_icon(key),
+                            )
                         )
         else:
             # Standardverarbeitung: einfache key-value Paare
             for key, value in d.items():
                 if key in sens_select and not isinstance(value, dict):
                     unique_id = f"{self.sn_inverter}_{report}_{key}"
-                    sensors[unique_id] = PowerOceanEndPoint(
-                        internal_unique_id=unique_id,
-                        serial=f"{self.sn_inverter}",
-                        name=f"{self.sn_inverter}_{key}{suffix}",
-                        friendly_name=f"{key}{suffix}",
-                        value=value,
-                        unit=self.__get_unit(key),
-                        description=self.__get_description(key),
-                        icon=self.__get_special_icon(key),
+                    sensors[unique_id] = self.__create_sensor(
+                        PowerOceanEndPoint(
+                            internal_unique_id=unique_id,
+                            serial=f"{self.sn_inverter}",
+                            name=f"{self.sn_inverter}_{key}{suffix}",
+                            friendly_name=f"{key}{suffix}",
+                            value=value,
+                            unit=self.__get_unit(key),
+                            description=self.__get_description(key),
+                            icon=self.__get_special_icon(key),
+                        )
                     )
 
         return sensors

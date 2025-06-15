@@ -181,7 +181,7 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
                             "options": user_input,  # new options from this step
                         },
                     )
-            except Exception as e:  # noqa: BLE001
+            except ValueError as e:
                 _LOGGER.error(
                     f"Failed to handle device options: {e}" + ISSUE_URL_ERROR_MESSAGE
                 )
@@ -208,7 +208,8 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                # Unique ID setzen und sicherstellen, dass es sich um die korrekte Instanz handelt
+                # Unique ID setzen und sicherstellen,
+                # dass es sich um die korrekte Instanz handelt
                 await self.async_set_unique_id(current_entry.unique_id)
                 self._abort_if_unique_id_mismatch()
 
@@ -225,7 +226,7 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
                     current_entry, data_updates={"options": updated_options}
                 )
 
-            except Exception as e:
+            except ValueError as e:
                 _LOGGER.exception(f"Fehler bei der Re-Konfiguration: {e}")
                 errors["base"] = "reconfig_error"
 
@@ -254,22 +255,6 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=data_schema,
             errors=errors,
         )
-
-    # @staticmethod
-    # def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
-    #     """
-    #     Return the options flow handler for the PowerOcean integration.
-
-    #     Args:
-    #         config_entry: The configuration entry for which to get the options flow.
-
-    #     Returns:
-    #         OptionsFlow: The options flow handler instance.
-
-    #     """
-    #     from .options_flow import PowerOceanOptionsFlowHandler
-
-    #     return PowerOceanOptionsFlowHandler(config_entry)
 
 
 class CannotConnectError(HomeAssistantError):

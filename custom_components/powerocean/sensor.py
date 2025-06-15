@@ -58,7 +58,7 @@ async def async_setup_entry(
     device_id = ecoflow.device["serial"]
 
     if not await _authorize_device(hass, ecoflow, device_id):
-        return None
+        return
 
     data = await _fetch_initial_data(hass, ecoflow, device_id)
     if not data:
@@ -128,7 +128,7 @@ def _register_sensors(
     # ✅ Sicherstellen, dass device_specific_sensors existiert
     hass.data.setdefault(DOMAIN, {}).setdefault("device_specific_sensors", {})
     hass.data[DOMAIN]["device_specific_sensors"][device_id] = []
-    for _unique_id, endpoint in data.items():
+    for endpoint in data.values():
         sensor = PowerOceanSensor(ecoflow, endpoint, device_id)
         hass.data[DOMAIN]["device_specific_sensors"][device_id].append(sensor)
         async_add_entities([sensor], False)
