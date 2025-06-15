@@ -182,7 +182,7 @@ class Ecoflow:
         self.url_iot_app = "https://api.ecoflow.com/auth/login"
         self.url_user_fetch = f"https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}"
         self.datapointfile = Path(
-            f"custom_components/{DOMAIN}/variants/{self.ecoflow_variant}.json"
+            f"custom_components/ecoflow-powerocean/variants/{self.ecoflow_variant}.json"
         )
         self.options = options  # Store Home Assistant instance
 
