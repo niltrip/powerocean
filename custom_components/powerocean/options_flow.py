@@ -1,11 +1,20 @@
+"""
+Options flow handler for the PowerOcean Home Assistant integration.
+
+This module defines the PowerOceanOptionsFlowHandler class, which manages
+the options flow for configuring PowerOcean integration options such as
+friendly name and scan interval.
+"""  # noqa: EXE002
+
 from __future__ import annotations
 
+from typing import Any
+
 import voluptuous as vol
-from homeassistant.config_entries import ConfigEntry, OptionsFlow
+from homeassistant.config_entries import ConfigEntry, ConfigFlowResult, OptionsFlow
 from homeassistant.const import CONF_FRIENDLY_NAME, CONF_SCAN_INTERVAL
 
 from .config_flow import sanitize_device_name
-from .const import DOMAIN
 
 
 class PowerOceanOptionsFlowHandler(OptionsFlow):
@@ -15,7 +24,9 @@ class PowerOceanOptionsFlowHandler(OptionsFlow):
         """Initialize PowerOcean options flow."""
         self.config_entry = config_entry
 
-    async def async_step_init(self, user_input=None):
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Manage the PowerOcean options."""
         errors = {}
         if user_input is not None:
@@ -27,7 +38,7 @@ class PowerOceanOptionsFlowHandler(OptionsFlow):
                     user_input[CONF_FRIENDLY_NAME], device_name
                 )
                 return self.async_create_entry(title="", data=user_input)
-            except Exception as e:
+            except ValueError:
                 errors["base"] = "reconfig_error"
 
         # Lade vorhandene Optionen oder verwende Defaults
