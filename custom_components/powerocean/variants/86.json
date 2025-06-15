@@ -1,9 +1,5 @@
 {
 	"data": [
-		"sysLoadPwr",
-		"sysGridPwr",
-		"mpptPwr",
-		"bpPwr",
 		"online",
 		"dcdcPwr",
 		"todayElectricityGeneration",
@@ -13,9 +9,14 @@
 		"systemName"
 	],
 	"JTS1_ENERGY_STREAM_REPORT": [
+		"bpSoc",
+		"mpptPwr",
+		"bpPwr",
 		"pv1Pwr",
 		"pvInvPwr",
-		"pv2Pwr"
+		"pv2Pwr",
+		"sysLoadPwr",
+		"sysGridPwr"
 	],
 	"JTS1_EMS_CHANGE_REPORT": [
 		"bpTotalChgEnergy",
