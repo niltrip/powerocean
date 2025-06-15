@@ -1,4 +1,4 @@
-"""Constants for the PowerOcean integration."""
+"""Constants for the PowerOcean integration."""  # noqa: EXE002
 
 import logging
 
@@ -9,7 +9,8 @@ NAME = "Ecoflow PowerOcean"
 VERSION = "2024.08.27"
 ISSUE_URL = "https://github.com/niltrip/powerocean/issues"
 ISSUE_URL_ERROR_MESSAGE = " Please log any issues here: " + ISSUE_URL
-
+LENGTH_BATTERIE_SN = 12  # Length of the battery serial number to identify battery data
+USE_MOCKED_RESPONSE = False  # Set to True to use mocked responses for testing
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 

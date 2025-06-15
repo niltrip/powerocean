@@ -1,14 +1,22 @@
 <!-- prettier-ignore -->
 # Ecoflow PowerOcean
+[![GitHub release](https://img.shields.io/github/release/niltrip/powerocean?include_prereleases=&sort=semver&color=blue)](https://github.com/niltrip/powerocean/releases/)
+[![issues - powerocean](https://img.shields.io/github/issues/niltrip/powerocean)](https://github.com/niltrip/powerocean/issues)
+[![GH-code-size](https://img.shields.io/github/languages/code-size/niltrip/powerocean?color=red)](https://github.com/niltrip/powerocean)
+[![GH-last-commit](https://img.shields.io/github/last-commit/niltrip/powerocean?style=flat-square)](https://github.com/niltrip/powerocean/commits/main)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![HACS validation](https://github.com/niltrip/powerocean/workflows/Validate/badge.svg)](https://github.com/niltrip/powerocean/actions?query=workflow:"Validate")
 
-[Home Assistant](https://home-assistant.io/) custom component to get access to my PowerOcean system from EcoFlow.
+[Home Assistant](https://home-assistant.io/) custom component to get access to my EcoFlow PowerOcean system.
 
 This component was inspired by [tolwi/hassio-ecoflow-cloud](https://github.com/tolwi/hassio-ecoflow-cloud) and is a copy of [evercape/hass-resol-KM2](https://github.com/evercape/hass-resol-KM2).
 
-Temporary quick solution to my problem.
+## Disclaimers
+
+⚠️ Temporary quick solution to my problem ("Nothing is more persistent than a makeshift solution.").
 I hope of an integrate PowerOcean into [tolwi/hassio-ecoflow-cloud](https://github.com/tolwi/hassio-ecoflow-cloud) with an official API.
 
-Hopefully it works for others.
+Nevertheless, I hope that it works for others as well.
 
 ## Prerequisites
 
