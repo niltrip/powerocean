@@ -5,8 +5,6 @@ import logging
 from homeassistant.const import Platform
 
 DOMAIN = "ecoflow"
-NAME = "Ecoflow PowerOcean"
-VERSION = "2024.08.27"
 ISSUE_URL = "https://github.com/niltrip/powerocean/issues"
 ISSUE_URL_ERROR_MESSAGE = " Please log any issues here: " + ISSUE_URL
 LENGTH_BATTERIE_SN = 12  # Length of the battery serial number to identify battery data
@@ -26,14 +24,3 @@ ATTR_PRODUCT_NAME = "Device Name"
 ATTR_PRODUCT_VERSION = "Vendor Firmware Version"
 ATTR_PRODUCT_BUILD = "Vendor Product Build"
 ATTR_PRODUCT_FEATURES = "Vendor Product Features"
-
-
-STARTUP_MESSAGE = f"""
-----------------------------------------------------------------------------
-{NAME}
-Version: {VERSION}
-Domain: {DOMAIN}
-If you have any issues with this custom component please open an issue here:
-{ISSUE_URL}
-----------------------------------------------------------------------------
-"""

@@ -14,12 +14,12 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
+from homeassistant.loader import async_get_integration
 
 from .const import (
     _LOGGER,
     DOMAIN,
     PLATFORMS,
-    STARTUP_MESSAGE,
 )
 from .ecoflow import Ecoflow
 from .options_flow import PowerOceanOptionsFlowHandler
@@ -27,8 +27,35 @@ from .options_flow import PowerOceanOptionsFlowHandler
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.typing import ConfigType
 
-_LOGGER.info(STARTUP_MESSAGE)
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """
+    Set up the PowerOcean integration.
+
+    Args:
+        hass (HomeAssistant): The Home Assistant instance.
+        config (ConfigType): The configuration dictionary.
+
+    Returns:
+        bool: True if setup was successful, False otherwise.
+
+    """
+    # Integration laden
+    integration = await async_get_integration(hass, DOMAIN)
+
+    # Zugriff auf manifest.json-Inhalte
+    manifest_data = integration.manifest
+
+    name = manifest_data.get("name")
+    version = manifest_data.get("version")
+    requirements = manifest_data.get("requirements")
+
+    _LOGGER.info(f"Integration '{name}' in Version {version} wird geladen.")
+    _LOGGER.debug(f"Benötigte Python-Abhängigkeiten: {requirements}")
+
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
