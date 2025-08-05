@@ -68,5 +68,19 @@
 		"chargeVehicleId",
 		"chargingStatus",
 		"evPwr"
+	],
+	"RE307_HEATING_ROD_PARAM_REPORT": [
+		"selfcheckPercent",
+		"temp",
+		"targetTemp",
+		"onlineBits",
+		"errorCode",
+		"runFlag",
+		"mode",
+		"heatingPower",
+		"hrSn",
+		"waterTankVolume",
+		"runStat",
+		"targetPower"
 	]
 }
