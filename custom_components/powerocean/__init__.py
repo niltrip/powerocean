@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from homeassistant.helpers.typing import ConfigType
 
 
-async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:  # noqa: ARG001
     """
     Set up the PowerOcean integration.
 

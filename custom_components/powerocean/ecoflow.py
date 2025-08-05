@@ -7,14 +7,11 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 import requests
-
-# from flatten_json import flatten
 from homeassistant.exceptions import IntegrationError
 from homeassistant.util.json import json_loads
 
 from .const import (
     _LOGGER,
-    DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
     LENGTH_BATTERIE_SN,
     USE_MOCKED_RESPONSE,
@@ -295,8 +292,8 @@ class Ecoflow:
                     )
             # Log the response for debugging or development purposes
             _LOGGER.debug(f"{response}")
-            flattened_data = Ecoflow.flatten_json(response)
-            # _LOGGER.debug(f"Flattened data: {flattened_data}")
+            flattened_data = Ecoflow.flatten_json(response)  # noqa: F841
+            # _LOGGER.debug(f"Flattened data: {flattened_data}")  # noqa: ERA001
 
             # Ensure response is a dictionary before passing to _get_sensors
             if isinstance(response, dict):
@@ -345,10 +342,20 @@ class Ecoflow:
         return endpoint
 
     @staticmethod
-    def flatten_json(y):
+    def flatten_json(y: Any) -> dict:
+        """
+        Flatten a nested JSON object into a flat dictionary.
+
+        Args:
+            y: The JSON object (dict or list) to flatten.
+
+        Returns:
+            dict: A flattened dictionary with keys representing the path to each value.
+
+        """
         out = {}
 
-        def flatten(x, name=""):
+        def flatten(x: Any, name: str = "") -> None:
             if isinstance(x, dict):
                 for a in x:
                     flatten(x[a], f"{name}{a}_")
@@ -635,7 +642,7 @@ class Ecoflow:
         d: dict,
         sensors: dict[str, PowerOceanEndPoint],
         report: str,
-        sens_select: list,
+        sens_select: list,  # noqa: ARG002
         suffix: str = "",
     ) -> dict[str, PowerOceanEndPoint]:
         """Handle parallel energy stream data extraction."""

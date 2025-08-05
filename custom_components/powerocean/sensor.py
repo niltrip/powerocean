@@ -131,7 +131,7 @@ def _register_sensors(
     for endpoint in data.values():
         sensor = PowerOceanSensor(ecoflow, endpoint, device_id)
         hass.data[DOMAIN]["device_specific_sensors"][device_id].append(sensor)
-        async_add_entities([sensor], False)
+        async_add_entities([sensor], False)  # noqa: FBT003
 
     device_specific_sensors = hass.data[DOMAIN]["device_specific_sensors"]
     _LOGGER.debug(
