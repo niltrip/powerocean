@@ -49,5 +49,19 @@
 		"emsBpPower",
 		"pcsActPwr",
 		"pcsMeterPower"
+	],
+	"JTS1_HEATING_ROD_PARAM_REPORT": [
+		"selfcheckPercent",
+		"temp",
+		"targetTemp",
+		"onlineBits",
+		"errorCode",
+		"runFlag",
+		"mode",
+		"heatingPower",
+		"hrSn",
+		"waterTankVolume",
+		"runStat",
+		"targetPower"
 	]
 }
