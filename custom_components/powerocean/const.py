@@ -4,7 +4,7 @@ import logging
 
 from homeassistant.const import Platform
 
-DOMAIN = "ecoflow"
+DOMAIN = "powerocean"
 ISSUE_URL = "https://github.com/niltrip/powerocean/issues"
 ISSUE_URL_ERROR_MESSAGE = " Please log any issues here: " + ISSUE_URL
 LENGTH_BATTERIE_SN = 12  # Length of the battery serial number to identify battery data
