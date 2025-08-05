@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 import requests
+
+# from flatten_json import flatten
 from homeassistant.exceptions import IntegrationError
 from homeassistant.util.json import json_loads
 
@@ -293,6 +295,9 @@ class Ecoflow:
                     )
             # Log the response for debugging or development purposes
             _LOGGER.debug(f"{response}")
+            flattened_data = Ecoflow.flatten_json(response)
+            # _LOGGER.debug(f"Flattened data: {flattened_data}")
+
             # Ensure response is a dictionary before passing to _get_sensors
             if isinstance(response, dict):
                 return self._get_sensors(response)
@@ -338,6 +343,23 @@ class Ecoflow:
 
     def _create_sensor(self, endpoint: PowerOceanEndPoint) -> PowerOceanEndPoint:
         return endpoint
+
+    @staticmethod
+    def flatten_json(y):
+        out = {}
+
+        def flatten(x, name=""):
+            if isinstance(x, dict):
+                for a in x:
+                    flatten(x[a], f"{name}{a}_")
+            elif isinstance(x, list):
+                for i, a in enumerate(x):
+                    flatten(a, f"{name}{i}_")
+            else:
+                out[name[:-1]] = x
+
+        flatten(y)
+        return out
 
     def _get_sensors(self, response: dict) -> dict:
         sensors = {}  # start with empty dict
