@@ -469,11 +469,12 @@ class Ecoflow:
         """
         # Report-Key ggf. anpassen
         if report not in response:
+            report_to_log = report
             report = re.sub(r"JTS1_", "RE307_", report)
 
         d = response.get(report)
         if not d:
-            _LOGGER.debug(f"Missing report '{report}' in response.")
+            _LOGGER.debug(f"Configured report '{report_to_log}' not in response.")
             return sensors
 
         sens_select = self._get_sens_select(report)
