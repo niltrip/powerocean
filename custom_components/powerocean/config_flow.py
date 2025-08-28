@@ -1,4 +1,4 @@
-"""config_flow.py: Config flow for PowerOcean integration."""  # noqa: EXE002
+"""config_flow.py: Config flow for PowerOcean integration."""
 
 from __future__ import annotations
 

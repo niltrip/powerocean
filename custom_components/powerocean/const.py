@@ -1,4 +1,4 @@
-"""Constants for the PowerOcean integration."""  # noqa: EXE002
+"""Constants for the PowerOcean integration."""
 
 import logging
 

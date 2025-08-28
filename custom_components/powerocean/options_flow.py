@@ -4,7 +4,7 @@ Options flow handler for the PowerOcean Home Assistant integration.
 This module defines the PowerOceanOptionsFlowHandler class, which manages
 the options flow for configuring PowerOcean integration options such as
 friendly name and scan interval.
-"""  # noqa: EXE002
+"""
 
 from __future__ import annotations
 

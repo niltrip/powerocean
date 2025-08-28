@@ -1,4 +1,4 @@
-"""__init__.py: The PowerOcean integration."""  # noqa: EXE002
+"""__init__.py: The PowerOcean integration."""
 
 from __future__ import annotations
 
