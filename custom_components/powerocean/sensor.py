@@ -3,7 +3,7 @@ PowerOcean sensor integration for Home Assistant.
 
 This module defines the setup and management of PowerOcean sensor entities,
 including data fetching, entity registration, and periodic updates.
-"""  # noqa: EXE002
+"""
 
 from collections.abc import Callable
 from datetime import date, timedelta
@@ -217,6 +217,7 @@ class SensorMapping:
         "W": SensorDeviceClass.POWER,
         "V": SensorDeviceClass.VOLTAGE,
         "A": SensorDeviceClass.CURRENT,
+        "L": SensorDeviceClass.VOLUME_STORAGE,
     }
 
     STATE_CLASS_MAPPING: ClassVar[dict] = {
@@ -225,6 +226,7 @@ class SensorMapping:
         "W": SensorStateClass.MEASUREMENT,
         "V": SensorStateClass.MEASUREMENT,
         "A": SensorStateClass.MEASUREMENT,
+        "L": SensorStateClass.MEASUREMENT,
         "Wh": SensorStateClass.TOTAL_INCREASING,
         "kWh": SensorStateClass.TOTAL_INCREASING,
     }

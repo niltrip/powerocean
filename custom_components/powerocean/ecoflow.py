@@ -1,4 +1,4 @@
-"""ecoflow.py: API for PowerOcean integration."""  # noqa: EXE002
+"""ecoflow.py: API for PowerOcean integration."""
 
 import base64
 import re
@@ -83,6 +83,9 @@ class SensorMetaHelper:
             "vol": "V",
             "watth": "Wh",
             "energy": "Wh",
+            "percent": "%",
+            "volume": "L",
+            "temp": "°C",
         }
 
         # Check for direct matches using dictionary lookup
@@ -95,8 +98,8 @@ class SensorMetaHelper:
             return "kWh"
 
         # Special case for keys ending with "Temp"
-        if key.endswith("Temp"):
-            return "°C"
+        #        if key.endswith("Temp"):
+        #            return "°C"
 
         return None  # Default if no match found
 
