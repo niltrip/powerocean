@@ -49,6 +49,21 @@
 		"pcsActPwr",
 		"pcsMeterPower"
 	],
+	"JTS1_EVCHARGING_REPORT": [
+		"evSn",
+		"workMode",
+		"useGridFirst",
+		"evOnoffSet",
+		"orderStartTimestamp",
+		"onlineBits",
+		"errorCode",
+		"evUserManual",
+		"evChargingEnergy",
+		"evCurrSet",
+		"chargeVehicleId",
+		"chargingStatus",
+		"evPwr"
+	],
 	"JTS1_HEATING_ROD_PARAM_REPORT": [
 		"selfcheckPercent",
 		"temp",
