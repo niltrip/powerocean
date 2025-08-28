@@ -97,10 +97,6 @@ class SensorMetaHelper:
         if "Generation" in key:
             return "kWh"
 
-        # Special case for keys ending with "Temp"
-        #        if key.endswith("Temp"):
-        #            return "°C"
-
         return None  # Default if no match found
 
     @staticmethod
