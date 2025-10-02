@@ -184,7 +184,7 @@ class Ecoflow:
         # Path relative to this file (ecoflow.py)
         base_path = Path(__file__).parent
         self.datapointfile = base_path / "variants" / f"{self.ecoflow_variant}.json"
-
+        self.options = options # Store Home Assistant instance
 
     def get_device(self) -> dict:
         """Get device info."""
