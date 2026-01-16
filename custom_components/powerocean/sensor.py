@@ -227,7 +227,7 @@ class SensorMapping:
         "V": SensorStateClass.MEASUREMENT,
         "A": SensorStateClass.MEASUREMENT,
         "L": SensorStateClass.MEASUREMENT,
-        "Wh": SensorStateClass.MEASUREMENT,
+        "Wh": SensorStateClass.TOTAL_INCREASING, # Warning: overridden for bpRemainWatth
         "kWh": SensorStateClass.TOTAL_INCREASING,
     }
 
@@ -237,8 +237,10 @@ class SensorMapping:
         return SensorMapping.SENSOR_CLASS_MAPPING.get(unit, None)
 
     @staticmethod
-    def get_sensor_state_class(unit: str) -> str | None:
-        """Gibt die State-Klasse anhand der Einheit zurück."""
+    def get_sensor_state_class(unit: str, key: str | None = None) -> str | None:
+        """Gibt die State-Klasse anhand der Einheit und optional des Keys zurück."""
+        if key and "bpremainwatth" in key.lower():
+            return SensorStateClass.MEASUREMENT
         return SensorMapping.STATE_CLASS_MAPPING.get(unit, None)
 
 
@@ -315,7 +317,7 @@ class PowerOceanSensor(SensorEntity):
     def state_class(self) -> str | None:
         """Return the state class of this entity, if any."""
         if self._unit is not None:
-            return SensorMapping.get_sensor_state_class(self._unit)
+            return SensorMapping.get_sensor_state_class(self._unit, self._unique_id)
         return None
 
     @property
