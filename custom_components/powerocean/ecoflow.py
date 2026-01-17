@@ -4,8 +4,6 @@ import base64
 import re
 from enum import Enum
 from pathlib import Path
-import os
-from pathlib import Path
 from typing import Any, NamedTuple
 
 import requests
@@ -181,10 +179,10 @@ class Ecoflow:
         self.session = requests.Session()
         self.url_iot_app = "https://api.ecoflow.com/auth/login"
         self.url_user_fetch = f"https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}"
-        # Path relative to this file (ecoflow.py)
-        base_path = Path(__file__).parent
-        self.datapointfile = base_path / "variants" / f"{self.ecoflow_variant}.json"
-        self.options = options # Store Home Assistant instance
+        self.datapointfile = Path(
+            f"custom_components/powerocean/variants/{self.ecoflow_variant}.json"
+        )
+        self.options = options  # Store Home Assistant instance
 
     def get_device(self) -> dict:
         """Get device info."""
