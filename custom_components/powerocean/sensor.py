@@ -99,6 +99,7 @@ async def _fetch_initial_data(
     hass: HomeAssistant, ecoflow: Ecoflow, device_id: str
 ) -> dict | None:
     """Fetch initial sensor data from the device."""
+    await ecoflow.load_sensor_config()
     try:
         data = await hass.async_add_executor_job(ecoflow.fetch_data)
         if not data:
