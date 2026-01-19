@@ -1,0 +1,140 @@
+reports:
+
+  # =====================
+  # DEFAULT / root data
+  # =====================
+  - report: data
+    sensors:
+      - field: sysLoadPwr
+      - field: sysGridPwr
+      - field: mpptPwr
+      - field: bpPwr
+      - field: online
+      - field: dcdcPwr
+      - field: todayElectricityGeneration
+      - field: monthElectricityGeneration
+      - field: yearElectricityGeneration
+      - field: totalElectricityGeneration
+      - field: systemName
+
+
+  # =====================
+  # JTS1_ENERGY_STREAM_REPORT
+  # =====================
+  - report: JTS1_ENERGY_STREAM_REPORT
+    sensors:
+      - field: pv1Pwr
+      - field: pvInvPwr
+      - field: pv2Pwr
+
+
+  # =====================
+  # JTS1_EMS_CHANGE_REPORT
+  # =====================
+  - report: JTS1_EMS_CHANGE_REPORT
+    sensors:
+      - field: bpTotalChgEnergy
+      - field: bpTotalDsgEnergy
+      - field: bpSoc
+      - field: bpOnlineSum
+      - field: emsCtrlLedBright
+      - field: mppt1FaultCode
+      - field: mppt1WarningCode
+      - field: mppt2FaultCode
+      - field: mppt2WarningCode
+
+
+  # =====================
+  # JTS1_BP_STA_REPORT (Batterie, per instance)
+  # =====================
+  - report: JTS1_BP_STA_REPORT
+    sensors:
+      - field: bpPwr
+        per_instance: true
+      - field: bpSoc
+        per_instance: true
+      - field: bpSoh
+        per_instance: true
+      - field: bpVol
+        per_instance: true
+      - field: bpAmp
+        per_instance: true
+      - field: bpCycles
+        per_instance: true
+      - field: bpSysState
+        per_instance: true
+      - field: bpRemainWatth
+        per_instance: true
+      - field: bmsRunSta
+        per_instance: true
+      - field: bpEnvTemp
+        per_instance: true
+      - field: bpMinCellTemp
+        per_instance: true
+      - field: bpMaxCellTemp
+        per_instance: true
+
+
+  # =====================
+  # JTS1_EMS_HEARTBEAT
+  # =====================
+  - report: JTS1_EMS_HEARTBEAT
+    sensors:
+      - field: bpRemainWatth
+      - field: emsBpAliveNum
+      - field: emsBpPower
+      - field: pcsActPwr
+      - field: pcsMeterPower
+      # Verschachtelte Phasen direkt zugreifen
+      - field: pcsAPhase.vol
+      - field: pcsAPhase.amp
+      - field: pcsAPhase.actPwr
+      - field: pcsAPhase.reactPwr
+      - field: pcsAPhase.apparentPwr
+
+      - field: pcsBPhase.vol
+      - field: pcsBPhase.amp
+      - field: pcsBPhase.actPwr
+      - field: pcsBPhase.reactPwr
+      - field: pcsBPhase.apparentPwr
+
+      - field: pcsCPhase.vol
+      - field: pcsCPhase.amp
+      - field: pcsCPhase.actPwr
+      - field: pcsCPhase.reactPwr
+      - field: pcsCPhase.apparentPwr
+
+      # mpptHeartBeat -> mpptPv
+      - field: mpptHeartBeat[0].mpptPv[0].vol
+      - field: mpptHeartBeat[0].mpptPv[0].amp
+      - field: mpptHeartBeat[0].mpptPv[0].lightSta
+      - field: mpptHeartBeat[0].mpptPv[0].pwr
+
+      - field: mpptHeartBeat[0].mpptPv[1].vol
+      - field: mpptHeartBeat[0].mpptPv[1].amp
+      - field: mpptHeartBeat[0].mpptPv[1].lightSta
+      - field: mpptHeartBeat[0].mpptPv[1].pwr
+      - field: mpptHeartBeat[0].mpptPv[*].pwr
+        aggregate: sum
+        label: mpptPv_pwrTotal
+
+  # JTS1_EVCHARGING_REPORT
+  # =====================
+  - report: JTS1_EVCHARGING_REPORT
+    sensors:
+      - field: evSn
+      - field: workMode
+      - field: useGridFirst
+      - field: evOnoffSet
+      - field: orderStartTimestamp
+      - field: onlineBits
+      - field: errorCode
+      - field: evUserManual
+      - field: evChargingEnergy
+      - field: evCurrSet
+      - field: chargeVehicleId
+      - field: chargingStatus
+      - field: evPwr
+
+
+  # ==================
