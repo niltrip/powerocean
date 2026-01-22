@@ -190,8 +190,8 @@ class Ecoflow:
             "product": "PowerOcean",
             "vendor": "Ecoflow",
             "serial": self.sn,
-            "version": "5.1.27",  # Version vom Author.
-            "build": "28",  # Version vom Author.
+            "version": "5.1.27",
+            "build": "28",
             "name": "PowerOcean",
             "features": "Photovoltaik",
         }
@@ -557,6 +557,8 @@ class Ecoflow:
         suffix: str = "",
     ) -> dict[str, PowerOceanEndPoint]:
         # EMS Heartbeat: ggf. verschachtelte Strukturen, spezielle Behandlung
+        total_power = 0.0
+
         for key, value in d.items():
             if key in sens_select:
                 unique_id = f"{self.sn_inverter}_{report}_{key}"
@@ -634,6 +636,149 @@ class Ecoflow:
                     icon="mdi:solar-power",
                 )
             )
+
+        # ------------------------------
+        # From and to Grid sensors
+        # From and to Battery sensors
+        # ------------------------------
+        
+        # Base sensors
+        solar = float(total_power)
+        grid = float(d.get("pcsMeterPower", 0))
+        battery = float(d.get("emsBpPower", 0))
+
+        # House Consumption: solar + grid - battery
+        house_consumption_raw = solar + grid - battery
+        house_consumption = round(max(house_consumption_raw, 0), 1)
+        
+        unique_id = f"{self.sn_inverter}_{report}_house_consumption"
+        sensors[unique_id] = self._create_sensor(
+            PowerOceanEndPoint(
+                internal_unique_id=unique_id,
+                serial=f"{self.sn_inverter}",
+                name=f"{self.sn_inverter}_house_consumption{suffix}",
+                friendly_name=f"house_consumption{suffix}",
+                value=house_consumption,
+                unit="W",
+                description="Hausverbrauch (berechnet)",
+                icon="mdi:home-lightning-bolt",
+            )
+        )
+
+        # Grid Power (Explizit)
+        unique_id = f"{self.sn_inverter}_{report}_grid_power"
+        sensors[unique_id] = self._create_sensor(
+            PowerOceanEndPoint(
+                internal_unique_id=unique_id,
+                serial=f"{self.sn_inverter}",
+                name=f"{self.sn_inverter}_grid_power{suffix}",
+                friendly_name=f"grid_power{suffix}",
+                value=grid,
+                unit="W",
+                description="Netzleistung",
+                icon="mdi:transmission-tower",
+            )
+        )
+
+        # Grid to Battery: bat_chg - solar_avail_for_bat
+        bat_chg = max(battery, 0)
+        solar_avail_for_bat = max(solar - house_consumption, 0)
+        grid_to_battery = round(max(bat_chg - solar_avail_for_bat, 0), 1)
+        unique_id = f"{self.sn_inverter}_{report}_grid_to_battery"
+        sensors[unique_id] = self._create_sensor(
+            PowerOceanEndPoint(
+                internal_unique_id=unique_id,
+                serial=f"{self.sn_inverter}",
+                name=f"{self.sn_inverter}_grid_to_battery{suffix}",
+                friendly_name=f"grid_to_battery{suffix}",
+                value=grid_to_battery,
+                unit="W",
+                description="Netz zu Batterie",
+                icon="mdi:battery-arrow-down",
+            )
+        )
+
+        # Grid to House: grid import - grid to battery
+        grid_import = max(grid, 0)
+        grid_to_house = round(max(grid_import - grid_to_battery, 0), 1)
+        unique_id = f"{self.sn_inverter}_{report}_grid_to_house"
+        sensors[unique_id] = self._create_sensor(
+            PowerOceanEndPoint(
+                internal_unique_id=unique_id,
+                serial=f"{self.sn_inverter}",
+                name=f"{self.sn_inverter}_grid_to_house{suffix}",
+                friendly_name=f"grid_to_house{suffix}",
+                value=grid_to_house,
+                unit="W",
+                description="Netz zu Haus",
+                icon="mdi:transmission-tower-export",
+            )
+        )
+
+        # Battery to House
+        battery_to_house = round(abs(battery) if battery < 0 else 0, 1)
+        unique_id = f"{self.sn_inverter}_{report}_battery_to_house"
+        sensors[unique_id] = self._create_sensor(
+            PowerOceanEndPoint(
+                internal_unique_id=unique_id,
+                serial=f"{self.sn_inverter}",
+                name=f"{self.sn_inverter}_battery_to_house{suffix}",
+                friendly_name=f"battery_to_house{suffix}",
+                value=battery_to_house,
+                unit="W",
+                description="Batterie zu Haus",
+                icon="mdi:battery-arrow-up",
+            )
+        )
+
+        # Solar to Battery
+        solar_to_battery = round(min(solar_avail_for_bat, bat_chg), 1)
+        unique_id = f"{self.sn_inverter}_{report}_solar_to_battery"
+        sensors[unique_id] = self._create_sensor(
+            PowerOceanEndPoint(
+                internal_unique_id=unique_id,
+                serial=f"{self.sn_inverter}",
+                name=f"{self.sn_inverter}_solar_to_battery{suffix}",
+                friendly_name=f"solar_to_battery{suffix}",
+                value=solar_to_battery,
+                unit="W",
+                description="Solar zu Batterie",
+                icon="mdi:solar-power-variant",
+            )
+        )
+
+        # Solar to Grid
+        solar_to_grid = round(max(solar - house_consumption - bat_chg, 0), 1)
+        unique_id = f"{self.sn_inverter}_{report}_solar_to_grid"
+        sensors[unique_id] = self._create_sensor(
+            PowerOceanEndPoint(
+                internal_unique_id=unique_id,
+                serial=f"{self.sn_inverter}",
+                name=f"{self.sn_inverter}_solar_to_grid{suffix}",
+                friendly_name=f"solar_to_grid{suffix}",
+                value=solar_to_grid,
+                unit="W",
+                description="Solar ins Netz",
+                icon="mdi:solar-power",
+            )
+        )
+
+        # Solar to House
+        solar_to_house = round(min(solar, house_consumption), 1)
+        unique_id = f"{self.sn_inverter}_{report}_solar_to_house"
+        sensors[unique_id] = self._create_sensor(
+            PowerOceanEndPoint(
+                internal_unique_id=unique_id,
+                serial=f"{self.sn_inverter}",
+                name=f"{self.sn_inverter}_solar_to_house{suffix}",
+                friendly_name=f"solar_to_house{suffix}",
+                value=solar_to_house,
+                unit="W",
+                description="Solar zu Haus",
+                icon="mdi:home-lightning-bolt",
+            )
+        )
+
         return sensors
 
     def _handle_parallel_energy_stream(
