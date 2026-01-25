@@ -2,17 +2,20 @@
 
 import base64
 import re
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, NamedTuple
+from typing import Any
 
 import orjson
 import requests
 from homeassistant.exceptions import IntegrationError
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.util.json import json_loads
 
 from .const import (
     _LOGGER,
+    DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
     LENGTH_BATTERIE_SN,
     USE_MOCKED_RESPONSE,
@@ -40,8 +43,10 @@ class DeviceRole(str, Enum):
 
 
 # Mock path to response.json file
-mocked_response = Path("documentation/response_modified_po_dual.json")
-
+# MOCKED_RESPONSE = Path("documentation/response_modified_po_dual.json")
+MOCKED_RESPONSE = (
+    Path(__file__).parent / "tests" / "fixtures" / "response_modified_po_dual.json"
+)
 DATA_POINT_PATHS = {
     "devSn": ["devInfo", "devSn"],
     "workMode": ["pileChargingParamReport", "paramSet", "workMode"],
@@ -50,7 +55,8 @@ DATA_POINT_PATHS = {
 
 
 # Better storage of PowerOcean endpoint
-class PowerOceanEndPoint(NamedTuple):
+@dataclass
+class PowerOceanEndPoint:
     """
     Represents a PowerOcean endpoint with metadata and value.
 
@@ -63,6 +69,7 @@ class PowerOceanEndPoint(NamedTuple):
         unit (str | None): Unit of measurement.
         description (str): Description of the endpoint.
         icon (str | None): Icon representing the endpoint.
+        device_info (DeviceInfo): Inverter/Battery/Wallbox.
 
     """
 
@@ -74,6 +81,7 @@ class PowerOceanEndPoint(NamedTuple):
     unit: str | None
     description: str
     icon: str | None
+    device_info: DeviceInfo | None = None
 
 
 class SensorMetaHelper:
@@ -81,8 +89,11 @@ class SensorMetaHelper:
 
     @staticmethod
     def get_unit(key: str) -> str | None:
-        """Get unit from key name using a dictionary mapping."""
-        unit_mapping = {
+        """Get unit from key name automatically based on common patterns."""
+        key_lower = key.lower()
+
+        # 1️⃣ Direktes Mapping (häufigste Suffixe)
+        suffix_mapping = {
             "pwr": "W",
             "power": "W",
             "amp": "A",
@@ -94,18 +105,56 @@ class SensorMetaHelper:
             "percent": "%",
             "volume": "L",
             "temp": "°C",
+            "current": "A",
+            "voltage": "V",
         }
 
-        # Check for direct matches using dictionary lookup
-        for suffix, unit in unit_mapping.items():
-            if key.lower().endswith(suffix):
+        for suffix, unit in suffix_mapping.items():
+            if key_lower.endswith(suffix):
                 return unit
 
-        # Special case for "Generation" in key
-        if "Generation" in key:
-            return "kWh"
+        # 2️⃣ Keyword-Matching anywhere im Key (nicht nur Suffix)
+        keyword_mapping = {
+            "generation": "kWh",
+            "capacity": "Ah",
+            "temperature": "°C",
+            "temp": "°C",
+            "power": "W",
+            "energy": "Wh",
+            "soc": "%",
+            "soh": "%",
+            "voltage": "V",
+            "current": "A",
+        }
 
-        return None  # Default if no match found
+        for keyword, unit in keyword_mapping.items():
+            if keyword in key_lower:
+                return unit
+
+        # 3️⃣ Optional: Versuche, aus CamelCase oder Unterstrichen zu raten
+        # z.B. bpAccuChgEnergy -> endet auf Energy -> Wh
+        match = re.search(
+            r"(pwr|amp|soc|soh|vol|watth|energy|temp|temperature|current|voltage)$",
+            key_lower,
+        )
+        if match:
+            mapping = {
+                "pwr": "W",
+                "amp": "A",
+                "soc": "%",
+                "soh": "%",
+                "vol": "V",
+                "watth": "Wh",
+                "energy": "Wh",
+                "temp": "°C",
+                "temperature": "°C",
+                "current": "A",
+                "voltage": "V",
+            }
+            return mapping[match.group(1)]
+
+        # 4️⃣ Keine Einheit gefunden
+        return None
 
     @staticmethod
     def get_description(key: str) -> str:
@@ -199,9 +248,9 @@ class Ecoflow:
             "product": "PowerOcean",
             "vendor": "Ecoflow",
             "serial": self.sn,
-            "version": "5.1.27",  # Version vom Author.
-            "build": "28",  # Version vom Author.
-            "name": "PowerOcean",
+            "version": "5.1.33",  # Version vom Author.
+            "build": "19",  # Version vom Author.
+            "name": f"Inverter {self.sn}",
             "features": "Photovoltaik",
         }
 
@@ -291,13 +340,16 @@ class Ecoflow:
             response = self.get_json_response(request)
 
             if USE_MOCKED_RESPONSE:
-                try:
-                    with Path.open(mocked_response, "r", encoding="utf-8") as file:
-                        response = json_loads(file.read())
-                except FileNotFoundError:
-                    _LOGGER.debug(
-                        f"Mocked response file not present: {mocked_response}"
-                    )
+                if MOCKED_RESPONSE.exists():
+                    try:
+                        response = json_loads(
+                            MOCKED_RESPONSE.read_text(encoding="utf-8")
+                        )
+                    except Exception as err:
+                        _LOGGER.error(f"Failed to load mocked response: {err}")
+                else:
+                    _LOGGER.debug(f"Mocked response file not found: {MOCKED_RESPONSE}")
+
             # Log the response for debugging or development purposes
             _LOGGER.debug(f"{response}")
             flattened_data = Ecoflow.flatten_json(response)  # noqa: F841
@@ -313,6 +365,24 @@ class Ecoflow:
             _LOGGER.warning(error + ISSUE_URL_ERROR_MESSAGE)
             raise IntegrationError(error) from err
 
+    def _get_device_info(
+        self,
+        sn: str,
+        *,
+        name: str,
+        model: str,
+        via_sn: str | None = None,
+    ) -> DeviceInfo:
+        info = DeviceInfo(
+            identifiers={(DOMAIN, sn)},
+            name=name,
+            manufacturer="EcoFlow",
+            model=model,
+        )
+        if via_sn:
+            info["via_device"] = (DOMAIN, via_sn)
+        return info
+
     def __read_json_file(self) -> dict:
         # Hier wird die Datei nur einmal eingelesen, wenn die Daten noch nicht geladen sind
         try:
@@ -327,7 +397,7 @@ class Ecoflow:
                     return {}
         except FileNotFoundError:
             _LOGGER.error(f"File not found: {self.datapointfile}")
-        except json_loads.JSONDecodeError:
+        except orjson.JSONDecodeError:
             _LOGGER.error(f"Error decoding JSON in file: {self.datapointfile}")
         return {}
 
@@ -340,7 +410,7 @@ class Ecoflow:
         value = schema.get(report)
         return value if isinstance(value, list) else []
 
-    def _get_nested_value(self, data: dict, path: list):
+    def _get_nested_value(self, data: dict, path: list) -> dict:
         """Extrahiert den Wert aus einem verschachtelten Dictionary basierend auf dem Pfad."""
         for key in path:
             if not isinstance(data, dict):
@@ -521,7 +591,7 @@ class Ecoflow:
         # Standardverarbeitung
         return self._handle_standard_mode(d, sensors, report, sens_select, suffix)
 
-    def _handle_battery_mode(
+    def _handle_battery_mode_(
         self,
         d: dict,
         sensors: dict[str, PowerOceanEndPoint],
@@ -529,45 +599,73 @@ class Ecoflow:
         sens_select: list,
         suffix: str = "",
     ) -> dict[str, PowerOceanEndPoint]:
-        """Handle battery mode data extraction."""
-        # Batteriedaten: d enthält JSON Strings pro Batterie
-        batts = [key for key in d if len(key) > LENGTH_BATTERIE_SN]
-
         prefix = "bpack"
-        for ibat, bat in enumerate(reversed(batts)):
-            name = f"{prefix}{ibat + 1}_"
-            raw_data = d.get(bat)
-            d_bat = self._parse_battery_data(raw_data)
-            if isinstance(d_bat, dict):
-                for key, value in d_bat.items():
-                    if key in sens_select:
-                        unique_id = f"{self.sn_inverter}_{report}_{bat}_{key}"
-                        sensors[unique_id] = self._create_sensor(
-                            PowerOceanEndPoint(
-                                internal_unique_id=unique_id,
-                                serial=f"{self.sn_inverter}",
-                                name=f"{self.sn_inverter}_{name}{key}{suffix}",
-                                friendly_name=f"{name}{key}{suffix}",
-                                value=value,
-                                unit=SensorMetaHelper.get_unit(key),
-                                description=f"{name}{SensorMetaHelper.get_description(key)}",
-                                icon=SensorMetaHelper.get_special_icon(key),
-                            )
-                        )
-            else:
-                _LOGGER.error(f"Battery data for '{bat}' is not a dict: {type(d_bat)}")
+
+        for idx, (battery_sn, payload) in enumerate(
+            self._get_batteries_sorted(d), start=1
+        ):
+            name_prefix = f"{prefix}{idx}_"
+
+            device_info = self._get_device_info(
+                sn=battery_sn,
+                name=f"{device_name_prefix} {battery_sn}",
+                model=model,
+                via_sn=self.sn_inverter,
+            )
+
+            for key in sens_select:
+                value = payload.get(key)
+                if key == "bpSn":
+                    value = self._decode_sn(value)
+
+                if value is None:
+                    continue
+
+                uid = f"{self.sn_inverter}_{report}_{battery_sn}_{key}"
+
+                self._add_sensor(
+                    sensors,
+                    uid=uid,
+                    serial=battery_sn,  # 🔥 wichtig!
+                    name=f"{self.sn_inverter}_{name_prefix}{key}{suffix}",
+                    friendly_name=f"{name_prefix}{key}{suffix}",
+                    value=value,
+                    key=key,
+                    description_prefix=name_prefix,
+                    suffix=suffix,
+                    device_info=device_info,
+                )
+
         return sensors
 
     def _parse_battery_data(self, raw_data: dict | str | None) -> dict | None:
-        if isinstance(raw_data, str):
-            data = json_loads(raw_data)
-            if isinstance(data, dict):
-                return data
-            _LOGGER.error(f"Parsed battery data is not a dict: {type(data)}")
+        if raw_data is None:
+            _LOGGER.debug("Battery payload is None (no battery present)")
             return None
+
         if isinstance(raw_data, dict):
             return raw_data
-        _LOGGER.error(f"Unexpected battery data type: {type(raw_data)}")
+
+        if isinstance(raw_data, str):
+            try:
+                data = json_loads(raw_data)
+            except Exception as err:
+                _LOGGER.warning("Failed to decode battery JSON: %s", err)
+                return None
+
+            if isinstance(data, dict):
+                return data
+
+            _LOGGER.debug(
+                "Battery JSON decoded but is %s instead of dict",
+                type(data).__name__,
+            )
+            return None
+
+        _LOGGER.debug(
+            "Unexpected battery payload type: %s",
+            type(raw_data).__name__,
+        )
         return None
 
     def _handle_wallbox_mode(
@@ -578,11 +676,13 @@ class Ecoflow:
         sens_select: list,
         suffix: str = "",
     ) -> dict[str, PowerOceanEndPoint]:
-        for box, raw_payload in d.items():
+        for box, raw in d.items():
             if box == "updateTime":
                 continue
 
-            payload = json_loads(raw_payload)
+            payload = self._parse_battery_data(raw)
+            if not isinstance(payload, dict):
+                continue
 
             for key in sens_select:
                 path = DATA_POINT_PATHS.get(key)
@@ -593,19 +693,18 @@ class Ecoflow:
                 if value is None:
                     continue
 
-                unique_id = f"{self.sn_inverter}_{report}_{box}_{key}"
+                uid = f"{self.sn_inverter}_{report}_{box}_{key}"
 
-                sensors[unique_id] = self._create_sensor(
-                    PowerOceanEndPoint(
-                        internal_unique_id=unique_id,
-                        serial=self.sn_inverter,
-                        name=f"{self.sn_inverter}_{key}{suffix}",
-                        friendly_name=f"{key}{suffix}",
-                        value=value,
-                        unit=SensorMetaHelper.get_unit(key),
-                        description=f"{box}{SensorMetaHelper.get_description(key)}",
-                        icon=SensorMetaHelper.get_special_icon(key),
-                    )
+                self._add_sensor(
+                    sensors,
+                    uid=uid,
+                    serial=self.sn_inverter,
+                    name=f"{self.sn_inverter}_{key}{suffix}",
+                    friendly_name=f"{key}{suffix}",
+                    value=value,
+                    key=key,
+                    description_prefix=box,
+                    suffix=suffix,
                 )
 
         return sensors
@@ -766,6 +865,161 @@ class Ecoflow:
                     )
                 )
         return sensors
+
+    def _add_sensor(
+        self,
+        sensors: dict,
+        *,
+        uid: str,
+        serial: str,
+        name: str,
+        friendly_name: str,
+        value: Any,
+        key: str,
+        description_prefix: str = "",
+        suffix: str = "",
+    ):
+        sensors[uid] = self._create_sensor(
+            PowerOceanEndPoint(
+                internal_unique_id=uid,
+                serial=serial,
+                name=name,
+                friendly_name=friendly_name,
+                value=value,
+                unit=SensorMetaHelper.get_unit(key),
+                description=f"{description_prefix}{SensorMetaHelper.get_description(key)}",
+                icon=SensorMetaHelper.get_special_icon(key),
+            )
+        )
+
+    def _get_batteries_sorted(self, d: dict) -> list[tuple[str, dict]]:
+        batteries = []
+
+        for key, raw in d.items():
+            if key in ("", "updateTime"):
+                continue
+
+            payload = self._parse_battery_data(raw)
+            if not isinstance(payload, dict):
+                continue
+
+            sn = payload.get("bpSn")
+            raw_sn = payload.get("bpSn")
+            battery_inner_sn = self._decode_sn(raw_sn)
+            if battery_inner_sn:
+                batteries.append((battery_inner_sn, payload))
+
+        # 🔥 STABILE Sortierung
+        batteries.sort(key=lambda x: x[0])
+        return batteries
+
+    def _decode_sn(self, value: str | None) -> str | None:
+        if not value or not isinstance(value, str):
+            return None
+        try:
+            return base64.b64decode(value).decode("utf-8").strip()
+        except Exception:
+            return value  # Fallback: schon Klartext
+
+    def _handle_boxed_devices(
+        self,
+        d: dict,
+        sensors: dict[str, PowerOceanEndPoint],
+        *,
+        report: str,
+        sens_select: list[str],
+        model: str,
+        device_name_prefix: str,
+        value_getter: callable,
+        suffix: str = "",
+    ) -> dict[str, PowerOceanEndPoint]:
+        for box_sn_raw, raw_payload in d.items():
+            if box_sn_raw in ("", "updateTime"):
+                continue
+
+            payload = self._parse_battery_data(raw_payload)
+            if not isinstance(payload, dict):
+                continue
+
+            # 🔑 echte SN bestimmen
+            raw_sn = payload.get("bpSn") or box_sn_raw
+            device_sn = self._decode_sn(raw_sn)
+            if not device_sn:
+                continue
+
+            device_info = self._get_device_info(
+                sn=device_sn,
+                name=f"{device_name_prefix} {device_sn}",
+                model=model,
+                via_sn=self.sn_inverter,
+            )
+
+            for key in sens_select:
+                value = value_getter(payload, key)
+                if value is None:
+                    continue
+
+                uid = f"{device_sn}_{report}_{key}"
+
+                sensors[uid] = self._create_sensor(
+                    PowerOceanEndPoint(
+                        internal_unique_id=uid,
+                        serial=device_sn,
+                        name=f"{device_sn}_{key}{suffix}",
+                        friendly_name=key,
+                        value=value,
+                        unit=SensorMetaHelper.get_unit(key),
+                        description=SensorMetaHelper.get_description(key),
+                        icon=SensorMetaHelper.get_special_icon(key),
+                        device_info=device_info,
+                    )
+                )
+
+        return sensors
+
+    def _handle_battery_mode(
+        self,
+        d: dict,
+        sensors: dict[str, PowerOceanEndPoint],
+        report: str,
+        sens_select: list,
+        suffix: str = "",
+    ) -> dict[str, PowerOceanEndPoint]:
+        return self._handle_boxed_devices(
+            d,
+            sensors,
+            report=report,
+            sens_select=sens_select,
+            model="PowerOcean Battery",
+            device_name_prefix="Battery",
+            value_getter=lambda payload, key: payload.get(key),
+            suffix=suffix,
+        )
+
+    def __handle_wallbox_mode(
+        self,
+        d: dict,
+        sensors: dict[str, PowerOceanEndPoint],
+        report: str,
+        sens_select: list,
+        suffix: str = "",
+    ) -> dict[str, PowerOceanEndPoint]:
+        def wallbox_value(payload: dict, key: str):
+            path = DATA_POINT_PATHS.get(key)
+            if not path:
+                return None
+            return self._get_nested_value(payload, path)
+
+        return self._handle_boxed_devices(
+            d,
+            sensors,
+            report=report,
+            sens_select=sens_select,
+            model="PowerOcean Wallbox",
+            device_name_prefix="Wallbox",
+            value_getter=wallbox_value,
+            suffix=suffix,
+        )
 
 
 class ApiResponseError(Exception):
