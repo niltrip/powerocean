@@ -6,6 +6,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, NamedTuple
 
+import orjson
 import requests
 from homeassistant.exceptions import IntegrationError
 from homeassistant.util.json import json_loads
@@ -23,6 +24,7 @@ class ReportMode(Enum):
 
     DEFAULT = "data"
     BATTERY = "BP_STA_REPORT"
+    WALLBOX = "EDEV_PARAM_REPORT"
     EMS = "EMS_HEARTBEAT"
     PARALLEL = "PARALLEL_ENERGY_STREAM_REPORT"
     EMS_CHANGE = "EMS_CHANGE_REPORT"
@@ -39,6 +41,12 @@ class DeviceRole(str, Enum):
 
 # Mock path to response.json file
 mocked_response = Path("documentation/response_modified_po_dual.json")
+
+DATA_POINT_PATHS = {
+    "devSn": ["devInfo", "devSn"],
+    "workMode": ["pileChargingParamReport", "paramSet", "workMode"],
+    "userCurrentSet": ["pileChargingParamReport", "paramSet", "userCurrentSet"],
+}
 
 
 # Better storage of PowerOcean endpoint
@@ -183,6 +191,7 @@ class Ecoflow:
         base_path = Path(__file__).parent
         self.datapointfile = base_path / "variants" / f"{self.ecoflow_variant}.json"
         self.options = options  # Store Home Assistant instance
+        self._json_data_variant = None
 
     def get_device(self) -> dict:
         """Get device info."""
@@ -305,37 +314,44 @@ class Ecoflow:
             raise IntegrationError(error) from err
 
     def __read_json_file(self) -> dict:
+        # Hier wird die Datei nur einmal eingelesen, wenn die Daten noch nicht geladen sind
         try:
-            with self.datapointfile.open("r", encoding="utf-8") as file:
-                data = json_loads(file.read())
-                if isinstance(data, dict):
-                    return data
-                _LOGGER.error(
-                    f"JSON content is not a dict in file: {self.datapointfile}"
-                )
-                return {}
+            if self._json_data_variant is None:
+                with self.datapointfile.open("r", encoding="utf-8") as file:
+                    self._json_data_variant = json_loads(file.read())
+                    if isinstance(self._json_data_variant, dict):
+                        return self._json_data_variant
+                    _LOGGER.error(
+                        f"JSON content is not a dict in file: {self.datapointfile}"
+                    )
+                    return {}
         except FileNotFoundError:
             _LOGGER.error(f"File not found: {self.datapointfile}")
         except json_loads.JSONDecodeError:
             _LOGGER.error(f"Error decoding JSON in file: {self.datapointfile}")
         return {}
 
-    def _get_reports(self) -> list:
-        """Retrieve report selection from JSON file."""
-        reports = self.__read_json_file()
-        if isinstance(reports, dict):
-            return list(reports.keys())
-        return []
+    def _get_reports(self) -> list[str]:
+        schema = self._load_schema()
+        return list(schema.keys())
 
-    def _get_sens_select(self, report: str) -> list:
-        """Retrieve sensor selection from JSON file."""
-        datapoints = self.__read_json_file()
-        if isinstance(datapoints, dict):
-            value = datapoints.get(report, [])
-        if isinstance(value, list):
-            return value
-        # If value is not a list, return an empty list
-        return []
+    def _get_sens_select(self, report: str) -> list[str]:
+        schema = self._load_schema()
+        value = schema.get(report)
+        return value if isinstance(value, list) else []
+
+    def _get_nested_value(self, data: dict, path: list):
+        """Extrahiert den Wert aus einem verschachtelten Dictionary basierend auf dem Pfad."""
+        for key in path:
+            if not isinstance(data, dict):
+                return None
+            data = data.get(key)
+        return data
+
+    def _load_schema(self) -> dict:
+        if not hasattr(self, "_schema"):
+            self._schema = self.__read_json_file() or {}
+        return self._schema
 
     def _create_sensor(self, endpoint: PowerOceanEndPoint) -> PowerOceanEndPoint:
         return endpoint
@@ -420,6 +436,7 @@ class Ecoflow:
                             report_key,
                             suffix=suffix,
                             battery_mode=ReportMode.BATTERY.value in report_key,
+                            wallbox_mode=ReportMode.WALLBOX.value in report,
                             ems_heartbeat_mode=ReportMode.EMS.value in report_key,
                             parallel_energy_stream_mode=ReportMode.PARALLEL.value
                             in report_key,
@@ -435,6 +452,7 @@ class Ecoflow:
                         sensors,
                         report,
                         battery_mode=ReportMode.BATTERY.value in report,
+                        wallbox_mode=ReportMode.WALLBOX.value in report,
                         ems_heartbeat_mode=ReportMode.EMS.value in report,
                     )
                 )
@@ -452,6 +470,7 @@ class Ecoflow:
         suffix: str = "",
         *,
         battery_mode: bool = False,
+        wallbox_mode: bool = False,
         ems_heartbeat_mode: bool = False,
         parallel_energy_stream_mode: bool = False,
     ) -> dict[str, PowerOceanEndPoint]:
@@ -474,8 +493,8 @@ class Ecoflow:
 
         """
         # Report-Key ggf. anpassen
+        report_to_log = report
         if report not in response:
-            report_to_log = report
             report = re.sub(r"JTS1_", "RE307_", report)
 
         d = response.get(report)
@@ -484,8 +503,11 @@ class Ecoflow:
             return sensors
 
         sens_select = self._get_sens_select(report)
+
         if battery_mode:
             return self._handle_battery_mode(d, sensors, report, sens_select, suffix)
+        if wallbox_mode:
+            return self._handle_wallbox_mode(d, sensors, report, sens_select, suffix)
         # EMS Heartbeat Mode
         if ems_heartbeat_mode:
             return self._handle_ems_heartbeat_mode(
@@ -509,8 +531,8 @@ class Ecoflow:
     ) -> dict[str, PowerOceanEndPoint]:
         """Handle battery mode data extraction."""
         # Batteriedaten: d enthält JSON Strings pro Batterie
-        keys = list(d.keys())
-        batts = [s for s in keys if len(s) > LENGTH_BATTERIE_SN]
+        batts = [key for key in d if len(key) > LENGTH_BATTERIE_SN]
+
         prefix = "bpack"
         for ibat, bat in enumerate(reversed(batts)):
             name = f"{prefix}{ibat + 1}_"
@@ -547,6 +569,46 @@ class Ecoflow:
             return raw_data
         _LOGGER.error(f"Unexpected battery data type: {type(raw_data)}")
         return None
+
+    def _handle_wallbox_mode(
+        self,
+        d: dict,
+        sensors: dict[str, PowerOceanEndPoint],
+        report: str,
+        sens_select: list,
+        suffix: str = "",
+    ) -> dict[str, PowerOceanEndPoint]:
+        for box, raw_payload in d.items():
+            if box == "updateTime":
+                continue
+
+            payload = json_loads(raw_payload)
+
+            for key in sens_select:
+                path = DATA_POINT_PATHS.get(key)
+                if not path:
+                    continue
+
+                value = self._get_nested_value(payload, path)
+                if value is None:
+                    continue
+
+                unique_id = f"{self.sn_inverter}_{report}_{box}_{key}"
+
+                sensors[unique_id] = self._create_sensor(
+                    PowerOceanEndPoint(
+                        internal_unique_id=unique_id,
+                        serial=self.sn_inverter,
+                        name=f"{self.sn_inverter}_{key}{suffix}",
+                        friendly_name=f"{key}{suffix}",
+                        value=value,
+                        unit=SensorMetaHelper.get_unit(key),
+                        description=f"{box}{SensorMetaHelper.get_description(key)}",
+                        icon=SensorMetaHelper.get_special_icon(key),
+                    )
+                )
+
+        return sensors
 
     def _handle_ems_heartbeat_mode(
         self,
