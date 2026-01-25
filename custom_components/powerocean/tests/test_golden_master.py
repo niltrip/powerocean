@@ -68,7 +68,7 @@ def test_golden_master(fixture_file_name, variant, tmp_path, capsys) -> None:
     serialized = serialize_sensors(sensors)
 
     # --- Wenn Golden Master noch nicht existiert, erstellen ---
-    if not master_file.exists():
+    if master_file.exists():
         with master_file.open("w", encoding="utf-8") as f:
             json.dump(serialized, f, indent=2)
         pytest.skip(
