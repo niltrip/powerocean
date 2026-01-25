@@ -24,18 +24,13 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import IntegrationError
 from homeassistant.helpers import entity_registry
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.event import async_track_time_interval
 
 from .const import (
     _LOGGER,
-    ATTR_PRODUCT_BUILD,
     ATTR_PRODUCT_DESCRIPTION,
-    ATTR_PRODUCT_FEATURES,
-    ATTR_PRODUCT_NAME,
     ATTR_PRODUCT_SERIAL,
-    ATTR_PRODUCT_VENDOR,
-    ATTR_PRODUCT_VERSION,
-    ATTR_UNIQUE_ID,
     DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
 )
@@ -252,7 +247,7 @@ class PowerOceanSensor(SensorEntity):
         # Make Ecoflow and the endpoint parameters from the Sensor API available
         self.ecoflow = ecoflow
         self.endpoint = endpoint
-        self.device_id = device_id
+        self.device_id = device_id or ecoflow.sn_inverter
 
         # Set Friendly name when sensor is first created
         self._attr_unique_id = getattr(endpoint, "name", None)
@@ -320,44 +315,37 @@ class PowerOceanSensor(SensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict:
-        """Return the state attributes of this device."""
+        """Return extra attributes specific to this sensor."""
         attr = {}
 
-        attr[ATTR_PRODUCT_DESCRIPTION] = getattr(self.endpoint, "description", None)
-        attr[ATTR_UNIQUE_ID] = getattr(self.endpoint, "internal_unique_id", None)
-        attr[ATTR_PRODUCT_VENDOR] = (
-            self.ecoflow.device["vendor"] if self.ecoflow.device else None
-        )
-        attr[ATTR_PRODUCT_NAME] = (
-            self.ecoflow.device["name"] if self.ecoflow.device else None
-        )
-        attr[ATTR_PRODUCT_SERIAL] = getattr(self.endpoint, "serial", None)
-        attr[ATTR_PRODUCT_VERSION] = (
-            self.ecoflow.device["version"] if self.ecoflow.device else None
-        )
-        attr[ATTR_PRODUCT_BUILD] = (
-            self.ecoflow.device["build"] if self.ecoflow.device else None
-        )
-        attr[ATTR_PRODUCT_FEATURES] = (
-            self.ecoflow.device["features"] if self.ecoflow.device else None
-        )
+        # Sensor-spezifische Infos
+        if getattr(self.endpoint, "description", None):
+            attr[ATTR_PRODUCT_DESCRIPTION] = self.endpoint.description
+
+        if getattr(self.endpoint, "serial", None):
+            attr[ATTR_PRODUCT_SERIAL] = self.endpoint.serial
 
         return attr
 
     @property
-    def device_info(self) -> dict | None:
+    def device_info(self) -> DeviceInfo | None:
         """Return device specific attributes."""
-        device_name = (
-            self.ecoflow.device["name"]
-            if self.ecoflow.device and "name" in self.ecoflow.device
-            else None
+        # 🔥 Sub-Device (Battery / Wallbox)
+        if getattr(self.endpoint, "device_info", None):
+            return self.endpoint.device_info
+
+        # 🔁 Fallback: Inverter
+        if not self.ecoflow.device:
+            return None
+
+        inverter_sn = self.ecoflow.sn_inverter
+
+        return DeviceInfo(
+            identifiers={(DOMAIN, inverter_sn)},
+            name=self.ecoflow.device.get("name"),
+            manufacturer="EcoFlow",
+            model="PowerOcean Inverter",
         )
-        return {
-            "identifiers": {(DOMAIN, self.device_id)},
-            "name": device_name,
-            "manufacturer": "EcoFlow",
-            "model": "PowerOcean",
-        }  # The unique identifier of the device is the serial number
 
     @property
     def icon(self) -> str | None:
