@@ -2,7 +2,6 @@
 
 import base64
 import binascii
-import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -203,7 +202,7 @@ class Ecoflow:
                         response = json_loads(
                             MOCKED_RESPONSE.read_text(encoding="utf-8")
                         )
-                    except Exception as err:
+                    except (UnicodeDecodeError, orjson.JSONDecodeError) as err:
                         _LOGGER.error(f"Failed to load mocked response: {err}")
                 else:
                     _LOGGER.debug(f"Mocked response file not found: {MOCKED_RESPONSE}")
@@ -242,7 +241,7 @@ class Ecoflow:
         return info
 
     def __read_json_file(self) -> dict:
-        # Hier wird die Datei nur einmal eingelesen, wenn die Daten noch nicht geladen sind
+        # Hier wird die Datei eingelesen, wenn die Daten noch nicht geladen sind
         try:
             if self._json_data_variant is None:
                 with self.datapointfile.open("r", encoding="utf-8") as file:
@@ -268,8 +267,12 @@ class Ecoflow:
         value = schema.get(report)
         return value if isinstance(value, list) else []
 
-    def _get_nested_value(self, data: dict, path: list) -> dict:
-        """Extrahiert den Wert aus einem verschachtelten Dictionary basierend auf dem Pfad."""
+    def _get_nested_value(self, data: dict[str, Any], path: list[str]) -> Any | None:
+        """
+        Extrahiert den Wert aus einem verschachtelten Dictionary.
+
+        Basierend auf dem Pfad.
+        """
         for key in path:
             if not isinstance(data, dict):
                 return None
@@ -291,13 +294,16 @@ class Ecoflow:
         return None
 
     def _extract_box_sn(
-        self, payload: dict, schema: BoxSchema, fallback_sn: str
+        self, payload: dict[str, Any], schema: BoxSchema, fallback_sn: str
     ) -> str | None:
         path = schema.get("sn_path")
+
         sn = self._get_nested_value(payload, path) if path is not None else fallback_sn
 
-        # Nur Strings an _decode_sn weitergeben
-        return self._decode_sn(sn) if isinstance(sn, str) and sn else None
+        if not isinstance(sn, str) or not sn:
+            return None
+
+        return self._decode_sn(sn)
 
     def _load_schema(self) -> dict:
         if not hasattr(self, "_schema"):
@@ -308,12 +314,7 @@ class Ecoflow:
         self,
         box_schema: BoxSchema,
     ) -> list[str]:
-        """
-        Schneidet die Sensorschnittmenge:
-        - was der User im Report will
-        - was der Box-Typ unterstützt.
-        """
-        # return [s for s in report_sensors if s in box_schema["default_sensors"]]
+        """Liefert Sensoren die der Box-Typ unterstützt."""
         return list(box_schema["sensors"])
 
     def _create_sensor(self, endpoint: PowerOceanEndPoint) -> PowerOceanEndPoint:
@@ -359,10 +360,8 @@ class Ecoflow:
                     else DeviceRole.SLAVE.value
                 )
                 for report in reports:
-                    # Besonderheit: JTS1_ENERGY_STREAM_REPORT  # noqa: ERA001
-                    if "ENERGY_STREAM_REPORT" in report:
+                    if ReportMode.ENERGY_STREAM.value in report:
                         report_key = ReportMode.PARALLEL.value
-                        # report_key = re.sub(r"JTS1_", "JTS1_PARALLEL_", report)
                     else:
                         report_key = report
 
@@ -374,7 +373,6 @@ class Ecoflow:
                             suffix=suffix,
                             battery_mode=ReportMode.BATTERY.value in report_key,
                             wallbox_mode=ReportMode.WALLBOX.value in report,
-                            chargebox_mode=ReportMode.CHARGEBOX.value in report,
                             ems_heartbeat_mode=ReportMode.EMS.value in report_key,
                             parallel_energy_stream_mode=ReportMode.PARALLEL.value
                             in report_key,
@@ -391,7 +389,6 @@ class Ecoflow:
                         report,
                         battery_mode=ReportMode.BATTERY.value in report,
                         wallbox_mode=ReportMode.WALLBOX.value in report,
-                        chargebox_mode=ReportMode.CHARGEBOX.value in report,
                         ems_heartbeat_mode=ReportMode.EMS.value in report,
                     )
                 )
@@ -410,7 +407,6 @@ class Ecoflow:
         *,
         battery_mode: bool = False,
         wallbox_mode: bool = False,
-        chargebox_mode: bool = False,
         ems_heartbeat_mode: bool = False,
         parallel_energy_stream_mode: bool = False,
     ) -> dict[str, PowerOceanEndPoint]:
@@ -759,17 +755,14 @@ class Ecoflow:
             paths = schema["paths"]
 
             for key in box_sensors:
-                if paths:
-                    path = paths.get(key)
-                    if not path:
-                        continue
-                    value = self._get_nested_value(payload, path)
-                else:
-                    value = payload.get(key)
+                value = (
+                    self._get_nested_value(payload, paths[key])
+                    if paths and key in paths
+                    else payload.get(key)
+                )
 
                 if value is None:
                     continue
-
                 # ⚡ Spezielles Handling für bestimmte Keys
                 if key == "bpSn" and isinstance(value, str):
                     try:
@@ -801,160 +794,6 @@ class Ecoflow:
                         device_info=device_info,
                     )
                 )
-        return sensors
-
-    def _extract_nested_values(
-        self, payload: dict, schema_keys: BoxSchema, prefix: str = ""
-    ) -> dict[str, Any]:
-        result = {}
-        if not isinstance(payload, (dict, list)):
-            return result
-
-        if isinstance(payload, dict):
-            for k, v in payload.items():
-                full_key = f"{prefix}_{k}" if prefix else k
-                if k in schema_keys:
-                    result[full_key] = v
-                result.update(self._extract_nested_values(v, schema_keys, full_key))
-
-        elif isinstance(payload, list):
-            for idx, item in enumerate(payload):
-                full_key = f"{prefix}[{idx}]"
-                result.update(self._extract_nested_values(item, schema_keys, full_key))
-
-        return result
-
-    def _handle_report_generic(
-        self,
-        d: dict,
-        sensors: dict[str, PowerOceanEndPoint],
-        report: str,
-        sens_select: list[str],
-        suffix: str = "",
-        nested_paths: dict[str, list[str]] | None = None,
-        mppt_key: str | None = "mpptHeartBeat",
-        phase_keys: list[str] | None = None,
-        parallel_key: str | None = "paraEnergyStream",
-    ) -> dict[str, PowerOceanEndPoint]:
-        """Generic handler for most reports: standard, phases, MPPT, parallel devices."""
-
-        # 1️⃣ Einfach Key-Value Paare
-        for key, value in d.items():
-            if key in sens_select and not isinstance(value, dict):
-                uid = f"{self.sn_inverter}_{report}_{key}"
-                sensors[uid] = self._create_sensor(
-                    PowerOceanEndPoint(
-                        internal_unique_id=uid,
-                        serial=self.sn_inverter,
-                        name=f"{self.sn_inverter}_{key}{suffix}",
-                        friendly_name=f"{key}{suffix}",
-                        value=value,
-                        unit=SensorMetaHelper.get_unit(key),
-                        description=SensorMetaHelper.get_description(key),
-                        icon=SensorMetaHelper.get_special_icon(key),
-                    )
-                )
-
-        # 2️⃣ Phasen (optional)
-        if phase_keys:
-            for phase in phase_keys:
-                if phase in d and isinstance(d[phase], dict):
-                    for key, value in d[phase].items():
-                        uid = f"{self.sn_inverter}_{report}_{phase}_{key}"
-                        sensors[uid] = self._create_sensor(
-                            PowerOceanEndPoint(
-                                internal_unique_id=uid,
-                                serial=self.sn_inverter,
-                                name=f"{self.sn_inverter}_{phase}_{key}{suffix}",
-                                friendly_name=f"{phase}_{key}{suffix}",
-                                value=value,
-                                unit=SensorMetaHelper.get_unit(key),
-                                description=SensorMetaHelper.get_description(key),
-                                icon=SensorMetaHelper.get_special_icon(key),
-                            )
-                        )
-
-        # 3️⃣ MPPT (optional)
-        if mppt_key and mppt_key in d:
-            mppt_list = d[mppt_key]
-            for i, mppt_entry in enumerate(mppt_list):
-                for key, value in mppt_entry.get("mpptPv", [{}])[0].items():
-                    uid = f"{self.sn_inverter}_{report}_{mppt_key}_mpptPv{i + 1}_{key}"
-                    icon = None
-                    if key.endswith("amp"):
-                        icon = "mdi:current-dc"
-                    elif key.endswith("pwr"):
-                        icon = "mdi:solar-power"
-                    sensors[uid] = self._create_sensor(
-                        PowerOceanEndPoint(
-                            internal_unique_id=uid,
-                            serial=self.sn_inverter,
-                            name=f"{self.sn_inverter}_{mppt_key}_mpptPv{i + 1}_{key}{suffix}",
-                            friendly_name=f"mpptPv{i + 1}_{key}{suffix}",
-                            value=value,
-                            unit=SensorMetaHelper.get_unit(key),
-                            description=SensorMetaHelper.get_description(key),
-                            icon=icon,
-                        )
-                    )
-                # Gesamtleistung pro MPPT
-                total_power = sum(
-                    mppt_entry.get("mpptPv", [{}])[0].get("pwr", 0)
-                    for _ in range(len(mppt_entry.get("mpptPv", [{}])))
-                )
-                uid_total = f"{self.sn_inverter}_{report}_{mppt_key}_mpptPv_pwrTotal"
-                sensors[uid_total] = self._create_sensor(
-                    PowerOceanEndPoint(
-                        internal_unique_id=uid_total,
-                        serial=self.sn_inverter,
-                        name=f"{self.sn_inverter}_{mppt_key}_mpptPv_pwrTotal{suffix}",
-                        friendly_name=f"mpptPv_pwrTotal{suffix}",
-                        value=total_power,
-                        unit="W",
-                        description="Solarertrag aller Strings",
-                        icon="mdi:solar-power",
-                    )
-                )
-
-        # 4️⃣ Parallele Geräte (optional)
-        if parallel_key and parallel_key in d:
-            for device_data in d.get(parallel_key, []):
-                dev_sn = device_data.get("devSn") or ""
-                _LOGGER.debug(f"Processing parallel dev_sn: {dev_sn}")
-                for key, value in device_data.items():
-                    uid = f"{dev_sn}_{report}_{parallel_key}_{key}"
-                    sensors[uid] = self._create_sensor(
-                        PowerOceanEndPoint(
-                            internal_unique_id=uid,
-                            serial=dev_sn,
-                            name=f"{dev_sn}_{key}{suffix}",
-                            friendly_name=f"{key}{suffix}",
-                            value=value,
-                            unit=SensorMetaHelper.get_unit(key),
-                            description=SensorMetaHelper.get_description(key),
-                            icon=SensorMetaHelper.get_special_icon(key),
-                        )
-                    )
-
-        # 5️⃣ Verschachtelte Pfade (optional)
-        if nested_paths:
-            for key, path in nested_paths.items():
-                value = self._get_nested_value(d, path)
-                if value is not None:
-                    uid = f"{self.sn_inverter}_{report}_{key}"
-                    sensors[uid] = self._create_sensor(
-                        PowerOceanEndPoint(
-                            internal_unique_id=uid,
-                            serial=self.sn_inverter,
-                            name=f"{self.sn_inverter}_{key}{suffix}",
-                            friendly_name=f"{key}{suffix}",
-                            value=value,
-                            unit=SensorMetaHelper.get_unit(key),
-                            description=SensorMetaHelper.get_description(key),
-                            icon=SensorMetaHelper.get_special_icon(key),
-                        )
-                    )
-
         return sensors
 
     @staticmethod
