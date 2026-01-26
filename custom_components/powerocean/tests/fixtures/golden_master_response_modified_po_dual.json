@@ -1,220 +1,4 @@
 {
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bmsRunSta": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bmsRunSta",
-    "name": "SN_INVERTERBOX01_bpack1_bmsRunSta_master",
-    "friendly_name": "bpack1_bmsRunSta_master",
-    "value": "PB_BMS_STATE_NORMAL",
-    "unit": null,
-    "description": "bpack1_bmsRunSta",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpAmp": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpAmp",
-    "name": "SN_INVERTERBOX01_bpack1_bpAmp_master",
-    "friendly_name": "bpack1_bpAmp_master",
-    "value": 1.1116403,
-    "unit": "A",
-    "description": "bpack1_Batteriestrom",
-    "icon": "mdi:current-dc"
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpCycles": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpCycles",
-    "name": "SN_INVERTERBOX01_bpack1_bpCycles_master",
-    "friendly_name": "bpack1_bpCycles_master",
-    "value": 214,
-    "unit": null,
-    "description": "bpack1_Ladezyklen",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpEnvTemp": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpEnvTemp",
-    "name": "SN_INVERTERBOX01_bpack1_bpEnvTemp_master",
-    "friendly_name": "bpack1_bpEnvTemp_master",
-    "value": 34.0,
-    "unit": "\u00b0C",
-    "description": "bpack1_bpEnvTemp",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpMaxCellTemp": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpMaxCellTemp",
-    "name": "SN_INVERTERBOX01_bpack1_bpMaxCellTemp_master",
-    "friendly_name": "bpack1_bpMaxCellTemp_master",
-    "value": 26.0,
-    "unit": "\u00b0C",
-    "description": "bpack1_bpMaxCellTemp",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpMinCellTemp": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpMinCellTemp",
-    "name": "SN_INVERTERBOX01_bpack1_bpMinCellTemp_master",
-    "friendly_name": "bpack1_bpMinCellTemp_master",
-    "value": 22.0,
-    "unit": "\u00b0C",
-    "description": "bpack1_bpMinCellTemp",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpPwr": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpPwr",
-    "name": "SN_INVERTERBOX01_bpack1_bpPwr_master",
-    "friendly_name": "bpack1_bpPwr_master",
-    "value": 59.31935,
-    "unit": "W",
-    "description": "bpack1_Batterieleistung",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpRemainWatth": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpRemainWatth",
-    "name": "SN_INVERTERBOX01_bpack1_bpRemainWatth_master",
-    "friendly_name": "bpack1_bpRemainWatth_master",
-    "value": 3993.6,
-    "unit": "Wh",
-    "description": "bpack1_bpRemainWatth",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpSoc": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpSoc",
-    "name": "SN_INVERTERBOX01_bpack1_bpSoc_master",
-    "friendly_name": "bpack1_bpSoc_master",
-    "value": 78,
-    "unit": "%",
-    "description": "bpack1_Ladezustand der Batterie",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpSoh": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpSoh",
-    "name": "SN_INVERTERBOX01_bpack1_bpSoh_master",
-    "friendly_name": "bpack1_bpSoh_master",
-    "value": 100,
-    "unit": "%",
-    "description": "bpack1_bpSoh",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpSysState": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpSysState",
-    "name": "SN_INVERTERBOX01_bpack1_bpSysState_master",
-    "friendly_name": "bpack1_bpSysState_master",
-    "value": "NORMAL_STATE",
-    "unit": null,
-    "description": "bpack1_bpSysState",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpVol": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK01_bpVol",
-    "name": "SN_INVERTERBOX01_bpack1_bpVol_master",
-    "friendly_name": "bpack1_bpVol_master",
-    "value": 53.362,
-    "unit": "V",
-    "description": "bpack1_Batteriespannung",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bmsRunSta": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bmsRunSta",
-    "name": "SN_INVERTERBOX01_bpack2_bmsRunSta_master",
-    "friendly_name": "bpack2_bmsRunSta_master",
-    "value": "PB_BMS_STATE_NORMAL",
-    "unit": null,
-    "description": "bpack2_bmsRunSta",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpAmp": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpAmp",
-    "name": "SN_INVERTERBOX01_bpack2_bpAmp_master",
-    "friendly_name": "bpack2_bpAmp_master",
-    "value": 2.3041744,
-    "unit": "A",
-    "description": "bpack2_Batteriestrom",
-    "icon": "mdi:current-dc"
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpCycles": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpCycles",
-    "name": "SN_INVERTERBOX01_bpack2_bpCycles_master",
-    "friendly_name": "bpack2_bpCycles_master",
-    "value": 178,
-    "unit": null,
-    "description": "bpack2_Ladezyklen",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpEnvTemp": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpEnvTemp",
-    "name": "SN_INVERTERBOX01_bpack2_bpEnvTemp_master",
-    "friendly_name": "bpack2_bpEnvTemp_master",
-    "value": 30.0,
-    "unit": "\u00b0C",
-    "description": "bpack2_bpEnvTemp",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpMaxCellTemp": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpMaxCellTemp",
-    "name": "SN_INVERTERBOX01_bpack2_bpMaxCellTemp_master",
-    "friendly_name": "bpack2_bpMaxCellTemp_master",
-    "value": 23.0,
-    "unit": "\u00b0C",
-    "description": "bpack2_bpMaxCellTemp",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpMinCellTemp": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpMinCellTemp",
-    "name": "SN_INVERTERBOX01_bpack2_bpMinCellTemp_master",
-    "friendly_name": "bpack2_bpMinCellTemp_master",
-    "value": 20.0,
-    "unit": "\u00b0C",
-    "description": "bpack2_bpMinCellTemp",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpPwr": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpPwr",
-    "name": "SN_INVERTERBOX01_bpack2_bpPwr_master",
-    "friendly_name": "bpack2_bpPwr_master",
-    "value": 123.18808,
-    "unit": "W",
-    "description": "bpack2_Batterieleistung",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpRemainWatth": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpRemainWatth",
-    "name": "SN_INVERTERBOX01_bpack2_bpRemainWatth_master",
-    "friendly_name": "bpack2_bpRemainWatth_master",
-    "value": 3993.6,
-    "unit": "Wh",
-    "description": "bpack2_bpRemainWatth",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpSoc": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpSoc",
-    "name": "SN_INVERTERBOX01_bpack2_bpSoc_master",
-    "friendly_name": "bpack2_bpSoc_master",
-    "value": 78,
-    "unit": "%",
-    "description": "bpack2_Ladezustand der Batterie",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpSoh": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpSoh",
-    "name": "SN_INVERTERBOX01_bpack2_bpSoh_master",
-    "friendly_name": "bpack2_bpSoh_master",
-    "value": 100,
-    "unit": "%",
-    "description": "bpack2_bpSoh",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpSysState": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpSysState",
-    "name": "SN_INVERTERBOX01_bpack2_bpSysState_master",
-    "friendly_name": "bpack2_bpSysState_master",
-    "value": "NORMAL_STATE",
-    "unit": null,
-    "description": "bpack2_bpSysState",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpVol": {
-    "internal_unique_id": "SN_INVERTERBOX01_JTS1_BP_STA_REPORT_SN_M_BATTERIEPACK02_bpVol",
-    "name": "SN_INVERTERBOX01_bpack2_bpVol_master",
-    "friendly_name": "bpack2_bpVol_master",
-    "value": 53.463,
-    "unit": "V",
-    "description": "bpack2_Batteriespannung",
-    "icon": null
-  },
   "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_bpOnlineSum": {
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_bpOnlineSum",
     "name": "SN_INVERTERBOX01_bpOnlineSum_master",
@@ -692,222 +476,6 @@
     "description": "yearElectricityGeneration",
     "icon": null
   },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bmsRunSta": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bmsRunSta",
-    "name": "SN_INVERTERBOX02_bpack1_bmsRunSta_slave",
-    "friendly_name": "bpack1_bmsRunSta_slave",
-    "value": "PB_BMS_STATE_NORMAL",
-    "unit": null,
-    "description": "bpack1_bmsRunSta",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpAmp": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpAmp",
-    "name": "SN_INVERTERBOX02_bpack1_bpAmp_slave",
-    "friendly_name": "bpack1_bpAmp_slave",
-    "value": 0.9988253,
-    "unit": "A",
-    "description": "bpack1_Batteriestrom",
-    "icon": "mdi:current-dc"
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpCycles": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpCycles",
-    "name": "SN_INVERTERBOX02_bpack1_bpCycles_slave",
-    "friendly_name": "bpack1_bpCycles_slave",
-    "value": 180,
-    "unit": null,
-    "description": "bpack1_Ladezyklen",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpEnvTemp": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpEnvTemp",
-    "name": "SN_INVERTERBOX02_bpack1_bpEnvTemp_slave",
-    "friendly_name": "bpack1_bpEnvTemp_slave",
-    "value": 30.0,
-    "unit": "\u00b0C",
-    "description": "bpack1_bpEnvTemp",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpMaxCellTemp": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpMaxCellTemp",
-    "name": "SN_INVERTERBOX02_bpack1_bpMaxCellTemp_slave",
-    "friendly_name": "bpack1_bpMaxCellTemp_slave",
-    "value": 23.0,
-    "unit": "\u00b0C",
-    "description": "bpack1_bpMaxCellTemp",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpMinCellTemp": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpMinCellTemp",
-    "name": "SN_INVERTERBOX02_bpack1_bpMinCellTemp_slave",
-    "friendly_name": "bpack1_bpMinCellTemp_slave",
-    "value": 20.0,
-    "unit": "\u00b0C",
-    "description": "bpack1_bpMinCellTemp",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpPwr": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpPwr",
-    "name": "SN_INVERTERBOX02_bpack1_bpPwr_slave",
-    "friendly_name": "bpack1_bpPwr_slave",
-    "value": 53.251373,
-    "unit": "W",
-    "description": "bpack1_Batterieleistung",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpRemainWatth": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpRemainWatth",
-    "name": "SN_INVERTERBOX02_bpack1_bpRemainWatth_slave",
-    "friendly_name": "bpack1_bpRemainWatth_slave",
-    "value": 4044.8,
-    "unit": "Wh",
-    "description": "bpack1_bpRemainWatth",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpSoc": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpSoc",
-    "name": "SN_INVERTERBOX02_bpack1_bpSoc_slave",
-    "friendly_name": "bpack1_bpSoc_slave",
-    "value": 79,
-    "unit": "%",
-    "description": "bpack1_Ladezustand der Batterie",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpSoh": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpSoh",
-    "name": "SN_INVERTERBOX02_bpack1_bpSoh_slave",
-    "friendly_name": "bpack1_bpSoh_slave",
-    "value": 100,
-    "unit": "%",
-    "description": "bpack1_bpSoh",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpSysState": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpSysState",
-    "name": "SN_INVERTERBOX02_bpack1_bpSysState_slave",
-    "friendly_name": "bpack1_bpSysState_slave",
-    "value": "NORMAL_STATE",
-    "unit": null,
-    "description": "bpack1_bpSysState",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpVol": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK01_bpVol",
-    "name": "SN_INVERTERBOX02_bpack1_bpVol_slave",
-    "friendly_name": "bpack1_bpVol_slave",
-    "value": 53.314,
-    "unit": "V",
-    "description": "bpack1_Batteriespannung",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bmsRunSta": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bmsRunSta",
-    "name": "SN_INVERTERBOX02_bpack2_bmsRunSta_slave",
-    "friendly_name": "bpack2_bmsRunSta_slave",
-    "value": "PB_BMS_STATE_NORMAL",
-    "unit": null,
-    "description": "bpack2_bmsRunSta",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpAmp": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpAmp",
-    "name": "SN_INVERTERBOX02_bpack2_bpAmp_slave",
-    "friendly_name": "bpack2_bpAmp_slave",
-    "value": 2.9539113,
-    "unit": "A",
-    "description": "bpack2_Batteriestrom",
-    "icon": "mdi:current-dc"
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpCycles": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpCycles",
-    "name": "SN_INVERTERBOX02_bpack2_bpCycles_slave",
-    "friendly_name": "bpack2_bpCycles_slave",
-    "value": 182,
-    "unit": null,
-    "description": "bpack2_Ladezyklen",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpEnvTemp": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpEnvTemp",
-    "name": "SN_INVERTERBOX02_bpack2_bpEnvTemp_slave",
-    "friendly_name": "bpack2_bpEnvTemp_slave",
-    "value": 34.0,
-    "unit": "\u00b0C",
-    "description": "bpack2_bpEnvTemp",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpMaxCellTemp": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpMaxCellTemp",
-    "name": "SN_INVERTERBOX02_bpack2_bpMaxCellTemp_slave",
-    "friendly_name": "bpack2_bpMaxCellTemp_slave",
-    "value": 25.0,
-    "unit": "\u00b0C",
-    "description": "bpack2_bpMaxCellTemp",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpMinCellTemp": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpMinCellTemp",
-    "name": "SN_INVERTERBOX02_bpack2_bpMinCellTemp_slave",
-    "friendly_name": "bpack2_bpMinCellTemp_slave",
-    "value": 21.0,
-    "unit": "\u00b0C",
-    "description": "bpack2_bpMinCellTemp",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpPwr": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpPwr",
-    "name": "SN_INVERTERBOX02_bpack2_bpPwr_slave",
-    "friendly_name": "bpack2_bpPwr_slave",
-    "value": 157.72705,
-    "unit": "W",
-    "description": "bpack2_Batterieleistung",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpRemainWatth": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpRemainWatth",
-    "name": "SN_INVERTERBOX02_bpack2_bpRemainWatth_slave",
-    "friendly_name": "bpack2_bpRemainWatth_slave",
-    "value": 3993.6,
-    "unit": "Wh",
-    "description": "bpack2_bpRemainWatth",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpSoc": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpSoc",
-    "name": "SN_INVERTERBOX02_bpack2_bpSoc_slave",
-    "friendly_name": "bpack2_bpSoc_slave",
-    "value": 78,
-    "unit": "%",
-    "description": "bpack2_Ladezustand der Batterie",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpSoh": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpSoh",
-    "name": "SN_INVERTERBOX02_bpack2_bpSoh_slave",
-    "friendly_name": "bpack2_bpSoh_slave",
-    "value": 100,
-    "unit": "%",
-    "description": "bpack2_bpSoh",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpSysState": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpSysState",
-    "name": "SN_INVERTERBOX02_bpack2_bpSysState_slave",
-    "friendly_name": "bpack2_bpSysState_slave",
-    "value": "NORMAL_STATE",
-    "unit": null,
-    "description": "bpack2_bpSysState",
-    "icon": null
-  },
-  "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpVol": {
-    "internal_unique_id": "SN_INVERTERBOX02_JTS1_BP_STA_REPORT_SN_S_BATTERIEPACK02_bpVol",
-    "name": "SN_INVERTERBOX02_bpack2_bpVol_slave",
-    "friendly_name": "bpack2_bpVol_slave",
-    "value": 53.396,
-    "unit": "V",
-    "description": "bpack2_Batteriespannung",
-    "icon": null
-  },
   "SN_INVERTERBOX02_JTS1_EMS_CHANGE_REPORT_bpOnlineSum": {
     "internal_unique_id": "SN_INVERTERBOX02_JTS1_EMS_CHANGE_REPORT_bpOnlineSum",
     "name": "SN_INVERTERBOX02_bpOnlineSum_slave",
@@ -1294,6 +862,474 @@
     "unit": "W",
     "description": "Hausnetz",
     "icon": "mdi:home-import-outline"
+  },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsRunSta": {
+    "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsRunSta",
+    "name": "SN_M_BATTERIEPACK01_bmsRunSta",
+    "friendly_name": "bmsRunSta",
+    "value": "PB_BMS_STATE_NORMAL",
+    "unit": null,
+    "description": "bmsRunSta",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAmp": {
+    "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAmp",
+    "name": "SN_M_BATTERIEPACK01_bpAmp",
+    "friendly_name": "bpAmp",
+    "value": 1.1116403,
+    "unit": "A",
+    "description": "Batteriestrom",
+    "icon": "mdi:current-dc"
+  },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpCycles": {
+    "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpCycles",
+    "name": "SN_M_BATTERIEPACK01_bpCycles",
+    "friendly_name": "bpCycles",
+    "value": 214,
+    "unit": null,
+    "description": "Ladezyklen",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpEnvTemp": {
+    "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpEnvTemp",
+    "name": "SN_M_BATTERIEPACK01_bpEnvTemp",
+    "friendly_name": "bpEnvTemp",
+    "value": 34.0,
+    "unit": "\u00b0C",
+    "description": "bpEnvTemp",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMaxCellTemp": {
+    "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMaxCellTemp",
+    "name": "SN_M_BATTERIEPACK01_bpMaxCellTemp",
+    "friendly_name": "bpMaxCellTemp",
+    "value": 26.0,
+    "unit": "\u00b0C",
+    "description": "bpMaxCellTemp",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMinCellTemp": {
+    "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMinCellTemp",
+    "name": "SN_M_BATTERIEPACK01_bpMinCellTemp",
+    "friendly_name": "bpMinCellTemp",
+    "value": 22.0,
+    "unit": "\u00b0C",
+    "description": "bpMinCellTemp",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpPwr": {
+    "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpPwr",
+    "name": "SN_M_BATTERIEPACK01_bpPwr",
+    "friendly_name": "bpPwr",
+    "value": 59.31935,
+    "unit": "W",
+    "description": "Batterieleistung",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpRemainWatth": {
+    "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpRemainWatth",
+    "name": "SN_M_BATTERIEPACK01_bpRemainWatth",
+    "friendly_name": "bpRemainWatth",
+    "value": 3993.6,
+    "unit": "Wh",
+    "description": "bpRemainWatth",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSn": {
+    "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSn",
+    "name": "SN_M_BATTERIEPACK01_bpSn",
+    "friendly_name": "bpSn",
+    "value": "SN_M_BATTERIEPACK01",
+    "unit": null,
+    "description": "bpSn",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoc": {
+    "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoc",
+    "name": "SN_M_BATTERIEPACK01_bpSoc",
+    "friendly_name": "bpSoc",
+    "value": 78,
+    "unit": "%",
+    "description": "Ladezustand der Batterie",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoh": {
+    "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoh",
+    "name": "SN_M_BATTERIEPACK01_bpSoh",
+    "friendly_name": "bpSoh",
+    "value": 100,
+    "unit": "%",
+    "description": "bpSoh",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSysState": {
+    "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSysState",
+    "name": "SN_M_BATTERIEPACK01_bpSysState",
+    "friendly_name": "bpSysState",
+    "value": "NORMAL_STATE",
+    "unit": null,
+    "description": "bpSysState",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpVol": {
+    "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpVol",
+    "name": "SN_M_BATTERIEPACK01_bpVol",
+    "friendly_name": "bpVol",
+    "value": 53.362,
+    "unit": "V",
+    "description": "Batteriespannung",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsRunSta": {
+    "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsRunSta",
+    "name": "SN_M_BATTERIEPACK02_bmsRunSta",
+    "friendly_name": "bmsRunSta",
+    "value": "PB_BMS_STATE_NORMAL",
+    "unit": null,
+    "description": "bmsRunSta",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAmp": {
+    "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAmp",
+    "name": "SN_M_BATTERIEPACK02_bpAmp",
+    "friendly_name": "bpAmp",
+    "value": 2.3041744,
+    "unit": "A",
+    "description": "Batteriestrom",
+    "icon": "mdi:current-dc"
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpCycles": {
+    "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpCycles",
+    "name": "SN_M_BATTERIEPACK02_bpCycles",
+    "friendly_name": "bpCycles",
+    "value": 178,
+    "unit": null,
+    "description": "Ladezyklen",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpEnvTemp": {
+    "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpEnvTemp",
+    "name": "SN_M_BATTERIEPACK02_bpEnvTemp",
+    "friendly_name": "bpEnvTemp",
+    "value": 30.0,
+    "unit": "\u00b0C",
+    "description": "bpEnvTemp",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMaxCellTemp": {
+    "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMaxCellTemp",
+    "name": "SN_M_BATTERIEPACK02_bpMaxCellTemp",
+    "friendly_name": "bpMaxCellTemp",
+    "value": 23.0,
+    "unit": "\u00b0C",
+    "description": "bpMaxCellTemp",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMinCellTemp": {
+    "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMinCellTemp",
+    "name": "SN_M_BATTERIEPACK02_bpMinCellTemp",
+    "friendly_name": "bpMinCellTemp",
+    "value": 20.0,
+    "unit": "\u00b0C",
+    "description": "bpMinCellTemp",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpPwr": {
+    "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpPwr",
+    "name": "SN_M_BATTERIEPACK02_bpPwr",
+    "friendly_name": "bpPwr",
+    "value": 123.18808,
+    "unit": "W",
+    "description": "Batterieleistung",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpRemainWatth": {
+    "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpRemainWatth",
+    "name": "SN_M_BATTERIEPACK02_bpRemainWatth",
+    "friendly_name": "bpRemainWatth",
+    "value": 3993.6,
+    "unit": "Wh",
+    "description": "bpRemainWatth",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSn": {
+    "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSn",
+    "name": "SN_M_BATTERIEPACK02_bpSn",
+    "friendly_name": "bpSn",
+    "value": "SN_M_BATTERIEPACK02",
+    "unit": null,
+    "description": "bpSn",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoc": {
+    "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoc",
+    "name": "SN_M_BATTERIEPACK02_bpSoc",
+    "friendly_name": "bpSoc",
+    "value": 78,
+    "unit": "%",
+    "description": "Ladezustand der Batterie",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoh": {
+    "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoh",
+    "name": "SN_M_BATTERIEPACK02_bpSoh",
+    "friendly_name": "bpSoh",
+    "value": 100,
+    "unit": "%",
+    "description": "bpSoh",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSysState": {
+    "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSysState",
+    "name": "SN_M_BATTERIEPACK02_bpSysState",
+    "friendly_name": "bpSysState",
+    "value": "NORMAL_STATE",
+    "unit": null,
+    "description": "bpSysState",
+    "icon": null
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpVol": {
+    "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpVol",
+    "name": "SN_M_BATTERIEPACK02_bpVol",
+    "friendly_name": "bpVol",
+    "value": 53.463,
+    "unit": "V",
+    "description": "Batteriespannung",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsRunSta": {
+    "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsRunSta",
+    "name": "SN_S_BATTERIEPACK01_bmsRunSta",
+    "friendly_name": "bmsRunSta",
+    "value": "PB_BMS_STATE_NORMAL",
+    "unit": null,
+    "description": "bmsRunSta",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAmp": {
+    "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAmp",
+    "name": "SN_S_BATTERIEPACK01_bpAmp",
+    "friendly_name": "bpAmp",
+    "value": 0.9988253,
+    "unit": "A",
+    "description": "Batteriestrom",
+    "icon": "mdi:current-dc"
+  },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpCycles": {
+    "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpCycles",
+    "name": "SN_S_BATTERIEPACK01_bpCycles",
+    "friendly_name": "bpCycles",
+    "value": 180,
+    "unit": null,
+    "description": "Ladezyklen",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpEnvTemp": {
+    "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpEnvTemp",
+    "name": "SN_S_BATTERIEPACK01_bpEnvTemp",
+    "friendly_name": "bpEnvTemp",
+    "value": 30.0,
+    "unit": "\u00b0C",
+    "description": "bpEnvTemp",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMaxCellTemp": {
+    "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMaxCellTemp",
+    "name": "SN_S_BATTERIEPACK01_bpMaxCellTemp",
+    "friendly_name": "bpMaxCellTemp",
+    "value": 23.0,
+    "unit": "\u00b0C",
+    "description": "bpMaxCellTemp",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMinCellTemp": {
+    "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMinCellTemp",
+    "name": "SN_S_BATTERIEPACK01_bpMinCellTemp",
+    "friendly_name": "bpMinCellTemp",
+    "value": 20.0,
+    "unit": "\u00b0C",
+    "description": "bpMinCellTemp",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpPwr": {
+    "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpPwr",
+    "name": "SN_S_BATTERIEPACK01_bpPwr",
+    "friendly_name": "bpPwr",
+    "value": 53.251373,
+    "unit": "W",
+    "description": "Batterieleistung",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpRemainWatth": {
+    "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpRemainWatth",
+    "name": "SN_S_BATTERIEPACK01_bpRemainWatth",
+    "friendly_name": "bpRemainWatth",
+    "value": 4044.8,
+    "unit": "Wh",
+    "description": "bpRemainWatth",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSn": {
+    "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSn",
+    "name": "SN_S_BATTERIEPACK01_bpSn",
+    "friendly_name": "bpSn",
+    "value": "SN_S_BATTERIEPACK01",
+    "unit": null,
+    "description": "bpSn",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoc": {
+    "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoc",
+    "name": "SN_S_BATTERIEPACK01_bpSoc",
+    "friendly_name": "bpSoc",
+    "value": 79,
+    "unit": "%",
+    "description": "Ladezustand der Batterie",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoh": {
+    "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoh",
+    "name": "SN_S_BATTERIEPACK01_bpSoh",
+    "friendly_name": "bpSoh",
+    "value": 100,
+    "unit": "%",
+    "description": "bpSoh",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSysState": {
+    "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSysState",
+    "name": "SN_S_BATTERIEPACK01_bpSysState",
+    "friendly_name": "bpSysState",
+    "value": "NORMAL_STATE",
+    "unit": null,
+    "description": "bpSysState",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpVol": {
+    "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpVol",
+    "name": "SN_S_BATTERIEPACK01_bpVol",
+    "friendly_name": "bpVol",
+    "value": 53.314,
+    "unit": "V",
+    "description": "Batteriespannung",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsRunSta": {
+    "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsRunSta",
+    "name": "SN_S_BATTERIEPACK02_bmsRunSta",
+    "friendly_name": "bmsRunSta",
+    "value": "PB_BMS_STATE_NORMAL",
+    "unit": null,
+    "description": "bmsRunSta",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAmp": {
+    "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAmp",
+    "name": "SN_S_BATTERIEPACK02_bpAmp",
+    "friendly_name": "bpAmp",
+    "value": 2.9539113,
+    "unit": "A",
+    "description": "Batteriestrom",
+    "icon": "mdi:current-dc"
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpCycles": {
+    "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpCycles",
+    "name": "SN_S_BATTERIEPACK02_bpCycles",
+    "friendly_name": "bpCycles",
+    "value": 182,
+    "unit": null,
+    "description": "Ladezyklen",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpEnvTemp": {
+    "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpEnvTemp",
+    "name": "SN_S_BATTERIEPACK02_bpEnvTemp",
+    "friendly_name": "bpEnvTemp",
+    "value": 34.0,
+    "unit": "\u00b0C",
+    "description": "bpEnvTemp",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMaxCellTemp": {
+    "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMaxCellTemp",
+    "name": "SN_S_BATTERIEPACK02_bpMaxCellTemp",
+    "friendly_name": "bpMaxCellTemp",
+    "value": 25.0,
+    "unit": "\u00b0C",
+    "description": "bpMaxCellTemp",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMinCellTemp": {
+    "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMinCellTemp",
+    "name": "SN_S_BATTERIEPACK02_bpMinCellTemp",
+    "friendly_name": "bpMinCellTemp",
+    "value": 21.0,
+    "unit": "\u00b0C",
+    "description": "bpMinCellTemp",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpPwr": {
+    "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpPwr",
+    "name": "SN_S_BATTERIEPACK02_bpPwr",
+    "friendly_name": "bpPwr",
+    "value": 157.72705,
+    "unit": "W",
+    "description": "Batterieleistung",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpRemainWatth": {
+    "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpRemainWatth",
+    "name": "SN_S_BATTERIEPACK02_bpRemainWatth",
+    "friendly_name": "bpRemainWatth",
+    "value": 3993.6,
+    "unit": "Wh",
+    "description": "bpRemainWatth",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSn": {
+    "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSn",
+    "name": "SN_S_BATTERIEPACK02_bpSn",
+    "friendly_name": "bpSn",
+    "value": "SN_S_BATTERIEPACK02",
+    "unit": null,
+    "description": "bpSn",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoc": {
+    "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoc",
+    "name": "SN_S_BATTERIEPACK02_bpSoc",
+    "friendly_name": "bpSoc",
+    "value": 78,
+    "unit": "%",
+    "description": "Ladezustand der Batterie",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoh": {
+    "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoh",
+    "name": "SN_S_BATTERIEPACK02_bpSoh",
+    "friendly_name": "bpSoh",
+    "value": 100,
+    "unit": "%",
+    "description": "bpSoh",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSysState": {
+    "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSysState",
+    "name": "SN_S_BATTERIEPACK02_bpSysState",
+    "friendly_name": "bpSysState",
+    "value": "NORMAL_STATE",
+    "unit": null,
+    "description": "bpSysState",
+    "icon": null
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpVol": {
+    "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpVol",
+    "name": "SN_S_BATTERIEPACK02_bpVol",
+    "friendly_name": "bpVol",
+    "value": 53.396,
+    "unit": "V",
+    "description": "Batteriespannung",
+    "icon": null
   },
   "_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_bpPwr": {
     "internal_unique_id": "_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_bpPwr",
