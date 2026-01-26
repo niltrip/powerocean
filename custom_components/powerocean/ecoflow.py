@@ -297,11 +297,6 @@ class Ecoflow:
         return None
 
     def _get_nested_value(self, data: dict[str, Any], path: list[str]) -> Any | None:
-        """
-        Extrahiert den Wert aus einem verschachtelten Dictionary.
-
-        Basierend auf dem Pfad.
-        """
         for key in path:
             if not isinstance(data, dict):
                 return None
@@ -327,9 +322,11 @@ class Ecoflow:
     ) -> str | None:
         path = schema.get("sn_path")
 
-        sn = self._get_nested_value(payload, path) if path is not None else fallback_sn
+        sn_value = self._get_nested_value(payload, path) if path else fallback_sn
 
-        if not isinstance(sn, str) or not sn:
+        # nur strings weitergeben
+        sn = sn_value if isinstance(sn_value, str) else None
+        if not sn:
             return None
 
         return self._decode_sn(sn)
@@ -551,7 +548,7 @@ class Ecoflow:
                 if value is None:
                     continue
                 # Spezielles Handling für bestimmte base64 Keys
-                if key in {"bpSn", "devSn"}:
+                if key in {"bpSn", "devSn"} and isinstance(value, str):
                     value = self._decode_sn(value)
                 uid = f"{device_sn}_{report}_{key}"
 
