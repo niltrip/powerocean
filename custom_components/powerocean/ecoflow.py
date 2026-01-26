@@ -3,11 +3,9 @@
 import base64
 import binascii
 import re
-from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum
 from pathlib import Path
-from typing import Any, Optional, TypedDict
+from typing import Any
 
 import orjson
 import requests
@@ -17,124 +15,17 @@ from homeassistant.util.json import json_loads
 
 from .const import (
     _LOGGER,
-    # BOX_SCHEMAS,
+    BOX_SCHEMAS,
     DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
     LENGTH_BATTERIE_SN,
+    MOCKED_RESPONSE,
     USE_MOCKED_RESPONSE,
+    BoxSchema,
+    DeviceRole,
+    ReportMode,
+    SensorMetaHelper,
 )
-
-
-class ReportMode(Enum):
-    """Enumeration for different report modes in the PowerOcean integration."""
-
-    DEFAULT = "data"
-    BATTERY = "BP_STA_REPORT"
-    WALLBOX = "EDEV_PARAM_REPORT"
-    CHARGEBOX = "EVCHARGING_REPORT"
-    EMS = "EMS_HEARTBEAT"
-    PARALLEL = "PARALLEL_ENERGY_STREAM_REPORT"
-    EMS_CHANGE = "EMS_CHANGE_REPORT"
-    ENERGY_STREAM = "ENERGY_STREAM_REPORT"
-
-
-class DeviceRole(str, Enum):
-    """Enumeration for device roles in the PowerOcean integration."""
-
-    MASTER = "_master"
-    SLAVE = "_slave"
-    ALL = "_all"
-    EMPTY = ""  # Used when no specific role is assigned
-
-
-# Mock path to response.json file
-# MOCKED_RESPONSE = Path("documentation/response_modified_po_dual.json")
-MOCKED_RESPONSE = (
-    # Path(__file__).parent / "tests" / "fixtures" / "response_modified_po_dual.json"
-    # Path(__file__).parent
-    # / "tests"
-    # / "fixtures"
-    # / "response_modified_po_plus_feature.json"
-    Path(__file__).parent / "tests" / "fixtures" / "response_modified_po_plus.json"
-)
-
-
-class BoxSchema(TypedDict):
-    detect: Callable[[dict], bool]
-    mode: str  # "boxed" | "single"
-    sn_path: list[str]
-    model: str
-    name_prefix: str
-    paths: dict[str, list[str]] | None
-    sensors: list[str]
-
-
-BOX_SCHEMAS: dict[str, BoxSchema] = {
-    "battery": {
-        "mode": "boxed",  # 🔑 boxed | single
-        "detect": lambda p: "bpSn" in p,
-        "sn_path": ["bpSn"],
-        "model": "PowerOcean Battery",
-        "name_prefix": "Battery",
-        "paths": None,
-        "sensors": [
-            "bpSn",
-            "bpPwr",
-            "bpSoc",
-            "bpSoh",
-            "bpVol",
-            "bpAmp",
-            "bpCycles",
-            "bpSysState",
-            "bpRemainWatth",
-            "bmsRunSta",
-            "bpEnvTemp",
-            "bpMinCellTemp",
-            "bpMaxCellTemp",
-        ],
-    },
-    "wallbox": {
-        "mode": "boxed",  # 🔑 boxed | single
-        "detect": lambda p: "pileChargingParamReport" in p,
-        "sn_path": ["devInfo", "devSn"],
-        "model": "EcoFlow Wallbox",
-        "name_prefix": "Wallbox",
-        "paths": {
-            "devSn": ["devInfo", "devSn"],
-            "workMode": ["pileChargingParamReport", "paramSet", "workMode"],
-            "userCurrentSet": ["pileChargingParamReport", "paramSet", "userCurrentSet"],
-            "chargingPwr": ["pileChargingParamReport", "chargingPwr"],
-        },
-        "sensors": [
-            "workMode",
-            "userCurrentSet",
-            "chargingPwr",
-        ],
-    },
-    "charge": {
-        "mode": "single",  # 🔑 boxed | single
-        "detect": lambda p: "evPlugAndPlay" in p,
-        "sn_path": ["evSn"],
-        "model": "EcoFlow Charger",
-        "name_prefix": "Charger",
-        "paths": None,
-        "sensors": [
-            "evSn",
-            "workMode",
-            "useGridFirst",
-            "evOnoffSet",
-            "orderStartTimestamp",
-            "onlineBits",
-            "errorCode",
-            "evUserManual",
-            "evChargingEnergy",
-            "evCurrSet",
-            "chargeVehicleId",
-            "chargingStatus",
-            "evPwr",
-        ],
-    },
-}
 
 
 # Better storage of PowerOcean endpoint
@@ -165,122 +56,6 @@ class PowerOceanEndPoint:
     description: str
     icon: str | None
     device_info: DeviceInfo | None = None
-
-
-class SensorMetaHelper:
-    """Helper class for sensor metadata such as units, descriptions, and icons."""
-
-    @staticmethod
-    def get_unit(key: str) -> str | None:
-        """Get unit from key name automatically based on common patterns."""
-        key_lower = key.lower()
-
-        # 1️⃣ Direktes Mapping (häufigste Suffixe)
-        suffix_mapping = {
-            "pwr": "W",
-            "power": "W",
-            "amp": "A",
-            "soc": "%",
-            "soh": "%",
-            "vol": "V",
-            "watth": "Wh",
-            "energy": "Wh",
-            "percent": "%",
-            "volume": "L",
-            "temp": "°C",
-            "current": "A",
-            "voltage": "V",
-        }
-
-        for suffix, unit in suffix_mapping.items():
-            if key_lower.endswith(suffix):
-                return unit
-
-        # 2️⃣ Keyword-Matching anywhere im Key (nicht nur Suffix)
-        keyword_mapping = {
-            "generation": "kWh",
-            "capacity": "Ah",
-            "temperature": "°C",
-            "temp": "°C",
-            "power": "W",
-            "energy": "Wh",
-            "soc": "%",
-            "soh": "%",
-            "voltage": "V",
-            "current": "A",
-        }
-
-        for keyword, unit in keyword_mapping.items():
-            if keyword in key_lower:
-                return unit
-
-        # 3️⃣ Optional: Versuche, aus CamelCase oder Unterstrichen zu raten
-        # z.B. bpAccuChgEnergy -> endet auf Energy -> Wh
-        match = re.search(
-            r"(pwr|amp|soc|soh|vol|watth|energy|temp|temperature|current|voltage)$",
-            key_lower,
-        )
-        if match:
-            mapping = {
-                "pwr": "W",
-                "amp": "A",
-                "soc": "%",
-                "soh": "%",
-                "vol": "V",
-                "watth": "Wh",
-                "energy": "Wh",
-                "temp": "°C",
-                "temperature": "°C",
-                "current": "A",
-                "voltage": "V",
-            }
-            return mapping[match.group(1)]
-
-        # 4️⃣ Keine Einheit gefunden
-        return None
-
-    @staticmethod
-    def get_description(key: str) -> str:
-        """Get description from key name using a dictionary mapping."""
-        # Dictionary for key-to-description mapping
-        description_mapping = {
-            "sysLoadPwr": "Hausnetz",
-            "sysGridPwr": "Stromnetz",
-            "mpptPwr": "Solarertrag",
-            "bpPwr": "Batterieleistung",
-            "bpSoc": "Ladezustand der Batterie",
-            "online": "Online",
-            "systemName": "System Name",
-            "createTime": "Installations Datum",
-            "bpVol": "Batteriespannung",
-            "bpAmp": "Batteriestrom",
-            "bpCycles": "Ladezyklen",
-            "bpTemp": "Temperatur der Batteriezellen",
-        }
-
-        # Use .get() to avoid KeyErrors and return default value
-        return description_mapping.get(key, key)  # Default to key if not found
-
-    @staticmethod
-    def get_special_icon(key: str) -> str | None:
-        """Get special icon for a key."""
-        # Dictionary für die Zuordnung von Keys zu Icons
-        icon_mapping = {
-            "mpptPwr": "mdi:solar-power",
-            "online": "mdi:cloud-check",
-            "sysGridPwr": "mdi:transmission-tower-import",
-            "sysLoadPwr": "mdi:home-import-outline",
-            "bpAmp": "mdi:current-dc",
-        }
-
-        # Standardwert setzen
-        special_icon = icon_mapping.get(key)
-
-        # Zusätzliche Prüfung für Keys, die mit "pv1" oder "pv2" beginnen
-        if key.startswith(("pv1", "pv2", "pv3")):
-            special_icon = "mdi:solar-power"
-
-        return special_icon
 
 
 # ecoflow_api to detect device and get device info,
@@ -650,6 +425,7 @@ class Ecoflow:
                 (z.B. für Master/Slave).
             battery_mode: Wenn True, werden Batteriedaten speziell behandelt
             wallbox_mode: Wenn True, werden Wallboxdaten speziell behandelt
+            chargebox_mode: Wenn True, werden chargedaten speziell behandelt
             ems_heartbeat_mode: Wenn True, wird die spezielle EMS-Heartbeat-Verarbeitung
             parallel_energy_stream_mode: Wenn True, wird die spezielle Verarbeitung
                 für parallele Energie-Streams verwendet.
@@ -660,13 +436,6 @@ class Ecoflow:
         """
         # Report-Key ggf. anpassen
         report_to_log = report
-        # if report not in response:
-        #     report = re.sub(r"JTS1_", "RE307_", report)
-        # key = next((k for k in response if k.endswith(report)), None)
-        # Ernittle Report Namen aus response
-        # key, d = next(
-        #     ((k, v) for k, v in response.items() if k.endswith(report)), (None, None)
-        # )
 
         key, d = next(
             (
@@ -678,14 +447,6 @@ class Ecoflow:
         )
         d = response.get(key) if key else None
 
-        # d = response.get(report)
-        # if report == ReportMode.ENERGY_STREAM.value:
-        #     print(f"Extracting ENERGY_STREAM report with key: {key}")
-        #     pattern = re.compile(r"^[A-Z0-9]+_ENERGY_STREAM_REPORT$")
-        #     if not isinstance(key, str) or not pattern.match(key):
-        #         return sensors
-        # result = [k for k in response.items() if pattern.match(k)]
-
         if not d:
             _LOGGER.debug(f"Configured report '{report_to_log}' not in response.")
             return sensors
@@ -693,7 +454,6 @@ class Ecoflow:
         sens_select = self._get_sens_select(report)
         # Setze Report-Namen korrekt aus response
         report = key if key else report
-        print(f"Extracting sensors from: {report}")
         # Battery und Wallbox Handling
         if battery_mode or wallbox_mode:
             return self._handle_boxed_devices(
