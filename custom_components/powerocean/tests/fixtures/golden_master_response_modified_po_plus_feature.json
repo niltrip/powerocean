@@ -359,6 +359,15 @@
     "description": "chargingPwr",
     "icon": null
   },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_devSn": {
+    "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_devSn",
+    "name": "SN_E_DEVICEBOX01_devSn",
+    "friendly_name": "devSn",
+    "value": "SN_E_DEVICEBOX01",
+    "unit": null,
+    "description": "devSn",
+    "icon": null
+  },
   "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_userCurrentSet": {
     "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_userCurrentSet",
     "name": "SN_E_DEVICEBOX01_userCurrentSet",
