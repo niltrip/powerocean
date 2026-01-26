@@ -1349,15 +1349,6 @@
     "description": "Ladezustand der Batterie",
     "icon": null
   },
-  "_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_devSn": {
-    "internal_unique_id": "_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_devSn",
-    "name": "_devSn_all",
-    "friendly_name": "devSn_all",
-    "value": "",
-    "unit": null,
-    "description": "devSn",
-    "icon": null
-  },
   "_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_mpptPwr": {
     "internal_unique_id": "_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_mpptPwr",
     "name": "_mpptPwr_all",
