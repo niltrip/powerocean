@@ -24,7 +24,7 @@
             "RE307_EV_CHARGING_ENERGY_STREAM_REPORT": {
                 "evStreamShow": [
                     {
-                        "evSn": "xx",
+                        "evSn": "SN_EV_CHARGER_01",
                         "evPwr": 0.0
                     }
                 ],
@@ -56,7 +56,7 @@
                 "updateTime": "2025-06-05 09:41:26"
             },
             "RE307_EVCHARGING_REPORT": {
-                "evSn": "xxxxx",
+                "evSn": "SN_EV_CHARGER_01",
                 "workMode": 2,
                 "useGridFirst": 0,
                 "evOnoffSet": 0,
