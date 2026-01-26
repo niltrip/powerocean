@@ -204,7 +204,7 @@ async def _update_sensors(
 class SensorMapping:
     """Provides mappings from sensor units to HomeAssistant device and state classes."""
 
-    SENSOR_CLASS_MAPPING: ClassVar[dict] = {
+    SENSOR_CLASS_MAPPING: ClassVar[dict[str, SensorDeviceClass]] = {
         "°C": SensorDeviceClass.TEMPERATURE,
         "%": SensorDeviceClass.BATTERY,
         "Wh": SensorDeviceClass.ENERGY,
@@ -215,7 +215,7 @@ class SensorMapping:
         "L": SensorDeviceClass.VOLUME_STORAGE,
     }
 
-    STATE_CLASS_MAPPING: ClassVar[dict] = {
+    STATE_CLASS_MAPPING: ClassVar[dict[str, SensorStateClass]] = {
         "°C": SensorStateClass.MEASUREMENT,
         "h": SensorStateClass.MEASUREMENT,
         "W": SensorStateClass.MEASUREMENT,
@@ -229,12 +229,12 @@ class SensorMapping:
     @staticmethod
     def get_sensor_device_class(unit: str) -> str | None:
         """Gibt die Geräteklasse anhand der Einheit zurück."""
-        return SensorMapping.SENSOR_CLASS_MAPPING.get(unit, None)
+        return SensorMapping.SENSOR_CLASS_MAPPING.get(unit)
 
     @staticmethod
     def get_sensor_state_class(unit: str) -> str | None:
         """Gibt die State-Klasse anhand der Einheit zurück."""
-        return SensorMapping.STATE_CLASS_MAPPING.get(unit, None)
+        return SensorMapping.STATE_CLASS_MAPPING.get(unit, SensorStateClass.MEASUREMENT)
 
 
 class PowerOceanSensor(SensorEntity):
