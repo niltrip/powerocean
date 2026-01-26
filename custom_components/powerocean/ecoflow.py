@@ -1,11 +1,13 @@
 """ecoflow.py: API for PowerOcean integration."""
 
 import base64
+import binascii
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, TypedDict
 
 import orjson
 import requests
@@ -15,6 +17,7 @@ from homeassistant.util.json import json_loads
 
 from .const import (
     _LOGGER,
+    # BOX_SCHEMAS,
     DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
     LENGTH_BATTERIE_SN,
@@ -28,9 +31,11 @@ class ReportMode(Enum):
     DEFAULT = "data"
     BATTERY = "BP_STA_REPORT"
     WALLBOX = "EDEV_PARAM_REPORT"
+    CHARGEBOX = "EVCHARGING_REPORT"
     EMS = "EMS_HEARTBEAT"
     PARALLEL = "PARALLEL_ENERGY_STREAM_REPORT"
     EMS_CHANGE = "EMS_CHANGE_REPORT"
+    ENERGY_STREAM = "ENERGY_STREAM_REPORT"
 
 
 class DeviceRole(str, Enum):
@@ -45,12 +50,90 @@ class DeviceRole(str, Enum):
 # Mock path to response.json file
 # MOCKED_RESPONSE = Path("documentation/response_modified_po_dual.json")
 MOCKED_RESPONSE = (
-    Path(__file__).parent / "tests" / "fixtures" / "response_modified_po_dual.json"
+    # Path(__file__).parent / "tests" / "fixtures" / "response_modified_po_dual.json"
+    # Path(__file__).parent
+    # / "tests"
+    # / "fixtures"
+    # / "response_modified_po_plus_feature.json"
+    Path(__file__).parent / "tests" / "fixtures" / "response_modified_po_plus.json"
 )
-DATA_POINT_PATHS = {
-    "devSn": ["devInfo", "devSn"],
-    "workMode": ["pileChargingParamReport", "paramSet", "workMode"],
-    "userCurrentSet": ["pileChargingParamReport", "paramSet", "userCurrentSet"],
+
+
+class BoxSchema(TypedDict):
+    detect: Callable[[dict], bool]
+    mode: str  # "boxed" | "single"
+    sn_path: list[str]
+    model: str
+    name_prefix: str
+    paths: dict[str, list[str]] | None
+    sensors: list[str]
+
+
+BOX_SCHEMAS: dict[str, BoxSchema] = {
+    "battery": {
+        "mode": "boxed",  # 🔑 boxed | single
+        "detect": lambda p: "bpSn" in p,
+        "sn_path": ["bpSn"],
+        "model": "PowerOcean Battery",
+        "name_prefix": "Battery",
+        "paths": None,
+        "sensors": [
+            "bpSn",
+            "bpPwr",
+            "bpSoc",
+            "bpSoh",
+            "bpVol",
+            "bpAmp",
+            "bpCycles",
+            "bpSysState",
+            "bpRemainWatth",
+            "bmsRunSta",
+            "bpEnvTemp",
+            "bpMinCellTemp",
+            "bpMaxCellTemp",
+        ],
+    },
+    "wallbox": {
+        "mode": "boxed",  # 🔑 boxed | single
+        "detect": lambda p: "pileChargingParamReport" in p,
+        "sn_path": ["devInfo", "devSn"],
+        "model": "EcoFlow Wallbox",
+        "name_prefix": "Wallbox",
+        "paths": {
+            "devSn": ["devInfo", "devSn"],
+            "workMode": ["pileChargingParamReport", "paramSet", "workMode"],
+            "userCurrentSet": ["pileChargingParamReport", "paramSet", "userCurrentSet"],
+            "chargingPwr": ["pileChargingParamReport", "chargingPwr"],
+        },
+        "sensors": [
+            "workMode",
+            "userCurrentSet",
+            "chargingPwr",
+        ],
+    },
+    "charge": {
+        "mode": "single",  # 🔑 boxed | single
+        "detect": lambda p: "evPlugAndPlay" in p,
+        "sn_path": ["evSn"],
+        "model": "EcoFlow Charger",
+        "name_prefix": "Charger",
+        "paths": None,
+        "sensors": [
+            "evSn",
+            "workMode",
+            "useGridFirst",
+            "evOnoffSet",
+            "orderStartTimestamp",
+            "onlineBits",
+            "errorCode",
+            "evUserManual",
+            "evChargingEnergy",
+            "evCurrSet",
+            "chargeVehicleId",
+            "chargingStatus",
+            "evPwr",
+        ],
+    },
 }
 
 
@@ -418,40 +501,48 @@ class Ecoflow:
             data = data.get(key)
         return data
 
+    def _detect_box_schema(self, payload: dict) -> tuple[str, BoxSchema] | None:
+        for box_type, schema in BOX_SCHEMAS.items():
+            detect_fn = schema.get("detect")
+            if not callable(detect_fn):
+                continue  # Kein detect-Feld, überspringen
+            try:
+                if detect_fn(payload):
+                    return box_type, schema
+            except (KeyError, TypeError, AttributeError) as e:
+                # Loggen statt blind zu ignorieren
+                _LOGGER.warning("Error detecting box schema for %s: %s", box_type, e)
+                continue
+        return None
+
+    def _extract_box_sn(
+        self, payload: dict, schema: BoxSchema, fallback_sn: str
+    ) -> str | None:
+        path = schema.get("sn_path")
+        sn = self._get_nested_value(payload, path) if path is not None else fallback_sn
+
+        # Nur Strings an _decode_sn weitergeben
+        return self._decode_sn(sn) if isinstance(sn, str) and sn else None
+
     def _load_schema(self) -> dict:
         if not hasattr(self, "_schema"):
             self._schema = self.__read_json_file() or {}
         return self._schema
 
+    def _get_box_sensors(
+        self,
+        box_schema: BoxSchema,
+    ) -> list[str]:
+        """
+        Schneidet die Sensorschnittmenge:
+        - was der User im Report will
+        - was der Box-Typ unterstützt.
+        """
+        # return [s for s in report_sensors if s in box_schema["default_sensors"]]
+        return list(box_schema["sensors"])
+
     def _create_sensor(self, endpoint: PowerOceanEndPoint) -> PowerOceanEndPoint:
         return endpoint
-
-    @staticmethod
-    def flatten_json(y: Any) -> dict:
-        """
-        Flatten a nested JSON object into a flat dictionary.
-
-        Args:
-            y: The JSON object (dict or list) to flatten.
-
-        Returns:
-            dict: A flattened dictionary with keys representing the path to each value.
-
-        """
-        out = {}
-
-        def flatten(x: Any, name: str = "") -> None:
-            if isinstance(x, dict):
-                for a in x:
-                    flatten(x[a], f"{name}{a}_")
-            elif isinstance(x, list):
-                for i, a in enumerate(x):
-                    flatten(a, f"{name}{i}_")
-            else:
-                out[name[:-1]] = x
-
-        flatten(y)
-        return out
 
     def _get_sensors(self, response: dict) -> dict:
         sensors = {}  # start with empty dict
@@ -495,7 +586,8 @@ class Ecoflow:
                 for report in reports:
                     # Besonderheit: JTS1_ENERGY_STREAM_REPORT  # noqa: ERA001
                     if "ENERGY_STREAM_REPORT" in report:
-                        report_key = re.sub(r"JTS1_", "JTS1_PARALLEL_", report)
+                        report_key = ReportMode.PARALLEL.value
+                        # report_key = re.sub(r"JTS1_", "JTS1_PARALLEL_", report)
                     else:
                         report_key = report
 
@@ -507,6 +599,7 @@ class Ecoflow:
                             suffix=suffix,
                             battery_mode=ReportMode.BATTERY.value in report_key,
                             wallbox_mode=ReportMode.WALLBOX.value in report,
+                            chargebox_mode=ReportMode.CHARGEBOX.value in report,
                             ems_heartbeat_mode=ReportMode.EMS.value in report_key,
                             parallel_energy_stream_mode=ReportMode.PARALLEL.value
                             in report_key,
@@ -523,6 +616,7 @@ class Ecoflow:
                         report,
                         battery_mode=ReportMode.BATTERY.value in report,
                         wallbox_mode=ReportMode.WALLBOX.value in report,
+                        chargebox_mode=ReportMode.CHARGEBOX.value in report,
                         ems_heartbeat_mode=ReportMode.EMS.value in report,
                     )
                 )
@@ -541,6 +635,7 @@ class Ecoflow:
         *,
         battery_mode: bool = False,
         wallbox_mode: bool = False,
+        chargebox_mode: bool = False,
         ems_heartbeat_mode: bool = False,
         parallel_energy_stream_mode: bool = False,
     ) -> dict[str, PowerOceanEndPoint]:
@@ -554,6 +649,7 @@ class Ecoflow:
             suffix: Suffix, das an die Namen der Sensoren angehängt wird
                 (z.B. für Master/Slave).
             battery_mode: Wenn True, werden Batteriedaten speziell behandelt
+            wallbox_mode: Wenn True, werden Wallboxdaten speziell behandelt
             ems_heartbeat_mode: Wenn True, wird die spezielle EMS-Heartbeat-Verarbeitung
             parallel_energy_stream_mode: Wenn True, wird die spezielle Verarbeitung
                 für parallele Energie-Streams verwendet.
@@ -564,20 +660,49 @@ class Ecoflow:
         """
         # Report-Key ggf. anpassen
         report_to_log = report
-        if report not in response:
-            report = re.sub(r"JTS1_", "RE307_", report)
+        # if report not in response:
+        #     report = re.sub(r"JTS1_", "RE307_", report)
+        # key = next((k for k in response if k.endswith(report)), None)
+        # Ernittle Report Namen aus response
+        # key, d = next(
+        #     ((k, v) for k, v in response.items() if k.endswith(report)), (None, None)
+        # )
 
-        d = response.get(report)
+        key, d = next(
+            (
+                (k, v)
+                for k, v in response.items()
+                if self._is_matching_report(k, report)
+            ),
+            (None, None),
+        )
+        d = response.get(key) if key else None
+
+        # d = response.get(report)
+        # if report == ReportMode.ENERGY_STREAM.value:
+        #     print(f"Extracting ENERGY_STREAM report with key: {key}")
+        #     pattern = re.compile(r"^[A-Z0-9]+_ENERGY_STREAM_REPORT$")
+        #     if not isinstance(key, str) or not pattern.match(key):
+        #         return sensors
+        # result = [k for k in response.items() if pattern.match(k)]
+
         if not d:
             _LOGGER.debug(f"Configured report '{report_to_log}' not in response.")
             return sensors
 
         sens_select = self._get_sens_select(report)
-
-        if battery_mode:
-            return self._handle_battery_mode(d, sensors, report, sens_select, suffix)
-        if wallbox_mode:
-            return self._handle_wallbox_mode(d, sensors, report, sens_select, suffix)
+        # Setze Report-Namen korrekt aus response
+        report = key if key else report
+        print(f"Extracting sensors from: {report}")
+        # Battery und Wallbox Handling
+        if battery_mode or wallbox_mode:
+            return self._handle_boxed_devices(
+                d,
+                sensors,
+                report=report,
+                sens_select=sens_select,
+                suffix=suffix,
+            )
         # EMS Heartbeat Mode
         if ems_heartbeat_mode:
             return self._handle_ems_heartbeat_mode(
@@ -590,53 +715,14 @@ class Ecoflow:
             )
         # Standardverarbeitung
         return self._handle_standard_mode(d, sensors, report, sens_select, suffix)
-
-    def _handle_battery_mode_(
-        self,
-        d: dict,
-        sensors: dict[str, PowerOceanEndPoint],
-        report: str,
-        sens_select: list,
-        suffix: str = "",
-    ) -> dict[str, PowerOceanEndPoint]:
-        prefix = "bpack"
-
-        for idx, (battery_sn, payload) in enumerate(
-            self._get_batteries_sorted(d), start=1
-        ):
-            name_prefix = f"{prefix}{idx}_"
-
-            device_info = self._get_device_info(
-                sn=battery_sn,
-                name=f"{device_name_prefix} {battery_sn}",
-                model=model,
-                via_sn=self.sn_inverter,
-            )
-
-            for key in sens_select:
-                value = payload.get(key)
-                if key == "bpSn":
-                    value = self._decode_sn(value)
-
-                if value is None:
-                    continue
-
-                uid = f"{self.sn_inverter}_{report}_{battery_sn}_{key}"
-
-                self._add_sensor(
-                    sensors,
-                    uid=uid,
-                    serial=battery_sn,  # 🔥 wichtig!
-                    name=f"{self.sn_inverter}_{name_prefix}{key}{suffix}",
-                    friendly_name=f"{name_prefix}{key}{suffix}",
-                    value=value,
-                    key=key,
-                    description_prefix=name_prefix,
-                    suffix=suffix,
-                    device_info=device_info,
-                )
-
-        return sensors
+        # return self._handle_report_generic(
+        #     d,
+        #     sensors,
+        #     report,
+        #     sens_select,
+        #     suffix,
+        #     phase_keys=["pcsAPhase", "pcsBPhase", "pcsCPhase"],
+        # )
 
     def _parse_battery_data(self, raw_data: dict | str | None) -> dict | None:
         if raw_data is None:
@@ -668,46 +754,31 @@ class Ecoflow:
         )
         return None
 
-    def _handle_wallbox_mode(
-        self,
-        d: dict,
-        sensors: dict[str, PowerOceanEndPoint],
-        report: str,
-        sens_select: list,
-        suffix: str = "",
-    ) -> dict[str, PowerOceanEndPoint]:
-        for box, raw in d.items():
-            if box == "updateTime":
-                continue
+    def _parse_box_payload(self, raw: dict | str | None) -> dict | None:
+        """
+        Robust JSON parser for boxed device payloads.
+        Silently ignores empty / invalid EcoFlow garbage.
+        """
+        if raw is None:
+            return None
 
-            payload = self._parse_battery_data(raw)
-            if not isinstance(payload, dict):
-                continue
+        if isinstance(raw, dict):
+            return raw
 
-            for key in sens_select:
-                path = DATA_POINT_PATHS.get(key)
-                if not path:
-                    continue
+        if not isinstance(raw, str):
+            return None
 
-                value = self._get_nested_value(payload, path)
-                if value is None:
-                    continue
+        raw = raw.strip()
+        if not raw:
+            return None
 
-                uid = f"{self.sn_inverter}_{report}_{box}_{key}"
-
-                self._add_sensor(
-                    sensors,
-                    uid=uid,
-                    serial=self.sn_inverter,
-                    name=f"{self.sn_inverter}_{key}{suffix}",
-                    friendly_name=f"{key}{suffix}",
-                    value=value,
-                    key=key,
-                    description_prefix=box,
-                    suffix=suffix,
-                )
-
-        return sensors
+        try:
+            parsed = json_loads(raw)
+            return parsed if isinstance(parsed, dict) else None
+        except Exception:
+            # 👇 bewusst DEBUG statt WARNING
+            _LOGGER.debug("Ignoring non-JSON box payload")
+            return None
 
     def _handle_ems_heartbeat_mode(
         self,
@@ -845,73 +916,39 @@ class Ecoflow:
         suffix: str = "",
     ) -> dict[str, PowerOceanEndPoint]:
         # Standardverarbeitung: einfache key-value Paare
+        device_info = None  # fällt auf Inverter zurück
         report_string = f"_{report}"
         # spezielle Behandlung für 'data' Report
         if report == ReportMode.DEFAULT.value:
             report_string = ""
+        device_sn = d.get("evSn", self.sn_inverter)
+        print(device_sn)
+        if device_sn != self.sn_inverter:
+            device_info = self._get_device_info(
+                sn=device_sn,
+                name=f"Charger {device_sn}",
+                model="EcoFlow Charger",
+                via_sn=self.sn_inverter,
+            )
+
         for key, value in d.items():
             if key in sens_select and not isinstance(value, dict):
-                unique_id = f"{self.sn_inverter}{report_string}_{key}"
+                # unique_id = f"{self.sn_inverter}{report_string}_{key}"
+                unique_id = f"{device_sn}{report_string}_{key}"
                 sensors[unique_id] = self._create_sensor(
                     PowerOceanEndPoint(
                         internal_unique_id=unique_id,
-                        serial=f"{self.sn_inverter}",
-                        name=f"{self.sn_inverter}_{key}{suffix}",
+                        serial=f"{device_sn}",
+                        name=f"{device_sn}_{key}{suffix}",
                         friendly_name=f"{key}{suffix}",
                         value=value,
                         unit=SensorMetaHelper.get_unit(key),
                         description=SensorMetaHelper.get_description(key),
                         icon=SensorMetaHelper.get_special_icon(key),
+                        device_info=device_info,
                     )
                 )
         return sensors
-
-    def _add_sensor(
-        self,
-        sensors: dict,
-        *,
-        uid: str,
-        serial: str,
-        name: str,
-        friendly_name: str,
-        value: Any,
-        key: str,
-        description_prefix: str = "",
-        suffix: str = "",
-    ):
-        sensors[uid] = self._create_sensor(
-            PowerOceanEndPoint(
-                internal_unique_id=uid,
-                serial=serial,
-                name=name,
-                friendly_name=friendly_name,
-                value=value,
-                unit=SensorMetaHelper.get_unit(key),
-                description=f"{description_prefix}{SensorMetaHelper.get_description(key)}",
-                icon=SensorMetaHelper.get_special_icon(key),
-            )
-        )
-
-    def _get_batteries_sorted(self, d: dict) -> list[tuple[str, dict]]:
-        batteries = []
-
-        for key, raw in d.items():
-            if key in ("", "updateTime"):
-                continue
-
-            payload = self._parse_battery_data(raw)
-            if not isinstance(payload, dict):
-                continue
-
-            sn = payload.get("bpSn")
-            raw_sn = payload.get("bpSn")
-            battery_inner_sn = self._decode_sn(raw_sn)
-            if battery_inner_sn:
-                batteries.append((battery_inner_sn, payload))
-
-        # 🔥 STABILE Sortierung
-        batteries.sort(key=lambda x: x[0])
-        return batteries
 
     def _decode_sn(self, value: str | None) -> str | None:
         if not value or not isinstance(value, str):
@@ -928,9 +965,6 @@ class Ecoflow:
         *,
         report: str,
         sens_select: list[str],
-        model: str,
-        device_name_prefix: str,
-        value_getter: callable,
         suffix: str = "",
     ) -> dict[str, PowerOceanEndPoint]:
         for box_sn_raw, raw_payload in d.items():
@@ -941,23 +975,56 @@ class Ecoflow:
             if not isinstance(payload, dict):
                 continue
 
-            # 🔑 echte SN bestimmen
-            raw_sn = payload.get("bpSn") or box_sn_raw
-            device_sn = self._decode_sn(raw_sn)
+            detected = self._detect_box_schema(payload)
+
+            if not detected:
+                _LOGGER.debug("Unknown boxed device schema")
+                continue
+
+            box_type, schema = detected
+
+            device_sn = self._extract_box_sn(payload, schema, box_sn_raw)
             if not device_sn:
                 continue
 
             device_info = self._get_device_info(
                 sn=device_sn,
-                name=f"{device_name_prefix} {device_sn}",
-                model=model,
+                name=f"{schema['name_prefix']} {device_sn}",
+                model=schema["model"],
                 via_sn=self.sn_inverter,
             )
 
-            for key in sens_select:
-                value = value_getter(payload, key)
+            box_sensors = self._get_box_sensors(schema)
+
+            paths = schema["paths"]
+
+            for key in box_sensors:
+                if paths:
+                    path = paths.get(key)
+                    if not path:
+                        continue
+                    value = self._get_nested_value(payload, path)
+                else:
+                    value = payload.get(key)
+
                 if value is None:
                     continue
+
+                # ⚡ Spezielles Handling für bestimmte Keys
+                if key == "bpSn" and isinstance(value, str):
+                    try:
+                        # Str nur base64-dekodieren, wenn möglich
+                        value_bytes = base64.b64decode(value, validate=True)
+                        # Optional: in UTF-8 umwandeln, falls sinnvoll
+                        try:
+                            value = value_bytes.decode("utf-8")
+                        except UnicodeDecodeError:
+                            # Bleibt Bytes, falls kein UTF-8
+                            value = value_bytes
+                    except binascii.Error:
+                        _LOGGER.warning(
+                            "Invalid base64 string for key %s: %s", key, value
+                        )
 
                 uid = f"{device_sn}_{report}_{key}"
 
@@ -965,7 +1032,7 @@ class Ecoflow:
                     PowerOceanEndPoint(
                         internal_unique_id=uid,
                         serial=device_sn,
-                        name=f"{device_sn}_{key}{suffix}",
+                        name=f"{device_sn}_{key}",
                         friendly_name=key,
                         value=value,
                         unit=SensorMetaHelper.get_unit(key),
@@ -974,52 +1041,200 @@ class Ecoflow:
                         device_info=device_info,
                     )
                 )
+        return sensors
+
+    def _extract_nested_values(
+        self, payload: dict, schema_keys: BoxSchema, prefix: str = ""
+    ) -> dict[str, Any]:
+        result = {}
+        if not isinstance(payload, (dict, list)):
+            return result
+
+        if isinstance(payload, dict):
+            for k, v in payload.items():
+                full_key = f"{prefix}_{k}" if prefix else k
+                if k in schema_keys:
+                    result[full_key] = v
+                result.update(self._extract_nested_values(v, schema_keys, full_key))
+
+        elif isinstance(payload, list):
+            for idx, item in enumerate(payload):
+                full_key = f"{prefix}[{idx}]"
+                result.update(self._extract_nested_values(item, schema_keys, full_key))
+
+        return result
+
+    def _handle_report_generic(
+        self,
+        d: dict,
+        sensors: dict[str, PowerOceanEndPoint],
+        report: str,
+        sens_select: list[str],
+        suffix: str = "",
+        nested_paths: dict[str, list[str]] | None = None,
+        mppt_key: str | None = "mpptHeartBeat",
+        phase_keys: list[str] | None = None,
+        parallel_key: str | None = "paraEnergyStream",
+    ) -> dict[str, PowerOceanEndPoint]:
+        """Generic handler for most reports: standard, phases, MPPT, parallel devices."""
+
+        # 1️⃣ Einfach Key-Value Paare
+        for key, value in d.items():
+            if key in sens_select and not isinstance(value, dict):
+                uid = f"{self.sn_inverter}_{report}_{key}"
+                sensors[uid] = self._create_sensor(
+                    PowerOceanEndPoint(
+                        internal_unique_id=uid,
+                        serial=self.sn_inverter,
+                        name=f"{self.sn_inverter}_{key}{suffix}",
+                        friendly_name=f"{key}{suffix}",
+                        value=value,
+                        unit=SensorMetaHelper.get_unit(key),
+                        description=SensorMetaHelper.get_description(key),
+                        icon=SensorMetaHelper.get_special_icon(key),
+                    )
+                )
+
+        # 2️⃣ Phasen (optional)
+        if phase_keys:
+            for phase in phase_keys:
+                if phase in d and isinstance(d[phase], dict):
+                    for key, value in d[phase].items():
+                        uid = f"{self.sn_inverter}_{report}_{phase}_{key}"
+                        sensors[uid] = self._create_sensor(
+                            PowerOceanEndPoint(
+                                internal_unique_id=uid,
+                                serial=self.sn_inverter,
+                                name=f"{self.sn_inverter}_{phase}_{key}{suffix}",
+                                friendly_name=f"{phase}_{key}{suffix}",
+                                value=value,
+                                unit=SensorMetaHelper.get_unit(key),
+                                description=SensorMetaHelper.get_description(key),
+                                icon=SensorMetaHelper.get_special_icon(key),
+                            )
+                        )
+
+        # 3️⃣ MPPT (optional)
+        if mppt_key and mppt_key in d:
+            mppt_list = d[mppt_key]
+            for i, mppt_entry in enumerate(mppt_list):
+                for key, value in mppt_entry.get("mpptPv", [{}])[0].items():
+                    uid = f"{self.sn_inverter}_{report}_{mppt_key}_mpptPv{i + 1}_{key}"
+                    icon = None
+                    if key.endswith("amp"):
+                        icon = "mdi:current-dc"
+                    elif key.endswith("pwr"):
+                        icon = "mdi:solar-power"
+                    sensors[uid] = self._create_sensor(
+                        PowerOceanEndPoint(
+                            internal_unique_id=uid,
+                            serial=self.sn_inverter,
+                            name=f"{self.sn_inverter}_{mppt_key}_mpptPv{i + 1}_{key}{suffix}",
+                            friendly_name=f"mpptPv{i + 1}_{key}{suffix}",
+                            value=value,
+                            unit=SensorMetaHelper.get_unit(key),
+                            description=SensorMetaHelper.get_description(key),
+                            icon=icon,
+                        )
+                    )
+                # Gesamtleistung pro MPPT
+                total_power = sum(
+                    mppt_entry.get("mpptPv", [{}])[0].get("pwr", 0)
+                    for _ in range(len(mppt_entry.get("mpptPv", [{}])))
+                )
+                uid_total = f"{self.sn_inverter}_{report}_{mppt_key}_mpptPv_pwrTotal"
+                sensors[uid_total] = self._create_sensor(
+                    PowerOceanEndPoint(
+                        internal_unique_id=uid_total,
+                        serial=self.sn_inverter,
+                        name=f"{self.sn_inverter}_{mppt_key}_mpptPv_pwrTotal{suffix}",
+                        friendly_name=f"mpptPv_pwrTotal{suffix}",
+                        value=total_power,
+                        unit="W",
+                        description="Solarertrag aller Strings",
+                        icon="mdi:solar-power",
+                    )
+                )
+
+        # 4️⃣ Parallele Geräte (optional)
+        if parallel_key and parallel_key in d:
+            for device_data in d.get(parallel_key, []):
+                dev_sn = device_data.get("devSn") or ""
+                _LOGGER.debug(f"Processing parallel dev_sn: {dev_sn}")
+                for key, value in device_data.items():
+                    uid = f"{dev_sn}_{report}_{parallel_key}_{key}"
+                    sensors[uid] = self._create_sensor(
+                        PowerOceanEndPoint(
+                            internal_unique_id=uid,
+                            serial=dev_sn,
+                            name=f"{dev_sn}_{key}{suffix}",
+                            friendly_name=f"{key}{suffix}",
+                            value=value,
+                            unit=SensorMetaHelper.get_unit(key),
+                            description=SensorMetaHelper.get_description(key),
+                            icon=SensorMetaHelper.get_special_icon(key),
+                        )
+                    )
+
+        # 5️⃣ Verschachtelte Pfade (optional)
+        if nested_paths:
+            for key, path in nested_paths.items():
+                value = self._get_nested_value(d, path)
+                if value is not None:
+                    uid = f"{self.sn_inverter}_{report}_{key}"
+                    sensors[uid] = self._create_sensor(
+                        PowerOceanEndPoint(
+                            internal_unique_id=uid,
+                            serial=self.sn_inverter,
+                            name=f"{self.sn_inverter}_{key}{suffix}",
+                            friendly_name=f"{key}{suffix}",
+                            value=value,
+                            unit=SensorMetaHelper.get_unit(key),
+                            description=SensorMetaHelper.get_description(key),
+                            icon=SensorMetaHelper.get_special_icon(key),
+                        )
+                    )
 
         return sensors
 
-    def _handle_battery_mode(
-        self,
-        d: dict,
-        sensors: dict[str, PowerOceanEndPoint],
-        report: str,
-        sens_select: list,
-        suffix: str = "",
-    ) -> dict[str, PowerOceanEndPoint]:
-        return self._handle_boxed_devices(
-            d,
-            sensors,
-            report=report,
-            sens_select=sens_select,
-            model="PowerOcean Battery",
-            device_name_prefix="Battery",
-            value_getter=lambda payload, key: payload.get(key),
-            suffix=suffix,
-        )
+    @staticmethod
+    def flatten_json(y: Any) -> dict:
+        """
+        Flatten a nested JSON object into a flat dictionary.
 
-    def __handle_wallbox_mode(
-        self,
-        d: dict,
-        sensors: dict[str, PowerOceanEndPoint],
-        report: str,
-        sens_select: list,
-        suffix: str = "",
-    ) -> dict[str, PowerOceanEndPoint]:
-        def wallbox_value(payload: dict, key: str):
-            path = DATA_POINT_PATHS.get(key)
-            if not path:
-                return None
-            return self._get_nested_value(payload, path)
+        Args:
+            y: The JSON object (dict or list) to flatten.
 
-        return self._handle_boxed_devices(
-            d,
-            sensors,
-            report=report,
-            sens_select=sens_select,
-            model="PowerOcean Wallbox",
-            device_name_prefix="Wallbox",
-            value_getter=wallbox_value,
-            suffix=suffix,
-        )
+        Returns:
+            dict: A flattened dictionary with keys representing the path to each value.
+
+        """
+        out = {}
+
+        def flatten(x: Any, name: str = "") -> None:
+            if isinstance(x, dict):
+                for a in x:
+                    flatten(x[a], f"{name}{a}_")
+            elif isinstance(x, list):
+                for i, a in enumerate(x):
+                    flatten(a, f"{name}{i}_")
+            else:
+                out[name[:-1]] = x
+
+        flatten(y)
+        return out
+
+    @staticmethod
+    def _is_matching_report(key: str, report: str) -> bool:
+        if not isinstance(key, str):
+            return False
+
+        # Spezialfall ENERGY_STREAM_REPORT
+        if report == ReportMode.ENERGY_STREAM.value:
+            return key.split("_", 1)[1] == report
+
+        # Default-Fall
+        return key.endswith(report)
 
 
 class ApiResponseError(Exception):
