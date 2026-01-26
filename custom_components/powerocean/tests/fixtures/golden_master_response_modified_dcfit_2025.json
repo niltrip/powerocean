@@ -13,7 +13,7 @@
     "name": "SN_INVERTERBOX01_autoDetectStartPowerEn",
     "friendly_name": "autoDetectStartPowerEn",
     "value": "False",
-    "unit": null,
+    "unit": "W",
     "description": "autoDetectStartPowerEn",
     "icon": null
   },
@@ -22,7 +22,7 @@
     "name": "SN_INVERTERBOX01_batterySocLowerLimit",
     "friendly_name": "batterySocLowerLimit",
     "value": 5,
-    "unit": null,
+    "unit": "%",
     "description": "batterySocLowerLimit",
     "icon": null
   },
@@ -31,7 +31,7 @@
     "name": "SN_INVERTERBOX01_batterySocUpperLimit",
     "friendly_name": "batterySocUpperLimit",
     "value": 100,
-    "unit": null,
+    "unit": "%",
     "description": "batterySocUpperLimit",
     "icon": null
   },
@@ -40,7 +40,7 @@
     "name": "SN_INVERTERBOX01_bp1SocCoefficient",
     "friendly_name": "bp1SocCoefficient",
     "value": 0.9,
-    "unit": null,
+    "unit": "%",
     "description": "bp1SocCoefficient",
     "icon": null
   },
@@ -49,7 +49,7 @@
     "name": "SN_INVERTERBOX01_bp2SocCoefficient",
     "friendly_name": "bp2SocCoefficient",
     "value": 0.9,
-    "unit": null,
+    "unit": "%",
     "description": "bp2SocCoefficient",
     "icon": null
   },
@@ -58,7 +58,7 @@
     "name": "SN_INVERTERBOX01_bp3SocCoefficient",
     "friendly_name": "bp3SocCoefficient",
     "value": 0.9,
-    "unit": null,
+    "unit": "%",
     "description": "bp3SocCoefficient",
     "icon": null
   },
@@ -76,7 +76,7 @@
     "name": "SN_INVERTERBOX01_bpBusVoltageBaseCoefficient",
     "friendly_name": "bpBusVoltageBaseCoefficient",
     "value": 1.0,
-    "unit": null,
+    "unit": "V",
     "description": "bpBusVoltageBaseCoefficient",
     "icon": null
   },
@@ -166,7 +166,7 @@
     "name": "SN_INVERTERBOX01_bpSaveSocStopDelay",
     "friendly_name": "bpSaveSocStopDelay",
     "value": 10,
-    "unit": null,
+    "unit": "%",
     "description": "bpSaveSocStopDelay",
     "icon": null
   },
@@ -184,7 +184,7 @@
     "name": "SN_INVERTERBOX01_bpSocBaseCoefficient",
     "friendly_name": "bpSocBaseCoefficient",
     "value": 0.9,
-    "unit": null,
+    "unit": "%",
     "description": "bpSocBaseCoefficient",
     "icon": null
   },
@@ -202,7 +202,7 @@
     "name": "SN_INVERTERBOX01_currentNetif",
     "friendly_name": "currentNetif",
     "value": "NETIF_WIFI_STA",
-    "unit": null,
+    "unit": "A",
     "description": "currentNetif",
     "icon": null
   },
@@ -267,7 +267,7 @@
     "name": "SN_INVERTERBOX01_gridFeedPowerMinimum",
     "friendly_name": "gridFeedPowerMinimum",
     "value": 400.0,
-    "unit": null,
+    "unit": "W",
     "description": "gridFeedPowerMinimum",
     "icon": null
   },
@@ -348,7 +348,7 @@
     "name": "SN_INVERTERBOX01_meterACurrent",
     "friendly_name": "meterACurrent",
     "value": 1.4840001,
-    "unit": null,
+    "unit": "A",
     "description": "meterACurrent",
     "icon": null
   },
@@ -357,7 +357,7 @@
     "name": "SN_INVERTERBOX01_meterAVoltage",
     "friendly_name": "meterAVoltage",
     "value": 234.40001,
-    "unit": null,
+    "unit": "V",
     "description": "meterAVoltage",
     "icon": null
   },
@@ -375,7 +375,7 @@
     "name": "SN_INVERTERBOX01_meterBCurrent",
     "friendly_name": "meterBCurrent",
     "value": 1.616,
-    "unit": null,
+    "unit": "A",
     "description": "meterBCurrent",
     "icon": null
   },
@@ -384,7 +384,7 @@
     "name": "SN_INVERTERBOX01_meterBVoltage",
     "friendly_name": "meterBVoltage",
     "value": 236.1,
-    "unit": null,
+    "unit": "V",
     "description": "meterBVoltage",
     "icon": null
   },
@@ -393,7 +393,7 @@
     "name": "SN_INVERTERBOX01_meterCCurrent",
     "friendly_name": "meterCCurrent",
     "value": 1.107,
-    "unit": null,
+    "unit": "A",
     "description": "meterCCurrent",
     "icon": null
   },
@@ -402,7 +402,7 @@
     "name": "SN_INVERTERBOX01_meterCVoltage",
     "friendly_name": "meterCVoltage",
     "value": 236.8,
-    "unit": null,
+    "unit": "V",
     "description": "meterCVoltage",
     "icon": null
   },
@@ -429,7 +429,7 @@
       -0.768,
       0.58900005
     ],
-    "unit": null,
+    "unit": "W",
     "description": "meterPowerFactor",
     "icon": null
   },
@@ -478,7 +478,7 @@
     "name": "SN_INVERTERBOX01_mpptVoltageMaximum",
     "friendly_name": "mpptVoltageMaximum",
     "value": 950.0,
-    "unit": null,
+    "unit": "V",
     "description": "mpptVoltageMaximum",
     "icon": null
   },
@@ -487,7 +487,7 @@
     "name": "SN_INVERTERBOX01_mpptVoltageMinimum",
     "friendly_name": "mpptVoltageMinimum",
     "value": 200.0,
-    "unit": null,
+    "unit": "V",
     "description": "mpptVoltageMinimum",
     "icon": null
   },
@@ -496,7 +496,7 @@
     "name": "SN_INVERTERBOX01_mpptWithstandVoltage",
     "friendly_name": "mpptWithstandVoltage",
     "value": 1000.0,
-    "unit": null,
+    "unit": "V",
     "description": "mpptWithstandVoltage",
     "icon": null
   },
@@ -613,7 +613,7 @@
     "name": "SN_INVERTERBOX01_underVoltageProtectPoint",
     "friendly_name": "underVoltageProtectPoint",
     "value": 150.0,
-    "unit": null,
+    "unit": "V",
     "description": "underVoltageProtectPoint",
     "icon": null
   },
