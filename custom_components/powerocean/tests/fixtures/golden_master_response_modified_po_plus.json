@@ -1,227 +1,353 @@
 {
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bmsRunSta": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bmsRunSta",
-    "name": "SN_INVERTERBOX01_bpack2_bmsRunSta",
-    "friendly_name": "bpack2_bmsRunSta",
+  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bmsRunSta": {
+    "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bmsRunSta",
+    "name": "SN_BATTERIEPACK01_bmsRunSta",
+    "friendly_name": "bmsRunSta",
     "value": "PB_BMS_STATE_NORMAL",
     "unit": null,
-    "description": "bpack2_bmsRunSta",
+    "description": "bmsRunSta",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpAmp": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpAmp",
-    "name": "SN_INVERTERBOX01_bpack2_bpAmp",
-    "friendly_name": "bpack2_bpAmp",
+  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpAmp": {
+    "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpAmp",
+    "name": "SN_BATTERIEPACK01_bpAmp",
+    "friendly_name": "bpAmp",
     "value": -0.0005022433,
     "unit": "A",
-    "description": "bpack2_Batteriestrom",
+    "description": "Batteriestrom",
     "icon": "mdi:current-dc"
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpCycles": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpCycles",
-    "name": "SN_INVERTERBOX01_bpack2_bpCycles",
-    "friendly_name": "bpack2_bpCycles",
+  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpCycles": {
+    "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpCycles",
+    "name": "SN_BATTERIEPACK01_bpCycles",
+    "friendly_name": "bpCycles",
     "value": 140,
     "unit": null,
-    "description": "bpack2_Ladezyklen",
+    "description": "Ladezyklen",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpEnvTemp": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpEnvTemp",
-    "name": "SN_INVERTERBOX01_bpack2_bpEnvTemp",
-    "friendly_name": "bpack2_bpEnvTemp",
+  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpEnvTemp": {
+    "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpEnvTemp",
+    "name": "SN_BATTERIEPACK01_bpEnvTemp",
+    "friendly_name": "bpEnvTemp",
     "value": 30.0,
     "unit": "\u00b0C",
-    "description": "bpack2_bpEnvTemp",
+    "description": "bpEnvTemp",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpMaxCellTemp": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpMaxCellTemp",
-    "name": "SN_INVERTERBOX01_bpack2_bpMaxCellTemp",
-    "friendly_name": "bpack2_bpMaxCellTemp",
+  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpMaxCellTemp": {
+    "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpMaxCellTemp",
+    "name": "SN_BATTERIEPACK01_bpMaxCellTemp",
+    "friendly_name": "bpMaxCellTemp",
     "value": 24.0,
     "unit": "\u00b0C",
-    "description": "bpack2_bpMaxCellTemp",
+    "description": "bpMaxCellTemp",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpMinCellTemp": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpMinCellTemp",
-    "name": "SN_INVERTERBOX01_bpack2_bpMinCellTemp",
-    "friendly_name": "bpack2_bpMinCellTemp",
+  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpMinCellTemp": {
+    "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpMinCellTemp",
+    "name": "SN_BATTERIEPACK01_bpMinCellTemp",
+    "friendly_name": "bpMinCellTemp",
     "value": 22.0,
     "unit": "\u00b0C",
-    "description": "bpack2_bpMinCellTemp",
+    "description": "bpMinCellTemp",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpPwr": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpPwr",
-    "name": "SN_INVERTERBOX01_bpack2_bpPwr",
-    "friendly_name": "bpack2_bpPwr",
+  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpPwr": {
+    "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpPwr",
+    "name": "SN_BATTERIEPACK01_bpPwr",
+    "friendly_name": "bpPwr",
     "value": -0.025860507,
     "unit": "W",
-    "description": "bpack2_Batterieleistung",
+    "description": "Batterieleistung",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpRemainWatth": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpRemainWatth",
-    "name": "SN_INVERTERBOX01_bpack2_bpRemainWatth",
-    "friendly_name": "bpack2_bpRemainWatth",
+  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpRemainWatth": {
+    "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpRemainWatth",
+    "name": "SN_BATTERIEPACK01_bpRemainWatth",
+    "friendly_name": "bpRemainWatth",
     "value": 768.0,
     "unit": "Wh",
-    "description": "bpack2_bpRemainWatth",
+    "description": "bpRemainWatth",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpSoc": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpSoc",
-    "name": "SN_INVERTERBOX01_bpack2_bpSoc",
-    "friendly_name": "bpack2_bpSoc",
+  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSn": {
+    "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSn",
+    "name": "SN_BATTERIEPACK01_bpSn",
+    "friendly_name": "bpSn",
+    "value": "SN_BATTERIEPACK01",
+    "unit": null,
+    "description": "bpSn",
+    "icon": null
+  },
+  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSoc": {
+    "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSoc",
+    "name": "SN_BATTERIEPACK01_bpSoc",
+    "friendly_name": "bpSoc",
     "value": 15,
     "unit": "%",
-    "description": "bpack2_Ladezustand der Batterie",
+    "description": "Ladezustand der Batterie",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpSoh": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpSoh",
-    "name": "SN_INVERTERBOX01_bpack2_bpSoh",
-    "friendly_name": "bpack2_bpSoh",
+  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSoh": {
+    "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSoh",
+    "name": "SN_BATTERIEPACK01_bpSoh",
+    "friendly_name": "bpSoh",
     "value": 99,
     "unit": "%",
-    "description": "bpack2_bpSoh",
+    "description": "bpSoh",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpSysState": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpSysState",
-    "name": "SN_INVERTERBOX01_bpack2_bpSysState",
-    "friendly_name": "bpack2_bpSysState",
+  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSysState": {
+    "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSysState",
+    "name": "SN_BATTERIEPACK01_bpSysState",
+    "friendly_name": "bpSysState",
     "value": "NORMAL_STATE",
     "unit": null,
-    "description": "bpack2_bpSysState",
+    "description": "bpSysState",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpVol": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK1_bpVol",
-    "name": "SN_INVERTERBOX01_bpack2_bpVol",
-    "friendly_name": "bpack2_bpVol",
+  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpVol": {
+    "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpVol",
+    "name": "SN_BATTERIEPACK01_bpVol",
+    "friendly_name": "bpVol",
     "value": 51.49,
     "unit": "V",
-    "description": "bpack2_Batteriespannung",
+    "description": "Batteriespannung",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bmsRunSta": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bmsRunSta",
-    "name": "SN_INVERTERBOX01_bpack1_bmsRunSta",
-    "friendly_name": "bpack1_bmsRunSta",
+  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bmsRunSta": {
+    "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bmsRunSta",
+    "name": "SN_BATTERIEPACK02_bmsRunSta",
+    "friendly_name": "bmsRunSta",
     "value": "PB_BMS_STATE_NORMAL",
     "unit": null,
-    "description": "bpack1_bmsRunSta",
+    "description": "bmsRunSta",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpAmp": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpAmp",
-    "name": "SN_INVERTERBOX01_bpack1_bpAmp",
-    "friendly_name": "bpack1_bpAmp",
+  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpAmp": {
+    "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpAmp",
+    "name": "SN_BATTERIEPACK02_bpAmp",
+    "friendly_name": "bpAmp",
     "value": -2.134296,
     "unit": "A",
-    "description": "bpack1_Batteriestrom",
+    "description": "Batteriestrom",
     "icon": "mdi:current-dc"
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpCycles": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpCycles",
-    "name": "SN_INVERTERBOX01_bpack1_bpCycles",
-    "friendly_name": "bpack1_bpCycles",
+  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpCycles": {
+    "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpCycles",
+    "name": "SN_BATTERIEPACK02_bpCycles",
+    "friendly_name": "bpCycles",
     "value": 143,
     "unit": null,
-    "description": "bpack1_Ladezyklen",
+    "description": "Ladezyklen",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpEnvTemp": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpEnvTemp",
-    "name": "SN_INVERTERBOX01_bpack1_bpEnvTemp",
-    "friendly_name": "bpack1_bpEnvTemp",
+  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpEnvTemp": {
+    "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpEnvTemp",
+    "name": "SN_BATTERIEPACK02_bpEnvTemp",
+    "friendly_name": "bpEnvTemp",
     "value": 29.0,
     "unit": "\u00b0C",
-    "description": "bpack1_bpEnvTemp",
+    "description": "bpEnvTemp",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpMaxCellTemp": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpMaxCellTemp",
-    "name": "SN_INVERTERBOX01_bpack1_bpMaxCellTemp",
-    "friendly_name": "bpack1_bpMaxCellTemp",
+  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpMaxCellTemp": {
+    "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpMaxCellTemp",
+    "name": "SN_BATTERIEPACK02_bpMaxCellTemp",
+    "friendly_name": "bpMaxCellTemp",
     "value": 24.0,
     "unit": "\u00b0C",
-    "description": "bpack1_bpMaxCellTemp",
+    "description": "bpMaxCellTemp",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpMinCellTemp": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpMinCellTemp",
-    "name": "SN_INVERTERBOX01_bpack1_bpMinCellTemp",
-    "friendly_name": "bpack1_bpMinCellTemp",
+  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpMinCellTemp": {
+    "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpMinCellTemp",
+    "name": "SN_BATTERIEPACK02_bpMinCellTemp",
+    "friendly_name": "bpMinCellTemp",
     "value": 22.0,
     "unit": "\u00b0C",
-    "description": "bpack1_bpMinCellTemp",
+    "description": "bpMinCellTemp",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpPwr": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpPwr",
-    "name": "SN_INVERTERBOX01_bpack1_bpPwr",
-    "friendly_name": "bpack1_bpPwr",
+  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpPwr": {
+    "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpPwr",
+    "name": "SN_BATTERIEPACK02_bpPwr",
+    "friendly_name": "bpPwr",
     "value": -110.0507,
     "unit": "W",
-    "description": "bpack1_Batterieleistung",
+    "description": "Batterieleistung",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpRemainWatth": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpRemainWatth",
-    "name": "SN_INVERTERBOX01_bpack1_bpRemainWatth",
-    "friendly_name": "bpack1_bpRemainWatth",
+  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpRemainWatth": {
+    "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpRemainWatth",
+    "name": "SN_BATTERIEPACK02_bpRemainWatth",
+    "friendly_name": "bpRemainWatth",
     "value": 768.0,
     "unit": "Wh",
-    "description": "bpack1_bpRemainWatth",
+    "description": "bpRemainWatth",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpSoc": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpSoc",
-    "name": "SN_INVERTERBOX01_bpack1_bpSoc",
-    "friendly_name": "bpack1_bpSoc",
+  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSn": {
+    "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSn",
+    "name": "SN_BATTERIEPACK02_bpSn",
+    "friendly_name": "bpSn",
+    "value": "SN_BATTERIEPACK02",
+    "unit": null,
+    "description": "bpSn",
+    "icon": null
+  },
+  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSoc": {
+    "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSoc",
+    "name": "SN_BATTERIEPACK02_bpSoc",
+    "friendly_name": "bpSoc",
     "value": 15,
     "unit": "%",
-    "description": "bpack1_Ladezustand der Batterie",
+    "description": "Ladezustand der Batterie",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpSoh": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpSoh",
-    "name": "SN_INVERTERBOX01_bpack1_bpSoh",
-    "friendly_name": "bpack1_bpSoh",
+  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSoh": {
+    "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSoh",
+    "name": "SN_BATTERIEPACK02_bpSoh",
+    "friendly_name": "bpSoh",
     "value": 99,
     "unit": "%",
-    "description": "bpack1_bpSoh",
+    "description": "bpSoh",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpSysState": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpSysState",
-    "name": "SN_INVERTERBOX01_bpack1_bpSysState",
-    "friendly_name": "bpack1_bpSysState",
+  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSysState": {
+    "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSysState",
+    "name": "SN_BATTERIEPACK02_bpSysState",
+    "friendly_name": "bpSysState",
     "value": "NORMAL_STATE",
     "unit": null,
-    "description": "bpack1_bpSysState",
+    "description": "bpSysState",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpVol": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_BP_STA_REPORT_SN_BATTERIEPACK2_bpVol",
-    "name": "SN_INVERTERBOX01_bpack1_bpVol",
-    "friendly_name": "bpack1_bpVol",
+  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpVol": {
+    "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpVol",
+    "name": "SN_BATTERIEPACK02_bpVol",
+    "friendly_name": "bpVol",
     "value": 51.563,
     "unit": "V",
-    "description": "bpack1_Batteriespannung",
+    "description": "Batteriespannung",
     "icon": null
   },
-  "SN_INVERTERBOX01_RE307_EDEV_PARAM_REPORT_SN_E_DEVICEBOX01_devSn": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EDEV_PARAM_REPORT_SN_E_DEVICEBOX01_devSn",
-    "name": "SN_INVERTERBOX01_devSn",
-    "friendly_name": "devSn",
-    "value": "SN_E_DEVICEBOX01",
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_chargeVehicleId": {
+    "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_chargeVehicleId",
+    "name": "SN_EV_CHARGER_01_chargeVehicleId",
+    "friendly_name": "chargeVehicleId",
+    "value": "-1",
     "unit": null,
-    "description": "SN_E_DEVICEBOX01devSn",
+    "description": "chargeVehicleId",
+    "icon": null
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_chargingStatus": {
+    "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_chargingStatus",
+    "name": "SN_EV_CHARGER_01_chargingStatus",
+    "friendly_name": "chargingStatus",
+    "value": "EV_CHG_STS_AVAILABLE",
+    "unit": null,
+    "description": "chargingStatus",
+    "icon": null
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_errorCode": {
+    "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_errorCode",
+    "name": "SN_EV_CHARGER_01_errorCode",
+    "friendly_name": "errorCode",
+    "value": "AAAAAAAAAAA=",
+    "unit": null,
+    "description": "errorCode",
+    "icon": null
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evChargingEnergy": {
+    "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evChargingEnergy",
+    "name": "SN_EV_CHARGER_01_evChargingEnergy",
+    "friendly_name": "evChargingEnergy",
+    "value": 21786.0,
+    "unit": "Wh",
+    "description": "evChargingEnergy",
+    "icon": null
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evCurrSet": {
+    "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evCurrSet",
+    "name": "SN_EV_CHARGER_01_evCurrSet",
+    "friendly_name": "evCurrSet",
+    "value": 60,
+    "unit": null,
+    "description": "evCurrSet",
+    "icon": null
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evOnoffSet": {
+    "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evOnoffSet",
+    "name": "SN_EV_CHARGER_01_evOnoffSet",
+    "friendly_name": "evOnoffSet",
+    "value": 0,
+    "unit": null,
+    "description": "evOnoffSet",
+    "icon": null
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evPwr": {
+    "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evPwr",
+    "name": "SN_EV_CHARGER_01_evPwr",
+    "friendly_name": "evPwr",
+    "value": 0.0,
+    "unit": "W",
+    "description": "evPwr",
+    "icon": null
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evSn": {
+    "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evSn",
+    "name": "SN_EV_CHARGER_01_evSn",
+    "friendly_name": "evSn",
+    "value": "SN_EV_CHARGER_01",
+    "unit": null,
+    "description": "evSn",
+    "icon": null
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evUserManual": {
+    "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evUserManual",
+    "name": "SN_EV_CHARGER_01_evUserManual",
+    "friendly_name": "evUserManual",
+    "value": 0,
+    "unit": null,
+    "description": "evUserManual",
+    "icon": null
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_onlineBits": {
+    "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_onlineBits",
+    "name": "SN_EV_CHARGER_01_onlineBits",
+    "friendly_name": "onlineBits",
+    "value": 2,
+    "unit": null,
+    "description": "onlineBits",
+    "icon": null
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_orderStartTimestamp": {
+    "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_orderStartTimestamp",
+    "name": "SN_EV_CHARGER_01_orderStartTimestamp",
+    "friendly_name": "orderStartTimestamp",
+    "value": 1748768727,
+    "unit": "A",
+    "description": "orderStartTimestamp",
+    "icon": null
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_useGridFirst": {
+    "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_useGridFirst",
+    "name": "SN_EV_CHARGER_01_useGridFirst",
+    "friendly_name": "useGridFirst",
+    "value": 0,
+    "unit": null,
+    "description": "useGridFirst",
+    "icon": null
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_workMode": {
+    "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_workMode",
+    "name": "SN_EV_CHARGER_01_workMode",
+    "friendly_name": "workMode",
+    "value": 2,
+    "unit": null,
+    "description": "workMode",
     "icon": null
   },
   "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_emsCtrlLedBright": {
@@ -654,123 +780,6 @@
     "value": 0.0,
     "unit": "W",
     "description": "pvInvPwr",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_chargeVehicleId": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_chargeVehicleId",
-    "name": "SN_INVERTERBOX01_chargeVehicleId",
-    "friendly_name": "chargeVehicleId",
-    "value": "-1",
-    "unit": null,
-    "description": "chargeVehicleId",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_chargingStatus": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_chargingStatus",
-    "name": "SN_INVERTERBOX01_chargingStatus",
-    "friendly_name": "chargingStatus",
-    "value": "EV_CHG_STS_AVAILABLE",
-    "unit": null,
-    "description": "chargingStatus",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_errorCode": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_errorCode",
-    "name": "SN_INVERTERBOX01_errorCode",
-    "friendly_name": "errorCode",
-    "value": "AAAAAAAAAAA=",
-    "unit": null,
-    "description": "errorCode",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_evChargingEnergy": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_evChargingEnergy",
-    "name": "SN_INVERTERBOX01_evChargingEnergy",
-    "friendly_name": "evChargingEnergy",
-    "value": 21786.0,
-    "unit": "Wh",
-    "description": "evChargingEnergy",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_evCurrSet": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_evCurrSet",
-    "name": "SN_INVERTERBOX01_evCurrSet",
-    "friendly_name": "evCurrSet",
-    "value": 60,
-    "unit": null,
-    "description": "evCurrSet",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_evOnoffSet": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_evOnoffSet",
-    "name": "SN_INVERTERBOX01_evOnoffSet",
-    "friendly_name": "evOnoffSet",
-    "value": 0,
-    "unit": null,
-    "description": "evOnoffSet",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_evPwr": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_evPwr",
-    "name": "SN_INVERTERBOX01_evPwr",
-    "friendly_name": "evPwr",
-    "value": 0.0,
-    "unit": "W",
-    "description": "evPwr",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_evSn": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_evSn",
-    "name": "SN_INVERTERBOX01_evSn",
-    "friendly_name": "evSn",
-    "value": "xxxxx",
-    "unit": null,
-    "description": "evSn",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_evUserManual": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_evUserManual",
-    "name": "SN_INVERTERBOX01_evUserManual",
-    "friendly_name": "evUserManual",
-    "value": 0,
-    "unit": null,
-    "description": "evUserManual",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_onlineBits": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_onlineBits",
-    "name": "SN_INVERTERBOX01_onlineBits",
-    "friendly_name": "onlineBits",
-    "value": 2,
-    "unit": null,
-    "description": "onlineBits",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_orderStartTimestamp": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_orderStartTimestamp",
-    "name": "SN_INVERTERBOX01_orderStartTimestamp",
-    "friendly_name": "orderStartTimestamp",
-    "value": 1748768727,
-    "unit": "A",
-    "description": "orderStartTimestamp",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_useGridFirst": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_useGridFirst",
-    "name": "SN_INVERTERBOX01_useGridFirst",
-    "friendly_name": "useGridFirst",
-    "value": 0,
-    "unit": null,
-    "description": "useGridFirst",
-    "icon": null
-  },
-  "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_workMode": {
-    "internal_unique_id": "SN_INVERTERBOX01_RE307_EVCHARGING_REPORT_workMode",
-    "name": "SN_INVERTERBOX01_workMode",
-    "friendly_name": "workMode",
-    "value": 2,
-    "unit": null,
-    "description": "workMode",
     "icon": null
   },
   "SN_INVERTERBOX01_bpPwr": {
