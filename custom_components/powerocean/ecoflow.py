@@ -521,7 +521,8 @@ class Ecoflow:
                 _LOGGER.debug("Unknown boxed device schema")
                 continue
 
-            box_type, schema = detected
+            # box_type wird aktuell nicht genutzt
+            _, schema = detected
 
             device_sn = self._extract_box_sn(payload, schema, box_sn_raw)
             if not device_sn:
