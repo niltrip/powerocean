@@ -296,7 +296,8 @@ class Ecoflow:
         )
         return None
 
-    def _get_nested_value(self, data: dict[str, Any], path: list[str]) -> Any | None:
+    @staticmethod
+    def _get_nested_value(data: dict[str, Any], path: list[str]) -> Any | None:
         for key in path:
             if not isinstance(data, dict):
                 return None

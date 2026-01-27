@@ -1,4 +1,4 @@
-# tests/unit/test_decode_sn.py
+"""test_decode_sn."""
 
 
 def test_decode_sn_base64(eco) -> None:

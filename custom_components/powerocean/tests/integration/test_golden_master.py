@@ -1,4 +1,5 @@
-# tests/test_golden_master.py
+"""test_golden_master."""
+
 import json
 from pathlib import Path
 
@@ -36,14 +37,13 @@ def test_golden_master(fixture_file_name, variant, tmp_path) -> None:
     serialnumber = "SN_INVERTERBOX01"
     username = "dummy_user"
     password = "dummy_pass"
-    options = None
 
     eco = Ecoflow(
         serialnumber=serialnumber,
         username=username,
         password=password,
         variant=variant,
-        options=options,
+        options={},
     )
 
     # Zusätzliche Felder

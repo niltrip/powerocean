@@ -1,4 +1,5 @@
-# tests/conftest.py
+"""tests/conftest.py."""
+
 import pytest
 
 from custom_components.powerocean.ecoflow import Ecoflow
@@ -14,7 +15,7 @@ def eco() -> Ecoflow:
     return Ecoflow(
         serialnumber="SN_TEST",
         username="user",
-        password="pass",
+        password="pass",  # noqa: S106
         variant="default",
-        options=None,
+        options={},
     )

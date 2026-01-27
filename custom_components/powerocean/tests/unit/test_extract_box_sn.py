@@ -1,4 +1,6 @@
-# tests/unit/test_extract_box_sn.py
+"""test_extract_box_sn."""
+
+
 def test_extract_box_sn_from_payload(eco) -> None:
     payload = {"info": {"sn": "U05fVEVTVA=="}}
     schema = {"sn_path": ["info", "sn"]}
