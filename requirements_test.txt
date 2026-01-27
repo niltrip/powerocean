@@ -2,4 +2,3 @@ pytest
 pytest-asyncio
 pytest-homeassistant-custom-component
 voluptuous
-rich~=13.7
