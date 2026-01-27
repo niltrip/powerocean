@@ -12,16 +12,16 @@
 		"totalElectricityGeneration",
 		"systemName"
 	],
-	"RE307_ENERGY_STREAM_REPORT": [
+	"ENERGY_STREAM_REPORT": [
 		"pv1Pwr",
 		"pvInvPwr",
 		"pv2Pwr",
 		"pv3Pwr"
 	],
-	"RE307_EMS_CHANGE_REPORT": [
+	"EMS_CHANGE_REPORT": [
 		"emsCtrlLedBright"
 	],
-	"RE307_EMS_STATE_CHANGE_REPORT": [
+	"EMS_STATE_CHANGE_REPORT": [
 		"bpSoc",
 		"bpTotalChgEnergy",
 		"bpTotalDsgEnergy",
@@ -33,7 +33,7 @@
 		"mppt3FaultCode",
 		"mppt3WarningCode"
 	],
-	"RE307_BP_STA_REPORT": [
+	"BP_STA_REPORT": [
 		"bpPwr",
 		"bpSoc",
 		"bpSoh",
@@ -47,14 +47,14 @@
 		"bpMinCellTemp",
 		"bpMaxCellTemp"
 	],
-	"RE307_EMS_HEARTBEAT": [
+	"EMS_HEARTBEAT": [
 		"bpRemainWatth",
 		"emsBpAliveNum",
 		"emsBpPower",
 		"pcsActPwr",
 		"pcsMeterPower"
 	],
-	"RE307_EVCHARGING_REPORT": [
+	"EVCHARGING_REPORT": [
 		"evSn",
 		"workMode",
 		"useGridFirst",
@@ -69,7 +69,7 @@
 		"chargingStatus",
 		"evPwr"
 	],
-	"RE307_HEATING_ROD_PARAM_REPORT": [
+	"HEATING_ROD_PARAM_REPORT": [
 		"selfcheckPercent",
 		"temp",
 		"targetTemp",
@@ -82,5 +82,10 @@
 		"waterTankVolume",
 		"runStat",
 		"targetPower"
+	],
+	"EDEV_PARAM_REPORT": [
+		"devSn",
+		"workMode",
+		"userCurrentSet"
 	]
 }
