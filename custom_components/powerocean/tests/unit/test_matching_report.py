@@ -1,4 +1,5 @@
-# tests/unit/test_matching_report.py
+"""test_matching_report."""
+
 from custom_components.powerocean.const import ReportMode
 
 
@@ -20,5 +21,5 @@ def test_energy_stream_invalid_keys(eco) -> None:
     )
 
 
-def test_other_reports_simple_match(eco) -> None:
+def test_other_reports_simple_match(eco):
     assert eco._is_matching_report("ABC_BATTERY_REPORT", "BATTERY_REPORT")
