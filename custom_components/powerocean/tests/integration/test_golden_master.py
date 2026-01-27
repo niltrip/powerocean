@@ -1,17 +1,12 @@
 # tests/test_golden_master.py
-import difflib
 import json
 from pathlib import Path
 
 import pytest
 import requests
-from rich.console import Console
-from rich.panel import Panel
-from rich.syntax import Syntax
-from rich.text import Text
 
-from ..ecoflow import Ecoflow  # noqa: TID252
-from .utils import serialize_sensors
+from custom_components.powerocean.ecoflow import Ecoflow
+from custom_components.powerocean.tests.utils import serialize_sensors
 
 # List of (API response file, variant) pairs
 API_FIXTURES = [
@@ -25,7 +20,7 @@ API_FIXTURES = [
 
 # Golden-Master-Test
 @pytest.mark.parametrize("fixture_file_name, variant", API_FIXTURES)
-def test_golden_master(fixture_file_name, variant, tmp_path, capsys) -> None:
+def test_golden_master(fixture_file_name, variant, tmp_path) -> None:
     """Regression test: compare current sensor extraction to golden master for multiple responses/variants."""
     fixture_file = Path(__file__).parent / "fixtures" / fixture_file_name
     if not fixture_file.exists():
@@ -66,11 +61,13 @@ def test_golden_master(fixture_file_name, variant, tmp_path, capsys) -> None:
 
     # --- Sensoren serialisieren ---
     serialized = serialize_sensors(sensors)
+    # sort keys deterministisch
+    serialized = dict(sorted(serialized.items()))
 
     # --- Wenn Golden Master noch nicht existiert, erstellen ---
-    if master_file.exists():
+    if not master_file.exists():
         with master_file.open("w", encoding="utf-8") as f:
-            json.dump(serialized, f, indent=2)
+            json.dump(serialized, f, indent=2, sort_keys=True)
         pytest.skip(
             f"Golden Master created for {fixture_file_name}. Re-run test to validate."
         )
@@ -79,48 +76,9 @@ def test_golden_master(fixture_file_name, variant, tmp_path, capsys) -> None:
     with master_file.open("r", encoding="utf-8") as f:
         golden_master = json.load(f)
 
-    # --- Compare and Pretty Diff ---
+        # --- Diff ---
     if serialized != golden_master:
-        # Convert to pretty JSON strings
-        golden_str = json.dumps(golden_master, indent=2, sort_keys=True).splitlines()
-        current_str = json.dumps(serialized, indent=2, sort_keys=True).splitlines()
-
-        # Compute unified diff
-        diff_lines = list(
-            difflib.unified_diff(
-                golden_str,
-                current_str,
-                fromfile="Golden Master",
-                tofile="Current Parser",
-                lineterm="",
-            )
-        )
-
-        # Use Rich to colorize diff
-        colored_diff = []
-        for line in diff_lines:
-            if line.startswith("+") and not line.startswith("+++"):
-                colored_diff.append(Text(line, style="green"))
-            elif line.startswith("-") and not line.startswith("---"):
-                colored_diff.append(Text(line, style="red"))
-            elif line.startswith("@@"):
-                colored_diff.append(Text(line, style="cyan"))
-            else:
-                colored_diff.append(Text(line))
-        console = Console(
-            force_terminal=True,
-            color_system="truecolor",
-            width=120,
-        )
-        with capsys.disabled():
-            console.print(
-                Panel(
-                    Text.assemble(*colored_diff),
-                    title=f"Golden Master Diff for {fixture_file_name}",
-                )
-            )
-
-        # Fail the test
         pytest.fail(
-            f"Sensors differ from Golden Master for {fixture_file_name}! See Rich output above."
+            f"Sensors differ from Golden Master for {fixture_file_name}.\n"
+            f"Run `git diff {master_file}` to inspect changes."
         )

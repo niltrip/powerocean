@@ -1,5 +1,5 @@
 # tests/utils.py
-from ..ecoflow import PowerOceanEndPoint
+from custom_components.powerocean.ecoflow import PowerOceanEndPoint
 
 
 def serialize_sensors(sensors: dict[str, PowerOceanEndPoint]) -> dict:
