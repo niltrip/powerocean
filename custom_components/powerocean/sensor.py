@@ -206,44 +206,6 @@ async def _update_sensors(
     return None
 
 
-class SensorMapping:
-    """Provides mappings from sensor units to HomeAssistant device and state classes."""
-
-    SENSOR_CLASS_MAPPING: ClassVar[dict] = {
-        "°C": SensorDeviceClass.TEMPERATURE,
-        "%": SensorDeviceClass.BATTERY,
-        "Wh": SensorDeviceClass.ENERGY,
-        "kWh": SensorDeviceClass.ENERGY,
-        "W": SensorDeviceClass.POWER,
-        "V": SensorDeviceClass.VOLTAGE,
-        "A": SensorDeviceClass.CURRENT,
-        "L": SensorDeviceClass.VOLUME_STORAGE,
-    }
-
-    STATE_CLASS_MAPPING: ClassVar[dict] = {
-        "°C": SensorStateClass.MEASUREMENT,
-        "h": SensorStateClass.MEASUREMENT,
-        "W": SensorStateClass.MEASUREMENT,
-        "V": SensorStateClass.MEASUREMENT,
-        "A": SensorStateClass.MEASUREMENT,
-        "L": SensorStateClass.MEASUREMENT,
-        "Wh": SensorStateClass.TOTAL_INCREASING, # Warning: overridden for bpRemainWatth
-        "kWh": SensorStateClass.TOTAL_INCREASING,
-    }
-
-    @staticmethod
-    def get_sensor_device_class(unit: str) -> str | None:
-        """Gibt die Geräteklasse anhand der Einheit zurück."""
-        return SensorMapping.SENSOR_CLASS_MAPPING.get(unit, None)
-
-    @staticmethod
-    def get_sensor_state_class(unit: str, key: str | None = None) -> str | None:
-        """Gibt die State-Klasse anhand der Einheit und optional des Keys zurück."""
-        if key and "bpremainwatth" in key.lower():
-            return SensorStateClass.MEASUREMENT
-        return SensorMapping.STATE_CLASS_MAPPING.get(unit, None)
-
-
 class PowerOceanSensor(SensorEntity):
     """Representation of a PowerOcean Sensor."""
 
@@ -274,8 +236,9 @@ class PowerOceanSensor(SensorEntity):
         # The initial state/value of the sensor
         self._state = getattr(endpoint, "value", None)
 
-        # The unit of measurement for the sensor
-        self._unit = getattr(endpoint, "unit", None)
+        self._device_class, self._unit, self._state_class = getattr(
+            endpoint, "class_", None
+        ) or (None, None, None)
 
         # Set entity category to diagnostic for sensors with no unit
         if not self._unit:
@@ -309,16 +272,12 @@ class PowerOceanSensor(SensorEntity):
     @property
     def device_class(self) -> str | None:
         """Return the device class of this entity, if any."""
-        if self._unit is not None:
-            return SensorMapping.get_sensor_device_class(self._unit)
-        return None
+        return self._device_class
 
     @property
     def state_class(self) -> str | None:
         """Return the state class of this entity, if any."""
-        if self._unit is not None:
-            return SensorMapping.get_sensor_state_class(self._unit, self._unique_id)
-        return None
+        return self._state_class
 
     @property
     def extra_state_attributes(self) -> dict:
