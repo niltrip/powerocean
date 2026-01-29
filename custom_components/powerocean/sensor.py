@@ -14,8 +14,6 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
-
-# Setting up the adding and updating of sensor entities
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_SCAN_INTERVAL,
@@ -39,7 +37,12 @@ from .const import (
     DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
 )
-from .ecoflow import AuthenticationFailedError, Ecoflow, PowerOceanEndPoint
+from .ecoflow import (
+    AuthenticationFailedError,
+    Ecoflow,
+    PowerOceanEndPoint,
+    SensorMetaHelper,
+)
 
 
 async def async_setup_entry(
@@ -237,8 +240,18 @@ class SensorMapping:
         return SensorMapping.SENSOR_CLASS_MAPPING.get(unit, None)
 
     @staticmethod
-    def get_sensor_state_class(unit: str) -> str | None:
-        """Gibt die State-Klasse anhand der Einheit zurück."""
+    def get_sensor_state_class(unit: str, key: str | None = None) -> str | None:
+        """Gibt die State-Klasse anhand der Einheit und optional des Keys zurück."""
+        # First check if SensorMetaHelper has specific state class rules for this key
+        if key:
+            meta_state_class = SensorMetaHelper.get_state_class_by_key(key)
+            if meta_state_class:
+                if meta_state_class == "measurement":
+                    return SensorStateClass.MEASUREMENT
+                if meta_state_class == "total_increasing":
+                    return SensorStateClass.TOTAL_INCREASING
+
+        # Fall back to unit-based mapping if no key-specific rule
         return SensorMapping.STATE_CLASS_MAPPING.get(unit, None)
 
 
@@ -315,7 +328,7 @@ class PowerOceanSensor(SensorEntity):
     def state_class(self) -> str | None:
         """Return the state class of this entity, if any."""
         if self._unit is not None:
-            return SensorMapping.get_sensor_state_class(self._unit)
+            return SensorMapping.get_sensor_state_class(self._unit, self._unique_id)
         return None
 
     @property

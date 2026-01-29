@@ -17,3 +17,5 @@ coverage.xml
 # Home Assistant configuration
 config/*
 !config/configuration.yaml
+custom_components/powerocean/ecoflow_new.py
+custom_components/powerocean/sensor_new.py

@@ -100,6 +100,24 @@ class SensorMetaHelper:
         return None  # Default if no match found
 
     @staticmethod
+    def get_state_class_by_key(key: str) -> str | None:
+        """
+        Get state class based on key name.
+
+        Distinguishes between Energy vs Watth suffixes.
+        """
+        # Special case for bpRemainWatth specifically (even though it ends with 'watth')
+        if "bpremainwatth" in key.lower():
+            return "measurement"  # SensorStateClass.MEASUREMENT
+
+        if key.lower().endswith("watth"):
+            return "measurement"  # SensorStateClass.MEASUREMENT
+        if key.lower().endswith("energy"):
+            return "total_increasing"  # SensorStateClass.TOTAL_INCREASING
+
+        return None  # Default to None if no specific rule applies
+
+    @staticmethod
     def get_description(key: str) -> str:
         """Get description from key name using a dictionary mapping."""
         # Dictionary for key-to-description mapping
