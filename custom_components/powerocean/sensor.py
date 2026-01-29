@@ -39,7 +39,7 @@ from .const import (
     DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
 )
-from .ecoflow import AuthenticationFailedError, Ecoflow, PowerOceanEndPoint
+from .ecoflow import AuthenticationFailedError, Ecoflow, PowerOceanEndPoint, SensorMetaHelper
 
 
 async def async_setup_entry(
@@ -239,8 +239,16 @@ class SensorMapping:
     @staticmethod
     def get_sensor_state_class(unit: str, key: str | None = None) -> str | None:
         """Gibt die State-Klasse anhand der Einheit und optional des Keys zurück."""
-        if key and "bpremainwatth" in key.lower():
-            return SensorStateClass.MEASUREMENT
+        # First check if SensorMetaHelper has specific state class rules for this key
+        if key:
+            meta_state_class = SensorMetaHelper.get_state_class_by_key(key)
+            if meta_state_class:
+                if meta_state_class == "measurement":
+                    return SensorStateClass.MEASUREMENT
+                elif meta_state_class == "total_increasing":
+                    return SensorStateClass.TOTAL_INCREASING
+
+        # Fall back to unit-based mapping if no key-specific rule
         return SensorMapping.STATE_CLASS_MAPPING.get(unit, None)
 
 
