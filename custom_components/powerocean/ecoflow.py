@@ -102,16 +102,14 @@ class SensorMetaHelper:
     @staticmethod
     def get_state_class_by_key(key: str) -> str | None:
         """Get state class based on key name, distinguishing between Energy vs Watth suffixes."""
-        # Keys ending with 'Energy' are typically TOTAL_INCREASING (cumulative values)
-        # Keys ending with 'Watth' are typically MEASUREMENT (can decrease)
-        if key.lower().endswith('watth'):
-            return "measurement"  # SensorStateClass.MEASUREMENT
-        elif key.lower().endswith('energy'):
-            return "total_increasing"  # SensorStateClass.TOTAL_INCREASING
-
-        # Special case for bpRemainWatth specifically
+        # Special case for bpRemainWatth specifically (even though it ends with 'watth')
         if "bpremainwatth" in key.lower():
             return "measurement"  # SensorStateClass.MEASUREMENT
+
+        if key.lower().endswith("watth"):
+            return "measurement"  # SensorStateClass.MEASUREMENT
+        if key.lower().endswith("energy"):
+            return "total_increasing"  # SensorStateClass.TOTAL_INCREASING
 
         return None  # Default to None if no specific rule applies
 
