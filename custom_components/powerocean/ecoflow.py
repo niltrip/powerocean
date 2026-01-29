@@ -101,7 +101,11 @@ class SensorMetaHelper:
 
     @staticmethod
     def get_state_class_by_key(key: str) -> str | None:
-        """Get state class based on key name, distinguishing between Energy vs Watth suffixes."""
+        """
+        Get state class based on key name.
+
+        Distinguishes between Energy vs Watth suffixes.
+        """
         # Special case for bpRemainWatth specifically (even though it ends with 'watth')
         if "bpremainwatth" in key.lower():
             return "measurement"  # SensorStateClass.MEASUREMENT

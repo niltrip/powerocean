@@ -14,8 +14,6 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
-
-# Setting up the adding and updating of sensor entities
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_SCAN_INTERVAL,
@@ -39,7 +37,12 @@ from .const import (
     DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
 )
-from .ecoflow import AuthenticationFailedError, Ecoflow, PowerOceanEndPoint, SensorMetaHelper
+from .ecoflow import (
+    AuthenticationFailedError,
+    Ecoflow,
+    PowerOceanEndPoint,
+    SensorMetaHelper,
+)
 
 
 async def async_setup_entry(
