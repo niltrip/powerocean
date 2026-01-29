@@ -63,7 +63,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         # Legacy config without options? Patch it.
         updated = False
-        _LOGGER.debug(f"start async_setup_entry: {entry.data}")
         options = entry.data["options"]
 
         if CONF_SCAN_INTERVAL not in options:
@@ -79,7 +78,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if updated:
             hass.config_entries.async_update_entry(entry, options=options)
             _LOGGER.info(f"Migrated missing options for {entry.title}: {options}")
-        _LOGGER.debug(f"update async_setup_entry: {entry.data}")
 
         device_id = entry.data["user_input"][
             CONF_DEVICE_ID

@@ -227,7 +227,7 @@ class SensorMapping:
         "V": SensorStateClass.MEASUREMENT,
         "A": SensorStateClass.MEASUREMENT,
         "L": SensorStateClass.MEASUREMENT,
-        "Wh": SensorStateClass.TOTAL_INCREASING,
+        "Wh": SensorStateClass.MEASUREMENT,
         "kWh": SensorStateClass.TOTAL_INCREASING,
     }
 
