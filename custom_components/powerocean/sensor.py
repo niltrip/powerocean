@@ -248,7 +248,7 @@ class SensorMapping:
             if meta_state_class:
                 if meta_state_class == "measurement":
                     return SensorStateClass.MEASUREMENT
-                elif meta_state_class == "total_increasing":
+                if meta_state_class == "total_increasing":
                     return SensorStateClass.TOTAL_INCREASING
 
         # Fall back to unit-based mapping if no key-specific rule
