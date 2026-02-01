@@ -1,13 +1,5 @@
 {
     "config": {
-        "abort": {
-            "already_configured": "Device is already configured"
-        },
-        "error": {
-            "cannot_connect": "Failed to connect",
-            "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
-        },
         "step": {
             "user": {
                 "description": "Please enter your PowerOcean device information below:",
@@ -15,17 +7,33 @@
                     "device_id": "Inverter serial number",
                     "email": "Email",
                     "password": "Password",
-                    "model_id": "PowerOcean Model"
+                    "model_id": "PowerOcean Model",
+                    "choose": "Please select the sensors to monitor"
                 }
             },
             "device_options": {
                 "description": "Please select the following options:",
                 "data": {
                     "friendly_name": "Friendly device name",
-                    "scan_interval": "Polling time (in seconds) to update sensors from device",
-                    "choose": "Please select the sensors to monitor"
+                    "scan_interval": "Polling time (in seconds) to update sensors from device"
+                }
+            },
+            "reconfigure": {
+                "description": "Please select the following options:",
+                "data": {
+                    "friendly_name": "Friendly device name",
+                    "scan_interval": "Polling time (in seconds) to update sensors from device"
                 }
             }
+        },
+        "error": {
+            "cannot_connect": "Failed to connect",
+            "invalid_auth": "Invalid authentication",
+            "unknown": "Unexpected error"
+        },
+        "abort": {
+            "already_configured": "Device is already configured.",
+            "reconfiguration_completed": "Reconfiguration of Device completed."
         }
     }
 }

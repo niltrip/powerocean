@@ -1,13 +1,5 @@
 {
     "config": {
-        "abort": {
-            "already_configured": "Das Gerät ist bereits konfiguriert"
-        },
-        "error": {
-            "cannot_connect": "Verbindung fehlgeschlagen",
-            "invalid_auth": "Ungültige Authentifizierung",
-            "unknown": "Unerwarteter Fehler"
-        },
         "step": {
             "user": {
                 "description": "Bitte geben Sie unten Ihre PowerOcean Geräteinformationen ein:",
@@ -15,17 +7,33 @@
                     "device_id": "Seriennummer des Wechselrichters",
                     "email": "Email Adresse",
                     "password": "Passwort",
-                    "model_id": "PowerOcean Model"
+                    "model_id": "PowerOcean Model",
+                    "choose": "Bitte wählen Sie die zu überwachenden Sensoren aus"
                 }
             },
             "device_options": {
                 "description": "Bitte wählen Sie die folgenden Optionen aus:",
                 "data": {
                     "friendly_name": "Benutzerfreundlicher Gerätename",
-                    "scan_interval": "Abfragezeit (in Sekunden), um Sensoren vom Gerät zu aktualisieren",
-                    "choose": "Bitte wählen Sie die zu überwachenden Sensoren aus"
+                    "scan_interval": "Abfragezeit (in Sekunden), um Sensoren vom Gerät zu aktualisieren"
+                }
+            },
+            "reconfigure": {
+                "description": "Bitte wählen Sie die folgenden Optionen aus:",
+                "data": {
+                    "friendly_name": "Benutzerfreundlicher Gerätename",
+                    "scan_interval": "Abfragezeit (in Sekunden), um Sensoren vom Gerät zu aktualisieren"
                 }
             }
+        },
+        "error": {
+            "cannot_connect": "Verbindung fehlgeschlagen",
+            "invalid_auth": "Ungültige Authentifizierung",
+            "unknown": "Unerwarteter Fehler"
+        },
+        "abort": {
+            "already_configured": "Das Gerät ist bereits konfiguriert",
+            "reconfiguration_completed": "Neu-Konfiguration des Geräts abgeschlossen."
         }
     }
 }
