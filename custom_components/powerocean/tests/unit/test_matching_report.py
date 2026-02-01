@@ -1,6 +1,6 @@
 """test_matching_report."""
 
-from custom_components.powerocean.const import ReportMode
+from custom_components.powerocean.utils import ReportMode
 
 
 def test_energy_stream_valid_keys(eco) -> None:
