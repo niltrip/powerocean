@@ -16,7 +16,7 @@ import logging
 import re
 from collections.abc import Callable
 from enum import Enum
-from typing import TypedDict
+from typing import ClassVar, Optional, TypedDict
 
 
 class BoxSchema(TypedDict):
@@ -135,77 +135,53 @@ class DeviceRole(str, Enum):
     EMPTY = ""  # Used when no specific role is assigned
 
 
+class UnitHelper:
+    """Helper class for unit inference from sensor key names using pattern matching."""
+
+    _UNIT_PATTERNS: ClassVar[list[tuple[re.Pattern, str]]] = [
+        (re.compile(r"(pwr|power)$"), "W"),
+        (re.compile(r"(amp|current)$"), "A"),
+        (re.compile(r"(vol|voltage)$"), "V"),
+        (re.compile(r"(watth|energy)$"), "Wh"),
+        (re.compile(r"(soc|soh|percent)$"), "%"),
+        (re.compile(r"(temp|temperature)$"), "°C"),
+        (re.compile(r"capacity"), "Ah"),
+        (re.compile(r"generation"), "kWh"),
+        (re.compile(r"volume"), "L"),
+    ]
+
+    @classmethod
+    def infer_unit(cls, key: str) -> str | None:
+        """
+        Infer the physical unit from a sensor key name.
+
+        The method matches common suffixes and keywords (e.g. "energy", "power",
+        "voltage") against the given key name and returns the corresponding unit.
+
+        Args:
+            key: Sensor key name (e.g. "bpTotalChgEnergy").
+
+        Returns:
+            The inferred unit as a string (e.g. "Wh", "V", "%"),
+            or None if no unit could be determined.
+
+        """
+        key_lower = key.lower()
+
+        for pattern, unit in cls._UNIT_PATTERNS:
+            if pattern.search(key_lower):
+                return unit
+
+        return None
+
+
 class SensorMetaHelper:
     """Helper class for sensor metadata such as units, descriptions, and icons."""
 
     @staticmethod
     def get_unit(key: str) -> str | None:
-        """Get unit from key name automatically based on common patterns."""
-        key_lower = key.lower()
-
-        # 1️⃣ Direktes Mapping (häufigste Suffixe)
-        suffix_mapping = {
-            "pwr": "W",
-            "power": "W",
-            "amp": "A",
-            "soc": "%",
-            "soh": "%",
-            "vol": "V",
-            "watth": "Wh",
-            "energy": "Wh",
-            "percent": "%",
-            "volume": "L",
-            "temp": "°C",
-            "current": "A",
-            "voltage": "V",
-        }
-
-        for suffix, unit in suffix_mapping.items():
-            if key_lower.endswith(suffix):
-                return unit
-
-        # 2️⃣ Keyword-Matching anywhere im Key (nicht nur Suffix)
-        keyword_mapping = {
-            "generation": "kWh",
-            "capacity": "Ah",
-            "temperature": "°C",
-            "temp": "°C",
-            "power": "W",
-            "energy": "Wh",
-            "soc": "%",
-            "soh": "%",
-            "voltage": "V",
-            "current": "A",
-        }
-
-        for keyword, unit in keyword_mapping.items():
-            if keyword in key_lower:
-                return unit
-
-        # 3️⃣ Optional: Versuche, aus CamelCase oder Unterstrichen zu raten
-        # z.B. bpAccuChgEnergy -> endet auf Energy -> Wh
-        match = re.search(
-            r"(pwr|amp|soc|soh|vol|watth|energy|temp|temperature|current|voltage)$",
-            key_lower,
-        )
-        if match:
-            mapping = {
-                "pwr": "W",
-                "amp": "A",
-                "soc": "%",
-                "soh": "%",
-                "vol": "V",
-                "watth": "Wh",
-                "energy": "Wh",
-                "temp": "°C",
-                "temperature": "°C",
-                "current": "A",
-                "voltage": "V",
-            }
-            return mapping[match.group(1)]
-
-        # 4️⃣ Keine Einheit gefunden
-        return None
+        """See UnitHelper.infer_unit()."""
+        return UnitHelper.infer_unit(key)
 
     @staticmethod
     def get_description(key: str) -> str:
