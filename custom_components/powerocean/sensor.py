@@ -5,6 +5,7 @@ This module defines the setup and management of PowerOcean sensor entities,
 including data fetching, entity registration, and periodic updates.
 """
 
+import logging
 from collections.abc import Callable
 from datetime import date, timedelta
 from typing import Any, ClassVar
@@ -28,13 +29,14 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.event import async_track_time_interval
 
 from .const import (
-    _LOGGER,
     ATTR_PRODUCT_DESCRIPTION,
     ATTR_PRODUCT_SERIAL,
     DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
 )
 from .ecoflow import AuthenticationFailedError, Ecoflow, PowerOceanEndPoint
+
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
@@ -365,8 +367,10 @@ class PowerOceanSensor(SensorEntity):
         if sensor_data is None:
             serial = self.ecoflow.device["serial"] if self.ecoflow.device else "unknown"
             _LOGGER.warning(
-                f"{serial}: No new data provided for sensor '{self.name}' update"
-                + ISSUE_URL_ERROR_MESSAGE
+                "%s: No new data provided for sensor '%s' update%s",
+                serial,
+                self.name,
+                ISSUE_URL_ERROR_MESSAGE,
             )
             update_status = 0
             return None
@@ -378,9 +382,11 @@ class PowerOceanSensor(SensorEntity):
 
         except (AttributeError, TypeError) as error:
             serial = self.ecoflow.device["serial"] if self.ecoflow.device else "unknown"
-            _LOGGER.error(
-                f"{serial}: Error updating sensor {self.name}: {error}"
-                + ISSUE_URL_ERROR_MESSAGE
+            _LOGGER.exception(
+                "%s: Error updating sensor %s%s",
+                serial,
+                self.name,
+                ISSUE_URL_ERROR_MESSAGE,
             )
             update_status = 0
 

@@ -2,6 +2,7 @@
 
 import base64
 import binascii
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -13,17 +14,20 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.util.json import json_loads
 
 from .const import (
-    _LOGGER,
-    BOX_SCHEMAS,
     DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
     MOCKED_RESPONSE,
     USE_MOCKED_RESPONSE,
+)
+from .utils import (
+    BOX_SCHEMAS,
     BoxSchema,
     DeviceRole,
     ReportMode,
     SensorMetaHelper,
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 
 # Better storage of PowerOcean endpoint

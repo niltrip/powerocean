@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 from homeassistant.const import (
@@ -17,7 +18,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.loader import async_get_integration
 
 from .const import (
-    _LOGGER,
+    #    _LOGGER,
     DOMAIN,
     PLATFORMS,
 )
@@ -28,6 +29,8 @@ if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.typing import ConfigType
+
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:  # noqa: ARG001

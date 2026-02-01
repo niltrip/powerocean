@@ -13,7 +13,7 @@ from homeassistant.config_entries import (
 from homeassistant.exceptions import HomeAssistantError, IntegrationError
 from homeassistant.helpers.selector import selector
 
-from .const import _LOGGER, DOMAIN, ISSUE_URL_ERROR_MESSAGE
+from .const import DOMAIN, ISSUE_URL_ERROR_MESSAGE
 from .ecoflow import Ecoflow
 
 if TYPE_CHECKING:
