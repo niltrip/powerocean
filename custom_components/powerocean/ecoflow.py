@@ -4,9 +4,22 @@ import base64
 import re
 from enum import Enum
 from pathlib import Path
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, Tuple
 
 import requests
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorStateClass,
+)
+from homeassistant.const import (
+    PERCENTAGE,
+    UnitOfElectricCurrent,
+    UnitOfElectricPotential,
+    UnitOfEnergy,
+    UnitOfPower,
+    UnitOfTemperature,
+    UnitOfVolume,
+)
 from homeassistant.exceptions import IntegrationError
 from homeassistant.util.json import json_loads
 
@@ -52,7 +65,7 @@ class PowerOceanEndPoint(NamedTuple):
         name (str): Name of the endpoint.
         friendly_name (str): Human-readable name.
         value (object): Value of the endpoint.
-        unit (str | None): Unit of measurement.
+        class (() | None): Unit of measurement.
         description (str): Description of the endpoint.
         icon (str | None): Icon representing the endpoint.
 
@@ -63,7 +76,7 @@ class PowerOceanEndPoint(NamedTuple):
     name: str
     friendly_name: str
     value: object
-    unit: str | None
+    class_: Tuple[SensorDeviceClass, str, SensorStateClass] | None
     description: str
     icon: str | None
 
@@ -72,30 +85,77 @@ class SensorMetaHelper:
     """Helper class for sensor metadata such as units, descriptions, and icons."""
 
     @staticmethod
-    def get_unit(key: str) -> str | None:
+    def get_class(key: str) -> Tuple[SensorDeviceClass, str, SensorStateClass]  | None:
         """Get unit from key name using a dictionary mapping."""
-        unit_mapping = {
-            "pwr": "W",
-            "power": "W",
-            "amp": "A",
-            "soc": "%",
-            "soh": "%",
-            "vol": "V",
-            "watth": "Wh",
-            "energy": "Wh",
-            "percent": "%",
-            "volume": "L",
-            "temp": "°C",
+        key_mapping = {
+            "pwr": (
+                SensorDeviceClass.POWER,
+                UnitOfPower.WATT,
+                SensorStateClass.MEASUREMENT,
+            ),
+            "power": (
+                SensorDeviceClass.POWER,
+                UnitOfPower.WATT,
+                SensorStateClass.MEASUREMENT,
+            ),
+            "amp": (
+                SensorDeviceClass.CURRENT,
+                UnitOfElectricCurrent.AMPERE,
+                SensorStateClass.MEASUREMENT,
+            ),
+            "soc": (
+                SensorDeviceClass.BATTERY,
+                PERCENTAGE,
+                SensorStateClass.MEASUREMENT,
+            ),
+            "soh": (
+                SensorDeviceClass.BATTERY,
+                PERCENTAGE,
+                SensorStateClass.MEASUREMENT,
+            ),
+            "vol": (
+                SensorDeviceClass.VOLTAGE,
+                UnitOfElectricPotential.VOLT,
+                SensorStateClass.MEASUREMENT,
+            ),
+            "watth": (
+                SensorDeviceClass.ENERGY_STORAGE,
+                UnitOfEnergy.WATT_HOUR,
+                SensorStateClass.MEASUREMENT,
+            ),
+            "energy": (
+                SensorDeviceClass.ENERGY,
+                UnitOfEnergy.WATT_HOUR,
+                SensorStateClass.TOTAL_INCREASING,
+            ),
+            "electricitygeneration": (
+                SensorDeviceClass.ENERGY,
+                UnitOfEnergy.KILO_WATT_HOUR,
+                SensorStateClass.TOTAL_INCREASING,
+            ),
+            "percent": (
+                SensorDeviceClass.BATTERY,
+                PERCENTAGE,
+                SensorStateClass.MEASUREMENT,
+            ),
+            "volume": (
+                SensorDeviceClass.VOLUME_STORAGE,
+                UnitOfVolume.LITERS,
+                SensorStateClass.MEASUREMENT,
+            ),
+            "temp": (
+                SensorDeviceClass.TEMPERATURE,
+                UnitOfTemperature.CELSIUS,
+                SensorStateClass.MEASUREMENT,
+            ),
         }
 
         # Check for direct matches using dictionary lookup
-        for suffix, unit in unit_mapping.items():
+        for suffix, classes in key_mapping.items():
             if key.lower().endswith(suffix):
-                return unit
+                return classes
 
-        # Special case for "Generation" in key
-        if "Generation" in key:
-            return "kWh"
+        _LOGGER.error("No mapping for key %s", key)
 
         return None  # Default if no match found
 
@@ -527,7 +587,7 @@ class Ecoflow:
                                 name=f"{self.sn_inverter}_{name}{key}{suffix}",
                                 friendly_name=f"{name}{key}{suffix}",
                                 value=value,
-                                unit=SensorMetaHelper.get_unit(key),
+                                class_=SensorMetaHelper.get_class(key),
                                 description=f"{name}{SensorMetaHelper.get_description(key)}",
                                 icon=SensorMetaHelper.get_special_icon(key),
                             )
@@ -567,7 +627,7 @@ class Ecoflow:
                         name=f"{self.sn_inverter}_{key}{suffix}",
                         friendly_name=f"{key}{suffix}",
                         value=value,
-                        unit=SensorMetaHelper.get_unit(key),
+                        class_=SensorMetaHelper.get_class(key),
                         description=SensorMetaHelper.get_description(key),
                         icon=None,
                     )
@@ -586,7 +646,7 @@ class Ecoflow:
                             name=f"{self.sn_inverter}_{name}{suffix}",
                             friendly_name=f"{name}{suffix}",
                             value=value,
-                            unit=SensorMetaHelper.get_unit(key),
+                            class_=SensorMetaHelper.get_class(key),
                             description=SensorMetaHelper.get_description(key),
                             icon=None,
                         )
@@ -611,7 +671,7 @@ class Ecoflow:
                             name=f"{self.sn_inverter}_mpptPv{i + 1}_{key}{suffix}",
                             friendly_name=f"mpptPv{i + 1}_{key}{suffix}",
                             value=value,
-                            unit=SensorMetaHelper.get_unit(key),
+                            class_=SensorMetaHelper.get_class(key),
                             description=SensorMetaHelper.get_description(key),
                             icon=special_icon,
                         )
@@ -629,7 +689,11 @@ class Ecoflow:
                     name=f"{self.sn_inverter}_mpptPv_pwrTotal{suffix}",
                     friendly_name=f"mpptPv_pwrTotal{suffix}",
                     value=total_power,
-                    unit="W",
+                    class_=(
+                        SensorDeviceClass.POWER,
+                        UnitOfPower.WATT,
+                        SensorStateClass.MEASUREMENT,
+                    ),
                     description="Solarertrag aller Strings",
                     icon="mdi:solar-power",
                 )
@@ -668,7 +732,7 @@ class Ecoflow:
                             name=f"{dev_sn}_{key}{suffix}",
                             friendly_name=f"{key}{suffix}",
                             value=value,
-                            unit=SensorMetaHelper.get_unit(key),
+                            class_=SensorMetaHelper.get_class(key),
                             description=SensorMetaHelper.get_description(key),
                             icon=SensorMetaHelper.get_special_icon(key),
                         )
@@ -698,7 +762,7 @@ class Ecoflow:
                         name=f"{self.sn_inverter}_{key}{suffix}",
                         friendly_name=f"{key}{suffix}",
                         value=value,
-                        unit=SensorMetaHelper.get_unit(key),
+                        class_=SensorMetaHelper.get_class(key),
                         description=SensorMetaHelper.get_description(key),
                         icon=SensorMetaHelper.get_special_icon(key),
                     )
