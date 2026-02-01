@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import TYPE_CHECKING, Any
 
 import voluptuous as vol
-from homeassistant.config_entries import (
-    ConfigFlow,
-    ConfigFlowResult,
-)
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.exceptions import HomeAssistantError, IntegrationError
 from homeassistant.helpers.selector import selector
 
@@ -28,7 +26,7 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 
-# This are the step's schema when setting up the integration, or its devices
+# Schema for the user step and device options step
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_DEVICE_ID, default=""): str,
@@ -38,22 +36,10 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
             {
                 "select": {
                     "options": [
-                        {
-                            "label": "PowerOcean",
-                            "value": "83",
-                        },
-                        {
-                            "label": "PowerOcean DC Fit",
-                            "value": "85",
-                        },
-                        {
-                            "label": "PowerOcean Single Phase",
-                            "value": "86",
-                        },
-                        {
-                            "label": "PowerOcean Plus",
-                            "value": "87",
-                        },
+                        {"label": "PowerOcean", "value": "83"},
+                        {"label": "PowerOcean DC Fit", "value": "85"},
+                        {"label": "PowerOcean Single Phase", "value": "86"},
+                        {"label": "PowerOcean Plus", "value": "87"},
                     ],
                     "mode": "dropdown",
                 }
@@ -78,6 +64,8 @@ STEP_DEVICE_OPTIONS_SCHEMA = vol.Schema(
     }
 )
 
+_LOGGER = logging.getLogger(__name__)
+
 
 async def validate_input_for_device(
     hass: HomeAssistant, data: dict[str, Any]
@@ -95,23 +83,26 @@ async def validate_input_for_device(
         # Check for authentication
         await hass.async_add_executor_job(ecoflow.authorize)
         # Get device info
-        # Return the device object with the device information
         return await hass.async_add_executor_job(ecoflow.get_device)
 
-    # Exception if device cannot be found
     except IntegrationError as e:
-        _LOGGER.error(
-            f"Failed to connect to PowerOcean device: {e}" + ISSUE_URL_ERROR_MESSAGE
+        _LOGGER.exception(
+            "Failed to connect to PowerOcean device: %s%s",
+            e,
+            ISSUE_URL_ERROR_MESSAGE,
         )
-        raise CannotConnectError from e
+        raise HomeAssistantError from e  # Verwenden der Standardfehlerklasse
 
-    # Exception if authentication fails
-    except AuthenticationFailedError as e:
-        _LOGGER.error(f"Authentication failed: {e}" + ISSUE_URL_ERROR_MESSAGE)
-        raise InvalidAuthError from e
+    except Exception as e:  # allgemeine Fehlerbehandlung
+        _LOGGER.exception(
+            "Authentication failed: %s%s",
+            e,
+            ISSUE_URL_ERROR_MESSAGE,
+        )
+        raise HomeAssistantError from e
 
 
-async def validate_settings(hass: HomeAssistant, data: dict[str, Any]) -> bool:  # noqa: ARG001
+async def validate_settings(hass: HomeAssistant, data: dict[str, Any]) -> bool:
     """Another validation method for our config steps."""
     return True
 
@@ -136,11 +127,9 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 device = await validate_input_for_device(self.hass, user_input)
-            except CannotConnectError:
+            except HomeAssistantError:
                 errors["base"] = "cannot_connect"
-            except InvalidAuthError:
-                errors["base"] = "invalid_auth"
-            except Exception:  # noqa: BLE001
+            except Exception:  # Catch-all für unbekannte Fehler
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
             else:
@@ -181,9 +170,10 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
                             "options": user_input,  # new options from this step
                         },
                     )
-            except ValueError as e:
-                _LOGGER.error(
-                    f"Failed to handle device options: {e}" + ISSUE_URL_ERROR_MESSAGE
+            except ValueError:
+                _LOGGER.exception(
+                    "Failed to handle device options: %s",
+                    ISSUE_URL_ERROR_MESSAGE,
                 )
                 errors["base"] = "option_error"
 
@@ -205,6 +195,7 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
 
         # Standardname aus Optionen setzen (Fallback auf Default)
         default_name = current_options.get(CONF_FRIENDLY_NAME, "PowerOcean")
+        default_scan_interval = current_options.get(CONF_SCAN_INTERVAL, 10)
 
         if user_input is not None:
             try:
@@ -217,26 +208,38 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
                 user_input[CONF_FRIENDLY_NAME] = sanitize_device_name(
                     user_input[CONF_FRIENDLY_NAME], default_name
                 )
+                # Scan Interval: Validierung oder Standardwert
+                user_input[CONF_SCAN_INTERVAL] = user_input.get(
+                    CONF_SCAN_INTERVAL, default_scan_interval
+                )
 
                 # Optionen aktualisieren
                 updated_options = {**current_options, **user_input}
 
-                # Eintrag aktualisieren und neu laden
-                return self.async_update_reload_and_abort(
-                    current_entry, data_updates={"options": updated_options}
+                # Eintrag aktualisieren (nicht neu erstellen)
+                self.hass.config_entries.async_update_entry(
+                    current_entry, options=updated_options
                 )
 
-            except ValueError as e:
-                _LOGGER.exception(f"Fehler bei der Re-Konfiguration: {e}")
+                # Integration neu laden, um Änderungen sofort anzuwenden
+                await self.hass.config_entries.async_reload(current_entry.entry_id)
+
+                # Vorgang abgebrochen, da der Eintrag nun aktualisiert wurde
+                return self.async_abort(
+                    reason="reconfiguration_completed"
+                )  # Abbruch mit Grund
+
+            except ValueError:
+                _LOGGER.exception("Fehler bei der Re-Konfiguration.")
                 errors["base"] = "reconfig_error"
 
-        # Formular mit bestehenden Werten anzeigen
+        # Formular mit bestehenden Werten anzeigen, Standardwerte aus den aktuellen Optionen übernehmen
         data_schema = vol.Schema(
             {
                 vol.Required(CONF_FRIENDLY_NAME, default=default_name): str,
                 vol.Required(
                     CONF_SCAN_INTERVAL,
-                    default=current_options.get(CONF_SCAN_INTERVAL, 10),
+                    default=default_scan_interval,  # Hier sicherstellen, dass der Wert korrekt gesetzt wird
                 ): selector(
                     {
                         "number": {
@@ -257,46 +260,19 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
 
-class CannotConnectError(HomeAssistantError):
-    """Error to indicate we cannot connect."""
-
-
-class InvalidAuthError(HomeAssistantError):
-    """Error to indicate there is invalid auth."""
-
-
-class AuthenticationFailedError(HomeAssistantError):
-    """Error to indicate authentication failure."""
-
-    def __init__(self) -> None:
-        """Initialize AuthenticationFailedError with a default message."""
-        msg = "Invalid authentication!"
-        super().__init__(msg)
-
-
 # Helper function to sanitize
 def sanitize_device_name(
     device_name: str, fall_back: str, max_length: int = 255
 ) -> str:
     """
-    Sanitize the device name by trimming whitespace,
-    removing special characters, and enforcing a maximum length.
+    Sanitize the device name.
 
-    Args:
-        device_name (str): The device name to sanitize.
-        fall_back (str): The fallback name to use if the sanitized name is empty.
-        max_length (int, optional): The maximum allowed length for the name.
-            Defaults to 255.
-
-    Returns:
-        str: The sanitized device name.
-
-    """  # noqa: D205
+    by trimming whitespace, removing special characters, and enforcing a maximum length.
+    """
     # Trim whitespace
     sanitized = device_name.strip()
 
     # Remove disallowed characters
-    # (keep alphanumerics, spaces, underscores, and hyphens)
     sanitized = re.sub(r"[^\w\s\-]", "", sanitized)
 
     # Collapse multiple spaces to a single space
