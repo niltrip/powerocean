@@ -96,7 +96,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         # Optional: autorisieren oder Daten abrufen
         await hass.async_add_executor_job(ecoflow.authorize)
-        ecoflow.device = await hass.async_add_executor_job(ecoflow.get_device)
+        # authorize() already did this and assigned it to self
+        # ecoflow.device = await hass.async_add_executor_job(ecoflow.get_device)
 
         hass.data.setdefault(DOMAIN, {})[entry.entry_id] = ecoflow
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

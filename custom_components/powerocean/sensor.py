@@ -28,13 +28,7 @@ from homeassistant.helpers.event import async_track_time_interval
 
 from .const import (
     _LOGGER,
-    ATTR_PRODUCT_BUILD,
     ATTR_PRODUCT_DESCRIPTION,
-    ATTR_PRODUCT_FEATURES,
-    ATTR_PRODUCT_NAME,
-    ATTR_PRODUCT_SERIAL,
-    ATTR_PRODUCT_VENDOR,
-    ATTR_PRODUCT_VERSION,
     ATTR_UNIQUE_ID,
     DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
@@ -206,42 +200,6 @@ async def _update_sensors(
     return None
 
 
-class SensorMapping:
-    """Provides mappings from sensor units to HomeAssistant device and state classes."""
-
-    SENSOR_CLASS_MAPPING: ClassVar[dict] = {
-        "°C": SensorDeviceClass.TEMPERATURE,
-        "%": SensorDeviceClass.BATTERY,
-        "Wh": SensorDeviceClass.ENERGY,
-        "kWh": SensorDeviceClass.ENERGY,
-        "W": SensorDeviceClass.POWER,
-        "V": SensorDeviceClass.VOLTAGE,
-        "A": SensorDeviceClass.CURRENT,
-        "L": SensorDeviceClass.VOLUME_STORAGE,
-    }
-
-    STATE_CLASS_MAPPING: ClassVar[dict] = {
-        "°C": SensorStateClass.MEASUREMENT,
-        "h": SensorStateClass.MEASUREMENT,
-        "W": SensorStateClass.MEASUREMENT,
-        "V": SensorStateClass.MEASUREMENT,
-        "A": SensorStateClass.MEASUREMENT,
-        "L": SensorStateClass.MEASUREMENT,
-        "Wh": SensorStateClass.MEASUREMENT,
-        "kWh": SensorStateClass.TOTAL_INCREASING,
-    }
-
-    @staticmethod
-    def get_sensor_device_class(unit: str) -> str | None:
-        """Gibt die Geräteklasse anhand der Einheit zurück."""
-        return SensorMapping.SENSOR_CLASS_MAPPING.get(unit, None)
-
-    @staticmethod
-    def get_sensor_state_class(unit: str) -> str | None:
-        """Gibt die State-Klasse anhand der Einheit zurück."""
-        return SensorMapping.STATE_CLASS_MAPPING.get(unit, None)
-
-
 class PowerOceanSensor(SensorEntity):
     """Representation of a PowerOcean Sensor."""
 
@@ -252,117 +210,51 @@ class PowerOceanSensor(SensorEntity):
         # Make Ecoflow and the endpoint parameters from the Sensor API available
         self.ecoflow = ecoflow
         self.endpoint = endpoint
-        self.device_id = device_id
 
         # Set Friendly name when sensor is first created
-        self._attr_unique_id = getattr(endpoint, "name", None)
         self._attr_has_entity_name = True
         self._attr_name = getattr(endpoint, "friendly_name", None)
-        self._name = getattr(endpoint, "friendly_name", None)
         self._attr_entity_category = None
+        # async_track_time_intervals handles updates
+        self._attr_should_poll = False
 
         # The unique identifier for this sensor within Home Assistant
         # has nothing to do with the entity_id,
         # it is the internal unique_id of the sensor entity registry
-        self._unique_id = getattr(endpoint, "internal_unique_id", None)
+        self._attr_unique_id = getattr(endpoint, "internal_unique_id", None)
 
         # Default handled in function
-        self._icon = getattr(endpoint, "icon", None)
+        self._attr_icon = getattr(endpoint, "icon", None)
 
         # The initial state/value of the sensor
-        self._state = getattr(endpoint, "value", None)
+        self._attr_native_value = getattr(endpoint, "value", None)
 
-        # The unit of measurement for the sensor
-        self._unit = getattr(endpoint, "unit", None)
+        (
+            self._attr_device_class,
+            self._attr_native_unit_of_measurement,
+            self._attr_state_class,
+        ) = getattr(endpoint, "class_", None) or (None, None, None)
 
         # Set entity category to diagnostic for sensors with no unit
-        if not self._unit:
+        if self._attr_native_unit_of_measurement is None:
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    @property
-    def should_poll(self) -> bool:
-        """async_track_time_intervals handles updates."""
-        return False
+        self._attr_extra_state_attributes = {
+            ATTR_PRODUCT_DESCRIPTION: getattr(self.endpoint, "description", None),
+            ATTR_UNIQUE_ID: getattr(self.endpoint, "internal_unique_id", None),
+        }
 
-    @property
-    def unique_id(self) -> str | None:
-        """Return the unique ID of the sensor."""
-        return self._unique_id
-
-    @property
-    def name(self) -> str | None:
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def state(self) -> Any:
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self) -> str | None:
-        """Return the unit of measurement."""
-        return self._unit
-
-    @property
-    def device_class(self) -> str | None:
-        """Return the device class of this entity, if any."""
-        if self._unit is not None:
-            return SensorMapping.get_sensor_device_class(self._unit)
-        return None
-
-    @property
-    def state_class(self) -> str | None:
-        """Return the state class of this entity, if any."""
-        if self._unit is not None:
-            return SensorMapping.get_sensor_state_class(self._unit)
-        return None
-
-    @property
-    def extra_state_attributes(self) -> dict:
-        """Return the state attributes of this device."""
-        attr = {}
-
-        attr[ATTR_PRODUCT_DESCRIPTION] = getattr(self.endpoint, "description", None)
-        attr[ATTR_UNIQUE_ID] = getattr(self.endpoint, "internal_unique_id", None)
-        attr[ATTR_PRODUCT_VENDOR] = (
-            self.ecoflow.device["vendor"] if self.ecoflow.device else None
-        )
-        attr[ATTR_PRODUCT_NAME] = (
-            self.ecoflow.device["name"] if self.ecoflow.device else None
-        )
-        attr[ATTR_PRODUCT_SERIAL] = getattr(self.endpoint, "serial", None)
-        attr[ATTR_PRODUCT_VERSION] = (
-            self.ecoflow.device["version"] if self.ecoflow.device else None
-        )
-        attr[ATTR_PRODUCT_BUILD] = (
-            self.ecoflow.device["build"] if self.ecoflow.device else None
-        )
-        attr[ATTR_PRODUCT_FEATURES] = (
-            self.ecoflow.device["features"] if self.ecoflow.device else None
-        )
-
-        return attr
-
-    @property
-    def device_info(self) -> dict | None:
-        """Return device specific attributes."""
         device_name = (
             self.ecoflow.device["name"]
             if self.ecoflow.device and "name" in self.ecoflow.device
             else None
         )
-        return {
-            "identifiers": {(DOMAIN, self.device_id)},
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, device_id)},
             "name": device_name,
             "manufacturer": "EcoFlow",
             "model": "PowerOcean",
         }  # The unique identifier of the device is the serial number
-
-    @property
-    def icon(self) -> str | None:
-        """Return the icon of the sensor."""
-        return self._icon
 
     # This is to register the icon settings
     async def async_added_to_hass(self) -> None:
@@ -384,7 +276,7 @@ class PowerOceanSensor(SensorEntity):
             return None
 
         try:
-            self._state = sensor_data.value
+            self._attr_native_value = sensor_data.value
             update_status = 1
             self.async_write_ha_state()
 
