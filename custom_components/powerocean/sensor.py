@@ -51,7 +51,7 @@ async def async_setup_entry(
     and manages device-specific sensor lists for the PowerOcean integration.
     """
     ecoflow = hass.data[DOMAIN][config_entry.entry_id]
-    _LOGGER.debug(f"ecoflow.device: {ecoflow.device}")
+    _LOGGER.debug("ecoflow.device: %s", ecoflow.device)
     device_id = ecoflow.device["serial"]
 
     if not await _authorize_device(hass, ecoflow, device_id):
@@ -62,7 +62,6 @@ async def async_setup_entry(
         return
 
     _register_sensors(hass, ecoflow, device_id, data, async_add_entities)
-
     polling_interval = timedelta(
         seconds=config_entry.options.get(CONF_SCAN_INTERVAL, 10)
     )
@@ -81,15 +80,20 @@ async def _authorize_device(
         auth_check = await hass.async_add_executor_job(ecoflow.authorize)
         if not auth_check:
             _LOGGER.warning(
-                f"{device_id}: PowerOcean device is offline or has changed host."
-                + ISSUE_URL_ERROR_MESSAGE
+                "%s: PowerOcean device is offline or has changed host.%s",
+                device_id,
+                ISSUE_URL_ERROR_MESSAGE,
             )
             return False
     except AuthenticationFailedError as error:
-        _LOGGER.warning(f"{device_id}: Authentication failed: {error}")
+        _LOGGER.warning(
+            "%s: Authentication failed: %s",
+            device_id,
+            error,
+        )
         return False
-    else:
-        return True
+
+    return True
 
 
 async def _fetch_initial_data(
@@ -98,20 +102,24 @@ async def _fetch_initial_data(
     """Fetch initial sensor data from the device."""
     try:
         data = await hass.async_add_executor_job(ecoflow.fetch_data)
-        if not data:
-            _LOGGER.warning(
-                f"{device_id}: Failed to fetch sensor data => no data."
-                + ISSUE_URL_ERROR_MESSAGE
-            )
-            return None
     except IntegrationError as error:
         _LOGGER.warning(
-            f"{device_id}: Failed to fetch sensor data: {error}"
-            + ISSUE_URL_ERROR_MESSAGE
+            "%s: Failed to fetch sensor data: %s%s",
+            device_id,
+            error,
+            ISSUE_URL_ERROR_MESSAGE,
         )
         return None
-    else:
-        return data
+
+    if not data:
+        _LOGGER.warning(
+            "%s: Failed to fetch sensor data => no data.%s",
+            device_id,
+            ISSUE_URL_ERROR_MESSAGE,
+        )
+        return None
+
+    return data
 
 
 def _register_sensors(
@@ -121,86 +129,98 @@ def _register_sensors(
     data: dict,
     async_add_entities: Callable[[list, bool], Any],
 ) -> None:
-    """Register sensor entities and add them to the device-specific list."""
-    # ✅ Sicherstellen, dass device_specific_sensors existiert
-    hass.data.setdefault(DOMAIN, {}).setdefault("device_specific_sensors", {})
-    hass.data[DOMAIN]["device_specific_sensors"][device_id] = []
-    for endpoint in data.values():
-        sensor = PowerOceanSensor(ecoflow, endpoint, device_id)
-        hass.data[DOMAIN]["device_specific_sensors"][device_id].append(sensor)
-        async_add_entities([sensor], False)  # noqa: FBT003
+    """Register sensor entities for a device and add them to Home Assistant."""
+    device_sensors = [
+        PowerOceanSensor(ecoflow, endpoint, device_id) for endpoint in data.values()
+    ]
 
-    device_specific_sensors = hass.data[DOMAIN]["device_specific_sensors"]
+    hass.data.setdefault(DOMAIN, {}).setdefault("device_specific_sensors", {})
+    hass.data[DOMAIN]["device_specific_sensors"][device_id] = device_sensors
+
+    async_add_entities(device_sensors, False)
+
     _LOGGER.debug(
-        f"{device_id}: List of device_specific_sensors[device_id]: "
-        f"{device_specific_sensors[device_id]}"
-    )
-    _LOGGER.debug(
-        f"{device_id}: All '{len(device_specific_sensors[device_id])}' "
-        "sensors have registered."
+        "%s: Registered %d sensors: %s",
+        device_id,
+        len(device_sensors),
+        device_sensors,
     )
 
 
 async def _update_sensors(
     hass: HomeAssistant, ecoflow: Ecoflow, device_id: str, now: date
-) -> bool | None:
-    """Update all registered sensors for the device."""
-    if device_id not in hass.data.get(DOMAIN, {}).get("device_specific_sensors", {}):
-        return False
+) -> None:
+    """Update all registered sensors for a device."""
+    device_sensors = (
+        hass.data.get(DOMAIN, {}).get("device_specific_sensors", {}).get(device_id)
+    )
+    if not device_sensors:
+        _LOGGER.warning("%s: No registered sensors found, skipping update", device_id)
+        return
 
-    _LOGGER.debug(f"{device_id}: Preparing to update sensors at {now}")
+    _LOGGER.debug("%s: Updating sensors at %s", device_id, now)
 
     try:
         full_data = await hass.async_add_executor_job(ecoflow.fetch_data)
-    except IntegrationError as e:
-        _LOGGER.error(
-            f"{device_id}: Error fetching data from the device: {e}"
-            + ISSUE_URL_ERROR_MESSAGE
+    except IntegrationError:
+        _LOGGER.exception(
+            "%s: Error fetching device data: %s",
+            device_id,
+            ISSUE_URL_ERROR_MESSAGE,
         )
-        return None
+        return
 
     registry = entity_registry.async_get(hass)
-    device_specific_sensors = hass.data[DOMAIN]["device_specific_sensors"]
 
-    counter_updated = 0
-    counter_disabled = 0
-    counter_unchanged = 0
-    counter_error = 0
+    counters = {
+        "updated": 0,
+        "disabled": 0,
+        "unchanged": 0,
+        "error": 0,
+    }
 
-    for sensor in device_specific_sensors[device_id]:
+    for sensor in device_sensors:
         entity_id = registry.async_get_entity_id("sensor", DOMAIN, sensor.unique_id)
-        if entity_id:
-            entity = registry.entities.get(entity_id)
-            if entity and not entity.disabled_by:
-                sensor_data = full_data.get(sensor.unique_id)
-                if sensor_data:
-                    if str(sensor.state).strip() != str(sensor_data.value).strip():
-                        update_status = await sensor.async_update(sensor_data)
-                        counter_updated += update_status
-                    else:
-                        counter_unchanged += 1
-                else:
-                    _LOGGER.warning(
-                        f"{device_id}: Sensor {sensor.name}: found no data for update!"
-                        + ISSUE_URL_ERROR_MESSAGE
-                    )
-                    counter_error += 1
-            else:
-                counter_disabled += 1
-        else:
+        if not entity_id:
             _LOGGER.warning(
-                f"{device_id}: Sensor {sensor.name} not in registry, skipping update"
-                + ISSUE_URL_ERROR_MESSAGE
+                "%s: Sensor %s not in registry, skipping%s",
+                device_id,
+                sensor.name,
+                ISSUE_URL_ERROR_MESSAGE,
             )
-            counter_error += 1
+            counters["error"] += 1
+            continue
+
+        entity = registry.entities.get(entity_id)
+        if entity and entity.disabled_by:
+            counters["disabled"] += 1
+            continue
+
+        sensor_data = full_data.get(sensor.unique_id)
+        if not sensor_data:
+            _LOGGER.warning(
+                "%s: Sensor %s has no data for update%s",
+                device_id,
+                sensor.name,
+                ISSUE_URL_ERROR_MESSAGE,
+            )
+            counters["error"] += 1
+            continue
+
+        if str(sensor.state).strip() != str(sensor_data.value).strip():
+            update_status = await sensor.async_update(sensor_data)
+            counters["updated"] += update_status
+        else:
+            counters["unchanged"] += 1
 
     _LOGGER.debug(
-        f"{device_id}: A total of {counter_updated} sensors have been updated. "
-        f"Number of disabled sensors or skipped updates = {counter_disabled} "
-        f"Number of sensors with constant values = {counter_unchanged} "
-        f"Number of sensors with errors = {counter_error}"
+        "%s: Sensor update summary: %d updated, %d disabled, %d unchanged, %d errors",
+        device_id,
+        counters["updated"],
+        counters["disabled"],
+        counters["unchanged"],
+        counters["error"],
     )
-    return None
 
 
 class SensorMapping:
