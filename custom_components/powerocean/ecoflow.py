@@ -48,7 +48,6 @@ class PowerOceanEndPoint(NamedTuple):
 
     Attributes:
         internal_unique_id (str): Unique identifier for the endpoint.
-        serial (str): Serial number of the device.
         name (str): Name of the endpoint.
         friendly_name (str): Human-readable name.
         value (object): Value of the endpoint.
@@ -59,7 +58,6 @@ class PowerOceanEndPoint(NamedTuple):
     """
 
     internal_unique_id: str
-    serial: str
     name: str
     friendly_name: str
     value: object
@@ -176,7 +174,6 @@ class Ecoflow:
         self.ecoflow_variant = variant
         self.token = None
         self.device = None
-        self.session = requests.Session()
         self.url_iot_app = "https://api.ecoflow.com/auth/login"
         self.url_user_fetch = f"https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}"
         # Path relative to this file (ecoflow.py)
@@ -190,10 +187,10 @@ class Ecoflow:
             "product": "PowerOcean",
             "vendor": "Ecoflow",
             "serial": self.sn,
-            "version": "5.1.27",  # Version vom Author.
-            "build": "28",  # Version vom Author.
-            "name": "PowerOcean",
-            "features": "Photovoltaik",
+            # "version": "5.1.27",  # Version vom Author.
+            # "build": "28",  # Version vom Author.
+            # "name": "PowerOcean",
+            # "features": "Photovoltaik",
         }
 
         return self.device
@@ -523,7 +520,6 @@ class Ecoflow:
                         sensors[unique_id] = self._create_sensor(
                             PowerOceanEndPoint(
                                 internal_unique_id=unique_id,
-                                serial=f"{self.sn_inverter}",
                                 name=f"{self.sn_inverter}_{name}{key}{suffix}",
                                 friendly_name=f"{name}{key}{suffix}",
                                 value=value,
@@ -563,7 +559,6 @@ class Ecoflow:
                 sensors[unique_id] = self._create_sensor(
                     PowerOceanEndPoint(
                         internal_unique_id=unique_id,
-                        serial=f"{self.sn_inverter}",
                         name=f"{self.sn_inverter}_{key}{suffix}",
                         friendly_name=f"{key}{suffix}",
                         value=value,
@@ -582,7 +577,6 @@ class Ecoflow:
                     sensors[unique_id] = self._create_sensor(
                         PowerOceanEndPoint(
                             internal_unique_id=unique_id,
-                            serial=f"{self.sn_inverter}",
                             name=f"{self.sn_inverter}_{name}{suffix}",
                             friendly_name=f"{name}{suffix}",
                             value=value,
@@ -607,7 +601,6 @@ class Ecoflow:
                     sensors[unique_id] = self._create_sensor(
                         PowerOceanEndPoint(
                             internal_unique_id=unique_id,
-                            serial=f"{self.sn_inverter}",
                             name=f"{self.sn_inverter}_mpptPv{i + 1}_{key}{suffix}",
                             friendly_name=f"mpptPv{i + 1}_{key}{suffix}",
                             value=value,
@@ -625,7 +618,6 @@ class Ecoflow:
             sensors[unique_id] = self._create_sensor(
                 PowerOceanEndPoint(
                     internal_unique_id=unique_id,
-                    serial=f"{self.sn_inverter}",
                     name=f"{self.sn_inverter}_mpptPv_pwrTotal{suffix}",
                     friendly_name=f"mpptPv_pwrTotal{suffix}",
                     value=total_power,
@@ -664,7 +656,6 @@ class Ecoflow:
                     sensors[unique_id] = self._create_sensor(
                         PowerOceanEndPoint(
                             internal_unique_id=unique_id,
-                            serial=dev_sn,
                             name=f"{dev_sn}_{key}{suffix}",
                             friendly_name=f"{key}{suffix}",
                             value=value,
@@ -694,7 +685,6 @@ class Ecoflow:
                 sensors[unique_id] = self._create_sensor(
                     PowerOceanEndPoint(
                         internal_unique_id=unique_id,
-                        serial=f"{self.sn_inverter}",
                         name=f"{self.sn_inverter}_{key}{suffix}",
                         friendly_name=f"{key}{suffix}",
                         value=value,

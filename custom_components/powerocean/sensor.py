@@ -28,13 +28,7 @@ from homeassistant.helpers.event import async_track_time_interval
 
 from .const import (
     _LOGGER,
-    ATTR_PRODUCT_BUILD,
     ATTR_PRODUCT_DESCRIPTION,
-    ATTR_PRODUCT_FEATURES,
-    ATTR_PRODUCT_NAME,
-    ATTR_PRODUCT_SERIAL,
-    ATTR_PRODUCT_VENDOR,
-    ATTR_PRODUCT_VERSION,
     ATTR_UNIQUE_ID,
     DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
@@ -325,22 +319,6 @@ class PowerOceanSensor(SensorEntity):
 
         attr[ATTR_PRODUCT_DESCRIPTION] = getattr(self.endpoint, "description", None)
         attr[ATTR_UNIQUE_ID] = getattr(self.endpoint, "internal_unique_id", None)
-        attr[ATTR_PRODUCT_VENDOR] = (
-            self.ecoflow.device["vendor"] if self.ecoflow.device else None
-        )
-        attr[ATTR_PRODUCT_NAME] = (
-            self.ecoflow.device["name"] if self.ecoflow.device else None
-        )
-        attr[ATTR_PRODUCT_SERIAL] = getattr(self.endpoint, "serial", None)
-        attr[ATTR_PRODUCT_VERSION] = (
-            self.ecoflow.device["version"] if self.ecoflow.device else None
-        )
-        attr[ATTR_PRODUCT_BUILD] = (
-            self.ecoflow.device["build"] if self.ecoflow.device else None
-        )
-        attr[ATTR_PRODUCT_FEATURES] = (
-            self.ecoflow.device["features"] if self.ecoflow.device else None
-        )
 
         return attr
 

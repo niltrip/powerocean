@@ -96,7 +96,9 @@ async def validate_input_for_device(
         await hass.async_add_executor_job(ecoflow.authorize)
         # Get device info
         # Return the device object with the device information
-        return await hass.async_add_executor_job(ecoflow.get_device)
+        # authorize() already did this
+        # return await hass.async_add_executor_job(ecoflow.get_device)
+        return ecoflow.device
 
     # Exception if device cannot be found
     except IntegrationError as e:
