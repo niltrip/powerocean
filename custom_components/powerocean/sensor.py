@@ -210,98 +210,51 @@ class PowerOceanSensor(SensorEntity):
         # Make Ecoflow and the endpoint parameters from the Sensor API available
         self.ecoflow = ecoflow
         self.endpoint = endpoint
-        self.device_id = device_id
 
         # Set Friendly name when sensor is first created
-        self._attr_unique_id = getattr(endpoint, "name", None)
         self._attr_has_entity_name = True
         self._attr_name = getattr(endpoint, "friendly_name", None)
-        self._name = getattr(endpoint, "friendly_name", None)
         self._attr_entity_category = None
+        # async_track_time_intervals handles updates
+        self._attr_should_poll = False
 
         # The unique identifier for this sensor within Home Assistant
         # has nothing to do with the entity_id,
         # it is the internal unique_id of the sensor entity registry
-        self._unique_id = getattr(endpoint, "internal_unique_id", None)
+        self._attr_unique_id = getattr(endpoint, "internal_unique_id", None)
 
         # Default handled in function
-        self._icon = getattr(endpoint, "icon", None)
+        self._attr_icon = getattr(endpoint, "icon", None)
 
         # The initial state/value of the sensor
-        self._state = getattr(endpoint, "value", None)
+        self._attr_native_value = getattr(endpoint, "value", None)
 
-        self._device_class, self._unit, self._state_class = getattr(
-            endpoint, "class_", None
-        ) or (None, None, None)
+        (
+            self._attr_device_class,
+            self._attr_native_unit_of_measurement,
+            self._attr_state_class,
+        ) = getattr(endpoint, "class_", None) or (None, None, None)
 
         # Set entity category to diagnostic for sensors with no unit
-        if not self._unit:
+        if self._attr_native_unit_of_measurement is None:
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    @property
-    def should_poll(self) -> bool:
-        """async_track_time_intervals handles updates."""
-        return False
+        self._attr_extra_state_attributes = {
+            ATTR_PRODUCT_DESCRIPTION: getattr(self.endpoint, "description", None),
+            ATTR_UNIQUE_ID: getattr(self.endpoint, "internal_unique_id", None),
+        }
 
-    @property
-    def unique_id(self) -> str | None:
-        """Return the unique ID of the sensor."""
-        return self._unique_id
-
-    @property
-    def name(self) -> str | None:
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def state(self) -> Any:
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self) -> str | None:
-        """Return the unit of measurement."""
-        return self._unit
-
-    @property
-    def device_class(self) -> str | None:
-        """Return the device class of this entity, if any."""
-        return self._device_class
-
-    @property
-    def state_class(self) -> str | None:
-        """Return the state class of this entity, if any."""
-        return self._state_class
-
-    @property
-    def extra_state_attributes(self) -> dict:
-        """Return the state attributes of this device."""
-        attr = {}
-
-        attr[ATTR_PRODUCT_DESCRIPTION] = getattr(self.endpoint, "description", None)
-        attr[ATTR_UNIQUE_ID] = getattr(self.endpoint, "internal_unique_id", None)
-
-        return attr
-
-    @property
-    def device_info(self) -> dict | None:
-        """Return device specific attributes."""
         device_name = (
             self.ecoflow.device["name"]
             if self.ecoflow.device and "name" in self.ecoflow.device
             else None
         )
-        return {
-            "identifiers": {(DOMAIN, self.device_id)},
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, device_id)},
             "name": device_name,
             "manufacturer": "EcoFlow",
             "model": "PowerOcean",
         }  # The unique identifier of the device is the serial number
-
-    @property
-    def icon(self) -> str | None:
-        """Return the icon of the sensor."""
-        return self._icon
 
     # This is to register the icon settings
     async def async_added_to_hass(self) -> None:
@@ -323,7 +276,7 @@ class PowerOceanSensor(SensorEntity):
             return None
 
         try:
-            self._state = sensor_data.value
+            self._attr_native_value = sensor_data.value
             update_status = 1
             self.async_write_ha_state()
 
