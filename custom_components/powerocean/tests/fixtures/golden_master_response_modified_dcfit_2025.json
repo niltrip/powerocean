@@ -1,818 +1,818 @@
 {
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_appCtrlState": {
+    "description": "appCtrlState",
+    "friendly_name": "appCtrlState",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_appCtrlState",
     "name": "SN_INVERTERBOX01_appCtrlState",
-    "friendly_name": "appCtrlState",
-    "value": 1,
     "unit": null,
-    "description": "appCtrlState",
-    "icon": null
+    "value": 1
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_autoDetectStartPowerEn": {
+    "description": "autoDetectStartPowerEn",
+    "friendly_name": "autoDetectStartPowerEn",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_autoDetectStartPowerEn",
     "name": "SN_INVERTERBOX01_autoDetectStartPowerEn",
-    "friendly_name": "autoDetectStartPowerEn",
-    "value": "False",
-    "unit": "W",
-    "description": "autoDetectStartPowerEn",
-    "icon": null
+    "unit": null,
+    "value": "False"
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_batterySocLowerLimit": {
+    "description": "batterySocLowerLimit",
+    "friendly_name": "batterySocLowerLimit",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_batterySocLowerLimit",
     "name": "SN_INVERTERBOX01_batterySocLowerLimit",
-    "friendly_name": "batterySocLowerLimit",
-    "value": 5,
-    "unit": "%",
-    "description": "batterySocLowerLimit",
-    "icon": null
+    "unit": null,
+    "value": 5
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_batterySocUpperLimit": {
+    "description": "batterySocUpperLimit",
+    "friendly_name": "batterySocUpperLimit",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_batterySocUpperLimit",
     "name": "SN_INVERTERBOX01_batterySocUpperLimit",
-    "friendly_name": "batterySocUpperLimit",
-    "value": 100,
-    "unit": "%",
-    "description": "batterySocUpperLimit",
-    "icon": null
+    "unit": null,
+    "value": 100
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bp1SocCoefficient": {
+    "description": "bp1SocCoefficient",
+    "friendly_name": "bp1SocCoefficient",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bp1SocCoefficient",
     "name": "SN_INVERTERBOX01_bp1SocCoefficient",
-    "friendly_name": "bp1SocCoefficient",
-    "value": 0.9,
-    "unit": "%",
-    "description": "bp1SocCoefficient",
-    "icon": null
+    "unit": null,
+    "value": 0.9
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bp2SocCoefficient": {
+    "description": "bp2SocCoefficient",
+    "friendly_name": "bp2SocCoefficient",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bp2SocCoefficient",
     "name": "SN_INVERTERBOX01_bp2SocCoefficient",
-    "friendly_name": "bp2SocCoefficient",
-    "value": 0.9,
-    "unit": "%",
-    "description": "bp2SocCoefficient",
-    "icon": null
+    "unit": null,
+    "value": 0.9
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bp3SocCoefficient": {
+    "description": "bp3SocCoefficient",
+    "friendly_name": "bp3SocCoefficient",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bp3SocCoefficient",
     "name": "SN_INVERTERBOX01_bp3SocCoefficient",
-    "friendly_name": "bp3SocCoefficient",
-    "value": 0.9,
-    "unit": "%",
-    "description": "bp3SocCoefficient",
-    "icon": null
+    "unit": null,
+    "value": 0.9
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpBusVoltCoefficient": {
+    "description": "bpBusVoltCoefficient",
+    "friendly_name": "bpBusVoltCoefficient",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpBusVoltCoefficient",
     "name": "SN_INVERTERBOX01_bpBusVoltCoefficient",
-    "friendly_name": "bpBusVoltCoefficient",
-    "value": 1.0,
     "unit": null,
-    "description": "bpBusVoltCoefficient",
-    "icon": null
+    "value": 1.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpBusVoltageBaseCoefficient": {
+    "description": "bpBusVoltageBaseCoefficient",
+    "friendly_name": "bpBusVoltageBaseCoefficient",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpBusVoltageBaseCoefficient",
     "name": "SN_INVERTERBOX01_bpBusVoltageBaseCoefficient",
-    "friendly_name": "bpBusVoltageBaseCoefficient",
-    "value": 1.0,
-    "unit": "V",
-    "description": "bpBusVoltageBaseCoefficient",
-    "icon": null
+    "unit": null,
+    "value": 1.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpChgDsgSta": {
+    "description": "bpChgDsgSta",
+    "friendly_name": "bpChgDsgSta",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpChgDsgSta",
     "name": "SN_INVERTERBOX01_bpChgDsgSta",
-    "friendly_name": "bpChgDsgSta",
-    "value": 2,
     "unit": null,
-    "description": "bpChgDsgSta",
-    "icon": null
+    "value": 2
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpDichargeAbilityAdjustValueLv1": {
+    "description": "bpDichargeAbilityAdjustValueLv1",
+    "friendly_name": "bpDichargeAbilityAdjustValueLv1",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpDichargeAbilityAdjustValueLv1",
     "name": "SN_INVERTERBOX01_bpDichargeAbilityAdjustValueLv1",
-    "friendly_name": "bpDichargeAbilityAdjustValueLv1",
-    "value": 100.0,
     "unit": null,
-    "description": "bpDichargeAbilityAdjustValueLv1",
-    "icon": null
+    "value": 100.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpDichargeAbilityAdjustValueLv2": {
+    "description": "bpDichargeAbilityAdjustValueLv2",
+    "friendly_name": "bpDichargeAbilityAdjustValueLv2",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpDichargeAbilityAdjustValueLv2",
     "name": "SN_INVERTERBOX01_bpDichargeAbilityAdjustValueLv2",
-    "friendly_name": "bpDichargeAbilityAdjustValueLv2",
-    "value": 200.0,
     "unit": null,
-    "description": "bpDichargeAbilityAdjustValueLv2",
-    "icon": null
+    "value": 200.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpDsgTime": {
+    "description": "bpDsgTime",
+    "friendly_name": "bpDsgTime",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpDsgTime",
     "name": "SN_INVERTERBOX01_bpDsgTime",
-    "friendly_name": "bpDsgTime",
-    "value": 65,
     "unit": null,
-    "description": "bpDsgTime",
-    "icon": null
+    "value": 65
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpErrorCodeMask": {
+    "description": "bpErrorCodeMask",
+    "friendly_name": "bpErrorCodeMask",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpErrorCodeMask",
     "name": "SN_INVERTERBOX01_bpErrorCodeMask",
-    "friendly_name": "bpErrorCodeMask",
-    "value": 0,
     "unit": null,
-    "description": "bpErrorCodeMask",
-    "icon": null
+    "value": 0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpInDayEnergy": {
+    "description": "bpInDayEnergy",
+    "friendly_name": "bpInDayEnergy",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpInDayEnergy",
     "name": "SN_INVERTERBOX01_bpInDayEnergy",
-    "friendly_name": "bpInDayEnergy",
-    "value": 5558.671,
     "unit": "Wh",
-    "description": "bpInDayEnergy",
-    "icon": null
+    "value": 5558.671
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpOutDayEnergy": {
+    "description": "bpOutDayEnergy",
+    "friendly_name": "bpOutDayEnergy",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpOutDayEnergy",
     "name": "SN_INVERTERBOX01_bpOutDayEnergy",
-    "friendly_name": "bpOutDayEnergy",
-    "value": -1225.146,
     "unit": "Wh",
-    "description": "bpOutDayEnergy",
-    "icon": null
+    "value": -1225.146
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpRemainWatth": {
+    "description": "bpRemainWatth",
+    "friendly_name": "bpRemainWatth",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpRemainWatth",
     "name": "SN_INVERTERBOX01_bpRemainWatth",
-    "friendly_name": "bpRemainWatth",
-    "value": 1642.0,
     "unit": "Wh",
-    "description": "bpRemainWatth",
-    "icon": null
+    "value": 1642.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpRunDelay": {
+    "description": "bpRunDelay",
+    "friendly_name": "bpRunDelay",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpRunDelay",
     "name": "SN_INVERTERBOX01_bpRunDelay",
-    "friendly_name": "bpRunDelay",
-    "value": 15,
     "unit": null,
-    "description": "bpRunDelay",
-    "icon": null
+    "value": 15
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpSaveSocStopDelay": {
+    "description": "bpSaveSocStopDelay",
+    "friendly_name": "bpSaveSocStopDelay",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpSaveSocStopDelay",
     "name": "SN_INVERTERBOX01_bpSaveSocStopDelay",
-    "friendly_name": "bpSaveSocStopDelay",
-    "value": 10,
-    "unit": "%",
-    "description": "bpSaveSocStopDelay",
-    "icon": null
+    "unit": null,
+    "value": 10
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpSoc": {
+    "description": "Ladezustand der Batterie",
+    "friendly_name": "bpSoc",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpSoc",
     "name": "SN_INVERTERBOX01_bpSoc",
-    "friendly_name": "bpSoc",
-    "value": 29,
     "unit": "%",
-    "description": "Ladezustand der Batterie",
-    "icon": null
+    "value": 29
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpSocBaseCoefficient": {
+    "description": "bpSocBaseCoefficient",
+    "friendly_name": "bpSocBaseCoefficient",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpSocBaseCoefficient",
     "name": "SN_INVERTERBOX01_bpSocBaseCoefficient",
-    "friendly_name": "bpSocBaseCoefficient",
-    "value": 0.9,
-    "unit": "%",
-    "description": "bpSocBaseCoefficient",
-    "icon": null
+    "unit": null,
+    "value": 0.9
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpStopDelay": {
+    "description": "bpStopDelay",
+    "friendly_name": "bpStopDelay",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpStopDelay",
     "name": "SN_INVERTERBOX01_bpStopDelay",
-    "friendly_name": "bpStopDelay",
-    "value": 300,
     "unit": null,
-    "description": "bpStopDelay",
-    "icon": null
+    "value": 300
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_currentNetif": {
+    "description": "currentNetif",
+    "friendly_name": "currentNetif",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_currentNetif",
     "name": "SN_INVERTERBOX01_currentNetif",
-    "friendly_name": "currentNetif",
-    "value": "NETIF_WIFI_STA",
-    "unit": "A",
-    "description": "currentNetif",
-    "icon": null
+    "unit": null,
+    "value": "NETIF_WIFI_STA"
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_disOrChargeAbilityStepValue": {
+    "description": "disOrChargeAbilityStepValue",
+    "friendly_name": "disOrChargeAbilityStepValue",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_disOrChargeAbilityStepValue",
     "name": "SN_INVERTERBOX01_disOrChargeAbilityStepValue",
-    "friendly_name": "disOrChargeAbilityStepValue",
-    "value": 20.0,
     "unit": null,
-    "description": "disOrChargeAbilityStepValue",
-    "icon": null
+    "value": 20.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsErrCode": {
+    "description": "emsErrCode",
+    "friendly_name": "emsErrCode",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsErrCode",
     "name": "SN_INVERTERBOX01_emsErrCode",
-    "friendly_name": "emsErrCode",
-    "value": 8,
     "unit": null,
-    "description": "emsErrCode",
-    "icon": null
+    "value": 8
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsErrorCodeMask": {
+    "description": "emsErrorCodeMask",
+    "friendly_name": "emsErrorCodeMask",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsErrorCodeMask",
     "name": "SN_INVERTERBOX01_emsErrorCodeMask",
-    "friendly_name": "emsErrorCodeMask",
-    "value": 457953,
     "unit": null,
-    "description": "emsErrorCodeMask",
-    "icon": null
+    "value": 457953
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsSystemState": {
+    "description": "emsSystemState",
+    "friendly_name": "emsSystemState",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsSystemState",
     "name": "SN_INVERTERBOX01_emsSystemState",
-    "friendly_name": "emsSystemState",
-    "value": 1,
     "unit": null,
-    "description": "emsSystemState",
-    "icon": null
+    "value": 1
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_epoSwitchState": {
+    "description": "epoSwitchState",
+    "friendly_name": "epoSwitchState",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_epoSwitchState",
     "name": "SN_INVERTERBOX01_epoSwitchState",
-    "friendly_name": "epoSwitchState",
-    "value": 0,
     "unit": null,
-    "description": "epoSwitchState",
-    "icon": null
+    "value": 0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_errCode": {
+    "description": "errCode",
+    "friendly_name": "errCode",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_errCode",
     "name": "SN_INVERTERBOX01_errCode",
-    "friendly_name": "errCode",
+    "unit": null,
     "value": [
       503
-    ],
-    "unit": null,
-    "description": "errCode",
-    "icon": null
+    ]
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_gridFeedPowerMinimum": {
+    "description": "gridFeedPowerMinimum",
+    "friendly_name": "gridFeedPowerMinimum",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_gridFeedPowerMinimum",
     "name": "SN_INVERTERBOX01_gridFeedPowerMinimum",
-    "friendly_name": "gridFeedPowerMinimum",
-    "value": 400.0,
-    "unit": "W",
-    "description": "gridFeedPowerMinimum",
-    "icon": null
+    "unit": null,
+    "value": 400.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_gridFeedRate": {
+    "description": "gridFeedRate",
+    "friendly_name": "gridFeedRate",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_gridFeedRate",
     "name": "SN_INVERTERBOX01_gridFeedRate",
-    "friendly_name": "gridFeedRate",
-    "value": 100.0,
     "unit": null,
-    "description": "gridFeedRate",
-    "icon": null
+    "value": 100.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_gridInDayEnergy": {
+    "description": "gridInDayEnergy",
+    "friendly_name": "gridInDayEnergy",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_gridInDayEnergy",
     "name": "SN_INVERTERBOX01_gridInDayEnergy",
-    "friendly_name": "gridInDayEnergy",
-    "value": -8222.638,
     "unit": "Wh",
-    "description": "gridInDayEnergy",
-    "icon": null
+    "value": -8222.638
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_gridOutDayEnergy": {
+    "description": "gridOutDayEnergy",
+    "friendly_name": "gridOutDayEnergy",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_gridOutDayEnergy",
     "name": "SN_INVERTERBOX01_gridOutDayEnergy",
-    "friendly_name": "gridOutDayEnergy",
-    "value": 10404.492,
     "unit": "Wh",
-    "description": "gridOutDayEnergy",
-    "icon": null
+    "value": 10404.492
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_invWiringType": {
+    "description": "invWiringType",
+    "friendly_name": "invWiringType",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_invWiringType",
     "name": "SN_INVERTERBOX01_invWiringType",
-    "friendly_name": "invWiringType",
-    "value": "WIRING_TYPE_BOTH",
     "unit": null,
-    "description": "invWiringType",
-    "icon": null
+    "value": "WIRING_TYPE_BOTH"
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_inverterBand": {
+    "description": "inverterBand",
+    "friendly_name": "inverterBand",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_inverterBand",
     "name": "SN_INVERTERBOX01_inverterBand",
-    "friendly_name": "inverterBand",
-    "value": 11,
     "unit": null,
-    "description": "inverterBand",
-    "icon": null
+    "value": 11
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_isPvToInvDirectly": {
+    "description": "isPvToInvDirectly",
+    "friendly_name": "isPvToInvDirectly",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_isPvToInvDirectly",
     "name": "SN_INVERTERBOX01_isPvToInvDirectly",
-    "friendly_name": "isPvToInvDirectly",
-    "value": "False",
     "unit": null,
-    "description": "isPvToInvDirectly",
-    "icon": null
+    "value": "False"
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_loadDayEnergy": {
+    "description": "loadDayEnergy",
+    "friendly_name": "loadDayEnergy",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_loadDayEnergy",
     "name": "SN_INVERTERBOX01_loadDayEnergy",
-    "friendly_name": "loadDayEnergy",
-    "value": -11634.616,
     "unit": "Wh",
-    "description": "loadDayEnergy",
-    "icon": null
+    "value": -11634.616
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_manualSetStartChargePower": {
+    "description": "manualSetStartChargePower",
+    "friendly_name": "manualSetStartChargePower",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_manualSetStartChargePower",
     "name": "SN_INVERTERBOX01_manualSetStartChargePower",
-    "friendly_name": "manualSetStartChargePower",
-    "value": 350.0,
     "unit": "W",
-    "description": "manualSetStartChargePower",
-    "icon": null
+    "value": 350.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterACurrent": {
+    "description": "meterACurrent",
+    "friendly_name": "meterACurrent",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterACurrent",
     "name": "SN_INVERTERBOX01_meterACurrent",
-    "friendly_name": "meterACurrent",
-    "value": 1.4840001,
     "unit": "A",
-    "description": "meterACurrent",
-    "icon": null
+    "value": 1.4840001
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterAVoltage": {
+    "description": "meterAVoltage",
+    "friendly_name": "meterAVoltage",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterAVoltage",
     "name": "SN_INVERTERBOX01_meterAVoltage",
-    "friendly_name": "meterAVoltage",
-    "value": 234.40001,
     "unit": "V",
-    "description": "meterAVoltage",
-    "icon": null
+    "value": 234.40001
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterAddress": {
+    "description": "meterAddress",
+    "friendly_name": "meterAddress",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterAddress",
     "name": "SN_INVERTERBOX01_meterAddress",
-    "friendly_name": "meterAddress",
-    "value": 1,
     "unit": null,
-    "description": "meterAddress",
-    "icon": null
+    "value": 1
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterBCurrent": {
+    "description": "meterBCurrent",
+    "friendly_name": "meterBCurrent",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterBCurrent",
     "name": "SN_INVERTERBOX01_meterBCurrent",
-    "friendly_name": "meterBCurrent",
-    "value": 1.616,
     "unit": "A",
-    "description": "meterBCurrent",
-    "icon": null
+    "value": 1.616
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterBVoltage": {
+    "description": "meterBVoltage",
+    "friendly_name": "meterBVoltage",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterBVoltage",
     "name": "SN_INVERTERBOX01_meterBVoltage",
-    "friendly_name": "meterBVoltage",
-    "value": 236.1,
     "unit": "V",
-    "description": "meterBVoltage",
-    "icon": null
+    "value": 236.1
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterCCurrent": {
+    "description": "meterCCurrent",
+    "friendly_name": "meterCCurrent",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterCCurrent",
     "name": "SN_INVERTERBOX01_meterCCurrent",
-    "friendly_name": "meterCCurrent",
-    "value": 1.107,
     "unit": "A",
-    "description": "meterCCurrent",
-    "icon": null
+    "value": 1.107
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterCVoltage": {
+    "description": "meterCVoltage",
+    "friendly_name": "meterCVoltage",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterCVoltage",
     "name": "SN_INVERTERBOX01_meterCVoltage",
-    "friendly_name": "meterCVoltage",
-    "value": 236.8,
     "unit": "V",
-    "description": "meterCVoltage",
-    "icon": null
+    "value": 236.8
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterPhasePower": {
+    "description": "meterPhasePower",
+    "friendly_name": "meterPhasePower",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterPhasePower",
     "name": "SN_INVERTERBOX01_meterPhasePower",
-    "friendly_name": "meterPhasePower",
+    "unit": "W",
     "value": [
       167.0,
       -283.4,
       151.0
-    ],
-    "unit": "W",
-    "description": "meterPhasePower",
-    "icon": null
+    ]
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterPowerFactor": {
+    "description": "meterPowerFactor",
+    "friendly_name": "meterPowerFactor",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterPowerFactor",
     "name": "SN_INVERTERBOX01_meterPowerFactor",
-    "friendly_name": "meterPowerFactor",
+    "unit": null,
     "value": [
       -0.004,
       0.483,
       -0.768,
       0.58900005
-    ],
-    "unit": "W",
-    "description": "meterPowerFactor",
-    "icon": null
+    ]
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterRatio": {
+    "description": "meterRatio",
+    "friendly_name": "meterRatio",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterRatio",
     "name": "SN_INVERTERBOX01_meterRatio",
-    "friendly_name": "meterRatio",
+    "unit": null,
     "value": [
       0.1,
       0.001,
       -0.1
-    ],
-    "unit": null,
-    "description": "meterRatio",
-    "icon": null
+    ]
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterTotalPower": {
+    "description": "meterTotalPower",
+    "friendly_name": "meterTotalPower",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterTotalPower",
     "name": "SN_INVERTERBOX01_meterTotalPower",
-    "friendly_name": "meterTotalPower",
-    "value": 10.2,
     "unit": "W",
-    "description": "meterTotalPower",
-    "icon": null
+    "value": 10.2
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterType": {
+    "description": "meterType",
+    "friendly_name": "meterType",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterType",
     "name": "SN_INVERTERBOX01_meterType",
-    "friendly_name": "meterType",
-    "value": 6,
     "unit": null,
-    "description": "meterType",
-    "icon": null
+    "value": 6
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptRatePower": {
+    "description": "mpptRatePower",
+    "friendly_name": "mpptRatePower",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptRatePower",
     "name": "SN_INVERTERBOX01_mpptRatePower",
-    "friendly_name": "mpptRatePower",
-    "value": 30000.0,
     "unit": "W",
-    "description": "mpptRatePower",
-    "icon": null
+    "value": 30000.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptVoltageMaximum": {
+    "description": "mpptVoltageMaximum",
+    "friendly_name": "mpptVoltageMaximum",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptVoltageMaximum",
     "name": "SN_INVERTERBOX01_mpptVoltageMaximum",
-    "friendly_name": "mpptVoltageMaximum",
-    "value": 950.0,
-    "unit": "V",
-    "description": "mpptVoltageMaximum",
-    "icon": null
+    "unit": null,
+    "value": 950.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptVoltageMinimum": {
+    "description": "mpptVoltageMinimum",
+    "friendly_name": "mpptVoltageMinimum",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptVoltageMinimum",
     "name": "SN_INVERTERBOX01_mpptVoltageMinimum",
-    "friendly_name": "mpptVoltageMinimum",
-    "value": 200.0,
-    "unit": "V",
-    "description": "mpptVoltageMinimum",
-    "icon": null
+    "unit": null,
+    "value": 200.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptWithstandVoltage": {
+    "description": "mpptWithstandVoltage",
+    "friendly_name": "mpptWithstandVoltage",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptWithstandVoltage",
     "name": "SN_INVERTERBOX01_mpptWithstandVoltage",
-    "friendly_name": "mpptWithstandVoltage",
-    "value": 1000.0,
     "unit": "V",
-    "description": "mpptWithstandVoltage",
-    "icon": null
+    "value": 1000.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pv1ErrorCodeMask": {
+    "description": "pv1ErrorCodeMask",
+    "friendly_name": "pv1ErrorCodeMask",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pv1ErrorCodeMask",
     "name": "SN_INVERTERBOX01_pv1ErrorCodeMask",
-    "friendly_name": "pv1ErrorCodeMask",
-    "value": 32,
     "unit": null,
-    "description": "pv1ErrorCodeMask",
-    "icon": null
+    "value": 32
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pv2ErrorCodeMask": {
+    "description": "pv2ErrorCodeMask",
+    "friendly_name": "pv2ErrorCodeMask",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pv2ErrorCodeMask",
     "name": "SN_INVERTERBOX01_pv2ErrorCodeMask",
-    "friendly_name": "pv2ErrorCodeMask",
-    "value": 32,
     "unit": null,
-    "description": "pv2ErrorCodeMask",
-    "icon": null
+    "value": 32
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pvInDayEnergy": {
+    "description": "pvInDayEnergy",
+    "friendly_name": "pvInDayEnergy",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pvInDayEnergy",
     "name": "SN_INVERTERBOX01_pvInDayEnergy",
-    "friendly_name": "pvInDayEnergy",
-    "value": 12371.043,
     "unit": "Wh",
-    "description": "pvInDayEnergy",
-    "icon": null
+    "value": 12371.043
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pvInvWiringMode": {
+    "description": "pvInvWiringMode",
+    "friendly_name": "pvInvWiringMode",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pvInvWiringMode",
     "name": "SN_INVERTERBOX01_pvInvWiringMode",
-    "friendly_name": "pvInvWiringMode",
-    "value": "WIRING_MODE_1_PV_1_INV",
     "unit": null,
-    "description": "pvInvWiringMode",
-    "icon": null
+    "value": "WIRING_MODE_1_PV_1_INV"
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pvWiringType": {
+    "description": "pvWiringType",
+    "friendly_name": "pvWiringType",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pvWiringType",
     "name": "SN_INVERTERBOX01_pvWiringType",
-    "friendly_name": "pvWiringType",
-    "value": "WIRING_TYPE_BOTH",
     "unit": null,
-    "description": "pvWiringType",
-    "icon": null
+    "value": "WIRING_TYPE_BOTH"
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pvaErrorCodeMask": {
+    "description": "pvaErrorCodeMask",
+    "friendly_name": "pvaErrorCodeMask",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pvaErrorCodeMask",
     "name": "SN_INVERTERBOX01_pvaErrorCodeMask",
-    "friendly_name": "pvaErrorCodeMask",
-    "value": 0,
     "unit": null,
-    "description": "pvaErrorCodeMask",
-    "icon": null
+    "value": 0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_reportCycleTime": {
+    "description": "reportCycleTime",
+    "friendly_name": "reportCycleTime",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_reportCycleTime",
     "name": "SN_INVERTERBOX01_reportCycleTime",
-    "friendly_name": "reportCycleTime",
-    "value": 60,
     "unit": null,
-    "description": "reportCycleTime",
-    "icon": null
+    "value": 60
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_startDischargePower": {
+    "description": "startDischargePower",
+    "friendly_name": "startDischargePower",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_startDischargePower",
     "name": "SN_INVERTERBOX01_startDischargePower",
-    "friendly_name": "startDischargePower",
-    "value": 200.0,
     "unit": "W",
-    "description": "startDischargePower",
-    "icon": null
+    "value": 200.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_sysErrCode": {
+    "description": "sysErrCode",
+    "friendly_name": "sysErrCode",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_sysErrCode",
     "name": "SN_INVERTERBOX01_sysErrCode",
-    "friendly_name": "sysErrCode",
-    "value": 26622911,
     "unit": null,
-    "description": "sysErrCode",
-    "icon": null
+    "value": 26622911
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_sysRunMeterFeedPower": {
+    "description": "sysRunMeterFeedPower",
+    "friendly_name": "sysRunMeterFeedPower",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_sysRunMeterFeedPower",
     "name": "SN_INVERTERBOX01_sysRunMeterFeedPower",
-    "friendly_name": "sysRunMeterFeedPower",
-    "value": 50.0,
     "unit": "W",
-    "description": "sysRunMeterFeedPower",
-    "icon": null
+    "value": 50.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_sysRunMeterTakePower": {
+    "description": "sysRunMeterTakePower",
+    "friendly_name": "sysRunMeterTakePower",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_sysRunMeterTakePower",
     "name": "SN_INVERTERBOX01_sysRunMeterTakePower",
-    "friendly_name": "sysRunMeterTakePower",
-    "value": -300.0,
     "unit": "W",
-    "description": "sysRunMeterTakePower",
-    "icon": null
+    "value": -300.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_sysWorkSta": {
+    "description": "sysWorkSta",
+    "friendly_name": "sysWorkSta",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_sysWorkSta",
     "name": "SN_INVERTERBOX01_sysWorkSta",
-    "friendly_name": "sysWorkSta",
-    "value": 1,
     "unit": null,
-    "description": "sysWorkSta",
-    "icon": null
+    "value": 1
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_underVoltageProtectPoint": {
+    "description": "underVoltageProtectPoint",
+    "friendly_name": "underVoltageProtectPoint",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_underVoltageProtectPoint",
     "name": "SN_INVERTERBOX01_underVoltageProtectPoint",
-    "friendly_name": "underVoltageProtectPoint",
-    "value": 150.0,
-    "unit": "V",
-    "description": "underVoltageProtectPoint",
-    "icon": null
+    "unit": null,
+    "value": 150.0
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_updateTime": {
+    "description": "updateTime",
+    "friendly_name": "updateTime",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_updateTime",
     "name": "SN_INVERTERBOX01_updateTime",
-    "friendly_name": "updateTime",
-    "value": "2025-01-13 23:48:35",
     "unit": null,
-    "description": "updateTime",
-    "icon": null
+    "value": "2025-01-13 23:48:35"
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_workingMode": {
+    "description": "workingMode",
+    "friendly_name": "workingMode",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_workingMode",
     "name": "SN_INVERTERBOX01_workingMode",
-    "friendly_name": "workingMode",
-    "value": 1,
     "unit": null,
-    "description": "workingMode",
-    "icon": null
+    "value": 1
   },
   "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_bpPwr": {
+    "description": "Batterieleistung",
+    "friendly_name": "bpPwr",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_bpPwr",
     "name": "SN_INVERTERBOX01_bpPwr",
-    "friendly_name": "bpPwr",
-    "value": 0.0,
     "unit": "W",
-    "description": "Batterieleistung",
-    "icon": null
+    "value": 0.0
   },
   "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_bpSoc": {
+    "description": "Ladezustand der Batterie",
+    "friendly_name": "bpSoc",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_bpSoc",
     "name": "SN_INVERTERBOX01_bpSoc",
-    "friendly_name": "bpSoc",
-    "value": 0,
     "unit": "%",
-    "description": "Ladezustand der Batterie",
-    "icon": null
+    "value": 0
   },
   "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_dcdcPwr": {
+    "description": "dcdcPwr",
+    "friendly_name": "dcdcPwr",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_dcdcPwr",
     "name": "SN_INVERTERBOX01_dcdcPwr",
-    "friendly_name": "dcdcPwr",
-    "value": 0.0,
     "unit": "W",
-    "description": "dcdcPwr",
-    "icon": null
+    "value": 0.0
   },
   "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_gridPwr": {
+    "description": "gridPwr",
+    "friendly_name": "gridPwr",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_gridPwr",
     "name": "SN_INVERTERBOX01_gridPwr",
-    "friendly_name": "gridPwr",
-    "value": -555.85834,
     "unit": "W",
-    "description": "gridPwr",
-    "icon": null
+    "value": -555.85834
   },
   "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_heatingPower": {
+    "description": "heatingPower",
+    "friendly_name": "heatingPower",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_heatingPower",
     "name": "SN_INVERTERBOX01_heatingPower",
-    "friendly_name": "heatingPower",
-    "value": 0.0,
     "unit": "W",
-    "description": "heatingPower",
-    "icon": null
+    "value": 0.0
   },
   "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_loadPwr": {
+    "description": "loadPwr",
+    "friendly_name": "loadPwr",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_loadPwr",
     "name": "SN_INVERTERBOX01_loadPwr",
-    "friendly_name": "loadPwr",
-    "value": -555.85834,
     "unit": "W",
-    "description": "loadPwr",
-    "icon": null
+    "value": -555.85834
   },
   "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_pvPwr": {
+    "description": "pvPwr",
+    "friendly_name": "pvPwr",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_pvPwr",
     "name": "SN_INVERTERBOX01_pvPwr",
-    "friendly_name": "pvPwr",
-    "value": 0.0,
     "unit": "W",
-    "description": "pvPwr",
-    "icon": null
+    "value": 0.0
   },
   "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_timestamp": {
+    "description": "timestamp",
+    "friendly_name": "timestamp",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_timestamp",
     "name": "SN_INVERTERBOX01_timestamp",
-    "friendly_name": "timestamp",
-    "value": 1736704507,
     "unit": "A",
-    "description": "timestamp",
-    "icon": null
+    "value": 1736704507
   },
   "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_timezone": {
+    "description": "timezone",
+    "friendly_name": "timezone",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_timezone",
     "name": "SN_INVERTERBOX01_timezone",
-    "friendly_name": "timezone",
-    "value": 0,
     "unit": null,
-    "description": "timezone",
-    "icon": null
+    "value": 0
   },
   "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_updateTime": {
+    "description": "updateTime",
+    "friendly_name": "updateTime",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_updateTime",
     "name": "SN_INVERTERBOX01_updateTime",
-    "friendly_name": "updateTime",
-    "value": "2025-01-13 01:55:08",
     "unit": null,
-    "description": "updateTime",
-    "icon": null
+    "value": "2025-01-13 01:55:08"
   },
   "SN_INVERTERBOX01_bpPwr": {
+    "description": "Batterieleistung",
+    "friendly_name": "bpPwr",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_bpPwr",
     "name": "SN_INVERTERBOX01_bpPwr",
-    "friendly_name": "bpPwr",
-    "value": 0.0,
     "unit": "W",
-    "description": "Batterieleistung",
-    "icon": null
+    "value": 0.0
   },
   "SN_INVERTERBOX01_bpSoc": {
+    "description": "Ladezustand der Batterie",
+    "friendly_name": "bpSoc",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_bpSoc",
     "name": "SN_INVERTERBOX01_bpSoc",
-    "friendly_name": "bpSoc",
-    "value": 0,
     "unit": "%",
-    "description": "Ladezustand der Batterie",
-    "icon": null
+    "value": 0
   },
   "SN_INVERTERBOX01_createTime": {
+    "description": "Installations Datum",
+    "friendly_name": "createTime",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_createTime",
     "name": "SN_INVERTERBOX01_createTime",
-    "friendly_name": "createTime",
-    "value": "createTime",
     "unit": null,
-    "description": "Installations Datum",
-    "icon": null
+    "value": "createTime"
   },
   "SN_INVERTERBOX01_location": {
+    "description": "location",
+    "friendly_name": "location",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_location",
     "name": "SN_INVERTERBOX01_location",
-    "friendly_name": "location",
-    "value": "location",
     "unit": null,
-    "description": "location",
-    "icon": null
+    "value": "location"
   },
   "SN_INVERTERBOX01_mpptPwr": {
+    "description": "Solarertrag",
+    "friendly_name": "mpptPwr",
+    "icon": "mdi:solar-power",
     "internal_unique_id": "SN_INVERTERBOX01_mpptPwr",
     "name": "SN_INVERTERBOX01_mpptPwr",
-    "friendly_name": "mpptPwr",
-    "value": 0.0,
     "unit": "W",
-    "description": "Solarertrag",
-    "icon": "mdi:solar-power"
+    "value": 0.0
   },
   "SN_INVERTERBOX01_online": {
+    "description": "Online",
+    "friendly_name": "online",
+    "icon": "mdi:cloud-check",
     "internal_unique_id": "SN_INVERTERBOX01_online",
     "name": "SN_INVERTERBOX01_online",
-    "friendly_name": "online",
-    "value": 1,
     "unit": null,
-    "description": "Online",
-    "icon": "mdi:cloud-check"
+    "value": 1
   },
   "SN_INVERTERBOX01_sysGridPwr": {
+    "description": "Stromnetz",
+    "friendly_name": "sysGridPwr",
+    "icon": "mdi:transmission-tower-import",
     "internal_unique_id": "SN_INVERTERBOX01_sysGridPwr",
     "name": "SN_INVERTERBOX01_sysGridPwr",
-    "friendly_name": "sysGridPwr",
-    "value": 0.0,
     "unit": "W",
-    "description": "Stromnetz",
-    "icon": "mdi:transmission-tower-import"
+    "value": 0.0
   },
   "SN_INVERTERBOX01_sysLoadPwr": {
+    "description": "Hausnetz",
+    "friendly_name": "sysLoadPwr",
+    "icon": "mdi:home-import-outline",
     "internal_unique_id": "SN_INVERTERBOX01_sysLoadPwr",
     "name": "SN_INVERTERBOX01_sysLoadPwr",
-    "friendly_name": "sysLoadPwr",
-    "value": 0.0,
     "unit": "W",
-    "description": "Hausnetz",
-    "icon": "mdi:home-import-outline"
+    "value": 0.0
   },
   "SN_INVERTERBOX01_systemName": {
+    "description": "System Name",
+    "friendly_name": "systemName",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_systemName",
     "name": "SN_INVERTERBOX01_systemName",
-    "friendly_name": "systemName",
-    "value": "systemName",
     "unit": null,
-    "description": "System Name",
-    "icon": null
+    "value": "systemName"
   },
   "SN_INVERTERBOX01_timezone": {
+    "description": "timezone",
+    "friendly_name": "timezone",
+    "icon": null,
     "internal_unique_id": "SN_INVERTERBOX01_timezone",
     "name": "SN_INVERTERBOX01_timezone",
-    "friendly_name": "timezone",
-    "value": "timezone",
     "unit": null,
-    "description": "timezone",
-    "icon": null
+    "value": "timezone"
   }
 }

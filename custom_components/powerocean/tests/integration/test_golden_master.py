@@ -23,15 +23,15 @@ API_FIXTURES = [
 @pytest.mark.parametrize("fixture_file_name, variant", API_FIXTURES)
 def test_golden_master(fixture_file_name, variant, tmp_path) -> None:
     """Regression test: compare current sensor extraction to golden master for multiple responses/variants."""
-    fixture_file = Path(__file__).parent / "fixtures" / fixture_file_name
+    fixture_file = Path(__file__).parent.parent / "fixtures" / fixture_file_name
+    # Golden Master path (per response)
+    master_file = fixture_file.parent / f"golden_master_{fixture_file_name}"
+
     if not fixture_file.exists():
         pytest.skip(f"Fixture file not found: {fixture_file}")
 
     with fixture_file.open("r", encoding="utf-8") as f:
         api_response = json.load(f)
-
-    # Golden Master path (per response)
-    master_file = fixture_file.parent / f"golden_master_{fixture_file_name}"
 
     # --- Ecoflow Dummy Init ---
     serialnumber = "SN_INVERTERBOX01"
@@ -53,8 +53,9 @@ def test_golden_master(fixture_file_name, variant, tmp_path) -> None:
     eco.session = requests.Session()
     eco.url_iot_app = "https://api.ecoflow.com/auth/login"
     eco.url_user_fetch = "https://dummy.url"
-    base_path = Path(__file__).parent.parent
-    eco.datapointfile = base_path / "variants" / f"{variant}.json"
+    eco.datapointfile = (
+        Path(__file__).parent.parent.parent / "variants" / f"{variant}.json"
+    )
 
     # --- Parser ausführen ---
     sensors = eco._get_sensors(api_response)
