@@ -72,7 +72,7 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
         "mode": "boxed",  # 🔑 boxed | single
         "detect": lambda p: "pileChargingParamReport" in p,
         "sn_path": ["devInfo", "devSn"],
-        "model": "EcoFlow Wallbox",
+        "model": "PowerOcean Wallbox",
         "name_prefix": "Wallbox",
         "paths": {
             "devSn": ["devInfo", "devSn"],
@@ -91,7 +91,7 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
         "mode": "single",  # 🔑 boxed | single
         "detect": lambda p: "evPlugAndPlay" in p,
         "sn_path": ["evSn"],
-        "model": "EcoFlow Charger",
+        "model": "PowerOcean Charger",
         "name_prefix": "Charger",
         "paths": None,
         "sensors": [

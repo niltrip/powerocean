@@ -1,10 +1,10 @@
 """__init__.py: The PowerOcean integration."""
 
-from __future__ import annotations
-
 import logging
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_DEVICE_ID,
     CONF_EMAIL,
@@ -14,20 +14,18 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.helpers.typing import ConfigType
 from homeassistant.loader import async_get_integration
+from homeassistant.util import dt as dt_util
 
-from .const import (
-    DOMAIN,
-    PLATFORMS,
-)
+from .const import DOMAIN, PLATFORMS
 from .ecoflow import Ecoflow
+from .sensor import _update_sensors  # deine Update-Funktion
 
 if TYPE_CHECKING:
-    from homeassistant.config_entries import ConfigEntry
-    from homeassistant.core import HomeAssistant
-    from homeassistant.helpers.typing import ConfigType
+    pass
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -67,116 +65,119 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up PowerOcean from a config entry."""
-    try:
-        # Legacy config without options? Patch it.
-        updated = False
-        options = entry.data.get("options", {})
 
-        if CONF_SCAN_INTERVAL not in options:
-            options[CONF_SCAN_INTERVAL] = 10
-            updated = True
+    # --- Optionen holen / migrieren ---
+    options = dict(entry.options)
+    updated = False
 
-        if CONF_FRIENDLY_NAME not in options:
-            options[CONF_FRIENDLY_NAME] = entry.data.get("options", {}).get(
-                "custom_device_name", "PowerOcean"
-            )
-            updated = True
+    if CONF_SCAN_INTERVAL not in options:
+        options[CONF_SCAN_INTERVAL] = 10
+        updated = True
 
-        if updated:
-            hass.config_entries.async_update_entry(entry, options=options)
-            _LOGGER.info("Migrated missing options for %s: %s", entry.title, options)
-
-        device_id = entry.data["user_input"][CONF_DEVICE_ID]
-        model = entry.data["user_input"][CONF_MODEL_ID]
-        name = options.get(CONF_FRIENDLY_NAME)
-
-        # Initialize your device
-        ecoflow = Ecoflow(
-            device_id,
-            entry.data["user_input"][CONF_EMAIL],
-            entry.data["user_input"][CONF_PASSWORD],
-            model,
-            options,
+    if CONF_FRIENDLY_NAME not in options:
+        options[CONF_FRIENDLY_NAME] = entry.data.get("options", {}).get(
+            "custom_device_name", "PowerOcean"
         )
+        updated = True
 
-        # Optional: authorize or fetch data
+    if updated:
+        hass.config_entries.async_update_entry(entry, options=options)
+        _LOGGER.info("Migrated missing options for %s: %s", entry.title, options)
+
+    polling_interval = timedelta(seconds=options.get(CONF_SCAN_INTERVAL, 10))
+
+    # --- Ecoflow-Objekt initialisieren ---
+    device_id = entry.data[CONF_DEVICE_ID]
+    model = entry.data[CONF_MODEL_ID]
+    ecoflow = Ecoflow(
+        device_id,
+        entry.data[CONF_EMAIL],
+        entry.data[CONF_PASSWORD],
+        model,
+        options,
+    )
+
+    # --- Authentifizieren und Gerät abrufen ---
+    try:
         await hass.async_add_executor_job(ecoflow.authorize)
         ecoflow.device = await hass.async_add_executor_job(ecoflow.get_device)
-
-        # Store device instance
-        hass.data.setdefault(DOMAIN, {})[entry.entry_id] = ecoflow
-        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-        device_registry = dr.async_get(hass)
-        device_info = entry.data.get("device_info")
-
-        # If device_info is provided, register the device
-        if device_info:
-            device_registry.async_get_or_create(
-                config_entry_id=entry.entry_id,
-                identifiers={(DOMAIN, device_id)},
-                manufacturer=device_info.get("vendor", "ECOFLOW"),
-                serial_number=device_id,
-                name=name,
-                model=device_info.get("product"),
-                model_id=model,
-                sw_version=device_info.get("version"),
-                configuration_url="https://api-e.ecoflow.com",
-            )
-
-    except HomeAssistantError:  # Verwenden des generischen Fehlertyps
-        _LOGGER.exception("Error setting up PowerOcean for device %s", entry.title)
-        return False
     except Exception:
-        _LOGGER.exception("Unexpected error setting up PowerOcean.")
-        return False
-    else:
-        return True
-
-
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry and clean up device if necessary."""
-    try:
-        # Unload all platforms
-        unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-
-        if not unload_ok:
-            _LOGGER.warning(
-                "Fehler beim Entladen der Plattformen für %s", entry.entry_id
-            )
-            return False
-
-        # Clean up hass.data
-        hass.data[DOMAIN].pop(entry.entry_id, None)
-
-        # Optional cleanup of custom sensor mapping
-        device_id = entry.data.get("user_input", {}).get(CONF_DEVICE_ID)
-        device_name = entry.options.get(CONF_FRIENDLY_NAME)
-        if device_id and device_id in hass.data.get(DOMAIN, {}).get(
-            "device_specific_sensors", {}
-        ):
-            hass.data[DOMAIN]["device_specific_sensors"].pop(device_id, None)
-            _LOGGER.debug(
-                "Sensor-Update-Liste für Gerät mit benutzerdefiniertem Namen '%s' wurde gelöscht: %s",
-                device_name,
-                device_id,
-            )
-
-    except HomeAssistantError:
-        # Verwenden von HomeAssistantError für Fehler, die bei der Entladung auftreten können
-        _LOGGER.exception("Fehler beim Entladen der PowerOcean-Konfiguration.")
+        _LOGGER.exception("Error setting up Ecoflow device %s.", entry.title)
         return False
 
-    except Exception:
-        # Allgemeiner Catch-Block für unerwartete Fehler
-        _LOGGER.exception(
-            "Unvorhergesehener Fehler beim Entladen der PowerOcean-Konfiguration."
-        )
-        return False
+    # --- Ecoflow im Hass-Datenstore speichern ---
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = ecoflow
+
+    # # --- Timer für regelmäßige Updates ---
+    # async def async_update_data(now: datetime) -> None:
+    #     await _update_sensors(hass, ecoflow, device_id, now)
+
+    # # Alten Timer stoppen, falls Reload
+    # handles = hass.data.setdefault(DOMAIN, {}).setdefault("update_handles", {})
+    # old_handle = handles.pop(entry.entry_id, None)
+    # if old_handle:
+    #     old_handle()
+
+    # # Neuen Timer starten
+    # handles[entry.entry_id] = async_track_time_interval(
+    #     hass, async_update_data, polling_interval
+    # )
+
+    # # Sofortiger Update-Durchlauf
+    # await async_update_data(dt_util.utcnow())
+
+    # Sensor-Plattform weiterleiten
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    # Device Registry
+    device_registry = dr.async_get(hass)
+    device_registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, device_id)},
+        manufacturer="ECOFLOW",
+        serial_number=device_id,
+        name=options.get(CONF_FRIENDLY_NAME),
+        model="PowerOcean",
+        model_id=model,
+        configuration_url="https://user-portal.ecoflow.com/",
+    )
+
+    # --- Listener für Optionsänderungen registrieren ---
+    entry.async_on_unload(entry.add_update_listener(update_listener))
 
     return True
 
 
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Unload a config entry and clean up resources."""
+
+    # Plattformen entladen
+    # unload_ok = await hass.config_entries.async_forward_entry_unload(entry, PLATFORMS)
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if not unload_ok:
+        _LOGGER.warning("Fehler beim Entladen der Plattformen für %s", entry.entry_id)
+        return False
+
+    # Ecoflow-Objekt entfernen
+    hass.data.get(DOMAIN, {}).pop(entry.entry_id, None)
+
+    # Optional cleanup of custom sensor mapping
+    device_id = entry.data.get("user_input", {}).get(CONF_DEVICE_ID)
+    device_name = entry.options.get(CONF_FRIENDLY_NAME)
+    if device_id and device_id in hass.data.get(DOMAIN, {}).get(
+        "device_specific_sensors", {}
+    ):
+        hass.data[DOMAIN]["device_specific_sensors"].pop(device_id, None)
+        _LOGGER.debug(
+            "Sensor-Update-Liste für Gerät mit benutzerdefiniertem Namen '%s' wurde gelöscht: %s",
+            device_name,
+            device_id,
+        )
+
+    return unload_ok
+
+
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Reload the config entry when its options are updated."""
+    """Reload the config entry when options are updated (z.B. polling interval)."""
+    _LOGGER.debug("Reloading PowerOcean entry %s due to options change", entry.entry_id)
     await hass.config_entries.async_reload(entry.entry_id)

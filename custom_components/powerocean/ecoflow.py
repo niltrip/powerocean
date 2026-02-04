@@ -732,11 +732,12 @@ class Ecoflow:
         if report == ReportMode.DEFAULT.value:
             report_string = ""
         device_sn = d.get("evSn", self.sn_inverter)
+
         if device_sn != self.sn_inverter:
             device_info = self._get_device_info(
                 sn=device_sn,
                 name=f"Charger {device_sn}",
-                model="EcoFlow Charger",
+                model="PowerOcean Charger",
                 via_sn=self.sn_inverter,
             )
 

@@ -7,7 +7,7 @@ including data fetching, entity registration, and periodic updates.
 
 import logging
 from collections.abc import Callable
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any, ClassVar
 
 from homeassistant.components.sensor import (
@@ -26,7 +26,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import IntegrationError
 from homeassistant.helpers import entity_registry
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.util import dt as dt_util
 
 from .const import (
     ATTR_PRODUCT_DESCRIPTION,
@@ -34,7 +36,7 @@ from .const import (
     DOMAIN,
     ISSUE_URL_ERROR_MESSAGE,
 )
-from .ecoflow import AuthenticationFailedError, Ecoflow, PowerOceanEndPoint
+from .ecoflow import Ecoflow, PowerOceanEndPoint
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,58 +44,85 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
-    async_add_entities: Callable[[list, bool], Any],
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """
-    Set up PowerOcean sensor entities for a config entry.
+    """Set up PowerOcean sensor entities for a config entry."""
 
-    This function initializes and registers sensor entities, schedules periodic updates,
-    and manages device-specific sensor lists for the PowerOcean integration.
-    """
+    # --- Ecoflow-Objekt aus __init__.py holen ---
     ecoflow = hass.data[DOMAIN][config_entry.entry_id]
-    _LOGGER.debug("ecoflow.device: %s", ecoflow.device)
-    device_id = ecoflow.device["serial"]
-
-    if not await _authorize_device(hass, ecoflow, device_id):
+    if not ecoflow:
+        _LOGGER.error(
+            "Ecoflow object for entry %s not found, skipping sensor setup",
+            config_entry.entry_id,
+        )
         return
 
-    data = await _fetch_initial_data(hass, ecoflow, device_id)
-    if not data:
+    device_id = ecoflow.device["serial"] if ecoflow.device else None
+    if not device_id:
+        _LOGGER.error("Device not initialized yet for entry %s", config_entry.entry_id)
         return
 
-    _register_sensors(hass, ecoflow, device_id, data, async_add_entities)
+    # --- Initiale Daten abrufen ---
+    initial_data = getattr(ecoflow, "initial_data", None)
+    if initial_data is None:
+        try:
+            initial_data = await hass.async_add_executor_job(ecoflow.fetch_data)
+            ecoflow.initial_data = initial_data
+        except Exception as err:
+            _LOGGER.warning(
+                "Failed to fetch initial data for device %s: %s",
+                device_id,
+                err,
+            )
+            initial_data = {}
+
+    # --- Sensoren erzeugen ---
+    sensors = []
+    for endpoint in initial_data.values():
+        try:
+            sensor = PowerOceanSensor(ecoflow, endpoint, config_entry.entry_id)
+            sensors.append(sensor)
+        except Exception as err:
+            _LOGGER.warning(
+                "Failed to create sensor for endpoint %s: %s", endpoint, err
+            )
+
+    if sensors:
+        hass.data.setdefault(DOMAIN, {}).setdefault("device_specific_sensors", {})
+        hass.data[DOMAIN]["device_specific_sensors"][device_id] = sensors
+
+        async_add_entities(sensors)
+        _LOGGER.debug("%s: Registered %d sensors", device_id, len(sensors))
+    else:
+        _LOGGER.warning("%s: No sensors created for this device", device_id)
+        return
+
+    # --- Polling-Intervall aus Optionen ---
     polling_interval = timedelta(
         seconds=config_entry.options.get(CONF_SCAN_INTERVAL, 10)
     )
 
-    async def async_update_data(now: date) -> None:
+    # --- Timer-Callback ---
+    async def async_update_data(now: datetime) -> None:
+        """Update all sensors for this device."""
         await _update_sensors(hass, ecoflow, device_id, now)
 
-    async_track_time_interval(hass, async_update_data, polling_interval)
+    # --- Alten Timer stoppen, falls Reload ---
+    update_handles = hass.data.setdefault(DOMAIN, {}).setdefault("update_handles", {})
+    old_handle = update_handles.pop(device_id, None)
+    if old_handle:
+        old_handle()
 
+    # --- Neuen Timer starten ---
+    handle = async_track_time_interval(hass, async_update_data, polling_interval)
+    update_handles[device_id] = handle
 
-async def _authorize_device(
-    hass: HomeAssistant, ecoflow: Ecoflow, device_id: str
-) -> bool:
-    """Authorize the device and log warnings if authorization fails."""
-    try:
-        auth_check = await hass.async_add_executor_job(ecoflow.authorize)
-        if not auth_check:
-            _LOGGER.warning(
-                "%s: PowerOcean device is offline or has changed host.%s",
-                device_id,
-                ISSUE_URL_ERROR_MESSAGE,
-            )
-            return False
-    except AuthenticationFailedError as error:
-        _LOGGER.warning(
-            "%s: Authentication failed: %s",
-            device_id,
-            error,
-        )
-        return False
+    # --- Sofortiges erstes Update ---
+    # await async_update_data(dt_util.utcnow())
 
-    return True
+    _LOGGER.debug(
+        "Scheduled updates every %s for device %s", polling_interval, device_id
+    )
 
 
 async def _fetch_initial_data(
@@ -366,7 +395,7 @@ class PowerOceanSensor(SensorEntity):
             identifiers={(DOMAIN, inverter_sn)},
             name=self.ecoflow.device.get("name"),
             manufacturer="EcoFlow",
-            model="PowerOcean Inverter",
+            model="PowerOcean",
         )
 
     @property
