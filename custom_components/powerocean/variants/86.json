@@ -8,7 +8,7 @@
 		"totalElectricityGeneration",
 		"systemName"
 	],
-	"JTS1_ENERGY_STREAM_REPORT": [
+	"ENERGY_STREAM_REPORT": [
 		"bpSoc",
 		"mpptPwr",
 		"bpPwr",
@@ -18,7 +18,7 @@
 		"sysLoadPwr",
 		"sysGridPwr"
 	],
-	"JTS1_EMS_CHANGE_REPORT": [
+	"EMS_CHANGE_REPORT": [
 		"bpTotalChgEnergy",
 		"bpTotalDsgEnergy",
 		"bpSoc",
@@ -29,7 +29,7 @@
 		"mppt2FaultCode",
 		"mppt2WarningCode"
 	],
-	"JTS1_BP_STA_REPORT": [
+	"BP_STA_REPORT": [
 		"bpPwr",
 		"bpSoc",
 		"bpSoh",
@@ -43,14 +43,14 @@
 		"bpMinCellTemp",
 		"bpMaxCellTemp"
 	],
-	"JTS1_EMS_HEARTBEAT": [
+	"EMS_HEARTBEAT": [
 		"bpRemainWatth",
 		"emsBpAliveNum",
 		"emsBpPower",
 		"pcsActPwr",
 		"pcsMeterPower"
 	],
-	"JTS1_EVCHARGING_REPORT": [
+	"EVCHARGING_REPORT": [
 		"evSn",
 		"workMode",
 		"useGridFirst",
@@ -65,7 +65,7 @@
 		"chargingStatus",
 		"evPwr"
 	],
-	"JTS1_HEATING_ROD_PARAM_REPORT": [
+	"HEATING_ROD_PARAM_REPORT": [
 		"selfcheckPercent",
 		"temp",
 		"targetTemp",

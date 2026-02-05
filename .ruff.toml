@@ -2,6 +2,7 @@
 
 target-version = "py313"
 
+
 [lint]
 select = [
     "ALL",
@@ -14,6 +15,16 @@ ignore = [
     "COM812", # incompatible with formatter
     "ISC001", # incompatible with formatter
     "EXE002",
+]
+
+[lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101",    # assert allowed in tests
+    "PLR2004", # magic values
+    "F841",    # unused variables
+    "ARG001",  # unused function arguments
+    "ANN201",  # missing return type
+    "ANN001",  # missing param type
 ]
 
 [lint.flake8-pytest-style]

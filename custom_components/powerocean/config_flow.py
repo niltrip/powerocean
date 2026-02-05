@@ -2,18 +2,22 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import TYPE_CHECKING, Any
 
 import voluptuous as vol
 from homeassistant.config_entries import (
+    ConfigEntry,
     ConfigFlow,
     ConfigFlowResult,
+    OptionsFlow,
 )
+from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError, IntegrationError
 from homeassistant.helpers.selector import selector
 
-from .const import _LOGGER, DOMAIN, ISSUE_URL_ERROR_MESSAGE
+from .const import DEFAULT_NAME, DEFAULT_SCAN_INTERVAL, DOMAIN, ISSUE_URL_ERROR_MESSAGE
 from .ecoflow import Ecoflow
 
 if TYPE_CHECKING:
@@ -28,7 +32,7 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 
-# This are the step's schema when setting up the integration, or its devices
+# Schema for the user step and device options step
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_DEVICE_ID, default=""): str,
@@ -38,22 +42,10 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
             {
                 "select": {
                     "options": [
-                        {
-                            "label": "PowerOcean",
-                            "value": "83",
-                        },
-                        {
-                            "label": "PowerOcean DC Fit",
-                            "value": "85",
-                        },
-                        {
-                            "label": "PowerOcean Single Phase",
-                            "value": "86",
-                        },
-                        {
-                            "label": "PowerOcean Plus",
-                            "value": "87",
-                        },
+                        {"label": "PowerOcean", "value": "83"},
+                        {"label": "PowerOcean DC Fit", "value": "85"},
+                        {"label": "PowerOcean Single Phase", "value": "86"},
+                        {"label": "PowerOcean Plus", "value": "87"},
                     ],
                     "mode": "dropdown",
                 }
@@ -64,8 +56,8 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 
 STEP_DEVICE_OPTIONS_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_FRIENDLY_NAME, default="PowerOcean"): str,
-        vol.Required(CONF_SCAN_INTERVAL, default=10): selector(
+        vol.Required(CONF_FRIENDLY_NAME, default=DEFAULT_NAME): str,
+        vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): selector(
             {
                 "number": {
                     "min": 10,
@@ -77,6 +69,8 @@ STEP_DEVICE_OPTIONS_SCHEMA = vol.Schema(
         ),
     }
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 
 async def validate_input_for_device(
@@ -95,25 +89,23 @@ async def validate_input_for_device(
         # Check for authentication
         await hass.async_add_executor_job(ecoflow.authorize)
         # Get device info
-        # Return the device object with the device information
         return await hass.async_add_executor_job(ecoflow.get_device)
 
-    # Exception if device cannot be found
     except IntegrationError as e:
-        _LOGGER.error(
-            f"Failed to connect to PowerOcean device: {e}" + ISSUE_URL_ERROR_MESSAGE
+        _LOGGER.exception(
+            "Failed to connect to PowerOcean device: %s%s",
+            e,
+            ISSUE_URL_ERROR_MESSAGE,
         )
-        raise CannotConnectError from e
+        raise HomeAssistantError from e  # Verwenden der Standardfehlerklasse
 
-    # Exception if authentication fails
-    except AuthenticationFailedError as e:
-        _LOGGER.error(f"Authentication failed: {e}" + ISSUE_URL_ERROR_MESSAGE)
-        raise InvalidAuthError from e
-
-
-async def validate_settings(hass: HomeAssistant, data: dict[str, Any]) -> bool:  # noqa: ARG001
-    """Another validation method for our config steps."""
-    return True
+    except Exception as e:  # allgemeine Fehlerbehandlung
+        _LOGGER.exception(
+            "Authentication failed: %s%s",
+            e,
+            ISSUE_URL_ERROR_MESSAGE,
+        )
+        raise HomeAssistantError from e
 
 
 class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -122,10 +114,9 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 1.3
 
     def __init__(self) -> None:
-        """Initialize the PowerOceanConfigFlow instance."""
-        self.user_input_from_step_user = {}
-        self._title: str
-        self.options = {}
+        """Instanzvariablen für den Flow-Verlauf."""
+        self._cloud_data: dict[str, Any] = {}
+        self._device_info: dict[str, Any] = {}
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -135,22 +126,22 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
+                # 1. Validierung
                 device = await validate_input_for_device(self.hass, user_input)
-            except CannotConnectError:
-                errors["base"] = "cannot_connect"
-            except InvalidAuthError:
-                errors["base"] = "invalid_auth"
-            except Exception:  # noqa: BLE001
-                _LOGGER.exception("Unexpected exception")
-                errors["base"] = "unknown"
-            else:
-                unique_id = f"{device['product']}_{device['serial']}"
+
+                # 2. Unique ID prüfen
+                unique_id = f"PowerOcean_{device['serial']}"
                 await self.async_set_unique_id(unique_id)
+                self._abort_if_unique_id_configured()
 
-                self.user_input_from_step_user = user_input
-                self.device_info = device
+                # 3. Daten für Schritt 2 zwischenspeichern
+                self._cloud_data = user_input
+                self._device_info = device
 
-                return await self.async_step_device_options(user_input=None)
+                # 4. Weiter zu Schritt 2 (kein return async_create_entry!)
+                return await self.async_step_device_options()
+            except HomeAssistantError:
+                errors["base"] = "cannot_connect"
 
         return self.async_show_form(
             step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
@@ -159,33 +150,21 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_device_options(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Handle the device options step."""
-        errors: dict[str, str] = {}
-
+        """Schritt 2: Zusätzliche Optionen abfragen."""
+        errors = {}
         if user_input is not None:
-            try:
-                user_input[CONF_FRIENDLY_NAME] = sanitize_device_name(
-                    user_input[CONF_FRIENDLY_NAME], self.device_info["name"]
-                )
-
-                self._title = user_input[CONF_FRIENDLY_NAME]
-                if not await validate_settings(self.hass, user_input):
-                    errors["base"] = "invalid_settings"
-
-                if "base" not in errors:
-                    return self.async_create_entry(
-                        title=self._title,
-                        data={
-                            "user_input": self.user_input_from_step_user,  # from step 1
-                            "device_info": self.device_info,  # from device detection
-                            "options": user_input,  # new options from this step
-                        },
-                    )
-            except ValueError as e:
-                _LOGGER.error(
-                    f"Failed to handle device options: {e}" + ISSUE_URL_ERROR_MESSAGE
-                )
-                errors["base"] = "option_error"
+            friendly_name = sanitize_device_name(
+                user_input[CONF_FRIENDLY_NAME],
+                fall_back=DEFAULT_NAME,
+            )
+            return self.async_create_entry(
+                title=friendly_name,
+                data=self._cloud_data,
+                options={
+                    **user_input,
+                    CONF_FRIENDLY_NAME: friendly_name,
+                },
+            )
 
         return self.async_show_form(
             step_id="device_options",
@@ -196,82 +175,103 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Handle reconfiguration of the integration options."""
-        errors: dict[str, str] = {}
+        """Standard-Reconfigure: Bestehende Instanz korrigieren (z.B. neues Passwort, Device ID, Model)."""
+        entry = self._get_reconfigure_entry()
 
-        # Hole aktuellen ConfigEntry für Re-Konfiguration
-        current_entry = self._get_reconfigure_entry()
-        current_options = current_entry.options or {}
-
-        # Standardname aus Optionen setzen (Fallback auf Default)
-        default_name = current_options.get(CONF_FRIENDLY_NAME, "PowerOcean")
+        errors = {}
 
         if user_input is not None:
+            merged = {**entry.data, **user_input}
+
             try:
-                # Unique ID setzen und sicherstellen,
-                # dass es sich um die korrekte Instanz handelt
-                await self.async_set_unique_id(current_entry.unique_id)
-                self._abort_if_unique_id_mismatch()
-
-                # Gerätname bereinigen
-                user_input[CONF_FRIENDLY_NAME] = sanitize_device_name(
-                    user_input[CONF_FRIENDLY_NAME], default_name
+                await validate_input_for_device(self.hass, merged)
+                # Entry aktualisieren
+                self.hass.config_entries.async_update_entry(
+                    entry,
+                    data=merged,
                 )
+                await self.hass.config_entries.async_reload(entry.entry_id)
+                return self.async_abort(reason="reconfiguration_completed")
+            except HomeAssistantError:
+                errors["base"] = "cannot_connect"
 
-                # Optionen aktualisieren
-                updated_options = {**current_options, **user_input}
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=self._get_reconfigure_schema(entry),
+            errors=errors,
+        )
 
-                # Eintrag aktualisieren und neu laden
-                return self.async_update_reload_and_abort(
-                    current_entry, data_updates={"options": updated_options}
-                )
-
-            except ValueError as e:
-                _LOGGER.exception(f"Fehler bei der Re-Konfiguration: {e}")
-                errors["base"] = "reconfig_error"
-
-        # Formular mit bestehenden Werten anzeigen
-        data_schema = vol.Schema(
+    def _get_reconfigure_schema(self, entry: ConfigEntry) -> vol.Schema:
+        """Hilfsfunktion, um Schema für Reconfigure zu erstellen."""
+        return vol.Schema(
             {
-                vol.Required(CONF_FRIENDLY_NAME, default=default_name): str,
                 vol.Required(
-                    CONF_SCAN_INTERVAL,
-                    default=current_options.get(CONF_SCAN_INTERVAL, 10),
+                    CONF_DEVICE_ID, default=entry.data.get(CONF_DEVICE_ID, "")
+                ): str,
+                vol.Required(CONF_EMAIL, default=entry.data.get(CONF_EMAIL, "")): str,
+                vol.Required(CONF_PASSWORD): str,
+                vol.Required(
+                    CONF_MODEL_ID, default=entry.data.get(CONF_MODEL_ID, "83")
                 ): selector(
                     {
-                        "number": {
-                            "min": 10,
-                            "max": 60,
-                            "unit_of_measurement": "s",
-                            "mode": "box",
+                        "select": {
+                            "options": [
+                                {"label": "PowerOcean", "value": "83"},
+                                {"label": "PowerOcean DC Fit", "value": "85"},
+                                {"label": "PowerOcean Single Phase", "value": "86"},
+                                {"label": "PowerOcean Plus", "value": "87"},
+                            ],
+                            "mode": "dropdown",
                         }
                     }
                 ),
             }
         )
 
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        return PowerOceanOptionsFlow()
+
+
+class PowerOceanOptionsFlow(OptionsFlow):
+    """Handhabt Einstellungen, die jederzeit änderbar sind."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Erster Schritt des Options Flows."""
+        if user_input is not None:
+            # Erzeugt/aktualisiert das 'options' Dictionary im ConfigEntry
+            return self.async_create_entry(title="", data=user_input)
+
+        # Zugriff auf self.config_entry ist hier direkt möglich
+        options = self.config_entry.options
+
         return self.async_show_form(
-            step_id="reconfigure",
-            data_schema=data_schema,
-            errors=errors,
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_FRIENDLY_NAME,
+                        default=options.get(CONF_FRIENDLY_NAME, DEFAULT_NAME),
+                    ): str,
+                    vol.Required(
+                        CONF_SCAN_INTERVAL,
+                        default=options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+                    ): selector(
+                        {
+                            "number": {
+                                "min": 10,
+                                "max": 60,
+                                "unit_of_measurement": "s",
+                                "mode": "box",
+                            }
+                        }
+                    ),
+                }
+            ),
         )
-
-
-class CannotConnectError(HomeAssistantError):
-    """Error to indicate we cannot connect."""
-
-
-class InvalidAuthError(HomeAssistantError):
-    """Error to indicate there is invalid auth."""
-
-
-class AuthenticationFailedError(HomeAssistantError):
-    """Error to indicate authentication failure."""
-
-    def __init__(self) -> None:
-        """Initialize AuthenticationFailedError with a default message."""
-        msg = "Invalid authentication!"
-        super().__init__(msg)
 
 
 # Helper function to sanitize
@@ -279,24 +279,14 @@ def sanitize_device_name(
     device_name: str, fall_back: str, max_length: int = 255
 ) -> str:
     """
-    Sanitize the device name by trimming whitespace,
-    removing special characters, and enforcing a maximum length.
+    Sanitize the device name.
 
-    Args:
-        device_name (str): The device name to sanitize.
-        fall_back (str): The fallback name to use if the sanitized name is empty.
-        max_length (int, optional): The maximum allowed length for the name.
-            Defaults to 255.
-
-    Returns:
-        str: The sanitized device name.
-
-    """  # noqa: D205
+    by trimming whitespace, removing special characters, and enforcing a maximum length.
+    """
     # Trim whitespace
     sanitized = device_name.strip()
 
     # Remove disallowed characters
-    # (keep alphanumerics, spaces, underscores, and hyphens)
     sanitized = re.sub(r"[^\w\s\-]", "", sanitized)
 
     # Collapse multiple spaces to a single space
