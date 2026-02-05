@@ -7,8 +7,7 @@
           "device_id": "[%key:common::config_flow::data::device_id%]",
           "email": "[%key:common::config_flow::data::email%]",
           "password": "[%key:common::config_flow::data::password%]",
-          "model_id": "[%key:common::config_flow::data::model_id%]",
-          "choose": "[%key:common::config_flow::data::choose%]"
+          "model_id": "[%key:common::config_flow::data::model_id%]"
         }
       },
       "device_options": {
@@ -21,8 +20,10 @@
       "reconfigure": {
         "description": "[%key:common::config_flow::reconfigure::description%]",
         "data": {
-          "friendly_name": "[%key:common::config_flow::data::custom_device_name%]",
-          "scan_interval": "[%key:common::config_flow::data::polling_interval%]"
+          "device_id": "[%key:common::config_flow::data::device_id%]",
+          "email": "[%key:common::config_flow::data::email%]",
+          "password": "[%key:common::config_flow::data::password%]",
+          "model_id": "[%key:common::config_flow::data::model_id%]"
         }
       }
     },
@@ -34,6 +35,17 @@
     "abort": {
       "already_configured": "[%key:common::config_flow::abort::already_configured_device%]",
       "reconfiguration_completed": "[%key:common::config_flow::abort::reconfiguration_completed%]"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "description": "[%key:common::config_flow::options::description%]",
+        "data": {
+          "friendly_name": "[%key:common::config_flow::data::custom_device_name%]",
+          "scan_interval": "[%key:common::config_flow::data::polling_interval%]"
+        }
+      }
     }
   }
 }

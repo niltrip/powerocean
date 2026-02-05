@@ -17,7 +17,7 @@ from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError, IntegrationError
 from homeassistant.helpers.selector import selector
 
-from .const import DOMAIN, ISSUE_URL_ERROR_MESSAGE
+from .const import DEFAULT_NAME, DEFAULT_SCAN_INTERVAL, DOMAIN, ISSUE_URL_ERROR_MESSAGE
 from .ecoflow import Ecoflow
 
 if TYPE_CHECKING:
@@ -56,8 +56,8 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 
 STEP_DEVICE_OPTIONS_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_FRIENDLY_NAME, default="PowerOcean"): str,
-        vol.Required(CONF_SCAN_INTERVAL, default=10): selector(
+        vol.Required(CONF_FRIENDLY_NAME, default=DEFAULT_NAME): str,
+        vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): selector(
             {
                 "number": {
                     "min": 10,
@@ -108,11 +108,6 @@ async def validate_input_for_device(
         raise HomeAssistantError from e
 
 
-async def validate_settings(hass: HomeAssistant, data: dict[str, Any]) -> bool:
-    """Another validation method for our config steps."""
-    return True
-
-
 class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for PowerOcean."""
 
@@ -145,7 +140,7 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
 
                 # 4. Weiter zu Schritt 2 (kein return async_create_entry!)
                 return await self.async_step_device_options()
-            except Exception:
+            except HomeAssistantError:
                 errors["base"] = "cannot_connect"
 
         return self.async_show_form(
@@ -158,60 +153,79 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
         """Schritt 2: Zusätzliche Optionen abfragen."""
         errors = {}
         if user_input is not None:
-            # Jetzt erst wird der Eintrag final erstellt
+            friendly_name = sanitize_device_name(
+                user_input[CONF_FRIENDLY_NAME],
+                fall_back=DEFAULT_NAME,
+            )
             return self.async_create_entry(
-                title=user_input[CONF_FRIENDLY_NAME],
-                data=self._cloud_data,  # Die Daten aus Schritt 1
-                options=user_input,  # Die Daten aus Schritt 2
+                title=friendly_name,
+                data=self._cloud_data,
+                options={
+                    **user_input,
+                    CONF_FRIENDLY_NAME: friendly_name,
+                },
             )
 
-        # Schema für die zweite Maske (z.B. Name und Intervall)
-        options_schema = vol.Schema(
+        return self.async_show_form(
+            step_id="device_options",
+            data_schema=STEP_DEVICE_OPTIONS_SCHEMA,
+            errors=errors,
+        )
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Standard-Reconfigure: Bestehende Instanz korrigieren (z.B. neues Passwort, Device ID, Model)."""
+        entry = self._get_reconfigure_entry()
+
+        errors = {}
+
+        if user_input is not None:
+            merged = {**entry.data, **user_input}
+
+            try:
+                await validate_input_for_device(self.hass, merged)
+                # Entry aktualisieren
+                self.hass.config_entries.async_update_entry(
+                    entry,
+                    data=merged,
+                )
+                await self.hass.config_entries.async_reload(entry.entry_id)
+                return self.async_abort(reason="reconfiguration_completed")
+            except HomeAssistantError:
+                errors["base"] = "cannot_connect"
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=self._get_reconfigure_schema(entry),
+            errors=errors,
+        )
+
+    def _get_reconfigure_schema(self, entry: ConfigEntry) -> vol.Schema:
+        """Hilfsfunktion, um Schema für Reconfigure zu erstellen."""
+        return vol.Schema(
             {
                 vol.Required(
-                    CONF_FRIENDLY_NAME,
-                    default="PowerOcean",
+                    CONF_DEVICE_ID, default=entry.data.get(CONF_DEVICE_ID, "")
                 ): str,
+                vol.Required(CONF_EMAIL, default=entry.data.get(CONF_EMAIL, "")): str,
+                vol.Required(CONF_PASSWORD): str,
                 vol.Required(
-                    CONF_SCAN_INTERVAL,
-                    default=10,  # Hier sicherstellen, dass der Wert korrekt gesetzt wird
+                    CONF_MODEL_ID, default=entry.data.get(CONF_MODEL_ID, "83")
                 ): selector(
                     {
-                        "number": {
-                            "min": 10,
-                            "max": 60,
-                            "unit_of_measurement": "s",
-                            "mode": "box",
+                        "select": {
+                            "options": [
+                                {"label": "PowerOcean", "value": "83"},
+                                {"label": "PowerOcean DC Fit", "value": "85"},
+                                {"label": "PowerOcean Single Phase", "value": "86"},
+                                {"label": "PowerOcean Plus", "value": "87"},
+                            ],
+                            "mode": "dropdown",
                         }
                     }
                 ),
             }
-        )
-
-        return self.async_show_form(
-            step_id="device_options", data_schema=options_schema, errors=errors
-        )
-
-    async def async_step_reconfigure(self, user_input=None):
-        """Standard-Reconfigure: Bestehende Instanz korrigieren (z.B. neues Passwort)."""
-        entry = self._get_reconfigure_entry()
-        errors = {}
-
-        if user_input is not None:
-            # Validieren und Eintrag aktualisieren
-            return self.async_update_reload_and_abort(
-                entry, data={**entry.data, **user_input}
-            )
-
-        return self.async_show_form(
-            step_id="reconfigure",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_EMAIL, default=entry.data.get(CONF_EMAIL)): str,
-                    vol.Required(CONF_PASSWORD): str,
-                }
-            ),
-            errors=errors,
         )
 
     @staticmethod
@@ -240,11 +254,11 @@ class PowerOceanOptionsFlow(OptionsFlow):
                 {
                     vol.Required(
                         CONF_FRIENDLY_NAME,
-                        default=options.get(CONF_FRIENDLY_NAME, "PowerOcean"),
+                        default=options.get(CONF_FRIENDLY_NAME, DEFAULT_NAME),
                     ): str,
                     vol.Required(
                         CONF_SCAN_INTERVAL,
-                        default=options.get(CONF_SCAN_INTERVAL, 10),
+                        default=options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
                     ): selector(
                         {
                             "number": {
