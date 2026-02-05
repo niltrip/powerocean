@@ -3,12 +3,26 @@
 import base64
 import binascii
 import logging
+import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import orjson
 import requests
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorStateClass,
+)
+from homeassistant.const import (
+    PERCENTAGE,
+    UnitOfElectricCurrent,
+    UnitOfElectricPotential,
+    UnitOfEnergy,
+    UnitOfPower,
+    UnitOfTemperature,
+    UnitOfVolume,
+)
 from homeassistant.exceptions import IntegrationError
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.util.json import json_loads
@@ -24,8 +38,9 @@ from .utils import (
     BoxSchema,
     DeviceRole,
     ReportMode,
-    SensorMetaHelper,
 )
+
+SensorClassTuple = tuple[SensorDeviceClass, str, SensorStateClass]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,8 +56,8 @@ class PowerOceanEndPoint:
         serial (str): Serial number of the device.
         name (str): Name of the endpoint.
         friendly_name (str): Human-readable name.
-        value (object): Value of the endpoint.
-        unit (str | None): Unit of measurement.
+        value (str | int | float | None): Value of the endpoint.
+        cls: (SensorClassTuple | None): Unit of measurement.
         description (str): Description of the endpoint.
         icon (str | None): Icon representing the endpoint.
         device_info (DeviceInfo): Inverter/Battery/Wallbox.
@@ -53,11 +68,153 @@ class PowerOceanEndPoint:
     serial: str
     name: str
     friendly_name: str
-    value: object
-    unit: str | None
+    value: str | int | float | None
+    cls: SensorClassTuple | None
     description: str
     icon: str | None
     device_info: DeviceInfo | None = None
+
+
+class SensorClassHelper:
+    """Infer SensorDeviceClass, unit and SensorStateClass from a sensor key."""
+
+    _CLASS_PATTERNS: ClassVar[list[tuple[re.Pattern, SensorClassTuple]]] = [
+        (
+            re.compile(r"(pwr|power|pwrTotal)$", re.IGNORECASE),
+            (
+                SensorDeviceClass.POWER,
+                UnitOfPower.WATT,
+                SensorStateClass.MEASUREMENT,
+            ),
+        ),
+        (
+            re.compile(r"(amp|current)$", re.IGNORECASE),
+            (
+                SensorDeviceClass.CURRENT,
+                UnitOfElectricCurrent.AMPERE,
+                SensorStateClass.MEASUREMENT,
+            ),
+        ),
+        (
+            re.compile(r"(vol|voltage)$", re.IGNORECASE),
+            (
+                SensorDeviceClass.VOLTAGE,
+                UnitOfElectricPotential.VOLT,
+                SensorStateClass.MEASUREMENT,
+            ),
+        ),
+        (
+            re.compile(r"(watth)$", re.IGNORECASE),
+            (
+                SensorDeviceClass.ENERGY,
+                UnitOfEnergy.WATT_HOUR,
+                SensorStateClass.TOTAL,
+            ),
+        ),
+        (
+            re.compile(r"(energy)$", re.IGNORECASE),
+            (
+                SensorDeviceClass.ENERGY,
+                UnitOfEnergy.WATT_HOUR,
+                SensorStateClass.TOTAL_INCREASING,
+            ),
+        ),
+        (
+            re.compile(r"(ElectricityGeneration)$", re.IGNORECASE),
+            (
+                SensorDeviceClass.ENERGY,
+                UnitOfEnergy.KILO_WATT_HOUR,
+                SensorStateClass.TOTAL_INCREASING,
+            ),
+        ),
+        (
+            re.compile(r"(soc|soh|percent)$", re.IGNORECASE),
+            (
+                SensorDeviceClass.BATTERY,
+                PERCENTAGE,
+                SensorStateClass.MEASUREMENT,
+            ),
+        ),
+        (
+            re.compile(r"(temp|temperature)$", re.IGNORECASE),
+            (
+                SensorDeviceClass.TEMPERATURE,
+                UnitOfTemperature.CELSIUS,
+                SensorStateClass.MEASUREMENT,
+            ),
+        ),
+        (
+            re.compile(r"volume", re.IGNORECASE),
+            (
+                SensorDeviceClass.VOLUME,
+                UnitOfVolume.LITERS,
+                SensorStateClass.MEASUREMENT,
+            ),
+        ),
+    ]
+
+    @classmethod
+    def infer_class(cls, key: str) -> SensorClassTuple | None:
+        """Infer device class, unit and state class from key name."""
+        key_lower = key.lower()
+
+        for pattern, sensor_class in cls._CLASS_PATTERNS:
+            if pattern.search(key_lower):
+                return sensor_class
+
+        return None
+
+
+class SensorMetaHelper:
+    """Helper class for sensor metadata such as units, descriptions, and icons."""
+
+    @staticmethod
+    def get_class(key: str) -> SensorClassTuple | None:
+        """See UnitHelper.infer_unit()."""
+        return SensorClassHelper.infer_class(key)
+
+    @staticmethod
+    def get_description(key: str) -> str:
+        """Get description from key name using a dictionary mapping."""
+        # Dictionary for key-to-description mapping
+        description_mapping = {
+            "sysLoadPwr": "Hausnetz",
+            "sysGridPwr": "Stromnetz",
+            "mpptPwr": "Solarertrag",
+            "bpPwr": "Batterieleistung",
+            "bpSoc": "Ladezustand der Batterie",
+            "online": "Online",
+            "systemName": "System Name",
+            "createTime": "Installations Datum",
+            "bpVol": "Batteriespannung",
+            "bpAmp": "Batteriestrom",
+            "bpCycles": "Ladezyklen",
+            "bpTemp": "Temperatur der Batteriezellen",
+        }
+
+        # Use .get() to avoid KeyErrors and return default value
+        return description_mapping.get(key, key)  # Default to key if not found
+
+    @staticmethod
+    def get_special_icon(key: str) -> str | None:
+        """Get special icon for a key."""
+        # Dictionary für die Zuordnung von Keys zu Icons
+        icon_mapping = {
+            "mpptPwr": "mdi:solar-power",
+            "online": "mdi:cloud-check",
+            "sysGridPwr": "mdi:transmission-tower-import",
+            "sysLoadPwr": "mdi:home-import-outline",
+            "bpAmp": "mdi:current-dc",
+        }
+
+        # Standardwert setzen
+        special_icon = icon_mapping.get(key)
+
+        # Zusätzliche Prüfung für Keys, die mit "pv1" oder "pv2" beginnen
+        if key.startswith(("pv1", "pv2", "pv3")):
+            special_icon = "mdi:solar-power"
+
+        return special_icon
 
 
 # ecoflow_api to detect device and get device info,
@@ -197,32 +354,31 @@ class Ecoflow:
                 "product-type": self.ecoflow_variant,
             }
             request = requests.get(self.url_user_fetch, headers=headers, timeout=30)
-            response = self.get_json_response(request)
+            api_response = self.get_json_response(request)
 
             if USE_MOCKED_RESPONSE:
                 if MOCKED_RESPONSE.exists():
                     try:
-                        response = json_loads(
+                        mocked_response = json_loads(
                             MOCKED_RESPONSE.read_text(encoding="utf-8")
                         )
-                    except (UnicodeDecodeError, orjson.JSONDecodeError) as err:
-                        _LOGGER.error(f"Failed to load mocked response: {err}")
+                    except (UnicodeDecodeError, orjson.JSONDecodeError):
+                        _LOGGER.exception("Failed to load mocked response.")
                 else:
-                    _LOGGER.debug(f"Mocked response file not found: {MOCKED_RESPONSE}")
+                    _LOGGER.debug("Mocked response file not found: %s", MOCKED_RESPONSE)
+                api_response = mocked_response
 
             # Log the response for debugging or development purposes
-            _LOGGER.debug(f"{response}")
-            flattened_data = Ecoflow.flatten_json(response)  # noqa: F841
-            # _LOGGER.debug(f"Flattened data: {flattened_data}")  # noqa: ERA001
+            _LOGGER.debug("%s", api_response)
 
             # Ensure response is a dictionary before passing to _get_sensors
-            if isinstance(response, dict):
-                return self._get_sensors(response)
-            raise ResponseTypeError(type(response).__name__)
+            if isinstance(api_response, dict):
+                return self._get_sensors(api_response)
+            raise ResponseTypeError(type(api_response).__name__)
 
         except ConnectionError as err:
             error = f"ConnectionError in fetch_data: Unable to connect to {url}."
-            _LOGGER.warning(error + ISSUE_URL_ERROR_MESSAGE)
+            _LOGGER.warning("%s %s", error, ISSUE_URL_ERROR_MESSAGE)
             raise IntegrationError(error) from err
 
     def _get_device_info(
@@ -565,7 +721,7 @@ class Ecoflow:
                         name=f"{device_sn}_{key}",
                         friendly_name=key,
                         value=value,
-                        unit=SensorMetaHelper.get_unit(key),
+                        cls=SensorMetaHelper.get_class(key),
                         description=SensorMetaHelper.get_description(key),
                         icon=SensorMetaHelper.get_special_icon(key),
                         device_info=device_info,
@@ -592,14 +748,14 @@ class Ecoflow:
                         name=f"{self.sn_inverter}_{key}{suffix}",
                         friendly_name=f"{key}{suffix}",
                         value=value,
-                        unit=SensorMetaHelper.get_unit(key),
+                        cls=SensorMetaHelper.get_class(key),
                         description=SensorMetaHelper.get_description(key),
                         icon=None,
                     )
                 )
         # Besonderheiten Phasen
         phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
-        if phases[1] in d:
+        if all(phase in d for phase in phases):
             for _, phase in enumerate(phases):
                 for key, value in d[phase].items():
                     name = f"{phase}_{key}"
@@ -611,11 +767,12 @@ class Ecoflow:
                             name=f"{self.sn_inverter}_{name}{suffix}",
                             friendly_name=f"{name}{suffix}",
                             value=value,
-                            unit=SensorMetaHelper.get_unit(key),
+                            cls=SensorMetaHelper.get_class(key),
                             description=SensorMetaHelper.get_description(key),
                             icon=None,
                         )
                     )
+
         # Besonderheit mpptPv
         if "mpptHeartBeat" in d:
             n_strings = len(d["mpptHeartBeat"][0]["mpptPv"])
@@ -636,7 +793,7 @@ class Ecoflow:
                             name=f"{self.sn_inverter}_mpptPv{i + 1}_{key}{suffix}",
                             friendly_name=f"mpptPv{i + 1}_{key}{suffix}",
                             value=value,
-                            unit=SensorMetaHelper.get_unit(key),
+                            cls=SensorMetaHelper.get_class(key),
                             description=SensorMetaHelper.get_description(key),
                             icon=special_icon,
                         )
@@ -654,7 +811,7 @@ class Ecoflow:
                     name=f"{self.sn_inverter}_mpptPv_pwrTotal{suffix}",
                     friendly_name=f"mpptPv_pwrTotal{suffix}",
                     value=total_power,
-                    unit="W",
+                    cls=SensorMetaHelper.get_class(key),
                     description="Solarertrag aller Strings",
                     icon="mdi:solar-power",
                 )
@@ -708,7 +865,7 @@ class Ecoflow:
                         name=f"{dev_sn}_{key}{device_suffix}",
                         friendly_name=f"{key}{device_suffix}",
                         value=value,
-                        unit=SensorMetaHelper.get_unit(key),
+                        cls=SensorMetaHelper.get_class(key),
                         description=SensorMetaHelper.get_description(key),
                         icon=SensorMetaHelper.get_special_icon(key),
                         device_info=device_info,
@@ -758,7 +915,7 @@ class Ecoflow:
                         name=f"{device_sn}_{key}{suffix}",
                         friendly_name=f"{key}{suffix}",
                         value=value,
-                        unit=SensorMetaHelper.get_unit(key),
+                        cls=SensorMetaHelper.get_class(key),
                         description=SensorMetaHelper.get_description(key),
                         icon=SensorMetaHelper.get_special_icon(key),
                         device_info=device_info,
