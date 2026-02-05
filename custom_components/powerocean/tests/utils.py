@@ -19,7 +19,7 @@ def serialize_sensors(sensors: dict[str, PowerOceanEndPoint]) -> dict:
             "name": getattr(sensor, "name", ""),
             "friendly_name": getattr(sensor, "friendly_name", ""),
             "value": getattr(sensor, "value", None),
-            "unit": getattr(sensor, "unit", ""),
+            "unit": (getattr(sensor, "cls", None) or (None, None, None))[1],
             "description": getattr(sensor, "description", ""),
             "icon": getattr(sensor, "icon", None),
         }
