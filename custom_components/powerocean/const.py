@@ -1,26 +1,40 @@
 """Constants for the PowerOcean integration."""
 
-import logging
+from enum import Enum
+from logging import Logger, getLogger
+from pathlib import Path
 
 from homeassistant.const import Platform
 
+LOGGER: Logger = getLogger(__package__)
 DOMAIN = "powerocean"
+DEFAULT_SCAN_INTERVAL = 10
+DEFAULT_NAME = "PowerOcean"
 ISSUE_URL = "https://github.com/niltrip/powerocean/issues"
 ISSUE_URL_ERROR_MESSAGE = " Please log any issues here: " + ISSUE_URL
-LENGTH_BATTERIE_SN = 12  # Length of the battery serial number to identify battery data
 USE_MOCKED_RESPONSE = False  # Set to True to use mocked responses for testing
-
+# Mock path to response.json file
+MOCKED_RESPONSE = (
+    Path(__file__).parent
+    / "tests"
+    / "fixtures"
+    / "response_modified_po_plus_feature.json"
+)
 PLATFORMS: list[Platform] = [Platform.SENSOR]
-
-_LOGGER = logging.getLogger(f"custom_components.{DOMAIN}")
-
 ATTR_PRODUCT_DESCRIPTION = "Product Description"
-ATTR_DESTINATION_NAME = "Destination Name"
-ATTR_SOURCE_NAME = "Source Name"
-ATTR_UNIQUE_ID = "Internal Unique ID"
-ATTR_PRODUCT_VENDOR = "Vendor"
 ATTR_PRODUCT_SERIAL = "Vendor Product Serial"
-ATTR_PRODUCT_NAME = "Device Name"
-ATTR_PRODUCT_VERSION = "Vendor Firmware Version"
-ATTR_PRODUCT_BUILD = "Vendor Product Build"
-ATTR_PRODUCT_FEATURES = "Vendor Product Features"
+
+
+class PowerOceanModel(str, Enum):
+    POWEROCEAN = "83"
+    POWEROCEAN_DC_FIT = "85"
+    POWEROCEAN_SINGLE_PHASE = "86"
+    POWEROCEAN_PLUS = "87"
+
+
+MODEL_NAME_MAP = {
+    PowerOceanModel.POWEROCEAN: "PowerOcean",
+    PowerOceanModel.POWEROCEAN_DC_FIT: "PowerOcean DC fit",
+    PowerOceanModel.POWEROCEAN_SINGLE_PHASE: "PowerOcean Single Phase",
+    PowerOceanModel.POWEROCEAN_PLUS: "PowerOcean Plus",
+}

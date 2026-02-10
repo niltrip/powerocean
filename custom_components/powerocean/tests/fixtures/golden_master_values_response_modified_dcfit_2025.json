@@ -1,0 +1,9 @@
+{
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpRemainWatth": 1642.0,
+  "SN_INVERTERBOX01_bpPwr": 0.0,
+  "SN_INVERTERBOX01_mpptPwr": 0.0,
+  "SN_INVERTERBOX01_online": 1,
+  "SN_INVERTERBOX01_sysGridPwr": 0.0,
+  "SN_INVERTERBOX01_sysLoadPwr": 0.0,
+  "SN_INVERTERBOX01_systemName": "systemName"
+}

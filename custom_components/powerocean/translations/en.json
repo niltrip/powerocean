@@ -1,29 +1,49 @@
 {
     "config": {
-        "abort": {
-            "already_configured": "Device is already configured"
-        },
-        "error": {
-            "cannot_connect": "Failed to connect",
-            "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
-        },
         "step": {
             "user": {
                 "description": "Please enter your PowerOcean device information below:",
                 "data": {
-                    "device_id": "Inverter serial number",
-                    "email": "Email",
+                    "device_id": "Inverter serial number (as shown in the EcoFlow app)",
+                    "email": "Email address",
                     "password": "Password",
-                    "model_id": "PowerOcean Model"
+                    "model_id": "PowerOcean model"
                 }
             },
             "device_options": {
-                "description": "Please select the following options:",
+                "description": "Configure device options:",
                 "data": {
-                    "friendly_name": "Friendly device name",
-                    "scan_interval": "Polling time (in seconds) to update sensors from device",
-                    "choose": "Please select the sensors to monitor"
+                    "friendly_name": "Device name",
+                    "scan_interval": "Update interval (in seconds)"
+                }
+            },
+            "reconfigure": {
+                "description": "Update your PowerOcean account credentials.",
+                "data": {
+                    "device_id": "Inverter serial number (as shown in the EcoFlow app)",
+                    "email": "Email address",
+                    "password": "Password",
+                    "model_id": "PowerOcean model"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Failed to connect. Please check your credentials.",
+            "invalid_auth": "Invalid authentication",
+            "unknown": "Unexpected error"
+        },
+        "abort": {
+            "already_configured": "This device is already configured.",
+            "reconfiguration_completed": "Device reconfiguration completed. The integration will be reloaded."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "description": "Adjust PowerOcean integration settings.",
+                "data": {
+                    "friendly_name": "Device name",
+                    "scan_interval": "Update interval (in seconds)"
                 }
             }
         }

@@ -1,29 +1,49 @@
 {
     "config": {
-        "abort": {
-            "already_configured": "Das Gerät ist bereits konfiguriert"
-        },
-        "error": {
-            "cannot_connect": "Verbindung fehlgeschlagen",
-            "invalid_auth": "Ungültige Authentifizierung",
-            "unknown": "Unerwarteter Fehler"
-        },
         "step": {
             "user": {
-                "description": "Bitte geben Sie unten Ihre PowerOcean Geräteinformationen ein:",
+                "description": "Bitte geben Sie unten Ihre PowerOcean-Geräteinformationen ein:",
                 "data": {
-                    "device_id": "Seriennummer des Wechselrichters",
-                    "email": "Email Adresse",
+                    "device_id": "Seriennummer des Wechselrichters (wie in der EcoFlow-App angezeigt)",
+                    "email": "E-Mail-Adresse",
                     "password": "Passwort",
-                    "model_id": "PowerOcean Model"
+                    "model_id": "PowerOcean-Modell"
                 }
             },
             "device_options": {
-                "description": "Bitte wählen Sie die folgenden Optionen aus:",
+                "description": "Geräteoptionen konfigurieren:",
                 "data": {
-                    "friendly_name": "Benutzerfreundlicher Gerätename",
-                    "scan_interval": "Abfragezeit (in Sekunden), um Sensoren vom Gerät zu aktualisieren",
-                    "choose": "Bitte wählen Sie die zu überwachenden Sensoren aus"
+                    "friendly_name": "Gerätename",
+                    "scan_interval": "Aktualisierungsintervall (in Sekunden)"
+                }
+            },
+            "reconfigure": {
+                "description": "PowerOcean-Zugangsdaten aktualisieren.",
+                "data": {
+                    "device_id": "Seriennummer des Wechselrichters (wie in der EcoFlow-App angezeigt)",
+                    "email": "E-Mail-Adresse",
+                    "password": "Passwort",
+                    "model_id": "PowerOcean-Modell"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Verbindung fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten.",
+            "invalid_auth": "Ungültige Authentifizierung",
+            "unknown": "Unerwarteter Fehler"
+        },
+        "abort": {
+            "already_configured": "Dieses Gerät ist bereits konfiguriert.",
+            "reconfiguration_completed": "Gerätekonfiguration wurde aktualisiert. Die Integration wird neu geladen."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "description": "Einstellungen der PowerOcean-Integration anpassen.",
+                "data": {
+                    "friendly_name": "Gerätename",
+                    "scan_interval": "Aktualisierungsintervall (in Sekunden)"
                 }
             }
         }
