@@ -1,5 +1,5 @@
 {
-    "name": "niltrip/powerocean",
+    "name": "powerocean_dev",
     "image": "mcr.microsoft.com/devcontainers/python:3.13",
     "postCreateCommand": "scripts/setup",
     "forwardPorts": [
@@ -31,19 +31,22 @@
                 "python.analysis.autoImportCompletions": true,
                 "python.defaultInterpreterPath": "/usr/local/bin/python",
                 "[python]": {
-                    "editor.defaultFormatter": "charliermarsh.ruff"
+                    "editor.defaultFormatter": "charliermarsh.ruff",
+                    "editor.codeActionsOnSave": {
+                        "source.organizeImports.ruff": "always"
+                    }
                 }
             }
         }
     },
     "remoteUser": "vscode",
-    "features": {
-        "ghcr.io/devcontainers-extra/features/apt-packages:1": {
-            "packages": [
-                "ffmpeg",
-                "libturbojpeg0",
-                "libpcap-dev"
-            ]
-        }
-    }
+    // "features": {
+    //     "ghghcr.io/devcontainers-extra/features/apt-packages:1": {
+    //         "packages": [
+    //             "ffmpeg",
+    //             "libpcap-dev",
+    //             "libturbojpeg0"
+    //         ]
+    //     }
+    // }
 }
