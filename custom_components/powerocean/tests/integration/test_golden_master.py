@@ -6,7 +6,10 @@ from pathlib import Path
 import pytest
 import requests
 
-from custom_components.powerocean.ecoflow import Ecoflow
+from custom_components.powerocean.ecoflow import EcoflowApi
+from custom_components.powerocean.tests.serialize_structure import (
+    serialize_structure,
+)
 from custom_components.powerocean.tests.utils import serialize_sensors
 
 # List of (API response file, variant) pairs
@@ -21,7 +24,7 @@ API_FIXTURES = [
 
 # Golden-Master-Test
 @pytest.mark.parametrize("fixture_file_name, variant", API_FIXTURES)
-def test_golden_master(fixture_file_name, variant, tmp_path) -> None:
+def _test_golden_master(fixture_file_name, variant, tmp_path) -> None:
     """Regression test: compare current sensor extraction to golden master for multiple responses/variants."""
     fixture_file = Path(__file__).parent.parent / "fixtures" / fixture_file_name
     # Golden Master path (per response)
@@ -83,3 +86,72 @@ def test_golden_master(fixture_file_name, variant, tmp_path) -> None:
             f"Sensors differ from Golden Master for {fixture_file_name}.\n"
             f"Run `git diff {master_file}` to inspect changes."
         )
+
+
+@pytest.mark.parametrize("fixture_file_name, variant", API_FIXTURES)
+def test_golden_master_parse_values(fixture_file_name, variant):
+    fixtures_dir = Path(__file__).parent.parent / "fixtures"
+    fixture_file = fixtures_dir / fixture_file_name
+    master_file = fixtures_dir / f"golden_master_values_{fixture_file_name}"
+
+    if not fixture_file.exists():
+        pytest.skip(f"Fixture file not found: {fixture_file}")
+
+    api_response = json.loads(fixture_file.read_text(encoding="utf-8"))
+
+    eco = EcoflowApi(
+        hass=None,  # nicht benötigt
+        serialnumber="SN_INVERTERBOX01",
+        username="dummy",
+        password="dummy",
+        variant=variant,
+    )
+
+    # 🔑 DAS ist jetzt die getestete API
+    values = eco.parse_values(api_response)
+
+    # deterministische Reihenfolge
+    values = dict(sorted(values.items()))
+
+    # Golden Master erzeugen (erster Lauf)
+    if not master_file.exists():
+        master_file.write_text(
+            json.dumps(values, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+        pytest.skip("Golden master created – re-run test")
+
+    golden_master = json.loads(master_file.read_text(encoding="utf-8"))
+
+    assert values == golden_master
+
+
+@pytest.mark.parametrize("fixture_file_name, variant", API_FIXTURES)
+def test_golden_master_structure(fixture_file_name, variant):
+    fixtures_dir = Path(__file__).parent.parent / "fixtures"
+    fixture_file = fixtures_dir / fixture_file_name
+    master_file = fixtures_dir / f"golden_master_structure_{fixture_file_name}"
+
+    api_response = json.loads(fixture_file.read_text(encoding="utf-8"))
+
+    eco = EcoflowApi(
+        hass=None,
+        serialnumber="SN_INVERTERBOX01",
+        username="dummy",
+        password="dummy",
+        variant=variant,
+    )
+
+    structure = eco.parse_structure(api_response)
+    serialized = serialize_structure(structure)
+
+    if not master_file.exists():
+        master_file.write_text(
+            json.dumps(serialized, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+        pytest.skip("Golden master created – re-run test")
+
+    golden_master = json.loads(master_file.read_text(encoding="utf-8"))
+
+    assert serialized == golden_master

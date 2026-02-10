@@ -1,6 +1,6 @@
 """test_get_nested_value."""
 
-from custom_components.powerocean.ecoflow import Ecoflow
+from custom_components.powerocean.ecoflow import EcoflowApi
 
 
 def test_get_nested_value_success() -> None:

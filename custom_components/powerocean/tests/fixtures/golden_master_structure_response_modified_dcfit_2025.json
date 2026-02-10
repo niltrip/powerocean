@@ -1,0 +1,162 @@
+{
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpRemainWatth": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean DC fit",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "bpRemainWatth",
+      "friendly_name": "bpRemainWatth",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpRemainWatth",
+      "name": "SN_INVERTERBOX01_bpRemainWatth",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "energy",
+        "Wh",
+        "total"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_bpPwr": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean DC fit",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "Batterieleistung",
+      "friendly_name": "bpPwr",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_bpPwr",
+      "name": "SN_INVERTERBOX01_bpPwr",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_mpptPwr": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean DC fit",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "Solarertrag",
+      "friendly_name": "mpptPwr",
+      "icon": "mdi:solar-power",
+      "internal_unique_id": "SN_INVERTERBOX01_mpptPwr",
+      "name": "SN_INVERTERBOX01_mpptPwr",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_online": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean DC fit",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "Online",
+      "friendly_name": "online",
+      "icon": "mdi:cloud-check",
+      "internal_unique_id": "SN_INVERTERBOX01_online",
+      "name": "SN_INVERTERBOX01_online",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_sysGridPwr": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean DC fit",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "Stromnetz",
+      "friendly_name": "sysGridPwr",
+      "icon": "mdi:transmission-tower-import",
+      "internal_unique_id": "SN_INVERTERBOX01_sysGridPwr",
+      "name": "SN_INVERTERBOX01_sysGridPwr",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_sysLoadPwr": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean DC fit",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "Hausnetz",
+      "friendly_name": "sysLoadPwr",
+      "icon": "mdi:home-import-outline",
+      "internal_unique_id": "SN_INVERTERBOX01_sysLoadPwr",
+      "name": "SN_INVERTERBOX01_sysLoadPwr",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_systemName": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean DC fit",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "System Name",
+      "friendly_name": "systemName",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_systemName",
+      "name": "SN_INVERTERBOX01_systemName",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  }
+}
