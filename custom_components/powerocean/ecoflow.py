@@ -202,27 +202,88 @@ class SensorMetaHelper:
 
     @staticmethod
     def get_special_icon(key: str) -> str | None:
-        """Get special icon for a key."""
-        # Dictionary für die Zuordnung von Keys zu Icons
-        icon_mapping = {
-            "mpptPwr": "mdi:solar-power",
+        """Return a Home Assistant icon based on the semantic meaning of the key."""
+        k = key.lower()
+
+        # ---- Status / Diagnose ----
+        status_icons = {
             "online": "mdi:cloud-check",
-            "sysGridPwr": "mdi:transmission-tower-import",
-            "sysLoadPwr": "mdi:home-import-outline",
-            "bpAmp": "mdi:current-dc",
+            "bponlinesum": "mdi:package-check",
+            "emsbpalivenum": "mdi:package-check",
+            "emsbpselfcheckstate": "mdi:checkbox-marked-circle-outline",  # Selbsttest Batterie
+            "emsmpptselfcheckstate": "mdi:checkbox-marked-circle-outline",  # Selbsttest MPPT
+            "emsmpptrunstate": "mdi:run",  # MPPT läuft
         }
-        # Standardwert setzen
-        special_icon = icon_mapping.get(key)
+        if k in status_icons:
+            return status_icons[k]
 
-        # Zusätzliche Prüfung für Keys, die mit "pv1" oder "pv2" beginnen
-        if key.startswith(("pv1", "pv2", "pv3")):
-            special_icon = "mdi:solar-power"
-        if key.endswith(("Pv1_pwr", "Pv2_pwr", "Pv3_pwr")):
-            special_icon = "mdi:solar-power"
-        if key.endswith(("Pv1_amp", "Pv2_amp", "Pv3_amp")):
-            special_icon = "mdi:current-dc"
+        if k.endswith("name"):
+            return "mdi:label-outline"
+        if k.endswith("bright"):
+            return "mdi:brightness-percent"
+        if k.endswith(("faultcode", "warningcode")):
+            return "mdi:alert-circle-outline"
+        if k.startswith("bms"):
+            return "mdi:chip"
 
-        return special_icon
+        # ---- PV / MPPT ----
+        if k.startswith(("pv", "mpptpv", "mppt")):
+            if k.endswith("lightsta"):
+                return "mdi:white-balance-sunny"
+            if k.endswith(("invpwr", "_pwrtotal", "mpptpwr")):
+                return "mdi:solar-power"
+            if k.endswith(("_pwr", "pwr")):
+                return "mdi:solar-power-variant"
+            if k.endswith("_amp"):
+                return "mdi:current-dc"
+            # if k.endswith("_vol"):
+            #     return "mdi:solar-power-variant-outline"
+
+        # ---- Netz / Haus / PCS ----
+        grid_icons = {
+            "sysgridpwr": "mdi:transmission-tower-import",
+            "sysloadpwr": "mdi:home-lightning-bolt",
+            "pcsmeterpower": "mdi:home-lightning-bolt",
+        }
+        if k in grid_icons:
+            return grid_icons[k]
+
+        # ---- Leistung / Energie ----
+        if k.endswith(("actpwr", "_pwr")):
+            return "mdi:flash"
+        if k.endswith("apparentpwr"):
+            return "mdi:flash-outline"
+        if k.endswith("reactpwr"):
+            return "mdi:sine-wave"
+        if k.endswith("electricitygeneration"):
+            return "mdi:counter"
+
+        # ---- Strom / Spannung ----
+        if k.endswith("_amp"):
+            return "mdi:current-ac"
+        # if k.endswith("_vol"):
+        #     return "mdi:lightning-bolt-outline"
+
+        # ---- Batterie / Speicher ----
+        if k.startswith("bp") or k.startswith("bms"):
+            bp_ems_bms_icons = {
+                "pwr": "mdi:flash",
+                "remainwatth": "mdi:car-battery",
+                "envtemp": "mdi:thermometer",
+                "maxcelltemp": "mdi:thermometer-high",
+                "mincelltemp": "mdi:thermometer-low",
+                "cycles": "mdi:repeat",
+                "sn": "mdi:barcode",
+                "sysstate": "mdi:information-outline",
+                "balancestate": "mdi:battery-sync",  # bpBalanceState
+                "bmschdsgsta": "mdi:swap-horizontal",  # Charge/Discharge Status
+            }
+
+            for suffix, icon in bp_ems_bms_icons.items():
+                if k.lower().endswith(suffix):
+                    return icon
+
+        return None
 
 
 # ecoflow_api to detect device and get device info,
