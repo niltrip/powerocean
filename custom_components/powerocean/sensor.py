@@ -8,9 +8,7 @@ including data fetching, entity registration, and periodic updates.
 from typing import Any
 
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
     SensorEntity,
-    SensorStateClass,
 )
 from homeassistant.const import (
     EntityCategory,
@@ -20,7 +18,6 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     DOMAIN,
-    LOGGER,
 )
 from .ecoflow import PowerOceanEndPoint
 
@@ -61,8 +58,8 @@ class PowerOceanSensor(CoordinatorEntity, SensorEntity):
         # HA attributes
         self._attr_has_entity_name = True
         # wahrscheinlich diese !!!
-        self._attr_unique_id = self._endpoint_name
-        # self._attr_unique_id = self._endpoint_id
+        # self._attr_unique_id = self._endpoint_name
+        self._attr_unique_id = self._endpoint_id
         # self._unique_id = self._endpoint_id
         self._attr_name = self._endpoint_friendly_name
         self._attr_icon = self._endpoint_icon
