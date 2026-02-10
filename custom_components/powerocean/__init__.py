@@ -13,6 +13,7 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.loader import async_get_integration
@@ -73,12 +74,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     updated = False
 
     if CONF_SCAN_INTERVAL not in options:
-        options[CONF_SCAN_INTERVAL] = DEFAULT_SCAN_INTERVAL
+        options[CONF_SCAN_INTERVAL] = entry.data.get("options").get(
+            "scan_interval", DEFAULT_SCAN_INTERVAL
+        )
         updated = True
 
     if CONF_FRIENDLY_NAME not in options:
         options[CONF_FRIENDLY_NAME] = entry.data.get("options", {}).get(
-            "custom_device_name", DEFAULT_NAME
+            "friendly_name", DEFAULT_NAME
         )
         updated = True
 
@@ -87,8 +90,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         LOGGER.debug("Migrated missing options for %s: %s", entry.title, options)
 
     # --- Ecoflow-Objekt initialisieren ---
+
     device_id = entry.data[CONF_DEVICE_ID]
+    if not device_id:
+        msg = "Missing device_id in config entry"
+        raise ConfigEntryNotReady(msg)
+
     model_id = entry.data[CONF_MODEL_ID]
+    if not model_id:
+        msg = "Missing model_id in config entry"
+        raise ConfigEntryNotReady(msg)
+
     api = EcoflowApi(
         hass,
         device_id,
@@ -149,6 +161,43 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # --- Listener für Optionsänderungen registrieren ---
     entry.async_on_unload(entry.add_update_listener(update_listener))
+
+    return True
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Migrate old config entries to new structure."""
+    version = entry.version
+
+    if version == 1.3:
+        data = dict(entry.data)
+        options = dict(entry.options)
+
+        # ALT → NEU
+        if "user_input" in data:
+            old = data.pop("user_input")
+
+            data.update(
+                {
+                    CONF_DEVICE_ID: old.get(CONF_DEVICE_ID),
+                    CONF_EMAIL: old.get(CONF_EMAIL),
+                    CONF_PASSWORD: old.get(CONF_PASSWORD),
+                    CONF_MODEL_ID: old.get(CONF_MODEL_ID),
+                }
+            )
+
+            # Optionen auslagern
+            options.setdefault(
+                CONF_FRIENDLY_NAME,
+                old.get(CONF_FRIENDLY_NAME, DEFAULT_NAME),
+            )
+
+        hass.config_entries.async_update_entry(
+            entry,
+            data=data,
+            options=options,
+            version=2,
+        )
 
     return True
 
