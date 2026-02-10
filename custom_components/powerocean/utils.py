@@ -12,105 +12,17 @@ Classes:
     SensorMetaHelper: Helper class for sensor metadata (units, descriptions, icons)
 """
 
-import logging
 import re
 from collections.abc import Callable
 from enum import Enum
-from typing import ClassVar, Optional, TypedDict
+from typing import ClassVar, TypedDict
 
-
-class BoxSchema(TypedDict):
-    """
-    Schema for a detected device (box) in PowerOcean responses.
-
-    Attributes:
-        detect: Callable that receives the response payload dict and returns True
-            if the payload matches this schema.
-        mode: "boxed" | "single" indicating how devices are grouped.
-        sn_path: Path (list of keys) to the serial number in the payload.
-        model: Human-readable model name.
-        name_prefix: Prefix used for entity names.
-        paths: Optional mapping of logical field names to paths in the payload.
-        sensors: List of sensor keys expected for this schema.
-
-    """
-
-    detect: Callable[[dict], bool]
-    mode: str  # "boxed" | "single"
-    sn_path: list[str]
-    model: str
-    name_prefix: str
-    paths: dict[str, list[str]] | None
-    sensors: list[str]
-
-
-BOX_SCHEMAS: dict[str, BoxSchema] = {
-    "battery": {
-        "mode": "boxed",  # 🔑 boxed | single
-        "detect": lambda p: "bpSn" in p,
-        "sn_path": ["bpSn"],
-        "model": "PowerOcean Battery",
-        "name_prefix": "Battery",
-        "paths": None,
-        "sensors": [
-            "bpSn",
-            "bpPwr",
-            "bpSoc",
-            "bpSoh",
-            "bpVol",
-            "bpAmp",
-            "bpCycles",
-            "bpSysState",
-            "bpRemainWatth",
-            "bmsRunSta",
-            "bpEnvTemp",
-            "bpMinCellTemp",
-            "bpMaxCellTemp",
-        ],
-    },
-    "wallbox": {
-        "mode": "boxed",  # 🔑 boxed | single
-        "detect": lambda p: "pileChargingParamReport" in p,
-        "sn_path": ["devInfo", "devSn"],
-        "model": "PowerOcean Wallbox",
-        "name_prefix": "Wallbox",
-        "paths": {
-            "devSn": ["devInfo", "devSn"],
-            "workMode": ["pileChargingParamReport", "paramSet", "workMode"],
-            "userCurrentSet": ["pileChargingParamReport", "paramSet", "userCurrentSet"],
-            "chargingPwr": ["pileChargingParamReport", "chargingPwr"],
-        },
-        "sensors": [
-            "devSn",
-            "workMode",
-            "userCurrentSet",
-            "chargingPwr",
-        ],
-    },
-    "charge": {
-        "mode": "single",  # 🔑 boxed | single
-        "detect": lambda p: "evPlugAndPlay" in p,
-        "sn_path": ["evSn"],
-        "model": "PowerOcean Charger",
-        "name_prefix": "Charger",
-        "paths": None,
-        "sensors": [
-            "evSn",
-            "workMode",
-            "useGridFirst",
-            "evOnoffSet",
-            "orderStartTimestamp",
-            "onlineBits",
-            "errorCode",
-            "evUserManual",
-            "evChargingEnergy",
-            "evCurrSet",
-            "chargeVehicleId",
-            "chargingStatus",
-            "evPwr",
-        ],
-    },
-}
+DEVICE_SN_KEYS = (
+    "evSn",
+    "hrSn",
+    "bpSn",
+    "devSn",
+)
 
 
 class ReportMode(Enum):
@@ -119,11 +31,189 @@ class ReportMode(Enum):
     DEFAULT = "data"
     BATTERY = "BP_STA_REPORT"
     WALLBOX = "EDEV_PARAM_REPORT"
+    HEATING_ROD = "HEATING_ROD_PARAM_REPORT"
     CHARGEBOX = "EVCHARGING_REPORT"
     EMS = "EMS_HEARTBEAT"
     PARALLEL = "PARALLEL_ENERGY_STREAM_REPORT"
     EMS_CHANGE = "EMS_CHANGE_REPORT"
     ENERGY_STREAM = "ENERGY_STREAM_REPORT"
+
+
+REPORT_DATAPOINTS: dict[str, set[str]] = {
+    ReportMode.DEFAULT.value: {
+        "sysLoadPwr",
+        "sysGridPwr",
+        "mpptPwr",
+        "bpPwr",
+        "online",
+        "dcdcPwr",
+        "todayElectricityGeneration",
+        "monthElectricityGeneration",
+        "yearElectricityGeneration",
+        "totalElectricityGeneration",
+        "systemName",
+    },
+    ReportMode.ENERGY_STREAM.value: {
+        "pv1Pwr",
+        "pvInvPwr",
+        "pv2Pwr",
+        "pv3Pwr",
+    },
+    ReportMode.EMS_CHANGE.value: {
+        "bpTotalChgEnergy",
+        "bpTotalDsgEnergy",
+        "bpSoc",
+        "bpOnlineSum",
+        "emsCtrlLedBright",
+        "mppt1FaultCode",
+        "mppt1WarningCode",
+        "mppt2FaultCode",
+        "mppt2WarningCode",
+    },
+    ReportMode.BATTERY.value: {
+        "bpSn",
+        "bpPwr",
+        "bpSoc",
+        "bpSoh",
+        "bpVol",
+        "bpAmp",
+        "bpCycles",
+        "bpSysState",
+        "bpRemainWatth",
+        "bmsRunSta",
+        "bpEnvTemp",
+        "bpMinCellTemp",
+        "bpMaxCellTemp",
+    },
+    ReportMode.EMS.value: {
+        "bpRemainWatth",
+        "emsBpAliveNum",
+        "emsBpPower",
+        "pcsActPwr",
+        "pcsMeterPower",
+    },
+    ReportMode.CHARGEBOX.value: {
+        "evSn",
+        "workMode",
+        "useGridFirst",
+        "evOnoffSet",
+        "orderStartTimestamp",
+        "onlineBits",
+        "errorCode",
+        "evUserManual",
+        "evChargingEnergy",
+        "evCurrSet",
+        "chargeVehicleId",
+        "chargingStatus",
+        "evPwr",
+    },
+    ReportMode.HEATING_ROD.value: {
+        "selfcheckPercent",
+        "temp",
+        "targetTemp",
+        "onlineBits",
+        "errorCode",
+        "runFlag",
+        "mode",
+        "heatingPower",
+        "hrSn",
+        "waterTankVolume",
+        "runStat",
+        "targetPower",
+    },
+    ReportMode.WALLBOX.value: {
+        "devSn",
+        "workMode",
+        "chargeTarget",
+        "switchBits",
+        "chargeVehicleId",
+        "chargingPwr",
+        "timeToUseCar",
+        "currentOuputMax",
+        "userCurrentSet",
+        "solarCurrentMin",
+        "phaseSpecified",
+        "chargingStatus",
+    },
+}
+
+
+class BoxSchema(TypedDict):
+    """Schema for a detected device (box) in PowerOcean responses."""
+
+    detect: Callable[[dict], bool]
+    mode: str  # "boxed" | "single"
+    sn_path: list[str]
+    model: str
+    name_prefix: str
+    paths: dict[str, list[str]] | None
+    sensors: set[str]  # 🔑 jetzt als Set für schnelle Lookup
+
+
+BOX_SCHEMAS: dict[str, BoxSchema] = {
+    "battery": {
+        "mode": "boxed",
+        "detect": lambda p: "bpSn" in p,
+        "sn_path": ["bpSn"],
+        "model": "PowerOcean Battery",
+        "name_prefix": "Battery",
+        "paths": None,
+        "sensors": REPORT_DATAPOINTS[ReportMode.BATTERY.value],
+    },
+    "wallbox": {
+        "mode": "boxed",
+        "detect": lambda p: "pileChargingParamReport" in p,
+        "sn_path": ["devInfo", "devSn"],
+        "model": "PowerOcean Wallbox",
+        "name_prefix": "Wallbox",
+        "paths": {
+            "devSn": ["devInfo", "devSn"],
+            "workMode": ["pileChargingParamReport", "paramSet", "workMode"],
+            "currentOuputMax": [
+                "pileChargingParamReport",
+                "paramSet",
+                "currentOuputMax",
+            ],
+            "userCurrentSet": ["pileChargingParamReport", "paramSet", "userCurrentSet"],
+            "solarCurrentMin": [
+                "pileChargingParamReport",
+                "paramSet",
+                "solarCurrentMin",
+            ],
+            "phaseSpecified": ["pileChargingParamReport", "paramSet", "phaseSpecified"],
+            "chargingStatus": [
+                "pileChargingParamReport",
+                "chargingStatus",
+            ],
+            "timeToUseCar": [
+                "pileChargingParamReport",
+                "paramSet",
+                "smartMode",
+                "timeToUseCar",
+            ],
+            "chargingPwr": ["pileChargingParamReport", "chargingPwr"],
+        },
+        "sensors": REPORT_DATAPOINTS[ReportMode.WALLBOX.value],
+    },
+    "charge": {
+        "mode": "single",
+        "detect": lambda p: "evPlugAndPlay" in p,
+        "sn_path": ["evSn"],
+        "model": "PowerOcean Charger",
+        "name_prefix": "Charger",
+        "paths": None,
+        "sensors": REPORT_DATAPOINTS[ReportMode.CHARGEBOX.value],
+    },
+    "heating_rod": {
+        "mode": "single",
+        "detect": lambda p: "hrSn" in p,
+        "sn_path": ["hrSn"],
+        "model": "PowerOcean Heating Rod",
+        "name_prefix": "Heating Rod",
+        "paths": None,
+        "sensors": REPORT_DATAPOINTS[ReportMode.HEATING_ROD.value],
+    },
+}
 
 
 class DeviceRole(str, Enum):
@@ -225,3 +315,7 @@ class SensorMetaHelper:
             special_icon = "mdi:solar-power"
 
         return special_icon
+
+
+def _join_id(*parts: str) -> str:
+    return "_".join(p for p in parts if p)
