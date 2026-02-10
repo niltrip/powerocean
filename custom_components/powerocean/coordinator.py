@@ -6,8 +6,6 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from custom_components.powerocean.const import LOGGER
 from custom_components.powerocean.ecoflow import EcoflowApi
 
-_LOGGER = LOGGER
-
 
 class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]]):
     """Coordinate periodic fetching and parsing of PowerOcean sensor values."""
@@ -18,7 +16,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         """Initialize the PowerOcean data update coordinator."""
         super().__init__(
             hass,
-            _LOGGER,
+            LOGGER,
             name="PowerOcean",
             update_interval=update_interval,
         )
