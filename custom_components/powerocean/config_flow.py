@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import re
 from typing import TYPE_CHECKING, Any
 
@@ -17,8 +16,15 @@ from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError, IntegrationError
 from homeassistant.helpers.selector import selector
 
-from .const import DEFAULT_NAME, DEFAULT_SCAN_INTERVAL, DOMAIN, ISSUE_URL_ERROR_MESSAGE
-from .ecoflow import Ecoflow
+from .const import (
+    DEFAULT_NAME,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+    LOGGER,
+    MODEL_NAME_MAP,
+    PowerOceanModel,
+)
+from .ecoflow import AuthenticationFailedError, EcoflowApi
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -70,42 +76,26 @@ STEP_DEVICE_OPTIONS_SCHEMA = vol.Schema(
     }
 )
 
-_LOGGER = logging.getLogger(__name__)
 
-
-async def validate_input_for_device(
-    hass: HomeAssistant, data: dict[str, Any]
-) -> dict[str, Any]:
+async def validate_input_for_device(hass: HomeAssistant, data: dict[str, Any]) -> None:
     """Validate the user input allows us to connect."""
-    ecoflow = Ecoflow(
+    api = EcoflowApi(
+        hass,
         data[CONF_DEVICE_ID],
         data[CONF_EMAIL],
         data[CONF_PASSWORD],
         data[CONF_MODEL_ID],
-        options={},
     )
 
     try:
         # Check for authentication
-        await hass.async_add_executor_job(ecoflow.authorize)
-        # Get device info
-        return await hass.async_add_executor_job(ecoflow.get_device)
-
-    except IntegrationError as e:
-        _LOGGER.exception(
-            "Failed to connect to PowerOcean device: %s%s",
-            e,
-            ISSUE_URL_ERROR_MESSAGE,
-        )
-        raise HomeAssistantError from e  # Verwenden der Standardfehlerklasse
-
-    except Exception as e:  # allgemeine Fehlerbehandlung
-        _LOGGER.exception(
-            "Authentication failed: %s%s",
-            e,
-            ISSUE_URL_ERROR_MESSAGE,
-        )
-        raise HomeAssistantError from e
+        await api.async_authorize()
+    except IntegrationError as err:
+        LOGGER.exception("Failed to connect to PowerOcean device")
+        raise HomeAssistantError("cannot_connect") from err
+    except AuthenticationFailedError as err:
+        LOGGER.exception("Authentication failed")
+        raise HomeAssistantError("cannot_connect") from err
 
 
 class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -116,7 +106,6 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Instanzvariablen für den Flow-Verlauf."""
         self._cloud_data: dict[str, Any] = {}
-        self._device_info: dict[str, Any] = {}
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -127,16 +116,15 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 # 1. Validierung
-                device = await validate_input_for_device(self.hass, user_input)
+                await validate_input_for_device(self.hass, user_input)
 
                 # 2. Unique ID prüfen
-                unique_id = f"PowerOcean_{device['serial']}"
+                unique_id = f"PowerOcean {user_input[CONF_DEVICE_ID]}"
                 await self.async_set_unique_id(unique_id)
                 self._abort_if_unique_id_configured()
 
                 # 3. Daten für Schritt 2 zwischenspeichern
                 self._cloud_data = user_input
-                self._device_info = device
 
                 # 4. Weiter zu Schritt 2 (kein return async_create_entry!)
                 return await self.async_step_device_options()
@@ -153,12 +141,15 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
         """Schritt 2: Zusätzliche Optionen abfragen."""
         errors = {}
         if user_input is not None:
+            model_name = MODEL_NAME_MAP[
+                PowerOceanModel(self._cloud_data[CONF_MODEL_ID])
+            ]
             friendly_name = sanitize_device_name(
                 user_input[CONF_FRIENDLY_NAME],
                 fall_back=DEFAULT_NAME,
             )
             return self.async_create_entry(
-                title=friendly_name,
+                title=model_name,
                 data=self._cloud_data,
                 options={
                     **user_input,
@@ -185,6 +176,11 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
 
             try:
                 await validate_input_for_device(self.hass, merged)
+
+                new_unique_id = f"PowerOcean {merged[CONF_DEVICE_ID]}"
+                await self.async_set_unique_id(new_unique_id)
+                self._abort_if_unique_id_configured()
+
                 # Entry aktualisieren
                 self.hass.config_entries.async_update_entry(
                     entry,
