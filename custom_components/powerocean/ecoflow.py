@@ -156,6 +156,14 @@ class SensorClassHelper:
                 SensorStateClass.MEASUREMENT,
             ),
         ),
+        (
+            re.compile(r"resist", re.IGNORECASE),
+            (
+                None,
+                "Ω",
+                SensorStateClass.MEASUREMENT,
+            ),
+        ),
     ]
 
     @classmethod
@@ -236,6 +244,8 @@ class SensorMetaHelper:
                 return "mdi:solar-power-variant"
             if k.endswith("_amp"):
                 return "mdi:current-dc"
+            if k.endswith("resist"):
+                return "mdi:resistor"
             # if k.endswith("_vol"):
             #     return "mdi:solar-power-variant-outline"
 
@@ -674,10 +684,7 @@ class EcoflowApi:
         payload: dict,
         report: str,
     ) -> tuple[str, DeviceInfo]:
-        """
-        Resolve serial number and DeviceInfo for non-boxed reports.
-        """
-
+        """Resolve serial number and DeviceInfo for non-boxed reports."""
         # bekannte SN-Felder (Reihenfolge = Priorität)
         SN_KEYS = ("evSn", "hrSn")
 
@@ -752,10 +759,6 @@ class EcoflowApi:
             report: Name des Reports im JSON
             suffix: Suffix, das an die Namen der Sensoren angehängt wird
                 (z.B. für Master/Slave).
-            battery_mode: Wenn True, werden Batteriedaten speziell behandelt
-            wallbox_mode: Wenn True, werden Wallboxdaten speziell behandelt
-            chargebox_mode: Wenn True, werden chargedaten speziell behandelt
-            ems_heartbeat_mode: Wenn True, wird die spezielle EMS-Heartbeat-Verarbeitung
             parallel_energy_stream_mode: Wenn True, wird die spezielle Verarbeitung
                 für parallele Energie-Streams verwendet.
 
@@ -782,7 +785,7 @@ class EcoflowApi:
 
         sens_select = list(REPORT_DATAPOINTS.get(report, ()))
         # Setze Report-Namen korrekt aus response
-        report = key if key else report
+        report = key or report
         # Battery und Wallbox Handling
         if ReportMode.BATTERY.value in report or ReportMode.WALLBOX.value in report:
             self._handle_boxed_devices(
@@ -934,6 +937,19 @@ class EcoflowApi:
                 suffix="",
             )
 
+            # --- Isolationswiderstand ---
+            mppt_ins_resist = d["mpptHeartBeat"][0].get("mpptInsResist")
+            if mppt_ins_resist is not None:
+                self._collect_sensor(
+                    collector,
+                    self.sn_inverter,
+                    report,
+                    "mpptInsResist",
+                    mppt_ins_resist,
+                    device_info=device_info,
+                    suffix="",
+                )
+
     def _handle_parallel_energy_stream(
         self,
         d: dict,
@@ -945,7 +961,6 @@ class EcoflowApi:
         if not isinstance(para_list, list):
             LOGGER.warning("paraEnergyStream is not a list")
             return
-
         for device_data in para_list:
             raw_sn = device_data.get("devSn")
             device_sn = self._decode_sn(raw_sn) if raw_sn else None
@@ -967,19 +982,20 @@ class EcoflowApi:
                 model=f"PowerOcean {prefix}",
                 via_sn=self.sn_inverter if device_sn != DeviceRole.ALL.value else None,
             )
+            report = f"{report} paraEnergyStream"
             for key, value in device_data.items():
-                if key == "devSn":
-                    continue
                 if isinstance(value, dict):
                     continue
+                if key.endswith("Sn") and isinstance(value, str):
+                    self._decode_sn(value)
                 self._collect_sensor(
                     collector=collector,
                     device_sn=device_sn,
                     report=report,
-                    key=f"paraEnergyStream_{key}",
+                    key=key,
                     value=value,
                     device_info=device_info,
-                    suffix=suffix,
+                    suffix="",
                 )
 
     def _handle_standard_mode(
@@ -1009,7 +1025,7 @@ class EcoflowApi:
                 key=key,
                 value=value,
                 device_info=device_info,
-                suffix=suffix,
+                suffix="",
             )
 
 
