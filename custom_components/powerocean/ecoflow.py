@@ -221,6 +221,7 @@ class SensorMetaHelper:
             (r"online$", "mdi:cloud-check"),
             (r"(code)", "mdi:alert-circle-outline"),
             (r"(ems|bms|bp).*state", "mdi:information-outline"),
+            (r"(bmsrunsta|bmschgdsgsta)", "mdi:chip"),
             (r"(selfcheck|run)", "mdi:information-outline"),
             # Allgemeine Endungen
             (r"sn$", "mdi:barcode"),
@@ -232,13 +233,13 @@ class SensorMetaHelper:
             (r"reactpwr$", "mdi:sine-wave"),
             (r"electricitygeneration$", "mdi:counter"),
             (r"(pv|mppt).*lightsta", "mdi:white-balance-sunny"),
-            (r"(pwrtotal|mpptpwr|pvInvPwr)$", "mdi:solar-power"),
+            (r"(pwrtotal|mpptpwr|pvinvpwr)$", "mdi:solar-power"),
             (r"(pv|mppt).*pwr", "mdi:solar-power-variant"),
             (r"(pv|mppt).*amp", "mdi:current-dc"),
             (r"(pv|mppt).*resist", "mdi:resistor"),
             (r"_pwr$", "mdi:flash"),
             (r"sysgridpwr$", "mdi:transmission-tower-import"),
-            (r"(sysloadpwr|pcsmeterpower|pcsActPwr)$", "mdi:home-lightning-bolt"),
+            (r"(sysloadpwr|pcsmeterpower|pcsactpwr)$", "mdi:home-lightning-bolt"),
             # Strom / Spannung
             (r"_amp$", "mdi:current-ac"),
             # Batterie / Speicher
@@ -247,7 +248,7 @@ class SensorMetaHelper:
             (r"(temp|temperature)", "mdi:thermometer"),
             (r"cycles", "mdi:repeat"),
             (r"balancestate", "mdi:battery-sync"),
-            (r"(bpOnlineSum|emsbpalivenum)$", "mdi:package-check"),
+            (r"(bponlinesum|emsbpalivenum)$", "mdi:package-check"),
         ]
 
         for pattern, icon in keyword_icons:
