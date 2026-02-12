@@ -101,7 +101,7 @@ async def validate_input_for_device(hass: HomeAssistant, data: dict[str, Any]) -
 class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for PowerOcean."""
 
-    VERSION = 1.3
+    VERSION = 2
 
     def __init__(self) -> None:
         """Instanzvariablen für den Flow-Verlauf."""

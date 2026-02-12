@@ -5,7 +5,7 @@ import base64
 import binascii
 import re
 from dataclasses import dataclass
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TypeAlias
 
 import aiohttp
 import orjson
@@ -47,7 +47,11 @@ from .utils import (
     _join_id,
 )
 
-SensorClassTuple = tuple[SensorDeviceClass, str, SensorStateClass]
+SensorClassTuple: TypeAlias = tuple[
+    SensorDeviceClass | None,
+    str | None,
+    SensorStateClass | None,
+]
 
 
 # Better storage of PowerOcean endpoint
@@ -83,9 +87,9 @@ class PowerOceanEndPoint:
 class SensorClassHelper:
     """Infer SensorDeviceClass, unit and SensorStateClass from a sensor key."""
 
-    _CLASS_PATTERNS: ClassVar[list[tuple[re.Pattern, SensorClassTuple]]] = [
+    _CLASS_PATTERNS: ClassVar[list[tuple[re.Pattern[str], SensorClassTuple]]] = [
         (
-            re.compile(r"(pwr|power|pwrTotal)$", re.IGNORECASE),
+            re.compile(r"(pwr|power|pwrTotal|grid|bat|pv)$", re.IGNORECASE),
             (
                 SensorDeviceClass.POWER,
                 UnitOfPower.WATT,
@@ -153,6 +157,14 @@ class SensorClassHelper:
             (
                 SensorDeviceClass.VOLUME,
                 UnitOfVolume.LITERS,
+                None,
+            ),
+        ),
+        (
+            re.compile(r"resist", re.IGNORECASE),
+            (
+                None,
+                "Ω",
                 SensorStateClass.MEASUREMENT,
             ),
         ),
@@ -202,27 +214,48 @@ class SensorMetaHelper:
 
     @staticmethod
     def get_special_icon(key: str) -> str | None:
-        """Get special icon for a key."""
-        # Dictionary für die Zuordnung von Keys zu Icons
-        icon_mapping = {
-            "mpptPwr": "mdi:solar-power",
-            "online": "mdi:cloud-check",
-            "sysGridPwr": "mdi:transmission-tower-import",
-            "sysLoadPwr": "mdi:home-import-outline",
-            "bpAmp": "mdi:current-dc",
-        }
-        # Standardwert setzen
-        special_icon = icon_mapping.get(key)
+        """Infer a Home Assistant icon from key semantics (generisch)."""
+        k = key.lower()
+        keyword_icons = [
+            # Status / Diagnose
+            (r"online$", "mdi:cloud-check"),
+            (r"(code)", "mdi:alert-circle-outline"),
+            (r"(ems|bms|bp).*state", "mdi:information-outline"),
+            (r"(bmsrunsta|bmschgdsgsta)", "mdi:chip"),
+            (r"(selfcheck|run)", "mdi:information-outline"),
+            # Allgemeine Endungen
+            (r"sn$", "mdi:barcode"),
+            (r"name$", "mdi:label-outline"),
+            (r"bright$", "mdi:brightness-percent"),
+            # PV / MPPT
+            (r"actpwr$", "mdi:flash"),
+            (r"apparentpwr$", "mdi:flash-outline"),
+            (r"reactpwr$", "mdi:sine-wave"),
+            (r"electricitygeneration$", "mdi:counter"),
+            (r"(pv|mppt).*lightsta", "mdi:white-balance-sunny"),
+            (r"(pwrtotal|mpptpwr|pvinvpwr)$", "mdi:solar-power"),
+            (r"(pv|mppt).*pwr", "mdi:solar-power-variant"),
+            (r"(pv|mppt).*amp", "mdi:current-dc"),
+            (r"(pv|mppt).*resist", "mdi:resistor"),
+            (r"_pwr$", "mdi:flash"),
+            (r"sysgridpwr$", "mdi:transmission-tower-import"),
+            (r"(sysloadpwr|pcsmeterpower|pcsactpwr)$", "mdi:home-lightning-bolt"),
+            # Strom / Spannung
+            (r"_amp$", "mdi:current-ac"),
+            # Batterie / Speicher
+            (r"(soc|soh)", "mdi:battery"),
+            (r"(remainwatth)", "mdi:car-battery"),
+            (r"(temp|temperature)", "mdi:thermometer"),
+            (r"cycles", "mdi:repeat"),
+            (r"balancestate", "mdi:battery-sync"),
+            (r"(bponlinesum|emsbpalivenum)$", "mdi:package-check"),
+        ]
 
-        # Zusätzliche Prüfung für Keys, die mit "pv1" oder "pv2" beginnen
-        if key.startswith(("pv1", "pv2", "pv3")):
-            special_icon = "mdi:solar-power"
-        if key.endswith(("Pv1_pwr", "Pv2_pwr", "Pv3_pwr")):
-            special_icon = "mdi:solar-power"
-        if key.endswith(("Pv1_amp", "Pv2_amp", "Pv3_amp")):
-            special_icon = "mdi:current-dc"
+        for pattern, icon in keyword_icons:
+            if re.search(pattern, k):
+                return icon
 
-        return special_icon
+        return None  # fallback
 
 
 # ecoflow_api to detect device and get device info,
@@ -516,6 +549,26 @@ class EcoflowApi:
         )
         return None
 
+    def _deep_get_by_key(self, data: Any, target_key: str) -> None:
+        """Search recursively for the first occurrence of target_key in nested dict/list."""
+        if isinstance(data, dict):
+            for key, value in data.items():
+                # Treffer
+                if key == target_key:
+                    return value
+
+                # Rekursiv tiefer suchen
+                result = self._deep_get_by_key(value, target_key)
+                if result is not None:
+                    return result
+
+        elif isinstance(data, list):
+            for item in data:
+                result = self._deep_get_by_key(item, target_key)
+                if result is not None:
+                    return result
+        return None
+
     @staticmethod
     def _get_nested_value(data: dict[str, Any], path: list[str]) -> Any | None:
         for key in path:
@@ -613,10 +666,7 @@ class EcoflowApi:
         payload: dict,
         report: str,
     ) -> tuple[str, DeviceInfo]:
-        """
-        Resolve serial number and DeviceInfo for non-boxed reports.
-        """
-
+        """Resolve serial number and DeviceInfo for non-boxed reports."""
         # bekannte SN-Felder (Reihenfolge = Priorität)
         SN_KEYS = ("evSn", "hrSn")
 
@@ -691,10 +741,6 @@ class EcoflowApi:
             report: Name des Reports im JSON
             suffix: Suffix, das an die Namen der Sensoren angehängt wird
                 (z.B. für Master/Slave).
-            battery_mode: Wenn True, werden Batteriedaten speziell behandelt
-            wallbox_mode: Wenn True, werden Wallboxdaten speziell behandelt
-            chargebox_mode: Wenn True, werden chargedaten speziell behandelt
-            ems_heartbeat_mode: Wenn True, wird die spezielle EMS-Heartbeat-Verarbeitung
             parallel_energy_stream_mode: Wenn True, wird die spezielle Verarbeitung
                 für parallele Energie-Streams verwendet.
 
@@ -721,7 +767,7 @@ class EcoflowApi:
 
         sens_select = list(REPORT_DATAPOINTS.get(report, ()))
         # Setze Report-Namen korrekt aus response
-        report = key if key else report
+        report = key or report
         # Battery und Wallbox Handling
         if ReportMode.BATTERY.value in report or ReportMode.WALLBOX.value in report:
             self._handle_boxed_devices(
@@ -740,6 +786,26 @@ class EcoflowApi:
                 collector=collector,
             )
             return
+
+        # Heating Rod Energy Stream Mode
+        if ReportMode.HEATING_ROD_ENERGY.value in report:
+            self._handle_heating_rod_energy_stream(
+                d,
+                report,
+                sens_select=sens_select,
+                collector=collector,
+            )
+            return
+
+        if ReportMode.WALLBOX_SYS.value in report:
+            self._handle_edev_device(
+                d,
+                report=report,
+                sens_select=sens_select,
+                collector=collector,
+            )
+            return
+
         # Parallel Energy Stream Mode
         if parallel_energy_stream_mode:
             self._handle_parallel_energy_stream(
@@ -873,6 +939,62 @@ class EcoflowApi:
                 suffix="",
             )
 
+            # --- Isolationswiderstand ---
+            mppt_ins_resist = d["mpptHeartBeat"][0].get("mpptInsResist")
+            if mppt_ins_resist is not None:
+                self._collect_sensor(
+                    collector,
+                    self.sn_inverter,
+                    report,
+                    "mpptInsResist",
+                    mppt_ins_resist,
+                    device_info=device_info,
+                    suffix="",
+                )
+
+    def _handle_heating_rod_energy_stream(
+        self,
+        d: dict,
+        report: str,
+        sens_select: list,
+        collector,
+    ):
+        """Handle heating rod energy stream extraction."""
+
+        stream_list = d.get("hrEnergyStream")
+        if not isinstance(stream_list, list):
+            return
+
+        for element in stream_list:
+            if not isinstance(element, dict):
+                continue
+
+            raw_sn = element.get("hrSn")
+            device_sn = self._decode_sn(raw_sn) if raw_sn else None
+            if not device_sn:
+                continue
+
+            device_info = self._make_device_info(
+                sn=device_sn,
+                prefix="PowerGlow",
+                model="PowerOcean PowerGlow",
+                via_sn=self.sn_inverter,
+            )
+
+            for key, value in element.items():
+                if isinstance(value, dict):
+                    continue
+
+                if key in sens_select:
+                    self._collect_sensor(
+                        collector=collector,
+                        device_sn=device_sn,
+                        report=report,
+                        key=key,
+                        value=value,
+                        device_info=device_info,
+                    )
+
     def _handle_parallel_energy_stream(
         self,
         d: dict,
@@ -884,7 +1006,6 @@ class EcoflowApi:
         if not isinstance(para_list, list):
             LOGGER.warning("paraEnergyStream is not a list")
             return
-
         for device_data in para_list:
             raw_sn = device_data.get("devSn")
             device_sn = self._decode_sn(raw_sn) if raw_sn else None
@@ -906,19 +1027,20 @@ class EcoflowApi:
                 model=f"PowerOcean {prefix}",
                 via_sn=self.sn_inverter if device_sn != DeviceRole.ALL.value else None,
             )
+            report = f"{report} paraEnergyStream"
             for key, value in device_data.items():
-                if key == "devSn":
-                    continue
                 if isinstance(value, dict):
                     continue
+                if key.endswith("Sn") and isinstance(value, str):
+                    self._decode_sn(value)
                 self._collect_sensor(
                     collector=collector,
                     device_sn=device_sn,
                     report=report,
-                    key=f"paraEnergyStream_{key}",
+                    key=key,
                     value=value,
                     device_info=device_info,
-                    suffix=suffix,
+                    suffix="",
                 )
 
     def _handle_standard_mode(
@@ -948,7 +1070,52 @@ class EcoflowApi:
                 key=key,
                 value=value,
                 device_info=device_info,
-                suffix=suffix,
+                suffix="",
+            )
+
+    def _handle_edev_device(
+        self,
+        d: dict,
+        *,
+        report: str,
+        sens_select: list,
+        collector,
+    ):
+        """Generic handler for RE307_EDEV_SYS_REPORT using deep key lookup."""
+
+        # SN über Deep Search holen
+        device_sn = self._deep_get_by_key(d, "devSn")
+
+        if not device_sn:
+            return
+
+        device_info = self._make_device_info(
+            sn=device_sn,
+            prefix="PowerPulse",
+            model="PowerOcean PowerPulse",
+            via_sn=self.sn_inverter,
+        )
+
+        # sens_select generisch auflösen
+        for key in sens_select:
+            value = device_sn if key == "devSn" else self._deep_get_by_key(d, key)
+
+            if key == "devSn":
+                continue
+            if value is None:
+                continue
+
+            # nur primitive Werte erlauben
+            if isinstance(value, (dict, list)):
+                continue
+
+            self._collect_sensor(
+                collector=collector,
+                device_sn=device_sn,
+                report=report,
+                key=key,
+                value=value,
+                device_info=device_info,
             )
 
 
