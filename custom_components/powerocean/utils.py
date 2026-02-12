@@ -30,7 +30,9 @@ class ReportMode(Enum):
     DEFAULT = "data"
     BATTERY = "BP_STA_REPORT"
     WALLBOX = "EDEV_PARAM_REPORT"
+    WALLBOX_SYS = "EDEV_SYS_REPORT"
     HEATING_ROD = "HEATING_ROD_PARAM_REPORT"
+    HEATING_ROD_ENERGY = "HEATING_ROD_ENERGY_STREAM_REPORT"
     CHARGEBOX = "EVCHARGING_REPORT"
     EMS = "EMS_HEARTBEAT"
     PARALLEL = "PARALLEL_ENERGY_STREAM_REPORT"
@@ -118,7 +120,7 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "selfcheckPercent",
         "temp",
         "targetTemp",
-        "onlineBits",
+        # "onlineBits",
         "errorCode",
         "runFlag",
         "mode",
@@ -126,6 +128,12 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "waterTankVolume",
         "runStat",
         "targetPower",
+    },
+    ReportMode.HEATING_ROD_ENERGY.value: {
+        "hrPwr",
+        "fromPv",
+        "fromBat",
+        "fromGrid",
     },
     ReportMode.WALLBOX.value: {
         "devSn",
@@ -140,6 +148,18 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "solarCurrentMin",
         "phaseSpecified",
         "chargingStatus",
+    },
+    ReportMode.WALLBOX_SYS.value: {
+        "devSn",
+        "allocatedPower",
+        "realPowerLock",
+        "refPower",
+        "feedPwrCap",
+        "startState",
+        "errorCode",
+        "warnCode",
+        "socCur",
+        "pclPwrBase",
     },
 }
 
@@ -170,8 +190,8 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
         "mode": "boxed",
         "detect": lambda p: "pileChargingParamReport" in p,
         "sn_path": ["devInfo", "devSn"],
-        "model": "PowerOcean Wallbox",
-        "name_prefix": "Wallbox",
+        "model": "PowerOcean PowerPulse",
+        "name_prefix": "PowerPulse",
         "paths": {
             "devSn": ["devInfo", "devSn"],
             "workMode": ["pileChargingParamReport", "paramSet", "workMode"],
@@ -201,8 +221,8 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
         "mode": "single",
         "detect": lambda p: "evPlugAndPlay" in p,
         "sn_path": ["evSn"],
-        "model": "PowerOcean Charger",
-        "name_prefix": "Charger",
+        "model": "PowerOcean PowerPulse",
+        "name_prefix": "PowerPulse",
         "paths": None,
         "sensors": REPORT_DATAPOINTS[ReportMode.CHARGEBOX.value],
     },
