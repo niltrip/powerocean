@@ -18,7 +18,13 @@ ignore = [
 ]
 
 [lint.per-file-ignores]
-"tests/**/*.py" = [
+"custom_components/powerocean/collector.py" = [
+    "ARG002",  # Too many arguments
+]
+"custom_components/powerocean/parser.py" = [
+    "ARG002",  # Too many arguments
+]
+"custom_components/powerocean/tests/**/*.py" = [
     "S101",    # assert allowed in tests
     "PLR2004", # magic values
     "F841",    # unused variables
