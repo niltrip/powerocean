@@ -1,6 +1,8 @@
-from __future__ import annotations
+"""serialize_structure."""
 
 from typing import Any
+
+from yaml import serialize
 
 from custom_components.powerocean.ecoflow import PowerOceanEndPoint
 
@@ -24,7 +26,7 @@ def serialize_structure(endpoints: dict[str, Any]) -> dict:
     return dict(sorted(result.items()))
 
 
-def _serialize_device(endpoint) -> dict:
+def _serialize_device(endpoint: PowerOceanEndPoint) -> dict:
     device_info = getattr(endpoint, "device_info", None)
 
     if not device_info:
@@ -39,6 +41,7 @@ def _serialize_device(endpoint) -> dict:
 
 
 def serialize_endpoint(endpoint: PowerOceanEndPoint) -> dict:
+    """Serialize PowerOceanEndPoint."""
     return {
         "internal_unique_id": endpoint.internal_unique_id,
         "serial": endpoint.serial,

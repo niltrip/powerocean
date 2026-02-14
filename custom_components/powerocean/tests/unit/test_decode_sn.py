@@ -2,16 +2,20 @@
 
 
 def test_decode_sn_base64(eco) -> None:
+    """Decode SN base64."""
     assert eco._decode_sn("U05fVEVTVA==") == "SN_TEST"
 
 
 def test_decode_sn_plaintext(eco) -> None:
+    """Decode SN plain."""
     assert eco._decode_sn("SN_PLAIN") == "SN_PLAIN"
 
 
 def test_decode_sn_none(eco) -> None:
+    """Decode SN none."""
     assert eco._decode_sn(None) is None
 
 
 def test_decode_sn_empty_string(eco) -> None:
+    """Decode SN empty."""
     assert eco._decode_sn("") is None

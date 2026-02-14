@@ -11,6 +11,7 @@ def serialize_sensors(sensors: dict[str, PowerOceanEndPoint]) -> dict:
 
     Returns:
         dict: Flattened, serializable dict of sensors.
+
     """
     serialized = {}
     for uid, sensor in sensors.items():
