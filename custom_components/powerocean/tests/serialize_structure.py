@@ -2,9 +2,7 @@
 
 from typing import Any
 
-from yaml import serialize
-
-from custom_components.powerocean.ecoflow import PowerOceanEndPoint
+from custom_components.powerocean.types import PowerOceanEndPoint
 
 
 def serialize_structure(endpoints: dict[str, Any]) -> dict:

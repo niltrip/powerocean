@@ -2,7 +2,7 @@
 from enum import Enum
 from typing import Any
 
-from custom_components.powerocean.ecoflow import PowerOceanEndPoint
+from custom_components.powerocean.types import PowerOceanEndPoint
 
 
 def serialize_sensors(sensors: dict[str, PowerOceanEndPoint]) -> dict:
