@@ -89,6 +89,7 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "bpEnvTemp",
         "bpMinCellTemp",
         "bpMaxCellTemp",
+        "moduleAplSwVer",
     },
     ReportMode.EMS.value: {
         "bpRemainWatth",
@@ -249,3 +250,17 @@ class DeviceRole(str, Enum):
 
 def _join_id(*parts: str) -> str:
     return "_".join(p for p in parts if p)
+
+
+def decode_version(value: int) -> str:
+    major = (value >> 24) & 0xFF
+    minor = (value >> 16) & 0xFF
+    patch = (value >> 8) & 0xFF
+    build = value & 0xFF
+    return f"{major}.{minor}.{patch}.{build}"
+
+
+def decode_product_info(value) -> dict:
+    value = int(value)
+
+    return {"product_id": (value >> 8) & 0xFF, "hardware_revision": value & 0xFF}

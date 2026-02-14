@@ -42,9 +42,9 @@ from .utils import (
     BOX_SCHEMAS,
     REPORT_DATAPOINTS,
     BoxSchema,
-    DeviceRole,
     ReportMode,
     _join_id,
+    decode_version,
 )
 
 SensorClassTuple: TypeAlias = tuple[
@@ -843,6 +843,8 @@ class EcoflowApi:
                 if value is None:
                     continue
 
+                if key == "moduleAplSwVer":
+                    value = decode_version(value)
                 self._collect_sensor(
                     collector=collector,
                     device_sn=device_sn,
