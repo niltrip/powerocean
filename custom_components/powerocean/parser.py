@@ -203,7 +203,7 @@ class EcoflowParser:
         return None
 
     def _deep_get_by_key(self, data: Any, target_key: str) -> None:
-        """Search recursively for the first occurrence of target_key in nested dict/list."""
+        """Search recursive for the occurrence of target_key in nested dict/list."""
         if isinstance(data, dict):
             for key, value in data.items():
                 # Treffer

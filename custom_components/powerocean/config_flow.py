@@ -112,10 +112,12 @@ async def validate_input_for_device(hass: HomeAssistant, data: dict[str, Any]) -
         await api.async_authorize()
     except IntegrationError as err:
         LOGGER.exception("Failed to connect to PowerOcean device")
-        raise HomeAssistantError("cannot_connect") from err
+        msg = "cannot_connect"
+        raise HomeAssistantError(msg) from err
     except AuthenticationFailedError as err:
         LOGGER.exception("Authentication failed")
-        raise HomeAssistantError("cannot_connect") from err
+        msg = "cannot_connect"
+        raise HomeAssistantError(msg) from err
 
 
 class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):

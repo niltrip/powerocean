@@ -1,4 +1,5 @@
-# tests/utils.py
+"""tests/utils."""
+
 from enum import Enum
 from typing import Any
 
@@ -7,7 +8,7 @@ from custom_components.powerocean.types import PowerOceanEndPoint
 
 def serialize_sensors(sensors: dict[str, PowerOceanEndPoint]) -> dict:
     """
-    Convert PowerOceanEndPoint objects into a JSON-serializable dict for Golden Master testing.
+    Convert EndPoint objects into a JSON-serializable dict for Golden Master testing.
 
     Args:
         sensors: dict of PowerOceanEndPoint objects keyed by unique_id.

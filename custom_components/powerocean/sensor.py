@@ -17,11 +17,14 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
+)
 
 from .const import (
     DOMAIN,
 )
+from .coordinator import PowerOceanCoordinator
 from .types import PowerOceanEndPoint
 
 
@@ -58,7 +61,9 @@ async def async_setup_entry(
 class PowerOceanSensor(CoordinatorEntity, SensorEntity):
     """Representation of a PowerOcean Sensor using DataUpdateCoordinator."""
 
-    def __init__(self, coordinator, endpoint: PowerOceanEndPoint) -> None:
+    def __init__(
+        self, coordinator: PowerOceanCoordinator, endpoint: PowerOceanEndPoint
+    ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
         self.endpoint = endpoint

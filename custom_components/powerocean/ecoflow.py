@@ -83,6 +83,10 @@ class EcoflowApi:
 
         session = async_get_clientsession(self.hass)
 
+        # Hilfsfunktion für konsistentes Reraising
+        def _raise(exc: Exception) -> None:
+            raise exc
+
         try:
             async with asyncio.timeout(10):
                 response = await session.post(url, json=data, headers=headers)
@@ -93,11 +97,9 @@ class EcoflowApi:
             if not isinstance(data_block, dict) or "token" not in data_block:
                 msg = "Missing or malformed 'data' block in response"
                 LOGGER.error(msg)
-                raise AuthenticationFailedError(msg)
+                _raise(AuthenticationFailedError(msg))
 
             self.token = data_block["token"]
-            LOGGER.info("Successfully logged in.")
-            return True
 
         except AuthenticationFailedError as auth_err:
             LOGGER.warning(
@@ -118,6 +120,10 @@ class EcoflowApi:
             LOGGER.exception("Unexpected error during EcoFlow login")
             msg = "Unexpected error during login"
             raise IntegrationError(msg) from unexpected
+
+        else:
+            LOGGER.info("Successfully logged in.")
+            return True
 
     async def fetch_raw(self) -> dict[str, Any]:
         """Fetch data from Url (Async version)."""

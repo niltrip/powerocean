@@ -12,8 +12,8 @@ It handles:
 - Parsing and returning a dictionary of sensor values
 
 Usage:
-    coordinator = PowerOceanCoordinator(hass, api, update_interval=timedelta(seconds=30))
-    await coordinator.async_config_entry_first_refresh()
+  coordinator = PowerOceanCoordinator(hass, api, update_interval=timedelta(seconds=30))
+  await coordinator.async_config_entry_first_refresh()
 """
 
 from datetime import timedelta

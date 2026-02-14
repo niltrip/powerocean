@@ -13,7 +13,7 @@ Classes:
 """
 
 from collections.abc import Callable
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import TypedDict
 
 DEVICE_SN_KEYS = (
@@ -239,7 +239,7 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
 }
 
 
-class DeviceRole(str, Enum):
+class DeviceRole(StrEnum):
     """Enumeration for device roles in the PowerOcean integration."""
 
     MASTER = "_master"
@@ -253,6 +253,22 @@ def _join_id(*parts: str) -> str:
 
 
 def decode_version(value: int) -> str:
+    """
+    Decode a 32-bit integer into a dotted version string.
+
+    The integer is interpreted as:
+        - bits 24-31: major
+        - bits 16-23: minor
+        - bits 8-15: patch
+        - bits 0-7: build
+
+    Args:
+        value: Encoded 32-bit version integer.
+
+    Returns:
+        Version string in the format "major.minor.patch.build".
+
+    """
     major = (value >> 24) & 0xFF
     minor = (value >> 16) & 0xFF
     patch = (value >> 8) & 0xFF
@@ -260,7 +276,26 @@ def decode_version(value: int) -> str:
     return f"{major}.{minor}.{patch}.{build}"
 
 
-def decode_product_info(value) -> dict:
+def decode_product_info(value: int) -> dict[str, int]:
+    """
+    Decode a 16-bit product information value.
+
+    The integer is interpreted as:
+        - bits 8-15: product ID
+        - bits 0-7: hardware revision
+
+    Args:
+        value: Encoded product information integer.
+
+    Returns:
+        Dictionary containing:
+            - product_id
+            - hardware_revision
+
+    """
     value = int(value)
 
-    return {"product_id": (value >> 8) & 0xFF, "hardware_revision": value & 0xFF}
+    return {
+        "product_id": (value >> 8) & 0xFF,
+        "hardware_revision": value & 0xFF,
+    }

@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from custom_components.powerocean.const import LOGGER
 from custom_components.powerocean.parser import EcoflowParser
 from custom_components.powerocean.tests.serialize_structure import (
     serialize_structure,
@@ -22,7 +23,7 @@ API_FIXTURES = [
 ]
 
 
-@pytest.mark.parametrize("fixture_file_name, variant", API_FIXTURES)
+@pytest.mark.parametrize(("fixture_file_name", "variant"), API_FIXTURES)
 def test_golden_master_parse_values(fixture_file_name, variant) -> None:
     fixtures_dir = Path(__file__).parent.parent / "fixtures"
     fixture_file = fixtures_dir / fixture_file_name
@@ -50,14 +51,14 @@ def test_golden_master_parse_values(fixture_file_name, variant) -> None:
             json.dumps(values, indent=2, sort_keys=True),
             encoding="utf-8",
         )
-        pytest.skip("Golden master created – re-run test")
+        pytest.skip("Golden master created - re-run test")
 
     golden_master = json.loads(master_file.read_text(encoding="utf-8"))
 
     assert values == golden_master
 
 
-@pytest.mark.parametrize("fixture_file_name, variant", API_FIXTURES)
+@pytest.mark.parametrize(("fixture_file_name", "variant"), API_FIXTURES)
 def test_golden_master_structure(fixture_file_name, variant) -> None:
     fixtures_dir = Path(__file__).parent.parent / "fixtures"
     fixture_file = fixtures_dir / fixture_file_name
@@ -78,7 +79,7 @@ def test_golden_master_structure(fixture_file_name, variant) -> None:
             json.dumps(normalize(serialized), indent=2, sort_keys=True),
             encoding="utf-8",
         )
-        pytest.skip("Golden master created – re-run test")
+        pytest.skip("Golden master created - re-run test")
 
     golden_master = json.loads(master_file.read_text(encoding="utf-8"))
 
@@ -86,6 +87,6 @@ def test_golden_master_structure(fixture_file_name, variant) -> None:
     b = json.dumps(golden_master, indent=2, sort_keys=True)
 
     for line in difflib.unified_diff(a.splitlines(), b.splitlines()):
-        print(line)
+        LOGGER.debug(line)
 
     assert normalize(serialized) == golden_master

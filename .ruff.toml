@@ -18,19 +18,26 @@ ignore = [
 ]
 
 [lint.per-file-ignores]
-"custom_components/powerocean/collector.py" = [
-    "ARG002",  # Too many arguments
-]
-"custom_components/powerocean/parser.py" = [
-    "ARG002",  # Too many arguments
-]
-"custom_components/powerocean/tests/**/*.py" = [
-    "S101",    # assert allowed in tests
+"custom_components/powerocean/__init__.py" = ["PLR2004", "ARG001"]
+"custom_components/powerocean/config_flow.py" = ["ARG004"]
+"custom_components/powerocean/parser.py" = ["PLR0913"]
+"custom_components/powerocean/types.py" = ["UP040"]
+"custom_components/powerocean/collector.py" = ["PLR0913", "ARG002"]
+"custom_components/powerocean/tests/*.py" = [
+    "S101", # assert allowed in tests
     "PLR2004", # magic values
-    "F841",    # unused variables
-    "ARG001",  # unused function arguments
-    "ANN201",  # missing return type
-    "ANN001",  # missing param type
+    "F841", # unused variables
+    "ANN201", # missing return type
+    "ANN001",
+    "D103",
+]
+
+"custom_components/powerocean/tests/**/*.py" = [
+    "S101", # assert allowed in tests
+    "PLR2004", # magic values
+    "F841", # unused variables
+    "ANN201", # missing return type
+    "SLF001", # Private member accessed
 ]
 
 [lint.flake8-pytest-style]

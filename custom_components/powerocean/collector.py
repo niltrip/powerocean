@@ -46,6 +46,7 @@ class StructureCollector:
     """
 
     def __init__(self) -> None:
+        """Initialize the StructureCollector with an empty endpoint dictionary."""
         self.endpoints: dict[str, PowerOceanEndPoint] = {}
 
     def collect(
@@ -84,6 +85,7 @@ class ValueCollector:
     """
 
     def __init__(self) -> None:
+        """Initialize the ValueCollector with an empty values dictionary."""
         self.values: dict[str, float | int | str] = {}
 
     def collect(
