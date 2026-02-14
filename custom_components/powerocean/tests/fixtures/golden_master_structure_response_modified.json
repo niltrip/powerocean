@@ -1,4 +1,24 @@
 {
+  "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsChgDsgSta": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_BATTERIEPACK01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "bmsChgDsgSta",
+      "friendly_name": "bmsChgDsgSta",
+      "icon": "mdi:chip",
+      "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsChgDsgSta",
+      "name": "SN_BATTERIEPACK01_bmsChgDsgSta",
+      "serial": "SN_BATTERIEPACK01",
+      "unit": null
+    }
+  },
   "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsRunSta": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -12,7 +32,7 @@
     "sensors": {
       "description": "bmsRunSta",
       "friendly_name": "bmsRunSta",
-      "icon": null,
+      "icon": "mdi:chip",
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsRunSta",
       "name": "SN_BATTERIEPACK01_bmsRunSta",
       "serial": "SN_BATTERIEPACK01",
@@ -32,7 +52,7 @@
     "sensors": {
       "description": "Batteriestrom",
       "friendly_name": "bpAmp",
-      "icon": "mdi:current-dc",
+      "icon": null,
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAmp",
       "name": "SN_BATTERIEPACK01_bpAmp",
       "serial": "SN_BATTERIEPACK01",
@@ -41,6 +61,26 @@
         "A",
         "measurement"
       ]
+    }
+  },
+  "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpBalanceState": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_BATTERIEPACK01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "bpBalanceState",
+      "friendly_name": "bpBalanceState",
+      "icon": "mdi:information-outline",
+      "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpBalanceState",
+      "name": "SN_BATTERIEPACK01_bpBalanceState",
+      "serial": "SN_BATTERIEPACK01",
+      "unit": null
     }
   },
   "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpCycles": {
@@ -56,7 +96,7 @@
     "sensors": {
       "description": "Ladezyklen",
       "friendly_name": "bpCycles",
-      "icon": null,
+      "icon": "mdi:repeat",
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpCycles",
       "name": "SN_BATTERIEPACK01_bpCycles",
       "serial": "SN_BATTERIEPACK01",
@@ -76,7 +116,7 @@
     "sensors": {
       "description": "bpEnvTemp",
       "friendly_name": "bpEnvTemp",
-      "icon": null,
+      "icon": "mdi:thermometer",
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpEnvTemp",
       "name": "SN_BATTERIEPACK01_bpEnvTemp",
       "serial": "SN_BATTERIEPACK01",
@@ -100,7 +140,7 @@
     "sensors": {
       "description": "bpMaxCellTemp",
       "friendly_name": "bpMaxCellTemp",
-      "icon": null,
+      "icon": "mdi:thermometer",
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMaxCellTemp",
       "name": "SN_BATTERIEPACK01_bpMaxCellTemp",
       "serial": "SN_BATTERIEPACK01",
@@ -124,7 +164,7 @@
     "sensors": {
       "description": "bpMinCellTemp",
       "friendly_name": "bpMinCellTemp",
-      "icon": null,
+      "icon": "mdi:thermometer",
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMinCellTemp",
       "name": "SN_BATTERIEPACK01_bpMinCellTemp",
       "serial": "SN_BATTERIEPACK01",
@@ -172,7 +212,7 @@
     "sensors": {
       "description": "bpRemainWatth",
       "friendly_name": "bpRemainWatth",
-      "icon": null,
+      "icon": "mdi:car-battery",
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpRemainWatth",
       "name": "SN_BATTERIEPACK01_bpRemainWatth",
       "serial": "SN_BATTERIEPACK01",
@@ -196,7 +236,7 @@
     "sensors": {
       "description": "bpSn",
       "friendly_name": "bpSn",
-      "icon": null,
+      "icon": "mdi:barcode",
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSn",
       "name": "SN_BATTERIEPACK01_bpSn",
       "serial": "SN_BATTERIEPACK01",
@@ -216,7 +256,7 @@
     "sensors": {
       "description": "Ladezustand der Batterie",
       "friendly_name": "bpSoc",
-      "icon": null,
+      "icon": "mdi:battery",
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoc",
       "name": "SN_BATTERIEPACK01_bpSoc",
       "serial": "SN_BATTERIEPACK01",
@@ -240,7 +280,7 @@
     "sensors": {
       "description": "bpSoh",
       "friendly_name": "bpSoh",
-      "icon": null,
+      "icon": "mdi:battery",
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoh",
       "name": "SN_BATTERIEPACK01_bpSoh",
       "serial": "SN_BATTERIEPACK01",
@@ -264,7 +304,7 @@
     "sensors": {
       "description": "bpSysState",
       "friendly_name": "bpSysState",
-      "icon": null,
+      "icon": "mdi:information-outline",
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSysState",
       "name": "SN_BATTERIEPACK01_bpSysState",
       "serial": "SN_BATTERIEPACK01",
@@ -295,6 +335,46 @@
       ]
     }
   },
+  "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_moduleAplSwVer": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_BATTERIEPACK01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "moduleAplSwVer",
+      "friendly_name": "moduleAplSwVer",
+      "icon": null,
+      "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_moduleAplSwVer",
+      "name": "SN_BATTERIEPACK01_moduleAplSwVer",
+      "serial": "SN_BATTERIEPACK01",
+      "unit": null
+    }
+  },
+  "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsChgDsgSta": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_BATTERIEPACK02",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "bmsChgDsgSta",
+      "friendly_name": "bmsChgDsgSta",
+      "icon": "mdi:chip",
+      "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsChgDsgSta",
+      "name": "SN_BATTERIEPACK02_bmsChgDsgSta",
+      "serial": "SN_BATTERIEPACK02",
+      "unit": null
+    }
+  },
   "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsRunSta": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -308,7 +388,7 @@
     "sensors": {
       "description": "bmsRunSta",
       "friendly_name": "bmsRunSta",
-      "icon": null,
+      "icon": "mdi:chip",
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsRunSta",
       "name": "SN_BATTERIEPACK02_bmsRunSta",
       "serial": "SN_BATTERIEPACK02",
@@ -328,7 +408,7 @@
     "sensors": {
       "description": "Batteriestrom",
       "friendly_name": "bpAmp",
-      "icon": "mdi:current-dc",
+      "icon": null,
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAmp",
       "name": "SN_BATTERIEPACK02_bpAmp",
       "serial": "SN_BATTERIEPACK02",
@@ -337,6 +417,26 @@
         "A",
         "measurement"
       ]
+    }
+  },
+  "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpBalanceState": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_BATTERIEPACK02",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "bpBalanceState",
+      "friendly_name": "bpBalanceState",
+      "icon": "mdi:information-outline",
+      "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpBalanceState",
+      "name": "SN_BATTERIEPACK02_bpBalanceState",
+      "serial": "SN_BATTERIEPACK02",
+      "unit": null
     }
   },
   "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpCycles": {
@@ -352,7 +452,7 @@
     "sensors": {
       "description": "Ladezyklen",
       "friendly_name": "bpCycles",
-      "icon": null,
+      "icon": "mdi:repeat",
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpCycles",
       "name": "SN_BATTERIEPACK02_bpCycles",
       "serial": "SN_BATTERIEPACK02",
@@ -372,7 +472,7 @@
     "sensors": {
       "description": "bpEnvTemp",
       "friendly_name": "bpEnvTemp",
-      "icon": null,
+      "icon": "mdi:thermometer",
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpEnvTemp",
       "name": "SN_BATTERIEPACK02_bpEnvTemp",
       "serial": "SN_BATTERIEPACK02",
@@ -396,7 +496,7 @@
     "sensors": {
       "description": "bpMaxCellTemp",
       "friendly_name": "bpMaxCellTemp",
-      "icon": null,
+      "icon": "mdi:thermometer",
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMaxCellTemp",
       "name": "SN_BATTERIEPACK02_bpMaxCellTemp",
       "serial": "SN_BATTERIEPACK02",
@@ -420,7 +520,7 @@
     "sensors": {
       "description": "bpMinCellTemp",
       "friendly_name": "bpMinCellTemp",
-      "icon": null,
+      "icon": "mdi:thermometer",
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMinCellTemp",
       "name": "SN_BATTERIEPACK02_bpMinCellTemp",
       "serial": "SN_BATTERIEPACK02",
@@ -468,7 +568,7 @@
     "sensors": {
       "description": "bpRemainWatth",
       "friendly_name": "bpRemainWatth",
-      "icon": null,
+      "icon": "mdi:car-battery",
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpRemainWatth",
       "name": "SN_BATTERIEPACK02_bpRemainWatth",
       "serial": "SN_BATTERIEPACK02",
@@ -492,7 +592,7 @@
     "sensors": {
       "description": "bpSn",
       "friendly_name": "bpSn",
-      "icon": null,
+      "icon": "mdi:barcode",
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSn",
       "name": "SN_BATTERIEPACK02_bpSn",
       "serial": "SN_BATTERIEPACK02",
@@ -512,7 +612,7 @@
     "sensors": {
       "description": "Ladezustand der Batterie",
       "friendly_name": "bpSoc",
-      "icon": null,
+      "icon": "mdi:battery",
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoc",
       "name": "SN_BATTERIEPACK02_bpSoc",
       "serial": "SN_BATTERIEPACK02",
@@ -536,7 +636,7 @@
     "sensors": {
       "description": "bpSoh",
       "friendly_name": "bpSoh",
-      "icon": null,
+      "icon": "mdi:battery",
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoh",
       "name": "SN_BATTERIEPACK02_bpSoh",
       "serial": "SN_BATTERIEPACK02",
@@ -560,7 +660,7 @@
     "sensors": {
       "description": "bpSysState",
       "friendly_name": "bpSysState",
-      "icon": null,
+      "icon": "mdi:information-outline",
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSysState",
       "name": "SN_BATTERIEPACK02_bpSysState",
       "serial": "SN_BATTERIEPACK02",
@@ -591,6 +691,950 @@
       ]
     }
   },
+  "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_moduleAplSwVer": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_BATTERIEPACK02",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "moduleAplSwVer",
+      "friendly_name": "moduleAplSwVer",
+      "icon": null,
+      "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_moduleAplSwVer",
+      "name": "SN_BATTERIEPACK02_moduleAplSwVer",
+      "serial": "SN_BATTERIEPACK02",
+      "unit": null
+    }
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_chargeVehicleId": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Charger",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "chargeVehicleId",
+      "friendly_name": "chargeVehicleId",
+      "icon": null,
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_chargeVehicleId",
+      "name": "SN_EV_CHARGER_01_chargeVehicleId",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": null
+    }
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_chargingStatus": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Charger",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "chargingStatus",
+      "friendly_name": "chargingStatus",
+      "icon": null,
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_chargingStatus",
+      "name": "SN_EV_CHARGER_01_chargingStatus",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": null
+    }
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_errorCode": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Charger",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "errorCode",
+      "friendly_name": "errorCode",
+      "icon": "mdi:alert-circle-outline",
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_errorCode",
+      "name": "SN_EV_CHARGER_01_errorCode",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": null
+    }
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evChargingEnergy": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Charger",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "evChargingEnergy",
+      "friendly_name": "evChargingEnergy",
+      "icon": null,
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evChargingEnergy",
+      "name": "SN_EV_CHARGER_01_evChargingEnergy",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": [
+        "energy",
+        "Wh",
+        "total_increasing"
+      ]
+    }
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evCurrSet": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Charger",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "evCurrSet",
+      "friendly_name": "evCurrSet",
+      "icon": null,
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evCurrSet",
+      "name": "SN_EV_CHARGER_01_evCurrSet",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": null
+    }
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evOnoffSet": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Charger",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "evOnoffSet",
+      "friendly_name": "evOnoffSet",
+      "icon": null,
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evOnoffSet",
+      "name": "SN_EV_CHARGER_01_evOnoffSet",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": null
+    }
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evPwr": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Charger",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "evPwr",
+      "friendly_name": "evPwr",
+      "icon": null,
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evPwr",
+      "name": "SN_EV_CHARGER_01_evPwr",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evSn": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Charger",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "evSn",
+      "friendly_name": "evSn",
+      "icon": "mdi:barcode",
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evSn",
+      "name": "SN_EV_CHARGER_01_evSn",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": null
+    }
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evUserManual": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Charger",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "evUserManual",
+      "friendly_name": "evUserManual",
+      "icon": null,
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evUserManual",
+      "name": "SN_EV_CHARGER_01_evUserManual",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": null
+    }
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_onlineBits": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Charger",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "onlineBits",
+      "friendly_name": "onlineBits",
+      "icon": null,
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_onlineBits",
+      "name": "SN_EV_CHARGER_01_onlineBits",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": null
+    }
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_orderStartTimestamp": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Charger",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "orderStartTimestamp",
+      "friendly_name": "orderStartTimestamp",
+      "icon": null,
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_orderStartTimestamp",
+      "name": "SN_EV_CHARGER_01_orderStartTimestamp",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": [
+        "current",
+        "A",
+        "measurement"
+      ]
+    }
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_useGridFirst": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Charger",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "useGridFirst",
+      "friendly_name": "useGridFirst",
+      "icon": null,
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_useGridFirst",
+      "name": "SN_EV_CHARGER_01_useGridFirst",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": null
+    }
+  },
+  "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_workMode": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Charger",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "workMode",
+      "friendly_name": "workMode",
+      "icon": null,
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_workMode",
+      "name": "SN_EV_CHARGER_01_workMode",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargeTarget": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "chargeTarget",
+      "friendly_name": "chargeTarget",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargeTarget",
+      "name": "SN_E_DEVICEBOX01_chargeTarget",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargingPwr": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "chargingPwr",
+      "friendly_name": "chargingPwr",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargingPwr",
+      "name": "SN_E_DEVICEBOX01_chargingPwr",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargingStatus": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "chargingStatus",
+      "friendly_name": "chargingStatus",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargingStatus",
+      "name": "SN_E_DEVICEBOX01_chargingStatus",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_devSn": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "devSn",
+      "friendly_name": "devSn",
+      "icon": "mdi:barcode",
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_devSn",
+      "name": "SN_E_DEVICEBOX01_devSn",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_timeToUseCar": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "timeToUseCar",
+      "friendly_name": "timeToUseCar",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_timeToUseCar",
+      "name": "SN_E_DEVICEBOX01_timeToUseCar",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_workMode": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "workMode",
+      "friendly_name": "workMode",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_workMode",
+      "name": "SN_E_DEVICEBOX01_workMode",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_allocatedPower": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "allocatedPower",
+      "friendly_name": "allocatedPower",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_allocatedPower",
+      "name": "SN_E_DEVICEBOX01_allocatedPower",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_errorCode": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "errorCode",
+      "friendly_name": "errorCode",
+      "icon": "mdi:alert-circle-outline",
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_errorCode",
+      "name": "SN_E_DEVICEBOX01_errorCode",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_feedPwrCap": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "feedPwrCap",
+      "friendly_name": "feedPwrCap",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_feedPwrCap",
+      "name": "SN_E_DEVICEBOX01_feedPwrCap",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_pclPwrBase": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "pclPwrBase",
+      "friendly_name": "pclPwrBase",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_pclPwrBase",
+      "name": "SN_E_DEVICEBOX01_pclPwrBase",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_realPowerLock": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "realPowerLock",
+      "friendly_name": "realPowerLock",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_realPowerLock",
+      "name": "SN_E_DEVICEBOX01_realPowerLock",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_refPower": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "refPower",
+      "friendly_name": "refPower",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_refPower",
+      "name": "SN_E_DEVICEBOX01_refPower",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_socCur": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "socCur",
+      "friendly_name": "socCur",
+      "icon": "mdi:battery",
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_socCur",
+      "name": "SN_E_DEVICEBOX01_socCur",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_startState": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "startState",
+      "friendly_name": "startState",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_startState",
+      "name": "SN_E_DEVICEBOX01_startState",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_warnCode": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "warnCode",
+      "friendly_name": "warnCode",
+      "icon": "mdi:alert-circle-outline",
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_warnCode",
+      "name": "SN_E_DEVICEBOX01_warnCode",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_ENERGY_STREAM_REPORT_fromBat": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerGlow",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "fromBat",
+      "friendly_name": "fromBat",
+      "icon": null,
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_ENERGY_STREAM_REPORT_fromBat",
+      "name": "SN_HEATINGROD_fromBat",
+      "serial": "SN_HEATINGROD",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_ENERGY_STREAM_REPORT_fromGrid": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerGlow",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "fromGrid",
+      "friendly_name": "fromGrid",
+      "icon": null,
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_ENERGY_STREAM_REPORT_fromGrid",
+      "name": "SN_HEATINGROD_fromGrid",
+      "serial": "SN_HEATINGROD",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_ENERGY_STREAM_REPORT_fromPv": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerGlow",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "fromPv",
+      "friendly_name": "fromPv",
+      "icon": null,
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_ENERGY_STREAM_REPORT_fromPv",
+      "name": "SN_HEATINGROD_fromPv",
+      "serial": "SN_HEATINGROD",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_ENERGY_STREAM_REPORT_hrPwr": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerGlow",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "hrPwr",
+      "friendly_name": "hrPwr",
+      "icon": null,
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_ENERGY_STREAM_REPORT_hrPwr",
+      "name": "SN_HEATINGROD_hrPwr",
+      "serial": "SN_HEATINGROD",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_errorCode": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Heating Rod",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "errorCode",
+      "friendly_name": "errorCode",
+      "icon": "mdi:alert-circle-outline",
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_errorCode",
+      "name": "SN_HEATINGROD_errorCode",
+      "serial": "SN_HEATINGROD",
+      "unit": null
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_heatingPower": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Heating Rod",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "heatingPower",
+      "friendly_name": "heatingPower",
+      "icon": null,
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_heatingPower",
+      "name": "SN_HEATINGROD_heatingPower",
+      "serial": "SN_HEATINGROD",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_hrSn": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Heating Rod",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "hrSn",
+      "friendly_name": "hrSn",
+      "icon": "mdi:barcode",
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_hrSn",
+      "name": "SN_HEATINGROD_hrSn",
+      "serial": "SN_HEATINGROD",
+      "unit": null
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_mode": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Heating Rod",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "mode",
+      "friendly_name": "mode",
+      "icon": null,
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_mode",
+      "name": "SN_HEATINGROD_mode",
+      "serial": "SN_HEATINGROD",
+      "unit": null
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_runFlag": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Heating Rod",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "runFlag",
+      "friendly_name": "runFlag",
+      "icon": "mdi:information-outline",
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_runFlag",
+      "name": "SN_HEATINGROD_runFlag",
+      "serial": "SN_HEATINGROD",
+      "unit": null
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_runStat": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Heating Rod",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "runStat",
+      "friendly_name": "runStat",
+      "icon": "mdi:information-outline",
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_runStat",
+      "name": "SN_HEATINGROD_runStat",
+      "serial": "SN_HEATINGROD",
+      "unit": null
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_selfcheckPercent": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Heating Rod",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "selfcheckPercent",
+      "friendly_name": "selfcheckPercent",
+      "icon": "mdi:information-outline",
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_selfcheckPercent",
+      "name": "SN_HEATINGROD_selfcheckPercent",
+      "serial": "SN_HEATINGROD",
+      "unit": [
+        "battery",
+        "%",
+        "measurement"
+      ]
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_targetPower": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Heating Rod",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "targetPower",
+      "friendly_name": "targetPower",
+      "icon": null,
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_targetPower",
+      "name": "SN_HEATINGROD_targetPower",
+      "serial": "SN_HEATINGROD",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_targetTemp": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Heating Rod",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "targetTemp",
+      "friendly_name": "targetTemp",
+      "icon": "mdi:thermometer",
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_targetTemp",
+      "name": "SN_HEATINGROD_targetTemp",
+      "serial": "SN_HEATINGROD",
+      "unit": [
+        "temperature",
+        "\u00b0C",
+        "measurement"
+      ]
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_temp": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Heating Rod",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "temp",
+      "friendly_name": "temp",
+      "icon": "mdi:thermometer",
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_temp",
+      "name": "SN_HEATINGROD_temp",
+      "serial": "SN_HEATINGROD",
+      "unit": [
+        "temperature",
+        "\u00b0C",
+        "measurement"
+      ]
+    }
+  },
+  "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_waterTankVolume": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Heating Rod",
+      "sn": "SN_HEATINGROD",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "waterTankVolume",
+      "friendly_name": "waterTankVolume",
+      "icon": null,
+      "internal_unique_id": "SN_HEATINGROD_RE307_HEATING_ROD_PARAM_REPORT_waterTankVolume",
+      "name": "SN_HEATINGROD_waterTankVolume",
+      "serial": "SN_HEATINGROD",
+      "unit": [
+        "volume",
+        "L",
+        null
+      ]
+    }
+  },
   "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_bpOnlineSum": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -604,7 +1648,7 @@
     "sensors": {
       "description": "bpOnlineSum",
       "friendly_name": "bpOnlineSum",
-      "icon": null,
+      "icon": "mdi:package-check",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_bpOnlineSum",
       "name": "SN_INVERTERBOX01_bpOnlineSum",
       "serial": "SN_INVERTERBOX01",
@@ -624,7 +1668,7 @@
     "sensors": {
       "description": "Ladezustand der Batterie",
       "friendly_name": "bpSoc",
-      "icon": null,
+      "icon": "mdi:battery",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_bpSoc",
       "name": "SN_INVERTERBOX01_bpSoc",
       "serial": "SN_INVERTERBOX01",
@@ -696,7 +1740,7 @@
     "sensors": {
       "description": "emsCtrlLedBright",
       "friendly_name": "emsCtrlLedBright",
-      "icon": null,
+      "icon": "mdi:brightness-percent",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_emsCtrlLedBright",
       "name": "SN_INVERTERBOX01_emsCtrlLedBright",
       "serial": "SN_INVERTERBOX01",
@@ -716,7 +1760,7 @@
     "sensors": {
       "description": "mppt1FaultCode",
       "friendly_name": "mppt1FaultCode",
-      "icon": null,
+      "icon": "mdi:alert-circle-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_mppt1FaultCode",
       "name": "SN_INVERTERBOX01_mppt1FaultCode",
       "serial": "SN_INVERTERBOX01",
@@ -736,7 +1780,7 @@
     "sensors": {
       "description": "mppt1WarningCode",
       "friendly_name": "mppt1WarningCode",
-      "icon": null,
+      "icon": "mdi:alert-circle-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_mppt1WarningCode",
       "name": "SN_INVERTERBOX01_mppt1WarningCode",
       "serial": "SN_INVERTERBOX01",
@@ -756,7 +1800,7 @@
     "sensors": {
       "description": "mppt2FaultCode",
       "friendly_name": "mppt2FaultCode",
-      "icon": null,
+      "icon": "mdi:alert-circle-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_mppt2FaultCode",
       "name": "SN_INVERTERBOX01_mppt2FaultCode",
       "serial": "SN_INVERTERBOX01",
@@ -776,7 +1820,7 @@
     "sensors": {
       "description": "mppt2WarningCode",
       "friendly_name": "mppt2WarningCode",
-      "icon": null,
+      "icon": "mdi:alert-circle-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_mppt2WarningCode",
       "name": "SN_INVERTERBOX01_mppt2WarningCode",
       "serial": "SN_INVERTERBOX01",
@@ -796,7 +1840,7 @@
     "sensors": {
       "description": "bpRemainWatth",
       "friendly_name": "bpRemainWatth",
-      "icon": null,
+      "icon": "mdi:car-battery",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpRemainWatth",
       "name": "SN_INVERTERBOX01_bpRemainWatth",
       "serial": "SN_INVERTERBOX01",
@@ -820,7 +1864,7 @@
     "sensors": {
       "description": "emsBpAliveNum",
       "friendly_name": "emsBpAliveNum",
-      "icon": null,
+      "icon": "mdi:package-check",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsBpAliveNum",
       "name": "SN_INVERTERBOX01_emsBpAliveNum",
       "serial": "SN_INVERTERBOX01",
@@ -847,6 +1891,70 @@
       "unit": [
         "power",
         "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsBpSelfcheckState": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "emsBpSelfcheckState",
+      "friendly_name": "emsBpSelfcheckState",
+      "icon": "mdi:information-outline",
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsBpSelfcheckState",
+      "name": "SN_INVERTERBOX01_emsBpSelfcheckState",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsMpptRunState": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "emsMpptRunState",
+      "friendly_name": "emsMpptRunState",
+      "icon": "mdi:information-outline",
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsMpptRunState",
+      "name": "SN_INVERTERBOX01_emsMpptRunState",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptInsResist": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "mpptInsResist",
+      "friendly_name": "mpptInsResist",
+      "icon": "mdi:resistor",
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptInsResist",
+      "name": "SN_INVERTERBOX01_mpptInsResist",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        null,
+        "\u03a9",
         "measurement"
       ]
     }
@@ -888,7 +1996,7 @@
     "sensors": {
       "description": "mpptPv1_lightSta",
       "friendly_name": "mpptPv1_lightSta",
-      "icon": null,
+      "icon": "mdi:white-balance-sunny",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv1_lightSta",
       "name": "SN_INVERTERBOX01_mpptPv1_lightSta",
       "serial": "SN_INVERTERBOX01",
@@ -908,7 +2016,7 @@
     "sensors": {
       "description": "mpptPv1_pwr",
       "friendly_name": "mpptPv1_pwr",
-      "icon": "mdi:solar-power",
+      "icon": "mdi:solar-power-variant",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv1_pwr",
       "name": "SN_INVERTERBOX01_mpptPv1_pwr",
       "serial": "SN_INVERTERBOX01",
@@ -980,7 +2088,7 @@
     "sensors": {
       "description": "mpptPv2_lightSta",
       "friendly_name": "mpptPv2_lightSta",
-      "icon": null,
+      "icon": "mdi:white-balance-sunny",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv2_lightSta",
       "name": "SN_INVERTERBOX01_mpptPv2_lightSta",
       "serial": "SN_INVERTERBOX01",
@@ -1000,7 +2108,7 @@
     "sensors": {
       "description": "mpptPv2_pwr",
       "friendly_name": "mpptPv2_pwr",
-      "icon": "mdi:solar-power",
+      "icon": "mdi:solar-power-variant",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv2_pwr",
       "name": "SN_INVERTERBOX01_mpptPv2_pwr",
       "serial": "SN_INVERTERBOX01",
@@ -1048,7 +2156,7 @@
     "sensors": {
       "description": "mpptPv_pwrTotal",
       "friendly_name": "mpptPv_pwrTotal",
-      "icon": null,
+      "icon": "mdi:solar-power",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv_pwrTotal",
       "name": "SN_INVERTERBOX01_mpptPv_pwrTotal",
       "serial": "SN_INVERTERBOX01",
@@ -1072,7 +2180,7 @@
     "sensors": {
       "description": "pcsAPhase_actPwr",
       "friendly_name": "pcsAPhase_actPwr",
-      "icon": null,
+      "icon": "mdi:flash",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsAPhase_actPwr",
       "name": "SN_INVERTERBOX01_pcsAPhase_actPwr",
       "serial": "SN_INVERTERBOX01",
@@ -1096,7 +2204,7 @@
     "sensors": {
       "description": "pcsAPhase_amp",
       "friendly_name": "pcsAPhase_amp",
-      "icon": null,
+      "icon": "mdi:current-ac",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsAPhase_amp",
       "name": "SN_INVERTERBOX01_pcsAPhase_amp",
       "serial": "SN_INVERTERBOX01",
@@ -1120,7 +2228,7 @@
     "sensors": {
       "description": "pcsAPhase_apparentPwr",
       "friendly_name": "pcsAPhase_apparentPwr",
-      "icon": null,
+      "icon": "mdi:flash-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsAPhase_apparentPwr",
       "name": "SN_INVERTERBOX01_pcsAPhase_apparentPwr",
       "serial": "SN_INVERTERBOX01",
@@ -1144,7 +2252,7 @@
     "sensors": {
       "description": "pcsAPhase_reactPwr",
       "friendly_name": "pcsAPhase_reactPwr",
-      "icon": null,
+      "icon": "mdi:flash",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsAPhase_reactPwr",
       "name": "SN_INVERTERBOX01_pcsAPhase_reactPwr",
       "serial": "SN_INVERTERBOX01",
@@ -1192,7 +2300,7 @@
     "sensors": {
       "description": "pcsActPwr",
       "friendly_name": "pcsActPwr",
-      "icon": null,
+      "icon": "mdi:flash",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsActPwr",
       "name": "SN_INVERTERBOX01_pcsActPwr",
       "serial": "SN_INVERTERBOX01",
@@ -1216,7 +2324,7 @@
     "sensors": {
       "description": "pcsBPhase_actPwr",
       "friendly_name": "pcsBPhase_actPwr",
-      "icon": null,
+      "icon": "mdi:flash",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsBPhase_actPwr",
       "name": "SN_INVERTERBOX01_pcsBPhase_actPwr",
       "serial": "SN_INVERTERBOX01",
@@ -1240,7 +2348,7 @@
     "sensors": {
       "description": "pcsBPhase_amp",
       "friendly_name": "pcsBPhase_amp",
-      "icon": null,
+      "icon": "mdi:current-ac",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsBPhase_amp",
       "name": "SN_INVERTERBOX01_pcsBPhase_amp",
       "serial": "SN_INVERTERBOX01",
@@ -1264,7 +2372,7 @@
     "sensors": {
       "description": "pcsBPhase_apparentPwr",
       "friendly_name": "pcsBPhase_apparentPwr",
-      "icon": null,
+      "icon": "mdi:flash-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsBPhase_apparentPwr",
       "name": "SN_INVERTERBOX01_pcsBPhase_apparentPwr",
       "serial": "SN_INVERTERBOX01",
@@ -1288,7 +2396,7 @@
     "sensors": {
       "description": "pcsBPhase_reactPwr",
       "friendly_name": "pcsBPhase_reactPwr",
-      "icon": null,
+      "icon": "mdi:flash",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsBPhase_reactPwr",
       "name": "SN_INVERTERBOX01_pcsBPhase_reactPwr",
       "serial": "SN_INVERTERBOX01",
@@ -1336,7 +2444,7 @@
     "sensors": {
       "description": "pcsCPhase_actPwr",
       "friendly_name": "pcsCPhase_actPwr",
-      "icon": null,
+      "icon": "mdi:flash",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsCPhase_actPwr",
       "name": "SN_INVERTERBOX01_pcsCPhase_actPwr",
       "serial": "SN_INVERTERBOX01",
@@ -1360,7 +2468,7 @@
     "sensors": {
       "description": "pcsCPhase_amp",
       "friendly_name": "pcsCPhase_amp",
-      "icon": null,
+      "icon": "mdi:current-ac",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsCPhase_amp",
       "name": "SN_INVERTERBOX01_pcsCPhase_amp",
       "serial": "SN_INVERTERBOX01",
@@ -1384,7 +2492,7 @@
     "sensors": {
       "description": "pcsCPhase_apparentPwr",
       "friendly_name": "pcsCPhase_apparentPwr",
-      "icon": null,
+      "icon": "mdi:flash-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsCPhase_apparentPwr",
       "name": "SN_INVERTERBOX01_pcsCPhase_apparentPwr",
       "serial": "SN_INVERTERBOX01",
@@ -1408,7 +2516,7 @@
     "sensors": {
       "description": "pcsCPhase_reactPwr",
       "friendly_name": "pcsCPhase_reactPwr",
-      "icon": null,
+      "icon": "mdi:flash",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsCPhase_reactPwr",
       "name": "SN_INVERTERBOX01_pcsCPhase_reactPwr",
       "serial": "SN_INVERTERBOX01",
@@ -1456,7 +2564,7 @@
     "sensors": {
       "description": "pcsMeterPower",
       "friendly_name": "pcsMeterPower",
-      "icon": null,
+      "icon": "mdi:home-lightning-bolt",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsMeterPower",
       "name": "SN_INVERTERBOX01_pcsMeterPower",
       "serial": "SN_INVERTERBOX01",
@@ -1480,7 +2588,7 @@
     "sensors": {
       "description": "pv1Pwr",
       "friendly_name": "pv1Pwr",
-      "icon": "mdi:solar-power",
+      "icon": "mdi:solar-power-variant",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_pv1Pwr",
       "name": "SN_INVERTERBOX01_pv1Pwr",
       "serial": "SN_INVERTERBOX01",
@@ -1504,7 +2612,7 @@
     "sensors": {
       "description": "pv2Pwr",
       "friendly_name": "pv2Pwr",
-      "icon": "mdi:solar-power",
+      "icon": "mdi:solar-power-variant",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_pv2Pwr",
       "name": "SN_INVERTERBOX01_pv2Pwr",
       "serial": "SN_INVERTERBOX01",
@@ -1528,7 +2636,7 @@
     "sensors": {
       "description": "pv3Pwr",
       "friendly_name": "pv3Pwr",
-      "icon": "mdi:solar-power",
+      "icon": "mdi:solar-power-variant",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_pv3Pwr",
       "name": "SN_INVERTERBOX01_pv3Pwr",
       "serial": "SN_INVERTERBOX01",
@@ -1552,7 +2660,7 @@
     "sensors": {
       "description": "pvInvPwr",
       "friendly_name": "pvInvPwr",
-      "icon": null,
+      "icon": "mdi:solar-power",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_pvInvPwr",
       "name": "SN_INVERTERBOX01_pvInvPwr",
       "serial": "SN_INVERTERBOX01",
@@ -1600,7 +2708,7 @@
     "sensors": {
       "description": "monthElectricityGeneration",
       "friendly_name": "monthElectricityGeneration",
-      "icon": null,
+      "icon": "mdi:counter",
       "internal_unique_id": "SN_INVERTERBOX01_monthElectricityGeneration",
       "name": "SN_INVERTERBOX01_monthElectricityGeneration",
       "serial": "SN_INVERTERBOX01",
@@ -1692,7 +2800,7 @@
     "sensors": {
       "description": "Hausnetz",
       "friendly_name": "sysLoadPwr",
-      "icon": "mdi:home-import-outline",
+      "icon": "mdi:home-lightning-bolt",
       "internal_unique_id": "SN_INVERTERBOX01_sysLoadPwr",
       "name": "SN_INVERTERBOX01_sysLoadPwr",
       "serial": "SN_INVERTERBOX01",
@@ -1716,7 +2824,7 @@
     "sensors": {
       "description": "System Name",
       "friendly_name": "systemName",
-      "icon": null,
+      "icon": "mdi:label-outline",
       "internal_unique_id": "SN_INVERTERBOX01_systemName",
       "name": "SN_INVERTERBOX01_systemName",
       "serial": "SN_INVERTERBOX01",
@@ -1736,7 +2844,7 @@
     "sensors": {
       "description": "todayElectricityGeneration",
       "friendly_name": "todayElectricityGeneration",
-      "icon": null,
+      "icon": "mdi:counter",
       "internal_unique_id": "SN_INVERTERBOX01_todayElectricityGeneration",
       "name": "SN_INVERTERBOX01_todayElectricityGeneration",
       "serial": "SN_INVERTERBOX01",
@@ -1760,7 +2868,7 @@
     "sensors": {
       "description": "totalElectricityGeneration",
       "friendly_name": "totalElectricityGeneration",
-      "icon": null,
+      "icon": "mdi:counter",
       "internal_unique_id": "SN_INVERTERBOX01_totalElectricityGeneration",
       "name": "SN_INVERTERBOX01_totalElectricityGeneration",
       "serial": "SN_INVERTERBOX01",
@@ -1784,7 +2892,7 @@
     "sensors": {
       "description": "yearElectricityGeneration",
       "friendly_name": "yearElectricityGeneration",
-      "icon": null,
+      "icon": "mdi:counter",
       "internal_unique_id": "SN_INVERTERBOX01_yearElectricityGeneration",
       "name": "SN_INVERTERBOX01_yearElectricityGeneration",
       "serial": "SN_INVERTERBOX01",

@@ -1,5 +1,6 @@
 """test_golden_master."""
 
+import difflib
 import json
 from pathlib import Path
 
@@ -10,7 +11,7 @@ from custom_components.powerocean.ecoflow import EcoflowApi
 from custom_components.powerocean.tests.serialize_structure import (
     serialize_structure,
 )
-from custom_components.powerocean.tests.utils import serialize_sensors
+from custom_components.powerocean.tests.utils import normalize, serialize_sensors
 
 # List of (API response file, variant) pairs
 API_FIXTURES = [
@@ -147,11 +148,17 @@ def test_golden_master_structure(fixture_file_name, variant):
 
     if not master_file.exists():
         master_file.write_text(
-            json.dumps(serialized, indent=2, sort_keys=True),
+            json.dumps(normalize(serialized), indent=2, sort_keys=True),
             encoding="utf-8",
         )
         pytest.skip("Golden master created – re-run test")
 
     golden_master = json.loads(master_file.read_text(encoding="utf-8"))
 
-    assert serialized == golden_master
+    a = json.dumps(serialized, indent=2, sort_keys=True)
+    b = json.dumps(golden_master, indent=2, sort_keys=True)
+
+    for line in difflib.unified_diff(a.splitlines(), b.splitlines()):
+        print(line)
+
+    assert normalize(serialized) == golden_master

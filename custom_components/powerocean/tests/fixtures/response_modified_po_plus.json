@@ -89,7 +89,7 @@
                             "bindType": 1,
                             "devInfo": {
                                 "devAddr": 213,
-                                "devSn": "xxxxxx",
+                                "devSn": "SN_EV_CHARGER_01",
                                 "subAddr": 1
                             },
                             "devFlag": 133411,
@@ -171,7 +171,7 @@
             },
             "RE307_EV_CHARGING_TIMER_TASK_REPORT": {
                 "timeTaskCfg": [],
-                "evSn": "xxxxxxxxx",
+                "evSn": "SN_EV_CHARGER_01",
                 "updateTime": "2025-04-29 20:48:38"
             },
             "RE307_ERROR_CODE_MASK_REPORT": {
