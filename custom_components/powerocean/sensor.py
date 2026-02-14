@@ -10,19 +10,40 @@ from typing import Any
 from homeassistant.components.sensor import (
     SensorEntity,
 )
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     EntityCategory,
 )
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     DOMAIN,
 )
-from .ecoflow import PowerOceanEndPoint
+from .types import PowerOceanEndPoint
 
 
-async def async_setup_entry(hass, entry, async_add_entities):
+async def async_setup_entry(
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+) -> None:
+    """
+    Set up PowerOcean sensors for a config entry.
+
+    This function is called by Home Assistant when a config entry
+    is set up. It creates sensor entities for each endpoint and
+    registers them with Home Assistant.
+
+    Args:
+        hass: The Home Assistant instance.
+        entry: The config entry to set up.
+        async_add_entities: Callback to add entities to Home Assistant.
+
+    Returns:
+        None
+
+    """
     data = hass.data[DOMAIN][entry.entry_id]
     coordinator = data["coordinator"]
     endpoints = data["endpoints"]
@@ -57,10 +78,7 @@ class PowerOceanSensor(CoordinatorEntity, SensorEntity):
 
         # HA attributes
         self._attr_has_entity_name = True
-        # wahrscheinlich diese !!!
-        # self._attr_unique_id = self._endpoint_name
         self._attr_unique_id = self._endpoint_id
-        # self._unique_id = self._endpoint_id
         self._attr_name = self._endpoint_friendly_name
         self._attr_icon = self._endpoint_icon
         if self._attr_native_unit_of_measurement is None:
@@ -69,7 +87,6 @@ class PowerOceanSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self) -> Any:
         """Return the current value of the sensor from coordinator."""
-        # LOGGER.debug("Sensor %s native_value data: %s", self._endpoint_name, data)
         return self.coordinator.data.get(self._endpoint_id)
 
     @property
