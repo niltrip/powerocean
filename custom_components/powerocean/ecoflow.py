@@ -466,11 +466,6 @@ class EcoflowApi:
             for element in inverters:
                 self.sn_inverter = element
                 response_base = response_parallel.get(element, {})
-                suffix = (
-                    DeviceRole.MASTER.value
-                    if element == self.sn
-                    else DeviceRole.SLAVE.value
-                )
                 for report in reports:
                     report_key = (
                         ReportMode.PARALLEL.value
@@ -481,7 +476,6 @@ class EcoflowApi:
                     self._extract_sensors_from_report(
                         response_base,
                         report_key,
-                        suffix=suffix,
                         parallel_energy_stream_mode=ReportMode.PARALLEL.value
                         in report_key,
                         collector=collector,
@@ -727,7 +721,6 @@ class EcoflowApi:
         self,
         response: dict[str, Any],
         report: str,
-        suffix: str = "",
         *,
         parallel_energy_stream_mode: bool = False,
         collector,
@@ -782,7 +775,6 @@ class EcoflowApi:
                 d,
                 report,
                 sens_select,
-                suffix,
                 collector=collector,
             )
             return
@@ -814,9 +806,7 @@ class EcoflowApi:
                 collector,
             )
         # Standardverarbeitung
-        self._handle_standard_mode(
-            d, report, sens_select, suffix=suffix, collector=collector
-        )
+        self._handle_standard_mode(d, report, sens_select, collector=collector)
 
     def _handle_boxed_devices(
         self,
@@ -824,7 +814,7 @@ class EcoflowApi:
         *,
         report: str,
         collector,
-    ):
+    ) -> None:
         for box_sn_raw, raw_payload in d.items():
             if box_sn_raw in ("", "updateTime"):
                 continue
@@ -867,10 +857,8 @@ class EcoflowApi:
         d: dict,
         report: str,
         sens_select: list,
-        suffix: str = "",
-        *,
         collector,
-    ):
+    ) -> None:
         device_info = self._make_device_info(
             sn=self.sn_inverter,
             prefix="PowerOcean",
@@ -888,7 +876,6 @@ class EcoflowApi:
                     key,
                     value,
                     device_info=device_info,
-                    suffix="",
                 )
         # Besonderheiten Phasen
         phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
@@ -903,7 +890,6 @@ class EcoflowApi:
                         key_ext,
                         value,
                         device_info=device_info,
-                        suffix="",
                     )
 
         # Besonderheit mpptPv
@@ -936,7 +922,6 @@ class EcoflowApi:
                 key_ext,
                 total_power,
                 device_info=device_info,
-                suffix="",
             )
 
             # --- Isolationswiderstand ---
@@ -958,9 +943,8 @@ class EcoflowApi:
         report: str,
         sens_select: list,
         collector,
-    ):
+    ) -> None:
         """Handle heating rod energy stream extraction."""
-
         stream_list = d.get("hrEnergyStream")
         if not isinstance(stream_list, list):
             return
@@ -1000,24 +984,20 @@ class EcoflowApi:
         d: dict,
         report: str,
         collector,
-    ):
+    ) -> None:
         """Handle parallel energy stream data extraction."""
         para_list = d.get("paraEnergyStream", [])
         if not isinstance(para_list, list):
             LOGGER.warning("paraEnergyStream is not a list")
             return
+        report = f"{report}_paraEnergyStream"
         for device_data in para_list:
             raw_sn = device_data.get("devSn")
             device_sn = self._decode_sn(raw_sn) if raw_sn else None
 
-            # Rolle bestimmen
-            if device_sn == self.sn:
-                suffix = DeviceRole.MASTER.value
-            elif device_sn:
-                suffix = DeviceRole.SLAVE.value
-            else:
-                device_sn = DeviceRole.ALL.value
-                suffix = DeviceRole.ALL.value
+            # Wenn keine SN vorhanden → aggregierter Wert
+            if not device_sn:
+                device_sn = f"{self.sn}_all"
 
             # DeviceInfo
             prefix = "Inverter"
@@ -1025,9 +1005,8 @@ class EcoflowApi:
                 sn=device_sn,
                 prefix=prefix,
                 model=f"PowerOcean {prefix}",
-                via_sn=self.sn_inverter if device_sn != DeviceRole.ALL.value else None,
+                via_sn=self.sn_inverter if not device_sn.endswith("_all") else None,
             )
-            report = f"{report} paraEnergyStream"
             for key, value in device_data.items():
                 if isinstance(value, dict):
                     continue
@@ -1040,7 +1019,6 @@ class EcoflowApi:
                     key=key,
                     value=value,
                     device_info=device_info,
-                    suffix="",
                 )
 
     def _handle_standard_mode(
@@ -1048,10 +1026,8 @@ class EcoflowApi:
         d: dict,
         report: str,
         sens_select: list,
-        suffix: str = "",
-        *,
         collector,
-    ):
+    ) -> None:
         # spezielle Behandlung für 'data' Report
         report_id = "" if report == ReportMode.DEFAULT.value else f"{report}"
         device_sn, device_info = self._resolve_device_info(d, report_id)
@@ -1076,13 +1052,11 @@ class EcoflowApi:
     def _handle_edev_device(
         self,
         d: dict,
-        *,
         report: str,
         sens_select: list,
         collector,
-    ):
-        """Generic handler for RE307_EDEV_SYS_REPORT using deep key lookup."""
-
+    ) -> None:
+        """Handle for RE307_EDEV_SYS_REPORT."""
         # SN über Deep Search holen
         device_sn = self._deep_get_by_key(d, "devSn")
 
@@ -1120,19 +1094,27 @@ class EcoflowApi:
 
 
 class StructureCollector:
+    """
+    Builds the static endpoint structure for PowerOcean devices.
+
+    Ensures that each unique endpoint is registered only once and stores
+    its metadata (class, description, icon, device info) without
+    attaching runtime values.
+    """
+
     def __init__(self):
         self.endpoints: dict[str, PowerOceanEndPoint] = {}
 
     def add(
         self,
         *,
-        unique_id,
-        device_sn,
-        key,
+        unique_id: str,
+        device_sn: str,
+        key: str,
         value=None,
         device_info: DeviceInfo,
-        name,
-        friendly_name,
+        name: str,
+        friendly_name: str,
     ):
         if unique_id in self.endpoints:
             return
@@ -1151,19 +1133,26 @@ class StructureCollector:
 
 
 class ValueCollector:
+    """
+    Collects runtime values for PowerOcean endpoints.
+
+    Stores only non-null values mapped by their unique_id.
+    Used separately from structure discovery.
+    """
+
     def __init__(self):
         self.values: dict[str, float | int | str] = {}
 
     def add(
         self,
         *,
-        unique_id,
-        device_sn,
-        key,
+        unique_id: str,
+        device_sn: str,
+        key: str,
         value,
-        device_info,
-        name,
-        friendly_name,
+        device_info: str,
+        name: str,
+        friendly_name: str,
     ):
         if value is None:
             return
