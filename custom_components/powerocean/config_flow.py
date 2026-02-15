@@ -1,4 +1,24 @@
-"""config_flow.py: Config flow for PowerOcean integration."""
+"""
+Config flow for the PowerOcean integration.
+
+This module defines the configuration flow and options flow for
+adding and managing PowerOcean devices in Home Assistant.
+
+Features:
+- User authentication via EcoFlow API.
+- Device model selection.
+- Optional configuration for friendly name and scan interval.
+- Support for reconfiguring existing entries.
+- Sanitization of device names to ensure valid formatting.
+
+Classes:
+- PowerOceanConfigFlow: Handles the main configuration flow.
+- PowerOceanOptionsFlow: Handles options for existing entries.
+
+Functions:
+- validate_input_for_device: Validates user input by attempting login.
+- sanitize_device_name: Cleans and validates device names.
+"""
 
 from __future__ import annotations
 
@@ -92,14 +112,23 @@ async def validate_input_for_device(hass: HomeAssistant, data: dict[str, Any]) -
         await api.async_authorize()
     except IntegrationError as err:
         LOGGER.exception("Failed to connect to PowerOcean device")
-        raise HomeAssistantError("cannot_connect") from err
+        msg = "cannot_connect"
+        raise HomeAssistantError(msg) from err
     except AuthenticationFailedError as err:
         LOGGER.exception("Authentication failed")
-        raise HomeAssistantError("cannot_connect") from err
+        msg = "cannot_connect"
+        raise HomeAssistantError(msg) from err
 
 
 class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for PowerOcean."""
+    """
+    Handle the configuration flow for adding a PowerOcean device to Home Assistant.
+
+    This flow guides the user through:
+      1. Authenticating with the EcoFlow API.
+      2. Selecting the device model.
+      3. Providing optional device settings (friendly name, scan interval).
+    """
 
     VERSION = 2
 
@@ -166,7 +195,11 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Standard-Reconfigure: Bestehende Instanz korrigieren (z.B. neues Passwort, Device ID, Model)."""
+        """
+        Standard-Reconfigure.
+
+        Bestehende Instanz korrigieren (z.B. Passwort, Device ID, Model).
+        """
         entry = self._get_reconfigure_entry()
 
         errors = {}
@@ -227,11 +260,32 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        """
+        Return the options flow handler for this config entry.
+
+        This method is called by Home Assistant to retrieve
+        an OptionsFlow instance that allows the user to adjust
+        settings for an existing PowerOcean integration entry.
+
+        Args:
+            config_entry (ConfigEntry): The configuration entry for which
+                the options flow is requested.
+
+        Returns:
+            OptionsFlow: An instance of the PowerOceanOptionsFlow class.
+
+        """
         return PowerOceanOptionsFlow()
 
 
 class PowerOceanOptionsFlow(OptionsFlow):
-    """Handhabt Einstellungen, die jederzeit änderbar sind."""
+    """
+    Handle adjustable options for an existing PowerOcean config entry.
+
+    This flow allows the user to update:
+      - Friendly name of the device.
+      - Scan interval for periodic updates.
+    """
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None

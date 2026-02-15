@@ -1,16 +1,21 @@
-# tests/utils.py
-from custom_components.powerocean.ecoflow import PowerOceanEndPoint
+"""tests/utils."""
+
+from enum import Enum
+from typing import Any
+
+from custom_components.powerocean.types import PowerOceanEndPoint
 
 
 def serialize_sensors(sensors: dict[str, PowerOceanEndPoint]) -> dict:
     """
-    Convert PowerOceanEndPoint objects into a JSON-serializable dict for Golden Master testing.
+    Convert EndPoint objects into a JSON-serializable dict for Golden Master testing.
 
     Args:
         sensors: dict of PowerOceanEndPoint objects keyed by unique_id.
 
     Returns:
         dict: Flattened, serializable dict of sensors.
+
     """
     serialized = {}
     for uid, sensor in sensors.items():
@@ -25,3 +30,15 @@ def serialize_sensors(sensors: dict[str, PowerOceanEndPoint]) -> dict:
         }
     # Sort keys to ensure deterministic order
     return dict(sorted(serialized.items(), key=lambda x: x[0]))
+
+
+def normalize(obj: Any) -> Any:
+    if isinstance(obj, dict):
+        return {k: normalize(v) for k, v in obj.items()}
+    if isinstance(obj, tuple):
+        return [normalize(v) for v in obj]
+    if isinstance(obj, list):
+        return [normalize(v) for v in obj]
+    if isinstance(obj, Enum):
+        return obj.value
+    return obj

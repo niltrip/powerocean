@@ -12,7 +12,7 @@
     "sensors": {
       "description": "bpRemainWatth",
       "friendly_name": "bpRemainWatth",
-      "icon": null,
+      "icon": "mdi:car-battery",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpRemainWatth",
       "name": "SN_INVERTERBOX01_bpRemainWatth",
       "serial": "SN_INVERTERBOX01",
@@ -128,7 +128,7 @@
     "sensors": {
       "description": "Hausnetz",
       "friendly_name": "sysLoadPwr",
-      "icon": "mdi:home-import-outline",
+      "icon": "mdi:home-lightning-bolt",
       "internal_unique_id": "SN_INVERTERBOX01_sysLoadPwr",
       "name": "SN_INVERTERBOX01_sysLoadPwr",
       "serial": "SN_INVERTERBOX01",
@@ -152,7 +152,7 @@
     "sensors": {
       "description": "System Name",
       "friendly_name": "systemName",
-      "icon": null,
+      "icon": "mdi:label-outline",
       "internal_unique_id": "SN_INVERTERBOX01_systemName",
       "name": "SN_INVERTERBOX01_systemName",
       "serial": "SN_INVERTERBOX01",

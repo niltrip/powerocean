@@ -2,20 +2,17 @@
 
 import pytest
 
-from custom_components.powerocean.ecoflow import EcoflowApi
+from custom_components.powerocean.parser import EcoflowParser
 
 
 @pytest.fixture(scope="session")
-def eco() -> EcoflowApi:
+def parser() -> EcoflowParser:
     """
     Shared Ecoflow instance for unit tests.
 
     Created once per test run.
     """
-    return EcoflowApi(
-        hass=None,
-        serialnumber="SN_INVERTERBOX01",
-        username="user",
-        password="pass",  # noqa: S106
+    return EcoflowParser(
         variant="default",
+        sn="SN_INVERTERBOX01",
     )
