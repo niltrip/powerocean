@@ -38,9 +38,9 @@ Once installed, use Add Integration -> Ecoflow PowerOcean.
 
 Follow the flow.
 
-![step 1](documentation/setup_step_01.PNG)
-![step 2](documentation/setup_step_02.PNG)
-![step 3](documentation/setup_step_03.PNG)
+![step 1](documentation/setup_step_01.png)
+![step 2](documentation/setup_step_02.png)
+![step 3](documentation/setup_step_03.png)
 
 
 
@@ -62,8 +62,8 @@ The versions are from my system.
 
 ### Darstellung einzelner Geräte über SN
 ![integration](documentation/integration.PNG)
-![powerpulse](documentation/powerpulse.PNG)
-![powerglow](documentation/powerglow.PNG)
+![powerpulse](documentation/powerpulse.png)
+![powerglow](documentation/powerglow.png)
 
 
 ### Energiedashboard
