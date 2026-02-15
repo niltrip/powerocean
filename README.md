@@ -38,8 +38,9 @@ Once installed, use Add Integration -> Ecoflow PowerOcean.
 
 Follow the flow.
 
-![step 1](documentation/setup_step_1.PNG)
-![step 2](documentation/setup_step_2.PNG)
+![step 1](documentation/setup_step_01.PNG)
+![step 2](documentation/setup_step_02.PNG)
+![step 3](documentation/setup_step_03.PNG)
 
 
 
@@ -55,11 +56,18 @@ Additional attributes are presented on each sensor:
 
 The versions are from my system.
 
-![sensor](documentation/sensor.PNG)
-
-##Neuer Sensor (berechnet aus einzelnen Strings)
+### Neuer Sensor (berechnet aus einzelnen Strings)
 
 ![sensor](documentation/mpptPv_pwrTotal.PNG)
+
+### Darstellung einzelner Geräte über SN
+![integration](documentation/integration.PNG)
+![powerpulse](documentation/powerpulse.PNG)
+![powerglow](documentation/powerglow.PNG)
+
+
+### Energiedashboard
+![dashboard](documentation/dashboard.PNG)
 
 
 ## Troubleshooting
@@ -69,7 +77,7 @@ Please set your logging for the this custom component to debug during initial se
 logger:
   default: warn
   logs:
-    custom_components.powerocean: info
+    custom_components.powerocean: debug
 ```
 
 ## Credits
