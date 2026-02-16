@@ -20,6 +20,7 @@ MOCKED_RESPONSE = (
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 ATTR_PRODUCT_DESCRIPTION = "Product Description"
 ATTR_PRODUCT_SERIAL = "Vendor Product Serial"
+BASE_URI = "https://api.ecoflow.com"
 
 
 class PowerOceanModel(StrEnum):

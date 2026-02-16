@@ -70,6 +70,15 @@ class PowerOceanEndPoint:
     device_info: DeviceInfo | None = None
 
 
+@dataclass
+class EcoflowMqttInfo:
+    url: str
+    port: int
+    username: str
+    password: str
+    client_id: str | None = None
+
+
 class SensorClassHelper:
     """Infer SensorDeviceClass, unit and SensorStateClass from a sensor key."""
 

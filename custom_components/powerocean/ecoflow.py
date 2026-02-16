@@ -18,21 +18,28 @@ Usage:
 
 import asyncio
 import base64
+import ssl
 from typing import Any
 
 import aiohttp
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady, IntegrationError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.util import uuid
 from homeassistant.util.json import json_loads
+from paho.mqtt.client import Client as MQTTClient
+from paho.mqtt.client import MQTTMessage
+from paho.mqtt.enums import CallbackAPIVersion
 from pydantic import Json
 
 from .const import (
+    BASE_URI,
     ISSUE_URL_ERROR_MESSAGE,
     LOGGER,
     MOCKED_RESPONSE,
     USE_MOCKED_RESPONSE,
 )
+from .types import EcoflowMqttInfo
 
 
 class EcoflowApi:
@@ -64,9 +71,13 @@ class EcoflowApi:
         self.ecoflow_variant = variant
         self.token: str | None = None
         self.device: dict | None = None
-        self.url_authorize = "https://api.ecoflow.com/auth/login"
+        self.url_authorize = f"{BASE_URI}/auth/login"
+        self.url_authorize_mqtt = f"{BASE_URI}/iot-auth/app/certification"
         self.url_fetch_data = f"https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}"
         self.hass = hass
+        self.user_id = None
+        self._mqtt_client = None
+        self._mqtt_connected = False
 
     async def async_authorize(self) -> bool:
         """Authorize user and retrieve authentication token."""
@@ -94,6 +105,7 @@ class EcoflowApi:
                 response_data = await response.json()
 
             data_block = response_data.get("data")
+            self.user_id = response_data["data"]["user"]["userId"]
             if not isinstance(data_block, dict) or "token" not in data_block:
                 msg = "Missing or malformed 'data' block in response"
                 LOGGER.error(msg)
@@ -123,6 +135,7 @@ class EcoflowApi:
 
         else:
             LOGGER.info("Successfully logged in.")
+            await self._async_setup_mqtt()
             return True
 
     async def fetch_raw(self) -> dict[str, Any]:
@@ -181,6 +194,114 @@ class EcoflowApi:
             raise IntegrationError(msg)
 
         return response
+
+    def _accept_mqqt_certification(self, resp_json: dict) -> None:
+        LOGGER.debug(f"Received MQTT credentials: {resp_json}")
+        try:
+            mqtt_url = resp_json["data"]["url"]
+            mqtt_port = int(resp_json["data"]["port"])
+            mqtt_username = resp_json["data"]["certificateAccount"]
+            mqtt_password = resp_json["data"]["certificatePassword"]
+            self.mqtt_info = EcoflowMqttInfo(
+                mqtt_url, mqtt_port, mqtt_username, mqtt_password
+            )
+        except KeyError as key:
+            msg = "Failed to extract key %s from %s", key, resp_json
+            raise EcoflowException(msg)
+
+        LOGGER.debug(f"Successfully extracted account: {self.mqtt_info.username}")
+
+    async def _async_setup_mqtt(self) -> None:
+        """Set up an MQTT client."""
+        session = async_get_clientsession(self.hass)
+        headers = {
+            "lang": "en_US",
+            "authorization": f"Bearer {self.token}",
+            "product-type": self.ecoflow_variant,
+            "content-type": "application/json",
+        }
+        user_data = {"userId": self.user_id}
+        req_params = {}
+        response = await session.get(
+            self.url_authorize_mqtt,
+            data=user_data,
+            params=req_params,
+            headers=headers,
+        )
+        data = await response.json()
+        self._accept_mqqt_certification(data)
+        self.mqtt_info.client_id = (
+            f"ANDROID_{str(uuid.random_uuid_hex()).upper()}_{self.user_id}"
+        )
+        if self._mqtt_client is not None:
+            return
+
+        # Client erzeugen
+        self._mqtt_client = MQTTClient(
+            client_id=self.mqtt_info.client_id,
+            clean_session=True,
+            reconnect_on_failure=True,
+            callback_api_version=CallbackAPIVersion.VERSION2,
+        )
+
+        # Auth setzen
+        self._mqtt_client.username_pw_set(
+            self.mqtt_info.username,
+            self.mqtt_info.password,
+        )
+        client = self._mqtt_client
+
+        # TLS Setup (BLOCKING → Executor)
+        def _setup_tls() -> None:
+            context = ssl.create_default_context()
+            client.tls_set_context(context)
+            client.tls_insecure_set(False)
+
+        await self.hass.async_add_executor_job(_setup_tls)
+
+        # Callbacks setzen
+        client.on_connect = self._on_mqtt_connect
+        client.on_disconnect = self._on_mqtt_disconnect
+        client.on_message = self._on_mqtt_message
+
+        # Connect (BLOCKING → Executor)
+        await self.hass.async_add_executor_job(
+            client.connect,
+            self.mqtt_info.url,
+            self.mqtt_info.port,
+            60,
+        )
+
+        # MQTT Thread starten
+        await self.hass.async_add_executor_job(client.loop_start)
+
+    def _on_mqtt_connect(
+        self, client: MQTTClient, userdata, flags, rc, properties=None
+    ) -> None:
+        if rc == 0:
+            LOGGER.info("MQTT connected")
+            self._mqtt_connected = True
+
+            client.subscribe("#", qos=0)
+
+            LOGGER.info("Subscribed to MQTT topics")
+        else:
+            LOGGER.error("MQTT connect failed: %s", rc)
+
+    def _on_mqtt_disconnect(
+        self, client: MQTTClient, userdata, rc, properties=None
+    ) -> None:
+        LOGGER.warning("MQTT disconnected: %s", rc)
+        self._mqtt_connected = False
+
+    def _on_mqtt_message(self, client: MQTTClient, userdata, message) -> None:
+        # MQTT liefert binäre Daten → ignorieren
+        pass
+
+
+class EcoflowException(Exception):
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
 
 
 class ApiResponseError(Exception):

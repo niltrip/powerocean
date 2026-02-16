@@ -8,5 +8,8 @@
   "documentation": "https://github.com/niltrip/powerocean",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/niltrip/powerocean/issues",
+  "requirements": [
+    "paho-mqtt>=2.1.0"
+  ],
   "version": "2026.02.12"
 }
