@@ -282,7 +282,7 @@ class EcoflowApi:
             LOGGER.info("MQTT connected")
             self._mqtt_connected = True
 
-            client.subscribe("#", qos=0)
+            client.subscribe(f"/app/device/property/{self.sn}", qos=0)
 
             LOGGER.info("Subscribed to MQTT topics")
         else:
