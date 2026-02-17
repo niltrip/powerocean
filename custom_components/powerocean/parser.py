@@ -325,7 +325,7 @@ class EcoflowParser:
         device_sn = self.sn_inverter
         prefix = "PowerOcean"
         model = MODEL_NAME_MAP[PowerOceanModel(self.ecoflow_variant)]
-        via_sn = self.sn_inverter
+        via_sn = None
 
         for key in sn_keys:
             raw_sn = payload.get(key)
@@ -533,7 +533,7 @@ class EcoflowParser:
             sn=self.sn_inverter,
             prefix="PowerOcean",
             model=MODEL_NAME_MAP[PowerOceanModel(self.ecoflow_variant)],
-            via_sn=self.sn_inverter,
+            via_sn=None,
         )
 
         # EMS Heartbeat: ggf. verschachtelte Strukturen, spezielle Behandlung
