@@ -149,7 +149,7 @@ class EcoflowApi:
                     return json_loads(MOCKED_RESPONSE.read_text(encoding="utf-8"))
 
                 api_response = await self.hass.async_add_executor_job(load_mock_file)
-
+            LOGGER.debug("API response received: %s", api_response)
             return self._validate_response(api_response)
 
         except (TimeoutError, aiohttp.ClientError) as err:
