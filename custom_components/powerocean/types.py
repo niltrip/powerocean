@@ -99,7 +99,7 @@ class SensorClassHelper:
             ),
         ),
         (
-            re.compile(r"(watth)$", re.IGNORECASE),
+            re.compile(r"(watth|dayenergy)$", re.IGNORECASE),
             (
                 SensorDeviceClass.ENERGY,
                 UnitOfEnergy.WATT_HOUR,
@@ -225,7 +225,10 @@ class SensorMetaHelper:
             (r"(pv|mppt).*resist", "mdi:resistor"),
             (r"_pwr$", "mdi:flash"),
             (r"sysgridpwr$", "mdi:transmission-tower-import"),
-            (r"(sysloadpwr|pcsmeterpower|pcsactpwr)$", "mdi:home-lightning-bolt"),
+            (
+                r"(sysloadpwr|pcsmeterpower|pcsactpwr|housepwr)$",
+                "mdi:home-lightning-bolt",
+            ),
             # Strom / Spannung
             (r"_amp$", "mdi:current-ac"),
             # Batterie / Speicher
@@ -234,6 +237,7 @@ class SensorMetaHelper:
             (r"(temp|temperature)", "mdi:thermometer"),
             (r"cycles", "mdi:repeat"),
             (r"balancestate", "mdi:battery-sync"),
+            (r"swver$", "mdi:cog"),
             (r"(bponlinesum|emsbpalivenum)$", "mdi:package-check"),
         ]
 
