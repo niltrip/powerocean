@@ -209,10 +209,10 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
 
             try:
                 await validate_input_for_device(self.hass, merged)
-
                 new_unique_id = f"PowerOcean {merged[CONF_DEVICE_ID]}"
-                await self.async_set_unique_id(new_unique_id)
-                self._abort_if_unique_id_configured()
+
+                if entry.unique_id != new_unique_id:
+                    await self.async_set_unique_id(new_unique_id)
 
                 # Entry aktualisieren
                 self.hass.config_entries.async_update_entry(
@@ -221,7 +221,9 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
                 await self.hass.config_entries.async_reload(entry.entry_id)
                 return self.async_abort(reason="reconfiguration_completed")
-            except HomeAssistantError:
+            except AuthenticationFailedError:
+                errors["base"] = "invalid_auth"
+            except IntegrationError:
                 errors["base"] = "cannot_connect"
 
         return self.async_show_form(
