@@ -348,7 +348,7 @@
     "sensors": {
       "description": "moduleAplSwVer",
       "friendly_name": "moduleAplSwVer",
-      "icon": null,
+      "icon": "mdi:cog",
       "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_moduleAplSwVer",
       "name": "SN_BATTERIEPACK01_moduleAplSwVer",
       "serial": "SN_BATTERIEPACK01",
@@ -704,7 +704,7 @@
     "sensors": {
       "description": "moduleAplSwVer",
       "friendly_name": "moduleAplSwVer",
-      "icon": null,
+      "icon": "mdi:cog",
       "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_moduleAplSwVer",
       "name": "SN_BATTERIEPACK02_moduleAplSwVer",
       "serial": "SN_BATTERIEPACK02",
@@ -1060,7 +1060,7 @@
     "sensors": {
       "description": "moduleAplSwVer",
       "friendly_name": "moduleAplSwVer",
-      "icon": null,
+      "icon": "mdi:cog",
       "internal_unique_id": "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_moduleAplSwVer",
       "name": "SN_BATTERIEPACK03_moduleAplSwVer",
       "serial": "SN_BATTERIEPACK03",
@@ -1384,10 +1384,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "emsCtrlLedBright",
@@ -1404,10 +1401,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "bpRemainWatth",
@@ -1428,10 +1422,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "emsBpAliveNum",
@@ -1448,10 +1439,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "emsBpPower",
@@ -1472,10 +1460,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "emsBpSelfcheckState",
@@ -1492,10 +1477,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "emsMpptRunState",
@@ -1512,10 +1494,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "emsMpptSelfcheckState",
@@ -1527,15 +1506,33 @@
       "unit": null
     }
   },
+  "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_mpptHeartBeat_housePwr": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "housePwr",
+      "friendly_name": "housePwr",
+      "icon": "mdi:home-lightning-bolt",
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_mpptHeartBeat_housePwr",
+      "name": "SN_INVERTERBOX01_housePwr",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
   "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_mpptHeartBeat_mpptInsResist": {
     "device": {
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptInsResist",
@@ -1556,10 +1553,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptPv1_amp",
@@ -1580,10 +1574,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptPv1_lightSta",
@@ -1600,10 +1591,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptPv1_pwr",
@@ -1624,10 +1612,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptPv1_vol",
@@ -1648,10 +1633,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptPv2_amp",
@@ -1672,10 +1654,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptPv2_lightSta",
@@ -1692,10 +1671,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptPv2_pwr",
@@ -1716,10 +1692,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptPv2_vol",
@@ -1740,10 +1713,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptPv3_amp",
@@ -1764,10 +1734,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptPv3_lightSta",
@@ -1784,10 +1751,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptPv3_pwr",
@@ -1808,10 +1772,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptPv3_vol",
@@ -1832,10 +1793,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "mpptPv_pwrTotal",
@@ -1856,10 +1814,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsAPhase_actPwr",
@@ -1880,10 +1835,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsAPhase_amp",
@@ -1904,10 +1856,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsAPhase_apparentPwr",
@@ -1928,10 +1877,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsAPhase_reactPwr",
@@ -1952,10 +1898,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsAPhase_vol",
@@ -1976,10 +1919,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsActPwr",
@@ -2000,10 +1940,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsBPhase_actPwr",
@@ -2024,10 +1961,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsBPhase_amp",
@@ -2048,10 +1982,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsBPhase_apparentPwr",
@@ -2072,10 +2003,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsBPhase_reactPwr",
@@ -2096,10 +2024,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsBPhase_vol",
@@ -2120,10 +2045,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsCPhase_actPwr",
@@ -2144,10 +2066,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsCPhase_amp",
@@ -2168,10 +2087,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsCPhase_apparentPwr",
@@ -2192,10 +2108,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsCPhase_reactPwr",
@@ -2216,10 +2129,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsCPhase_vol",
@@ -2240,10 +2150,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pcsMeterPower",
@@ -2264,10 +2171,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pv1Pwr",
@@ -2288,10 +2192,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pv2Pwr",
@@ -2312,10 +2213,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pv3Pwr",
@@ -2336,10 +2234,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "pvInvPwr",
@@ -2360,10 +2255,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "Batterieleistung",
@@ -2384,10 +2276,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "monthElectricityGeneration",
@@ -2408,10 +2297,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "Solarertrag",
@@ -2432,10 +2318,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "Online",
@@ -2452,10 +2335,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "Stromnetz",
@@ -2476,10 +2356,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "Hausnetz",
@@ -2500,10 +2377,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "System Name",
@@ -2520,10 +2394,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "todayElectricityGeneration",
@@ -2544,10 +2415,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "totalElectricityGeneration",
@@ -2568,10 +2436,7 @@
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Plus",
       "sn": "SN_INVERTERBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
+      "via_device": null
     },
     "sensors": {
       "description": "yearElectricityGeneration",
