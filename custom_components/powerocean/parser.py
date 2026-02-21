@@ -605,6 +605,112 @@ class EcoflowParser:
                     device_info=device_info,
                 )
 
+            # ------------------------------
+            # From and to Grid sensors
+            # From and to Battery sensors
+            # ------------------------------
+
+            # Base sensors
+            solar = float(total_power)
+            grid = float(d.get("pcsMeterPower", 0))
+            battery = float(d.get("emsBpPower", 0))
+
+            # House Consumption: solar + grid - battery
+            house_consumption_raw = solar + grid - battery
+            house_consumption = round(max(house_consumption_raw, 0), 1)
+            key = "housePower"
+            if house_consumption is not None:
+                self._collect_sensor(
+                    collector,
+                    self.sn_inverter,
+                    report,
+                    key,
+                    house_consumption,
+                    device_info=device_info,
+                )
+
+            # Grid Power (Explizit)
+            key = "gridPower"
+            self._collect_sensor(
+                collector,
+                self.sn_inverter,
+                report,
+                key,
+                grid,
+                device_info=device_info,
+            )
+            # Grid to Battery: bat_chg - solar_avail_for_bat
+            bat_chg = max(battery, 0)
+            solar_avail_for_bat = max(solar - house_consumption, 0)
+            grid_to_battery = round(max(bat_chg - solar_avail_for_bat, 0), 1)
+            key = "gridToBattery"
+            self._collect_sensor(
+                collector,
+                self.sn_inverter,
+                report,
+                key,
+                grid_to_battery,
+                device_info=device_info,
+            )
+            # Grid to House: grid import - grid to battery
+            grid_import = max(grid, 0)
+            grid_to_house = round(max(grid_import - grid_to_battery, 0), 1)
+            key = "gridToHouse"
+            self._collect_sensor(
+                collector,
+                self.sn_inverter,
+                report,
+                key,
+                grid_to_house,
+                device_info=device_info,
+            )
+
+            # Battery to House
+            battery_to_house = round(abs(battery) if battery < 0 else 0, 1)
+            key = "batteryToHouse"
+            self._collect_sensor(
+                collector,
+                self.sn_inverter,
+                report,
+                key,
+                battery_to_house,
+                device_info=device_info,
+            )
+
+            # Solar to Battery
+            solar_to_battery = round(min(solar_avail_for_bat, bat_chg), 1)
+            key = "solarToBattery"
+            self._collect_sensor(
+                collector,
+                self.sn_inverter,
+                report,
+                key,
+                solar_to_battery,
+                device_info=device_info,
+            )
+            # Solar to Grid
+            solar_to_grid = round(max(solar - house_consumption - bat_chg, 0), 1)
+            key = "solarToGrid"
+            self._collect_sensor(
+                collector,
+                self.sn_inverter,
+                report,
+                key,
+                solar_to_grid,
+                device_info=device_info,
+            )
+            # Solar to House
+            solar_to_house = round(min(solar, house_consumption), 1)
+            key = "solarToHouse"
+            self._collect_sensor(
+                collector,
+                self.sn_inverter,
+                report,
+                key,
+                solar_to_house,
+                device_info=device_info,
+            )
+
     def _handle_heating_rod_energy_stream(
         self,
         d: dict,
@@ -673,7 +779,7 @@ class EcoflowParser:
                 sn=device_sn,
                 prefix=prefix,
                 model=f"PowerOcean {prefix}",
-                via_sn=self.sn_inverter if not device_sn.endswith("_all") else None,
+                via_sn=self.sn if device_sn != self.sn else None,
             )
             for key, value in device_data.items():
                 if isinstance(value, dict):

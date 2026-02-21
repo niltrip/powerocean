@@ -75,7 +75,9 @@ class SensorClassHelper:
 
     _CLASS_PATTERNS: ClassVar[list[tuple[re.Pattern[str], SensorClassTuple]]] = [
         (
-            re.compile(r"(pwr|power|pwrTotal|grid|bat|pv)$", re.IGNORECASE),
+            re.compile(
+                r"(pwr|power|pwrTotal|grid|bat|pv|battery|house)$", re.IGNORECASE
+            ),
             (
                 SensorDeviceClass.POWER,
                 UnitOfPower.WATT,
@@ -182,7 +184,15 @@ class SensorMetaHelper:
         # Dictionary for key-to-description mapping
         description_mapping = {
             "sysLoadPwr": "Hausnetz",
+            "housePower": "Hausnetz (berechnet)",
             "sysGridPwr": "Stromnetz",
+            "gridPower": "Netzleistung",
+            "gridToBattery": "Netz zu Batterie",
+            "gridToHouse": "Netz zu Haus",
+            "batteryToHouse": "Batterie zu Haus",
+            "solarToBattery": "Solar zu Batterie",
+            "solarToGrid": "Solar zu Netz",
+            "solarToHouse": "Solar zu Haus",
             "mpptPwr": "Solarertrag",
             "bpPwr": "Batterieleistung",
             "bpSoc": "Ladezustand der Batterie",
@@ -224,16 +234,21 @@ class SensorMetaHelper:
             (r"(pv|mppt).*amp", "mdi:current-dc"),
             (r"(pv|mppt).*resist", "mdi:resistor"),
             (r"_pwr$", "mdi:flash"),
-            (r"sysgridpwr$", "mdi:transmission-tower-import"),
+            # Netz / Haus / Batterie
+            (r"solartobattery|solartogrid|solartohouse", "mdi:solar-power"),
             (
-                r"(sysloadpwr|pcsmeterpower|pcsactpwr|housepwr)$",
+                r"(housepower|sysloadpwr|pcsactpwr|pcsmeterpower)",
                 "mdi:home-lightning-bolt",
             ),
+            (r"(gridtohouse|sysgridpwr|gridpower)", "mdi:transmission-tower-import"),
+            (r"batterytohouse", "mdi:battery-arrow-up"),
+            (r"gridtobattery", "mdi:battery-arrow-down"),
             # Strom / Spannung
             (r"_amp$", "mdi:current-ac"),
             # Batterie / Speicher
-            (r"(soc|soh)", "mdi:battery"),
-            (r"(remainwatth)", "mdi:car-battery"),
+            (r"(soc)", "mdi:battery"),
+            (r"(soh)", "mdi:battery-heart-variant"),
+            (r"(remainwatth)", "mdi:home-battery"),
             (r"(temp|temperature)", "mdi:thermometer"),
             (r"cycles", "mdi:repeat"),
             (r"balancestate", "mdi:battery-sync"),
