@@ -1,0 +1,51 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "description": "Veuillez saisir ci-dessous les informations de votre appareil PowerOcean :",
+                "data": {
+                    "device_id": "Numéro de série de l'onduleur (tel qu'affiché dans l'application EcoFlow)",
+                    "email": "Adresse e-mail",
+                    "password": "Mot de passe",
+                    "model_id": "Modèle PowerOcean"
+                }
+            },
+            "device_options": {
+                "description": "Configurer les options de l'appareil :",
+                "data": {
+                    "friendly_name": "Nom de l'appareil",
+                    "scan_interval": "Intervalle de mise à jour (en secondes)"
+                }
+            },
+            "reconfigure": {
+                "description": "Mettre à jour les informations d'identification de votre compte PowerOcean.",
+                "data": {
+                    "device_id": "Numéro de série de l'onduleur (tel qu'affiché dans l'application EcoFlow)",
+                    "email": "Adresse e-mail",
+                    "password": "Mot de passe",
+                    "model_id": "Modèle PowerOcean"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Échec de la connexion. Veuillez vérifier vos identifiants.",
+            "invalid_auth": "Authentification invalide",
+            "unknown": "Erreur inattendue"
+        },
+        "abort": {
+            "already_configured": "Cet appareil est déjà configuré.",
+            "reconfiguration_completed": "Reconfiguration de l'appareil terminée. L'intégration sera rechargée."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "description": "Ajuster les paramètres de l'intégration PowerOcean.",
+                "data": {
+                    "friendly_name": "Nom de l'appareil",
+                    "scan_interval": "Intervalle de mise à jour (en secondes)"
+                }
+            }
+        }
+    }
+}
