@@ -550,7 +550,7 @@ class EcoflowParser:
         # Besonderheiten Phasen
         phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
         if all(phase in d for phase in phases):
-            for _, phase in enumerate(phases):
+            for phase in phases:
                 for key, value in d[phase].items():
                     key_ext = f"{phase}_{key}"
                     self._collect_sensor(
@@ -564,152 +564,82 @@ class EcoflowParser:
 
         # Besonderheit mpptPv
         if "mpptHeartBeat" in d:
-            n_strings = len(d["mpptHeartBeat"][0]["mpptPv"])
-            report = f"{report}_mpptHeartBeat"
-            for i in range(n_strings):
-                for key, value in d["mpptHeartBeat"][0]["mpptPv"][i].items():
-                    key_ext = f"mpptPv{i + 1}_{key}"
+            mppt_data = d["mpptHeartBeat"][0]
+            report_mppt = f"{report}_mpptHeartBeat"
+
+            # Einzelne MPPT-Module
+            for i, mppt in enumerate(mppt_data["mpptPv"], start=1):
+                for key, value in mppt.items():
+                    key_ext = f"mpptPv{i}_{key}"
                     self._collect_sensor(
                         collector,
                         self.sn_inverter,
-                        report,
+                        report_mppt,
                         key_ext,
                         value,
                         device_info=device_info,
                     )
 
-            # Gesamtleistung mpptPv
-            total_power = sum(
-                d["mpptHeartBeat"][0]["mpptPv"][i].get("pwr", 0)
-                for i in range(n_strings)
-            )
-            key_ext = "mpptPv_pwrTotal"
+            # Gesamtleistung MPPT
+            total_power = sum(mppt.get("pwr", 0) for mppt in mppt_data["mpptPv"])
             self._collect_sensor(
                 collector,
                 self.sn_inverter,
-                report,
-                key_ext,
+                report_mppt,
+                "mpptPv_pwrTotal",
                 total_power,
                 device_info=device_info,
             )
 
-            # --- Isolationswiderstand ---
-            mppt_ins_resist = d["mpptHeartBeat"][0].get("mpptInsResist")
+            # Isolationswiderstand
+            mppt_ins_resist = mppt_data.get("mpptInsResist")
             if mppt_ins_resist is not None:
                 self._collect_sensor(
                     collector,
                     self.sn_inverter,
-                    report,
+                    report_mppt,
                     "mpptInsResist",
                     mppt_ins_resist,
                     device_info=device_info,
                 )
 
             # ------------------------------
-            # From and to Grid sensors
-            # From and to Battery sensors
+            # Energy flows: grid, battery, solar, house
             # ------------------------------
 
-            # Base sensors
             solar = float(total_power)
             grid = float(d.get("pcsMeterPower", 0))
             battery = float(d.get("emsBpPower", 0))
 
-            # House Consumption: solar + grid - battery
-            house_consumption_raw = solar + grid - battery
-            house_consumption = round(max(house_consumption_raw, 0), 1)
-            key = "housePower"
-            if house_consumption is not None:
+            house_consumption = solar + grid - battery
+            bat_chg = max(battery, 0)
+            solar_avail_for_bat = max(solar - house_consumption, 0)
+            grid_import = max(grid, 0)
+            battery_to_house = -battery if battery < 0 else 0
+
+            sensors = [
+                ("housePower", max(house_consumption, 0)),
+                ("gridPower", grid),
+                ("gridToBattery", max(bat_chg - solar_avail_for_bat, 0)),
+                (
+                    "gridToHouse",
+                    max(grid_import - max(bat_chg - solar_avail_for_bat, 0), 0),
+                ),
+                ("batteryToHouse", battery_to_house),
+                ("solarToBattery", min(solar_avail_for_bat, bat_chg)),
+                ("solarToGrid", max(solar - max(house_consumption, 0) - bat_chg, 0)),
+                ("solarToHouse", min(solar, max(house_consumption, 0))),
+            ]
+
+            for key, value in sensors:
                 self._collect_sensor(
                     collector,
                     self.sn_inverter,
-                    report,
+                    report_mppt,
                     key,
-                    house_consumption,
+                    round(value, 1),
                     device_info=device_info,
                 )
-
-            # Grid Power (Explizit)
-            key = "gridPower"
-            self._collect_sensor(
-                collector,
-                self.sn_inverter,
-                report,
-                key,
-                grid,
-                device_info=device_info,
-            )
-            # Grid to Battery: bat_chg - solar_avail_for_bat
-            bat_chg = max(battery, 0)
-            solar_avail_for_bat = max(solar - house_consumption, 0)
-            grid_to_battery = round(max(bat_chg - solar_avail_for_bat, 0), 1)
-            key = "gridToBattery"
-            self._collect_sensor(
-                collector,
-                self.sn_inverter,
-                report,
-                key,
-                grid_to_battery,
-                device_info=device_info,
-            )
-            # Grid to House: grid import - grid to battery
-            grid_import = max(grid, 0)
-            grid_to_house = round(max(grid_import - grid_to_battery, 0), 1)
-            key = "gridToHouse"
-            self._collect_sensor(
-                collector,
-                self.sn_inverter,
-                report,
-                key,
-                grid_to_house,
-                device_info=device_info,
-            )
-
-            # Battery to House
-            battery_to_house = round(abs(battery) if battery < 0 else 0, 1)
-            key = "batteryToHouse"
-            self._collect_sensor(
-                collector,
-                self.sn_inverter,
-                report,
-                key,
-                battery_to_house,
-                device_info=device_info,
-            )
-
-            # Solar to Battery
-            solar_to_battery = round(min(solar_avail_for_bat, bat_chg), 1)
-            key = "solarToBattery"
-            self._collect_sensor(
-                collector,
-                self.sn_inverter,
-                report,
-                key,
-                solar_to_battery,
-                device_info=device_info,
-            )
-            # Solar to Grid
-            solar_to_grid = round(max(solar - house_consumption - bat_chg, 0), 1)
-            key = "solarToGrid"
-            self._collect_sensor(
-                collector,
-                self.sn_inverter,
-                report,
-                key,
-                solar_to_grid,
-                device_info=device_info,
-            )
-            # Solar to House
-            solar_to_house = round(min(solar, house_consumption), 1)
-            key = "solarToHouse"
-            self._collect_sensor(
-                collector,
-                self.sn_inverter,
-                report,
-                key,
-                solar_to_house,
-                device_info=device_info,
-            )
 
     def _handle_heating_rod_energy_stream(
         self,
