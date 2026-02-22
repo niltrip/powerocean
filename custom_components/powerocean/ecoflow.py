@@ -18,7 +18,7 @@ Usage:
 
 import asyncio
 import base64
-from typing import Any
+from typing import Any, ClassVar
 
 import aiohttp
 from homeassistant.core import HomeAssistant
@@ -34,9 +34,16 @@ from .const import (
     USE_MOCKED_RESPONSE,
 )
 
+HTTP_OK = 200
+
 
 class EcoflowApi:
     """Class representing Ecoflow."""
+
+    REGION_HOSTS: ClassVar[dict[str, str]] = {
+        "eu": "api-e.ecoflow.com",
+        "us": "api-a.ecoflow.com",
+    }
 
     def __init__(
         self,
@@ -64,8 +71,9 @@ class EcoflowApi:
         self.ecoflow_variant = variant
         self.token: str | None = None
         self.device: dict | None = None
+        self.api_host: str | None = None
         self.url_authorize = "https://api.ecoflow.com/auth/login"
-        self.url_fetch_data = f"https://api-e.ecoflow.com/provider-service/user/device/detail?sn={self.sn}"
+
         self.hass = hass
 
     async def async_authorize(self) -> bool:
@@ -100,7 +108,7 @@ class EcoflowApi:
                 _raise(AuthenticationFailedError(msg))
 
             self.token = data_block["token"]
-
+            await self._detect_region()
         except AuthenticationFailedError as auth_err:
             LOGGER.warning(
                 "Authentication failed for user %s: %s",
@@ -127,10 +135,15 @@ class EcoflowApi:
 
     async def fetch_raw(self) -> dict[str, Any]:
         """Fetch data from Url (Async version)."""
-        url = self.url_fetch_data
+        if not self.api_host:
+            msg = "Region not detected"
+            raise IntegrationError(msg)
+
+        url = (
+            f"https://{self.api_host}/provider-service/user/device/detail?sn={self.sn}"
+        )
         headers = {
             "authorization": f"Bearer {self.token}",
-            "user-agent": "Firefox/133.0",
             "product-type": self.ecoflow_variant,
         }
 
@@ -181,6 +194,36 @@ class EcoflowApi:
             raise IntegrationError(msg)
 
         return response
+
+    async def _detect_region(self) -> None:
+        """Try all regions and pick the one that works."""
+        session = async_get_clientsession(self.hass)
+
+        for region, host in self.REGION_HOSTS.items():
+            test_url = (
+                f"https://{host}/provider-service/user/device/detail?sn={self.sn}"
+            )
+
+            headers = {
+                "authorization": f"Bearer {self.token}",
+                "product-type": self.ecoflow_variant,
+            }
+
+            try:
+                async with asyncio.timeout(10):
+                    async with session.get(test_url, headers=headers) as resp:
+                        if resp.status == HTTP_OK:
+                            self.api_host = host
+                            LOGGER.info("Detected EcoFlow region: %s", region)
+                            return
+            except (TimeoutError, aiohttp.ClientError) as err:
+                LOGGER.debug(
+                    "Region %s (%s) failed during detection: %s", region, host, err
+                )
+                continue  # Nur bekannte Netzwerk-/Timeout-Fehler abfangen
+
+        msg = "Could not detect EcoFlow region"
+        raise IntegrationError(msg)
 
 
 class ApiResponseError(Exception):
