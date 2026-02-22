@@ -224,11 +224,12 @@ class EcoflowParser:
 
     @staticmethod
     def _get_nested_value(data: dict[str, Any], path: list[str]) -> Any | None:
+        current: Any = data
         for key in path:
-            if not isinstance(data, dict):
+            if not isinstance(current, dict):
                 return None
-            data = data.get(key)
-        return data
+            current = current.get(key)
+        return current
 
     def _detect_box_schema(self, payload: dict) -> tuple[str, BoxSchema] | None:
         for box_type, schema in BOX_SCHEMAS.items():
@@ -511,7 +512,7 @@ class EcoflowParser:
                 if value is None:
                     continue
 
-                if key == "moduleAplSwVer":
+                if key == "moduleAplSwVer" and isinstance(value, (int)):
                     value = decode_version(value)
                 self._collect_sensor(
                     collector=collector,
