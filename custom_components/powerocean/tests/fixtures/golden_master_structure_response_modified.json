@@ -212,7 +212,7 @@
     "sensors": {
       "description": "bpRemainWatth",
       "friendly_name": "bpRemainWatth",
-      "icon": "mdi:car-battery",
+      "icon": "mdi:home-battery",
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpRemainWatth",
       "name": "SN_BATTERIEPACK01_bpRemainWatth",
       "serial": "SN_BATTERIEPACK01",
@@ -280,7 +280,7 @@
     "sensors": {
       "description": "bpSoh",
       "friendly_name": "bpSoh",
-      "icon": "mdi:battery",
+      "icon": "mdi:battery-heart-variant",
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoh",
       "name": "SN_BATTERIEPACK01_bpSoh",
       "serial": "SN_BATTERIEPACK01",
@@ -568,7 +568,7 @@
     "sensors": {
       "description": "bpRemainWatth",
       "friendly_name": "bpRemainWatth",
-      "icon": "mdi:car-battery",
+      "icon": "mdi:home-battery",
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpRemainWatth",
       "name": "SN_BATTERIEPACK02_bpRemainWatth",
       "serial": "SN_BATTERIEPACK02",
@@ -636,7 +636,7 @@
     "sensors": {
       "description": "bpSoh",
       "friendly_name": "bpSoh",
-      "icon": "mdi:battery",
+      "icon": "mdi:battery-heart-variant",
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoh",
       "name": "SN_BATTERIEPACK02_bpSoh",
       "serial": "SN_BATTERIEPACK02",
@@ -886,7 +886,7 @@
     "sensors": {
       "description": "bpRemainWatth",
       "friendly_name": "bpRemainWatth",
-      "icon": "mdi:car-battery",
+      "icon": "mdi:home-battery",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpRemainWatth",
       "name": "SN_INVERTERBOX01_bpRemainWatth",
       "serial": "SN_INVERTERBOX01",
@@ -969,7 +969,7 @@
       "unit": null
     }
   },
-  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_housePwr": {
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_batteryToHouse": {
     "device": {
       "manufacturer": "EcoFlow",
       "model": "PowerOcean",
@@ -977,11 +977,95 @@
       "via_device": null
     },
     "sensors": {
-      "description": "housePwr",
-      "friendly_name": "housePwr",
+      "description": "Batterie zu Haus",
+      "friendly_name": "batteryToHouse",
+      "icon": "mdi:battery-arrow-up",
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_batteryToHouse",
+      "name": "SN_INVERTERBOX01_batteryToHouse",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_gridPower": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "Netzleistung",
+      "friendly_name": "gridPower",
+      "icon": "mdi:transmission-tower-import",
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_gridPower",
+      "name": "SN_INVERTERBOX01_gridPower",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_gridToBattery": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "Netz zu Batterie",
+      "friendly_name": "gridToBattery",
+      "icon": "mdi:battery-arrow-down",
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_gridToBattery",
+      "name": "SN_INVERTERBOX01_gridToBattery",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_gridToHouse": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "Netz zu Haus",
+      "friendly_name": "gridToHouse",
+      "icon": "mdi:transmission-tower-import",
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_gridToHouse",
+      "name": "SN_INVERTERBOX01_gridToHouse",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_housePower": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "Hausnetz (berechnet)",
+      "friendly_name": "housePower",
       "icon": "mdi:home-lightning-bolt",
-      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_housePwr",
-      "name": "SN_INVERTERBOX01_housePwr",
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_housePower",
+      "name": "SN_INVERTERBOX01_housePower",
       "serial": "SN_INVERTERBOX01",
       "unit": [
         "power",
@@ -1184,6 +1268,69 @@
       "icon": "mdi:solar-power",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv_pwrTotal",
       "name": "SN_INVERTERBOX01_mpptPv_pwrTotal",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_solarToBattery": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "Solar zu Batterie",
+      "friendly_name": "solarToBattery",
+      "icon": "mdi:solar-power",
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_solarToBattery",
+      "name": "SN_INVERTERBOX01_solarToBattery",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_solarToGrid": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "Solar zu Netz",
+      "friendly_name": "solarToGrid",
+      "icon": "mdi:solar-power",
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_solarToGrid",
+      "name": "SN_INVERTERBOX01_solarToGrid",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_solarToHouse": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "Solar zu Haus",
+      "friendly_name": "solarToHouse",
+      "icon": "mdi:solar-power",
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_solarToHouse",
+      "name": "SN_INVERTERBOX01_solarToHouse",
       "serial": "SN_INVERTERBOX01",
       "unit": [
         "power",

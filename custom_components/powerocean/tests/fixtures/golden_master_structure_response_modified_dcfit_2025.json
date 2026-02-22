@@ -272,7 +272,7 @@
     "sensors": {
       "description": "bpRemainWatth",
       "friendly_name": "bpRemainWatth",
-      "icon": "mdi:car-battery",
+      "icon": "mdi:home-battery",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpRemainWatth",
       "name": "SN_INVERTERBOX01_bpRemainWatth",
       "serial": "SN_INVERTERBOX01",
