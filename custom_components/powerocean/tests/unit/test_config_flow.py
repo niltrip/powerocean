@@ -1,10 +1,15 @@
+"""test_config_flow."""
+
 from unittest.mock import MagicMock, patch
 
 import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.powerocean.config_flow import PowerOceanConfigFlow
+from custom_components.powerocean.config_flow import (
+    PowerOceanConfigFlow,
+    sanitize_device_name,
+)
 from custom_components.powerocean.const import DOMAIN
 
 
@@ -100,8 +105,6 @@ async def test_async_step_device_options_create_entry(flow, user_input):
 
 
 def test_sanitize_device_name():
-    from custom_components.powerocean.config_flow import sanitize_device_name
-
     assert sanitize_device_name("My # Device  ", "Fallback") == "My Device"
     assert sanitize_device_name("", "Fallback") == "Fallback"
     assert sanitize_device_name("!@#$%", "Fallback") == "Fallback"

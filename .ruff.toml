@@ -30,6 +30,7 @@ ignore = [
     "ANN201", # missing return type
     "ANN001",
     "D103",
+    "ARG001",
 ]
 
 "custom_components/powerocean/tests/**/*.py" = [
