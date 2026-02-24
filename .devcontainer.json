@@ -40,7 +40,7 @@
         }
     },
     "remoteUser": "vscode",
-    // "features": {
+    "features": {}
     //     "ghghcr.io/devcontainers-extra/features/apt-packages:1": {
     //         "packages": [
     //             "ffmpeg",

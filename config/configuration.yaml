@@ -10,7 +10,11 @@ logger:
   default: info
   logs:
     custom_components.powerocean: debug
-
+  filters:
+    homeassistant.components.go2rtc:
+      - "Could not find go2rtc docker binary"
+    homeassistant.setup:
+      - ".*go2rtc.*"
 template:
   - sensor:
       - name: "PowerOcean Solar All"
