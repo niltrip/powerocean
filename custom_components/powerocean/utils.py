@@ -325,11 +325,11 @@ def _join_id(*parts: str) -> str:
 
 def clean_zero(v: float, eps: float = 0.05) -> float:
     """
-    Setzt kleine Werte auf exakt 0, um Floating-Point Artefakte wie -0.0 oder winzige Zappelflüsse zu vermeiden.
+    Setzt kleine Werte auf exakt 0, um Floating-Point Artefakte zu vermeiden.
 
     Args:
         v (float): Der zu prüfende Wert.
-        eps (float, optional): Die Schwelle unterhalb derer der Wert auf 0 gesetzt wird. Standard ist 0.05.
+        eps (float, optional): Die Schwelle unterhalb derer der Wert auf 0 gesetzt wird.
 
     Returns:
         float: 0.0, wenn abs(v) < eps, sonst der Originalwert v.
