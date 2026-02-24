@@ -198,6 +198,7 @@ class EcoflowApi:
     def _accept_mqqt_certification(self, resp_json: dict) -> None:
         LOGGER.debug(f"Received MQTT credentials: {resp_json}")
         try:
+            # wss://mqtt-e.ecoflow.com:8084/mqtt
             mqtt_url = resp_json["data"]["url"]
             mqtt_port = int(resp_json["data"]["port"])
             mqtt_username = resp_json["data"]["certificateAccount"]
@@ -282,7 +283,13 @@ class EcoflowApi:
             LOGGER.info("MQTT connected")
             self._mqtt_connected = True
 
-            client.subscribe(f"/app/device/property/{self.sn}", qos=0)
+            topics = [
+                f"/app/device/status/{self.sn}",
+                f"/app/device/property/{self.sn}",
+                f"/app/{self.user_id}/{self.sn}/thing/property/set_reply",
+            ]
+            for t in topics:
+                client.subscribe(t)
 
             LOGGER.info("Subscribed to MQTT topics")
         else:
@@ -297,6 +304,12 @@ class EcoflowApi:
     def _on_mqtt_message(self, client: MQTTClient, userdata, message) -> None:
         # MQTT liefert binäre Daten → ignorieren
         pass
+        # try:
+        #     payload = json_loads(message.payload.decode())
+        #     LOGGER.debug("MQTT message: %s", payload)
+        #     # Hier z.B. self.device = payload oder Coordinator update
+        # except Exception as e:
+        #     LOGGER.warning("Failed to decode MQTT message: %s", e)
 
 
 class EcoflowException(Exception):
