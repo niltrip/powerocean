@@ -1,4 +1,4 @@
-homeassistant==2025.12.4
+homeassistant==2025.9.4
 pytest
 pytest-asyncio
 pytest-homeassistant-custom-component
