@@ -42,6 +42,7 @@ from .utils import (
     BoxSchema,
     ReportMode,
     _join_id,
+    clean_zero,
     decode_version,
 )
 
@@ -608,28 +609,69 @@ class EcoflowParser:
             # Energy flows: grid, battery, solar, house
             # ------------------------------
 
-            solar = float(total_power)
+            solar = max(float(total_power), 0.0)
+
+            # grid +- Werte in "pcsMeterPower", positiv = Import, negativ = Export
             grid = float(d.get("pcsMeterPower", 0))
+
+            # battery +- Werte in "emsBpPower", positiv = Ladung, negativ = Entladung
             battery = float(d.get("emsBpPower", 0))
 
-            house_consumption = solar + grid - battery
-            bat_chg = max(battery, 0)
-            solar_avail_for_bat = max(solar - house_consumption, 0)
-            grid_import = max(grid, 0)
-            battery_to_house = -battery if battery < 0 else 0
+            # ------------------------------
+            # Vorzeichen normalisieren
+            # ------------------------------
+            grid_import = max(grid, 0.0)
+            grid_export = max(-grid, 0.0)
 
+            battery_charge = max(battery, 0.0)
+            battery_discharge = max(-battery, 0.0)
+
+            # ------------------------------
+            # Hausverbrauch (physikalische Bilanz)
+            # ------------------------------
+            house_consumption = solar + grid + battery_discharge - battery_charge
+            house_consumption = max(house_consumption, 0.0)
+
+            # ------------------------------
+            # SOLAR-Verteilung
+            # ------------------------------
+            solar_to_house = min(solar, house_consumption)
+
+            solar_surplus = solar - solar_to_house
+
+            solar_to_battery = min(solar_surplus, battery_charge)
+
+            solar_to_grid = solar_surplus - solar_to_battery
+
+            # ------------------------------
+            # BATTERIE-Flüsse
+            # ------------------------------
+            battery_to_house = max(battery_discharge, 0.0)
+
+            grid_to_battery = battery_charge - solar_to_battery
+
+            # ------------------------------
+            # NETZ-Flüsse
+            # ------------------------------
+            grid_to_house = grid_import - grid_to_battery
+
+            # Numerische Sicherheit
+            grid_to_house = max(grid_to_house, 0.0)
+            grid_to_battery = max(grid_to_battery, 0.0)
+            solar_to_grid = max(solar_to_grid, 0.0)
+
+            # ------------------------------
+            # Sensorliste
+            # ------------------------------
             sensors = [
-                ("housePower", max(house_consumption, 0)),
+                ("housePower", house_consumption),
                 ("gridPower", grid),
-                ("gridToBattery", max(bat_chg - solar_avail_for_bat, 0)),
-                (
-                    "gridToHouse",
-                    max(grid_import - max(bat_chg - solar_avail_for_bat, 0), 0),
-                ),
+                ("gridToBattery", grid_to_battery),
+                ("gridToHouse", grid_to_house),
                 ("batteryToHouse", battery_to_house),
-                ("solarToBattery", min(solar_avail_for_bat, bat_chg)),
-                ("solarToGrid", max(solar - max(house_consumption, 0) - bat_chg, 0)),
-                ("solarToHouse", min(solar, max(house_consumption, 0))),
+                ("solarToBattery", solar_to_battery),
+                ("solarToGrid", solar_to_grid),
+                ("solarToHouse", solar_to_house),
             ]
 
             for key, value in sensors:
@@ -638,7 +680,7 @@ class EcoflowParser:
                     self.sn_inverter,
                     report_mppt,
                     key,
-                    round(value, 1),
+                    clean_zero(round(value, 1)),
                     device_info=device_info,
                 )
 

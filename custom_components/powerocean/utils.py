@@ -323,6 +323,31 @@ def _join_id(*parts: str) -> str:
     return "_".join(p for p in parts if p)
 
 
+def clean_zero(v: float, eps: float = 0.05) -> float:
+    """
+    Setzt kleine Werte auf exakt 0, um Floating-Point Artefakte wie -0.0 oder winzige Zappelflüsse zu vermeiden.
+
+    Args:
+        v (float): Der zu prüfende Wert.
+        eps (float, optional): Die Schwelle unterhalb derer der Wert auf 0 gesetzt wird. Standard ist 0.05.
+
+    Returns:
+        float: 0.0, wenn abs(v) < eps, sonst der Originalwert v.
+
+    Beispiel:
+        >>> clean_zero(0.03)
+        0.0
+        >>> clean_zero(-0.02)
+        0.0
+        >>> clean_zero(0.1)
+        0.1
+
+    """
+    if abs(v) < eps:
+        return 0.0
+    return v
+
+
 def decode_version(value: int) -> str:
     """
     Decode a 32-bit integer into a dotted version string.
