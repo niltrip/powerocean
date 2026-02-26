@@ -22,7 +22,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import LOGGER
-from .ecoflow import EcoflowApi
+from .ecoflow import HAEcoflowApi
 from .parser import EcoflowParser
 
 
@@ -32,7 +32,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
     def __init__(
         self,
         hass: HomeAssistant,
-        api: EcoflowApi,
+        api: HAEcoflowApi,
         update_interval: timedelta,
     ) -> None:
         """Initialize the PowerOcean data update coordinator."""
@@ -43,7 +43,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             update_interval=update_interval,
         )
         self.api = api
-        self.parser = EcoflowParser(variant=self.api.ecoflow_variant, sn=self.api.sn)
+        self.parser = EcoflowParser(variant=self.api.variant, sn=self.api.sn)
 
     async def _async_update_data(self) -> dict[str, float | int | str]:
         """Holt LIVE-Daten und parsed NUR Values."""

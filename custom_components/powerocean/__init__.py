@@ -50,7 +50,7 @@ from .const import (
     PowerOceanModel,
 )
 from .coordinator import PowerOceanCoordinator
-from .ecoflow import EcoflowApi
+from .ecoflow import HAEcoflowApi
 from .parser import EcoflowParser
 
 
@@ -125,7 +125,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         msg = "Missing device_id or model_id in config entry"
         raise ConfigEntryNotReady(msg)
 
-    api = EcoflowApi(
+    api = HAEcoflowApi(
         hass,
         device_id,
         entry.data[CONF_EMAIL],
@@ -146,7 +146,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # --- Struktur & Parser ---
     raw = await api.fetch_raw()
-    parser = EcoflowParser(variant=api.ecoflow_variant, sn=api.sn)
+    parser = EcoflowParser(variant=api.variant, sn=api.sn)
     endpoints = parser.parse_structure(raw)
 
     # --- DataUpdateCoordinator ---

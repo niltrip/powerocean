@@ -16,19 +16,20 @@ Usage:
     data = await api.fetch_raw()
 """
 
-import asyncio
-import base64
-from typing import Any, ClassVar
+from typing import Any
 
-import aiohttp
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady, IntegrationError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.util.json import json_loads
 from pydantic import Json
 
+from .api import (
+    AuthenticationError,
+    EcoflowApi,
+    EcoflowApiError,
+)
 from .const import (
-    ISSUE_URL_ERROR_MESSAGE,
     LOGGER,
     MOCKED_RESPONSE,
     USE_MOCKED_RESPONSE,
@@ -37,13 +38,12 @@ from .const import (
 HTTP_OK = 200
 
 
-class EcoflowApi:
-    """Class representing Ecoflow."""
+class HAEcoflowApi(EcoflowApi):
+    """
+    Home Assistant wrapper around EcoflowApi.
 
-    REGION_HOSTS: ClassVar[dict[str, str]] = {
-        "eu": "api-e.ecoflow.com",
-        "us": "api-a.ecoflow.com",
-    }
+    Adds HA-specific session handling and exception mapping.
+    """
 
     def __init__(
         self,
@@ -54,121 +54,69 @@ class EcoflowApi:
         variant: str,
     ) -> None:
         """
-        Initialize the EcoFlow API client.
+        Initialize the Home Assistant EcoFlow API adapter.
 
         Args:
             hass: Home Assistant instance.
-            serialnumber: Serial number of the PowerOcean device.
-            username: EcoFlow account username (email).
+            serialnumber: Device serial number.
+            username: EcoFlow account email.
             password: EcoFlow account password.
-            variant: PowerOcean device variant / model ID.
+            variant: Device product type identifier.
 
         """
-        self.sn = serialnumber
-        self.sn_inverter = ""
-        self.ecoflow_username = username
-        self.ecoflow_password = password
-        self.ecoflow_variant = variant
-        self.token: str | None = None
-        self.device: dict | None = None
-        self.api_host: str | None = None
-        self.url_authorize = "https://api.ecoflow.com/auth/login"
-
+        session = async_get_clientsession(hass)
+        super().__init__(
+            serialnumber=serialnumber,
+            username=username,
+            password=password,
+            variant=variant,
+            session=session,
+        )
         self.hass = hass
 
-    async def async_authorize(self) -> bool:
-        """Authorize user and retrieve authentication token."""
-        headers = {"lang": "en_US", "content-type": "application/json"}
-        data = {
-            "email": self.ecoflow_username,
-            "password": base64.b64encode(self.ecoflow_password.encode()).decode(),
-            "scene": "IOT_APP",
-            "userType": "ECOFLOW",
-        }
+    async def async_authorize(self) -> None:
+        """
+        Authorize against the EcoFlow API and map errors to HA exceptions.
 
-        url = self.url_authorize
-        LOGGER.info("Attempting to log in to EcoFlow API: %s", url)
+        Raises:
+            IntegrationError: If credentials are invalid.
+            ConfigEntryNotReady: If the API is temporarily unavailable.
 
-        session = async_get_clientsession(self.hass)
-
-        # Hilfsfunktion für konsistentes Reraising
-        def _raise(exc: Exception) -> None:
-            raise exc
-
+        """
         try:
-            async with asyncio.timeout(10):
-                response = await session.post(url, json=data, headers=headers)
-                response.raise_for_status()
-                response_data = await response.json()
-
-            data_block = response_data.get("data")
-            if not isinstance(data_block, dict) or "token" not in data_block:
-                msg = "Missing or malformed 'data' block in response"
-                LOGGER.error(msg)
-                _raise(AuthenticationFailedError(msg))
-
-            self.token = data_block["token"]
-            await self._detect_region()
-        except AuthenticationFailedError as auth_err:
-            LOGGER.warning(
-                "Authentication failed for user %s: %s",
-                self.ecoflow_username,
-                auth_err,
-            )
+            await super().async_authorize()
+        except AuthenticationError as e:
             msg = "Invalid username or password"
-            raise IntegrationError(msg) from auth_err
-
-        except (TimeoutError, aiohttp.ClientError) as conn_err:
-            LOGGER.warning("Cannot connect to EcoFlow API at %s: %s", url, conn_err)
-            # Netzwerkprobleme → HA sollte retryen
-            msg = "Cannot connect to EcoFlow API at %s"
-            raise ConfigEntryNotReady(msg, url) from conn_err
-
-        except Exception as unexpected:
-            LOGGER.exception("Unexpected error during EcoFlow login")
-            msg = "Unexpected error during login"
-            raise IntegrationError(msg) from unexpected
-
-        else:
-            LOGGER.info("Successfully logged in.")
-            return True
+            raise IntegrationError(msg) from e
+        except EcoflowApiError as e:
+            raise ConfigEntryNotReady from e
 
     async def fetch_raw(self) -> dict[str, Any]:
-        """Fetch data from Url (Async version)."""
-        if not self.api_host:
-            msg = "Region not detected"
-            raise IntegrationError(msg)
+        """
+        Fetch raw device data from the EcoFlow API.
 
-        url = (
-            f"https://{self.api_host}/provider-service/user/device/detail?sn={self.sn}"
-        )
-        headers = {
-            "authorization": f"Bearer {self.token}",
-            "product-type": self.ecoflow_variant,
-        }
+        Optionally replaces the live response with a mocked response
+        and validates the returned payload structure.
 
-        try:
-            # 1. API-Abfrage über die zentrale HA-Session
-            session = async_get_clientsession(self.hass)
-            async with asyncio.timeout(30):
-                async with session.get(url, headers=headers) as response:
-                    response.raise_for_status()
-                    api_response = await response.json()
+        Returns:
+            The validated API response dictionary.
 
-            # Mocked Response überschreibt echte API-Antwort
-            if USE_MOCKED_RESPONSE and MOCKED_RESPONSE.exists():
+        Raises:
+            IntegrationError: If the response structure is invalid.
 
-                def load_mock_file() -> Json:
-                    return json_loads(MOCKED_RESPONSE.read_text(encoding="utf-8"))
+        """
+        api_response = await super().fetch_raw()
 
-                api_response = await self.hass.async_add_executor_job(load_mock_file)
-            LOGGER.debug("API response received: %s", api_response)
-            return self._validate_response(api_response)
+        if USE_MOCKED_RESPONSE and MOCKED_RESPONSE.exists():
+            LOGGER.warning("Using mocked API response")
 
-        except (TimeoutError, aiohttp.ClientError) as err:
-            error_msg = f"ConnectionError in fetch_raw: Unable to connect to {url}."
-            LOGGER.warning("%s %s", error_msg, ISSUE_URL_ERROR_MESSAGE)
-            raise IntegrationError(error_msg) from err
+            def load_mock_file() -> Json:
+                return json_loads(MOCKED_RESPONSE.read_text(encoding="utf-8"))
+
+            api_response = load_mock_file()
+
+        LOGGER.debug("API response received: %s", api_response)
+        return self._validate_response(api_response)
 
     def _validate_response(self, response: dict[str, Any]) -> dict:
         """
@@ -194,36 +142,6 @@ class EcoflowApi:
             raise IntegrationError(msg)
 
         return response
-
-    async def _detect_region(self) -> None:
-        """Try all regions and pick the one that works."""
-        session = async_get_clientsession(self.hass)
-
-        for region, host in self.REGION_HOSTS.items():
-            test_url = (
-                f"https://{host}/provider-service/user/device/detail?sn={self.sn}"
-            )
-
-            headers = {
-                "authorization": f"Bearer {self.token}",
-                "product-type": self.ecoflow_variant,
-            }
-
-            try:
-                async with asyncio.timeout(10):
-                    async with session.get(test_url, headers=headers) as resp:
-                        if resp.status == HTTP_OK:
-                            self.api_host = host
-                            LOGGER.info("Detected EcoFlow region: %s", region)
-                            return
-            except (TimeoutError, aiohttp.ClientError) as err:
-                LOGGER.debug(
-                    "Region %s (%s) failed during detection: %s", region, host, err
-                )
-                continue  # Nur bekannte Netzwerk-/Timeout-Fehler abfangen
-
-        msg = "Could not detect EcoFlow region"
-        raise IntegrationError(msg)
 
 
 class ApiResponseError(Exception):

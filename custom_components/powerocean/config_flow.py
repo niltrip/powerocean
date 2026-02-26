@@ -44,7 +44,7 @@ from .const import (
     MODEL_NAME_MAP,
     PowerOceanModel,
 )
-from .ecoflow import AuthenticationFailedError, EcoflowApi
+from .ecoflow import AuthenticationFailedError, HAEcoflowApi
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -99,7 +99,7 @@ STEP_DEVICE_OPTIONS_SCHEMA = vol.Schema(
 
 async def validate_input_for_device(hass: HomeAssistant, data: dict[str, Any]) -> None:
     """Validate the user input allows us to connect."""
-    api = EcoflowApi(
+    api = HAEcoflowApi(
         hass,
         data[CONF_DEVICE_ID],
         data[CONF_EMAIL],
