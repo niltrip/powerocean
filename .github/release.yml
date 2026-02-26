@@ -1,0 +1,66 @@
+changelog:
+  categories:
+    - title: "🚀 New Features"
+      labels:
+        - feature
+        - enhancement
+
+    - title: "🐛 Bug Fixes"
+      labels:
+        - bug
+        - fix
+
+    - title: "⚡ Performance Improvements"
+      labels:
+        - performance
+
+    - title: "🧰 Maintenance"
+      labels:
+        - chore
+        - refactor
+        - dependencies
+
+    - title: "⚠️ Breaking Changes"
+      labels:
+        - breaking
+
+change-template: "- ${{TITLE}} (#${{NUMBER}} by @${{AUTHOR}})"
+
+template: |
+  # 🔌 PowerOcean – Release ${{VERSION}}
+
+  Danke fürs Nutzen der Integration ❤️
+
+  ---
+
+  ## 📢 Wichtige Hinweise
+
+  ⚠️ **Nach dem Update bitte Home Assistant neu starten.**
+
+  🏠 Mindestversion Home Assistant: **2025.1.0**
+  (Anpassen falls erforderlich)
+
+  ---
+
+  ## 🔄 Änderungen
+
+  $CHANGES
+
+  ---
+
+  ## 📥 Installation / Update
+
+  **HACS:**
+  HACS → Integrationen → PowerOcean → Update
+
+  **Manuell:**
+  1. ZIP herunterladen
+  2. `custom_components/powerocean` ersetzen
+  3. Home Assistant neu starten
+
+  ---
+
+  ## 🧪 Getestet mit
+
+  - Home Assistant Core (aktuelle Version)
+  - Python 3.13
