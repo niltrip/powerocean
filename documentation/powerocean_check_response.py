@@ -1,49 +1,84 @@
-import sys
-
+#!/usr/bin/env python3
 """
-This script checks for new or compares parameter sets from EcoFlow PowerOcean API responses.
+Check and compare parameter sets from EcoFlow PowerOcean API responses.
 
-Functionality:
-- Authenticates with the EcoFlow API and fetches the latest device data.
-- Optionally saves the current API response to a file.
-- Redacts sensitive data (SNs, location, system name) when saving with `--redact`.
-- Compares the current response to a reference JSON file, reporting new, removed, and updated keys/values.
-- Groups and formats differences for human-readable and machine-readable output (TXT, YAML, JSON).
-- Useful for monitoring changes in the PowerOcean API or device configuration over time.
+This script authenticates against the EcoFlow API, retrieves the latest
+device data, and optionally compares it with a stored reference response.
+
+Features:
+    - Authenticate with the EcoFlow API and fetch current device data
+    - Save the current API response to a file
+    - Redact sensitive data (serial numbers, location, system name)
+    - Compare current response with a reference JSON file
+    - Detect new, removed, and changed keys/values
+    - Generate human-readable (TXT/YAML) and machine-readable (JSON) diff reports
+
+This tool is useful for monitoring structural or value changes in the
+PowerOcean API or device configuration over time.
 
 Usage:
-    python3 powerocean_check_response.py [options]
+    python3 powerocean_check_response.py [OPTIONS]
 
 Examples:
-    # Save the current API response to a new file with redaction
-    python3 powerocean_check_response.py --username 'your@email.com' --password 'yourpassword' --sn 'yoursn'  \
-                            --variant 83 --save_new --redact
+    Save the current API response with redaction:
+        python3 powerocean_check_response.py \
+            --username your@email.com \
+            --password yourpassword \
+            --sn your_sn \
+            --variant 83 \
+            --save_new \
+            --redact
 
-    # Compare current API response to a reference JSON file
-    python3 powerocean_check_response.py --username 'your@email.com' --password 'yourpassword' --sn 'yoursn'  \
-                            --variant 83 --fn_json powerocean/Response-EcoFlowAPI_2024-09-25_17-06-15.json
+    Compare current API response to a reference file:
+        python3 powerocean_check_response.py \
+            --username your@email.com \
+            --password yourpassword \
+            --sn your_sn \
+            --variant 83 \
+            --fn_json powerocean/Response-EcoFlowAPI_2024-09-25_17-06-15.json
 
-    # Save differences between current and reference response in TXT and JSON
-    python3 powerocean_check_response.py --username 'your@email.com' --password 'yourpassword' --sn 'yoursn' \
-                            --variant 83 --fn_json powerocean/Response-EcoFlowAPI_2024-09-25_17-06-15.json --save_diff
+    Save differences in TXT and JSON format:
+        python3 powerocean_check_response.py \
+            --username your@email.com \
+            --password yourpassword \
+            --sn your_sn \
+            --variant 83 \
+            --fn_json powerocean/Response-EcoFlowAPI_2024-09-25_17-06-15.json \
+            --save_diff
 
-    # Use YAML format for human-readable diff report
-    python3 powerocean_check_response.py --username 'your@email.com' --password 'yourpassword' --sn 'yoursn' \
-                             --variant 83 --fn_json powerocean/Response-EcoFlowAPI_2025-08-15.json --save_diff --human_format yaml
+    Generate a YAML diff report:
+        python3 powerocean_check_response.py \
+            --username your@email.com \
+            --password yourpassword \
+            --sn your_sn \
+            --variant 83 \
+            --fn_json powerocean/Response-EcoFlowAPI_2025-08-15.json \
+            --save_diff \
+            --human_format yaml
 
-For all options, run:
+For a full list of options:
     python3 powerocean_check_response.py --help
+
 """
-import os
-from datetime import datetime
-import json
+
+from __future__ import annotations
+
 import argparse
+import asyncio
+import json
+import os
+import sys
+from datetime import datetime
+from typing import Any
 
-# Set up paths
+import yaml
+
+# PowerOcean-Package zum Pfad hinzufügen
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = BASE_DIR
+PROJECT_ROOT = os.path.join(BASE_DIR, "../custom_components")
+sys.path.append(PROJECT_ROOT)
 
-from ecoflow_standalone import Ecoflow
+from powerocean.api import EcoflowApi
 
 
 # =====================================
@@ -68,7 +103,8 @@ def compare_lists(list1, list2, path, check_values):
 
 
 def group_keys_by_section(keys, depth=2):
-    """Group dotted keys by their prefix up to `depth` segments.
+    """
+    Group dotted keys by their prefix up to `depth` segments.
 
     Example: depth=2 groups 'data.quota.JTS1...' into 'data.quota'.
     """
@@ -80,92 +116,132 @@ def group_keys_by_section(keys, depth=2):
     return groups
 
 
-def format_value(v, max_chars=300, max_list_items=6):
-    """Returns a human-friendly string for values; truncate large objects/lists.
-
-    - dicts: pretty JSON, truncated to `max_chars`.
-    - lists: show full JSON if short, otherwise first `max_list_items` items + length.
-    - primitives: str(v) (empty string for None).
+def format_value(
+    value: Any,
+    *,
+    max_chars: int = 300,
+    max_list_items: int = 6,
+) -> str:
     """
-    if v is None:
+    Return a human-friendly string representation of a value.
+
+    - dict: pretty-printed JSON, truncated to ``max_chars``.
+    - list: full JSON if short, otherwise preview of first ``max_list_items``.
+    - str: truncated if longer than ``max_chars``.
+    - primitives: converted via ``str``.
+    - None: empty string.
+    """
+
+    def _truncate(text: str, suffix: str = "... (truncated)") -> str:
+        if len(text) > max_chars:
+            return f"{text[:max_chars]}{suffix}"
+        return text
+
+    if value is None:
         return ""
-    # short primitives
-    if isinstance(v, (int, float, bool)):
-        return str(v)
-    if isinstance(v, str):
-        s = v
-        if len(s) > max_chars:
-            return s[:max_chars] + "... (truncated)"
-        return s
+
+    if isinstance(value, (int, float, bool)):
+        return str(value)
+
+    if isinstance(value, str):
+        return _truncate(value)
+
     try:
-        if isinstance(v, dict):
-            s = json.dumps(v, indent=2, ensure_ascii=False)
-            if len(s) > max_chars:
-                return s[:max_chars] + "\n... (truncated)"
-            return s
-        if isinstance(v, list):
-            if len(v) > max_list_items:
-                preview = v[:max_list_items]
-                ps = json.dumps(preview, ensure_ascii=False)
-                return f"{ps} ... (+{len(v) - max_list_items} items)"
-            return json.dumps(v, ensure_ascii=False)
-    except Exception:
-        # Fallback
+        if isinstance(value, dict):
+            return _truncate(
+                json.dumps(value, indent=2, ensure_ascii=False),
+                suffix="\n... (truncated)",
+            )
+
+        if isinstance(value, list):
+            if len(value) > max_list_items:
+                preview = json.dumps(value[:max_list_items], ensure_ascii=False)
+                return f"{preview} ... (+{len(value) - max_list_items} items)"
+            return json.dumps(value, ensure_ascii=False)
+
+        return _truncate(str(value))
+
+    except (TypeError, ValueError):
+        # JSON serialization failed
         try:
-            s = str(v)
-            if len(s) > max_chars:
-                return s[:max_chars] + "... (truncated)"
-            return s
+            return _truncate(str(value))
         except Exception:
             return "<unprintable>"
 
 
-def compare_dicts(dict1, dict2, path="", check_values=True):
-    diffs = {}
-    for key in dict1:
-        if key not in dict2:
-            diffs[path + key] = {"in_dict1": dict1[key]}
-        else:
-            if isinstance(dict1[key], dict) and isinstance(dict2[key], dict):
-                sub_diffs = compare_dicts(
-                    dict1[key], dict2[key], path + key + ".", check_values
-                )
-                diffs.update(sub_diffs)
-            elif isinstance(dict1[key], list) and isinstance(dict2[key], list):
-                sub_diffs = compare_lists(
-                    dict1[key], dict2[key], path + key, check_values
-                )
-                diffs.update(sub_diffs)
-            elif check_values and dict1[key] != dict2[key]:
-                diffs[path + key] = {"in_dict1": dict1[key], "in_dict2": dict2[key]}
+def compare_dicts(
+    dict1: dict[str, Any],
+    dict2: dict[str, Any],
+    path: str = "",
+    *,
+    check_values: bool = True,
+) -> dict[str, Any]:
+    """Recursively compare two dictionaries and return their differences."""
+    diffs: dict[str, Any] = {}
 
-    for key in dict2:
-        if key not in dict1:
-            diffs[path + key] = {"in_dict2": dict2[key]}
+    keys1 = set(dict1)
+    keys2 = set(dict2)
+
+    # Keys only in dict1
+    for key in keys1 - keys2:
+        diffs[f"{path}{key}"] = {"in_dict1": dict1[key]}
+
+    # Keys only in dict2
+    for key in keys2 - keys1:
+        diffs[f"{path}{key}"] = {"in_dict2": dict2[key]}
+
+    # Keys in both
+    for key in keys1 & keys2:
+        value1 = dict1[key]
+        value2 = dict2[key]
+        current_path = f"{path}{key}"
+
+        if isinstance(value1, dict) and isinstance(value2, dict):
+            diffs.update(
+                compare_dicts(
+                    value1,
+                    value2,
+                    f"{current_path}.",
+                    check_values=check_values,
+                )
+            )
+
+        elif isinstance(value1, list) and isinstance(value2, list):
+            diffs.update(
+                compare_lists(
+                    value1,
+                    value2,
+                    current_path,
+                    check_values=check_values,
+                )
+            )
+
+        elif check_values and value1 != value2:
+            diffs[current_path] = {
+                "in_dict1": value1,
+                "in_dict2": value2,
+            }
 
     return diffs
 
 
-def count_keys_of_dict(my_dict):
-    count = 0
-    if not isinstance(my_dict, dict):
-        return 0
-    for key, value in my_dict.items():
-        count += 1
-        if isinstance(value, dict):
-            count += count_keys_of_dict(value)
-        elif isinstance(value, list):
-            for item in value:
-                if isinstance(item, dict):
-                    count += count_keys_of_dict(item)
-    return count
+def count_keys_of_dict(data: Any) -> int:
+    """Recursively count all dictionary keys in nested dict/list structures."""
+    if isinstance(data, dict):
+        return sum(1 + count_keys_of_dict(v) for v in data.values())
+
+    if isinstance(data, list):
+        return sum(count_keys_of_dict(item) for item in data)
+
+    return 0
 
 
 def apply_redact(data):
     """
     Recursively redact sensitive data from the dictionary/list.
+
     1. Values for keys: systemName, createTime, location, timezone -> "REDACTED"
-    2. Keys that are 16-char Serial Numbers -> "MY-SerialNumberX"
+    2. Keys that are 16-char Serial Numbers -> "MY-SerialNumberX".
     """
     sn_map = {}
     sn_counter = 1
@@ -226,7 +302,7 @@ def apply_redact(data):
     return _redact_recursive(data)
 
 
-def run_check():
+async def run_check():
     parser = argparse.ArgumentParser(description="Check PowerOcean parameters.")
     parser.add_argument("--sn", default="MY_SERIAL_NUMBER", help="Serial number")
     parser.add_argument("--username", default="MY_USERNAME", help="Username")
@@ -267,31 +343,24 @@ def run_check():
     args = parser.parse_args()
 
     # Ensure data directory exists
-    if not os.path.exists(DATA_DIR):
-        os.makedirs(DATA_DIR, exist_ok=True)
+    if not os.path.exists(BASE_DIR):
+        os.makedirs(BASE_DIR, exist_ok=True)
 
     date_str = datetime.now().strftime("%Y-%m-%d")
 
     # Init and authorize
-    ef = Ecoflow(args.sn, args.username, args.password, args.variant, options={})
+    ef = EcoflowApi(args.sn, args.username, args.password, args.variant)
     print(f"Authorizing for {args.username}...")
     try:
-        ef.authorize()
+        await ef.async_authorize()
     except Exception as e:
         print(f"Auth failed: {e}")
         return
 
     print("Fetching current data...")
-    import requests
 
-    headers = {
-        "authorization": f"Bearer {ef.token}",
-        "user-agent": "Firefox/133.0",
-        "product-type": ef.ecoflow_variant,
-    }
-    r = requests.get(ef.url_user_fetch, headers=headers, timeout=30)
-    response = ef.get_json_response(r)
-
+    response = await ef.fetch_raw()
+    await ef.close()
     nkeys_new = count_keys_of_dict(response)
     print(f"Current response has {nkeys_new} keys.")
 
@@ -300,7 +369,7 @@ def run_check():
             print("Redacting sensitive data...")
             response = apply_redact(response)
 
-        fnout = os.path.join(DATA_DIR, f"Response-EcoFlowAPI_{date_str}.json")
+        fnout = os.path.join(BASE_DIR, f"Response-EcoFlowAPI_{date_str}.json")
         with open(fnout, "w") as f:
             json.dump(response, f, indent=2)
         print(f"Saved current response to {fnout}")
@@ -309,7 +378,7 @@ def run_check():
     if fn_ref:
         # If file not found in current dir, check data dir
         if not os.path.exists(fn_ref):
-            fn_ref_in_data = os.path.join(DATA_DIR, fn_ref)
+            fn_ref_in_data = os.path.join(BASE_DIR, fn_ref)
             if os.path.exists(fn_ref_in_data):
                 fn_ref = fn_ref_in_data
 
@@ -385,10 +454,8 @@ def run_check():
                     human_ok = True
                     if args.human_format == "yaml":
                         try:
-                            import yaml  # type: ignore
-
                             fn_human = os.path.join(
-                                DATA_DIR, f"Response-Difference_{date_str}.yaml"
+                                BASE_DIR, f"Response-Difference_{date_str}.yaml"
                             )
                             with open(fn_human, "w") as f:
                                 # Build structured report dict for YAML
@@ -446,7 +513,7 @@ def run_check():
 
                     if args.human_format == "txt" or not human_ok:
                         fn_human = os.path.join(
-                            DATA_DIR, f"Response-Difference_{date_str}.txt"
+                            BASE_DIR, f"Response-Difference_{date_str}.txt"
                         )
                         with open(fn_human, "w") as f:
                             f.write("Comparison Report\n")
@@ -495,7 +562,7 @@ def run_check():
                     # prepare a readable JSON diff when requested
                     if args.diff_mode in ("json", "both"):
                         fn_diff_json = os.path.join(
-                            DATA_DIR, f"Response-Difference_{date_str}.json"
+                            BASE_DIR, f"Response-Difference_{date_str}.json"
                         )
                         try:
                             with open(fn_diff_json, "w") as fj:
@@ -508,8 +575,8 @@ def run_check():
             print(f">>> number of keys in new version: {nkeys_new}")
             print("")
         else:
-            print(f"File {args.fn_json} not found in current directory or {DATA_DIR}.")
+            print(f"File {args.fn_json} not found in current directory or {BASE_DIR}.")
 
 
 if __name__ == "__main__":
-    run_check()
+    asyncio.run(run_check())
