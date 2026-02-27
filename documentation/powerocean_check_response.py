@@ -66,17 +66,27 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
-import os
+import logging
 import sys
-from datetime import datetime
-from typing import Any
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any, Literal
 
 import yaml
 
+# Logging-Setup
+logging.basicConfig(
+    level=logging.INFO,  # Standard-Level
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+logger = logging.getLogger(__name__)
+
 # PowerOcean-Package zum Pfad hinzufügen
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.join(BASE_DIR, "../custom_components")
-sys.path.append(PROJECT_ROOT)
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent / "custom_components"
+
+sys.path.append(str(PROJECT_ROOT))
 
 from powerocean.api import EcoflowApi
 
@@ -281,23 +291,25 @@ def count_keys_of_dict(data: Any) -> int:
     return 0
 
 
-def apply_redact(data):
+def apply_redact(data: Any) -> Any:
     """
-    Recursively redact sensitive data from the dictionary/list.
+    Recursively redact sensitive data from dictionaries/lists.
 
-    1. Values for keys: systemName, createTime, location, timezone -> "REDACTED"
-    2. Keys that are 16-char Serial Numbers -> "MY-SerialNumberX".
+    1. Values for specific keys -> "REDACTED"
+    2. Keys that are 16-char Serial Numbers -> "MY-SerialNumberX"
     """
-    sn_map = {}
-    sn_counter = 1
+    sn_map: dict[str, str] = {}
+    sn_counter: int = 1
 
-    def _redact_recursive(obj):
+    def _redact_recursive(obj: Any) -> Any:
         nonlocal sn_counter
+
         if isinstance(obj, dict):
-            new_dict = {}
+            new_dict: dict[Any, Any] = {}
+
             for k, v in obj.items():
                 # Redact values for specific keys
-                if k in [
+                if k in {
                     "systemName",
                     "createTime",
                     "location",
@@ -309,45 +321,61 @@ def apply_redact(data):
                     "devSn",
                     "eagleEyeTraceId",
                     "tid",
-                ] and isinstance(v, str):
+                } and isinstance(v, str):
                     new_dict[k] = "REDACTED"
                     continue
 
-                # Check for SN keys (16 chars, alphanumeric)
+                # Replace serial-number-like keys
                 new_key = k
-                if len(k) == 16 and k.isalnum() and k.isupper():
+                if isinstance(k, str) and len(k) == 16 and k.isalnum() and k.isupper():
                     if k not in sn_map:
                         sn_map[k] = f"MY-SerialNumber{sn_counter}"
                         sn_counter += 1
                     new_key = sn_map[k]
+
                 new_dict[new_key] = _redact_recursive(v)
+
             return new_dict
-        elif isinstance(obj, list):
+
+        if isinstance(obj, list):
             return [_redact_recursive(item) for item in obj]
-        elif isinstance(obj, str):
-            # Check if it's a JSON string
-            if (obj.strip().startswith("{") and obj.strip().endswith("}")) or (
-                obj.strip().startswith("[") and obj.strip().endswith("]")
+
+        if isinstance(obj, str):
+            stripped = obj.strip()
+
+            # Try parsing embedded JSON
+            if (stripped.startswith("{") and stripped.endswith("}")) or (
+                stripped.startswith("[") and stripped.endswith("]")
             ):
                 try:
                     inner_data = json.loads(obj)
                     redacted_inner = _redact_recursive(inner_data)
                     return json.dumps(redacted_inner, indent=2)
                 except Exception:
-                    pass
+                    logger.exception("Failed to parse embedded JSON for redaction.")
 
-            # Key-value redaction for strings that are not JSON but contain SNs
+            # Replace known serial numbers inside strings
             for original_sn, placeholder in sn_map.items():
                 if original_sn in obj:
                     obj = obj.replace(original_sn, placeholder)
+
             return obj
-        else:
-            return obj
+
+        return obj
 
     return _redact_recursive(data)
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """
+    Create and configure the command-line argument parser.
+
+    Returns:
+        argparse.ArgumentParser: Configured parser for the PowerOcean
+        parameter check CLI including authentication, diff handling,
+        output formatting and redaction options.
+
+    """
     parser = argparse.ArgumentParser(description="Check PowerOcean parameters.")
 
     parser.add_argument(
@@ -414,26 +442,65 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-async def fetch_current_response(args) -> dict:
+async def fetch_current_response(args: Any) -> dict[str, Any]:
+    """
+    Authorize against the EcoFlow API and fetch the current raw response.
+
+    Args:
+        args: Parsed CLI arguments containing:
+            - sn: Serial number
+            - username: Account username
+            - password: Account password
+            - variant: Device variant
+
+    Returns:
+        dict[str, Any]: Raw JSON response from the API.
+
+    Raises:
+        Exception: Propagates authorization or network errors.
+
+    """
     ef = EcoflowApi(args.sn, args.username, args.password, args.variant)
 
-    print(f"Authorizing for {args.username}...")
+    logger.info("Authorizing for %s...", args.username)
     await ef.async_authorize()
 
-    print("Fetching current data...")
-    response = await ef.fetch_raw()
-    await ef.close()
+    logger.info("Fetching current data...")
+    try:
+        response = await ef.fetch_raw()
+    finally:
+        await ef.close()
 
     return response
 
 
-def calculate_diff(old: dict, new: dict) -> tuple[dict, list, list, list]:
+def calculate_diff(
+    old: dict[str, Any],
+    new: dict[str, Any],
+) -> tuple[dict[str, Any], list[str], list[str], list[str]]:
+    """
+    Compare two dictionaries and classify their differences.
+
+    Args:
+        old: Reference dictionary.
+        new: Current dictionary.
+
+    Returns:
+        A tuple containing:
+            - diff: Full diff structure as returned by compare_dicts
+            - new_keys: Keys only present in the new dictionary
+            - removed_keys: Keys only present in the old dictionary
+            - updated_keys: Keys present in both dictionaries but with changed values
+
+    """
     diff = compare_dicts(old, new, check_values=True)
 
     new_keys = [k for k, v in diff.items() if "in_dict2" in v and "in_dict1" not in v]
+
     removed_keys = [
         k for k, v in diff.items() if "in_dict1" in v and "in_dict2" not in v
     ]
+
     updated_keys = [k for k, v in diff.items() if "in_dict1" in v and "in_dict2" in v]
 
     return diff, new_keys, removed_keys, updated_keys
@@ -447,14 +514,18 @@ def resolve_reference_file(fn: str) -> str | None:
     1. Provided path
     2. BASE_DIR
 
-    Returns full path if exists, else None.
-    """
-    if os.path.exists(fn):
-        return fn
+    Returns:
+        Full path as string if file exists, otherwise None.
 
-    fn_in_base = os.path.join(BASE_DIR, fn)
-    if os.path.exists(fn_in_base):
-        return fn_in_base
+    """
+    path = Path(fn)
+
+    if path.exists():
+        return str(path)
+
+    fn_in_base = BASE_DIR / fn
+    if fn_in_base.exists():
+        return str(fn_in_base)
 
     return None
 
@@ -462,19 +533,19 @@ def resolve_reference_file(fn: str) -> str | None:
 def print_summary(
     new_keys: list[str], removed_keys: list[str], updated_keys: list[str]
 ) -> None:
-    """
-    Print a concise summary of new, removed, and updated keys.
-    """
-    print("Comparison Summary:")
-    print(f"- Number of new keys: {len(new_keys)}")
-    print(f"- Number of removed keys: {len(removed_keys)}")
-    print(f"- Number of updated keys: {len(updated_keys)}\n")
+    """Print a concise summary of new, removed, and updated keys."""
+    logger.info("Comparison Summary:")
+    logger.info("- Number of new keys: %d", len(new_keys))
+    logger.info("- Number of removed keys: %d", len(removed_keys))
+    logger.info("- Number of updated keys: %d\n", len(updated_keys))
 
 
-import json
-from typing import Any
+@dataclass
+class DiffArgs:
+    """Configuration options for diff report generation."""
 
-import yaml
+    human_format: Literal["txt", "yaml"]
+    diff_mode: Literal["txt", "json", "both"]
 
 
 def save_diff_reports(
@@ -485,17 +556,18 @@ def save_diff_reports(
     response_old: dict[str, Any],
     response_new: dict[str, Any],
     date_str: str,
-    args,
+    args: DiffArgs,
 ) -> None:
-    """
-    Save the differences to human-readable (TXT/YAML) and machine-readable (JSON) files.
-    """
-
-    # Human-readable
+    """Save differences as human-readable (TXT/YAML) and machine-readable (JSON) reports."""
     human_ok = True
+
+    # -------------------------
+    # YAML report
+    # -------------------------
     if args.human_format == "yaml":
         try:
-            fn_human = os.path.join(BASE_DIR, f"Response-Difference_{date_str}.yaml")
+            fn_human = BASE_DIR / f"Response-Difference_{date_str}.yaml"
+
             report = {
                 "old_version": "Reference JSON",
                 "new_version": f"Current API response ({date_str})",
@@ -514,96 +586,141 @@ def save_diff_reports(
                     for k in updated_keys
                 },
             }
-            with open(fn_human, "w") as f:
+
+            with fn_human.open("w", encoding="utf-8") as f:
                 yaml.safe_dump(report, f, sort_keys=False, allow_unicode=True)
-            print(f"Saved YAML differences to {fn_human}")
+
+            logger.info("Saved YAML differences to %s", fn_human)
+
         except Exception:
             human_ok = False
-            print("Warning: PyYAML not available; falling back to TXT report.")
+            logger.warning("PyYAML not available; falling back to TXT report.")
 
+    # -------------------------
     # TXT fallback
+    # -------------------------
     if args.human_format == "txt" or not human_ok:
-        fn_human = os.path.join(BASE_DIR, f"Response-Difference_{date_str}.txt")
-        with open(fn_human, "w") as f:
+        fn_human = BASE_DIR / f"Response-Difference_{date_str}.txt"
+
+        with fn_human.open("w", encoding="utf-8") as f:
             f.write("Comparison Report\n=================\n\n")
-            f.write(f"Old version: Reference JSON\n")
+            f.write("Old version: Reference JSON\n")
             f.write(f"New version: Current API response ({date_str})\n\n")
             f.write(f"Number of new keys: {len(new_keys)}\n")
             f.write(f"Number of removed keys: {len(removed_keys)}\n")
             f.write(f"Number of updated keys: {len(updated_keys)}\n\n")
+
             if new_keys:
                 f.write("New Keys:\n")
                 f.writelines(
                     f" - {k}: {format_value(diff[k].get('in_dict2'))}\n"
                     for k in new_keys
                 )
+
             if removed_keys:
                 f.write("\nRemoved Keys:\n")
                 f.writelines(
                     f" - {k}: {format_value(diff[k].get('in_dict1'))}\n"
                     for k in removed_keys
                 )
+
             if updated_keys:
                 f.write("\nUpdated Keys:\n")
                 f.writelines(
-                    f" - {k}: {format_value(diff[k].get('in_dict1'))} -> {format_value(diff[k].get('in_dict2'))}\n"
+                    f" - {k}: {format_value(diff[k].get('in_dict1'))} -> "
+                    f"{format_value(diff[k].get('in_dict2'))}\n"
                     for k in updated_keys
                 )
-        print(f"Saved TXT differences to {fn_human}")
 
+        logger.info("Saved TXT differences to %s", fn_human)
+
+    # -------------------------
     # JSON diff
+    # -------------------------
     if args.diff_mode in ("json", "both"):
-        fn_json = os.path.join(BASE_DIR, f"Response-Difference_{date_str}.json")
+        fn_json = BASE_DIR / f"Response-Difference_{date_str}.json"
+
         try:
-            with open(fn_json, "w") as fjson:
+            with fn_json.open("w", encoding="utf-8") as fjson:
                 json.dump(diff, fjson, indent=2, ensure_ascii=False)
-            print(f"Saved JSON diff to {fn_json}")
+
+            logger.info("Saved JSON diff to %s", fn_json)
+
         except Exception as e:
-            print(f"Warning: failed to save JSON diff: {e}")
+            logger.exception("Failed to save JSON diff: %s", e)
 
 
 async def run_check() -> None:
-    parser = build_parser()
-    args = parser.parse_args()
+    """
+    Execute the PowerOcean parameter check workflow.
 
-    os.makedirs(BASE_DIR, exist_ok=True)
-    date_str = datetime.now().strftime("%Y-%m-%d")
+    - Fetch current API response
+    - Optionally save it
+    - Optionally compare with reference JSON
+    - Optionally write diff reports
+    """
+    parser = build_parser()
+    parsed_args = parser.parse_args()
+
+    # Convert argparse.Namespace -> DiffArgs (typed)
+    diff_args = DiffArgs(
+        human_format=parsed_args.human_format,
+        diff_mode=parsed_args.diff_mode,
+    )
+
+    BASE_DIR.mkdir(parents=True, exist_ok=True)
+    date_str = datetime.now(UTC).strftime("%Y-%m-%d")
 
     try:
-        response = await fetch_current_response(args)
+        response = await fetch_current_response(parsed_args)
     except Exception as e:
-        print(f"Auth/API failed: {e}")
+        logger.exception("Auth/API failed: %s", e)
         return
 
     nkeys_new = count_keys_of_dict(response)
-    print(f"Current response has {nkeys_new} keys.")
+    logger.info("Current response has %d keys.", nkeys_new)
 
-    if args.save_new:
-        if args.redact:
+    # -------------------------
+    # Save new response
+    # -------------------------
+    if parsed_args.save_new:
+        if parsed_args.redact:
             response = apply_redact(response)
 
-        fnout = os.path.join(BASE_DIR, f"Response-EcoFlowAPI_{date_str}.json")
-        with open(fnout, "w") as f:
-            json.dump(response, f, indent=2, ensure_ascii=False)
-        print(f"Saved current response to {fnout}")
+        fnout = BASE_DIR / f"Response-EcoFlowAPI_{date_str}.json"
 
-    if not args.fn_json:
+        await asyncio.to_thread(
+            _write_json_file,
+            fnout,
+            response,
+        )
+
+        logger.info("Saved current response to %s", fnout)
+
+    if not parsed_args.fn_json:
         return
 
-    # load old response
-    fn_ref = resolve_reference_file(args.fn_json)
+    # -------------------------
+    # Load reference file
+    # -------------------------
+    fn_ref = resolve_reference_file(parsed_args.fn_json)
     if not fn_ref:
-        print("Reference file not found.")
+        logger.warning("Reference file not found.")
         return
 
-    with open(fn_ref) as f:
-        response_old = json.load(f)
+    response_old = await asyncio.to_thread(_read_json_file, Path(fn_ref))
 
-    diff, new_keys, removed_keys, updated_keys = calculate_diff(response_old, response)
+    diff, new_keys, removed_keys, updated_keys = calculate_diff(
+        response_old,
+        response,
+    )
 
     print_summary(new_keys, removed_keys, updated_keys)
 
-    if args.save_diff:
+    # -------------------------
+    # Save diff reports
+    # -------------------------
+    if parsed_args.save_diff:
         save_diff_reports(
             diff,
             new_keys,
@@ -612,9 +729,29 @@ async def run_check() -> None:
             response_old,
             response,
             date_str,
-            args,
+            diff_args,
         )
 
 
+# -------------------------
+# Blocking helpers
+# -------------------------
+
+
+def _write_json_file(path: Path, data: dict) -> None:
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+
+def _read_json_file(path: Path) -> dict:
+    with path.open(encoding="utf-8") as f:
+        return json.load(f)
+
+
+async def main() -> None:
+    """Program entry point."""
+    await run_check()
+
+
 if __name__ == "__main__":
-    asyncio.run(run_check())
+    asyncio.run(main())
