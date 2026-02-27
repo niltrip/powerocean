@@ -84,31 +84,76 @@ from powerocean.api import EcoflowApi
 # =====================================
 # Helper functions
 # =====================================
-def compare_lists(list1, list2, path, check_values):
-    diffs = {}
+def compare_lists(
+    list1: list[Any],
+    list2: list[Any],
+    path: str,
+    *,
+    check_values: bool = True,
+) -> dict[str, dict[str, Any]]:
+    """
+    Recursively compare two lists and return differences.
+
+    Differences are returned in a dictionary where keys are in
+    dotted-path notation with indices, e.g., 'parent[0].child'.
+
+    Args:
+        list1: First list to compare.
+        list2: Second list to compare.
+        path: Base path to prepend to diff keys.
+        check_values: If True, value mismatches are included in the diff.
+            If False, only structural differences (missing items) are reported.
+
+    Returns:
+        A dictionary of differences. Example:
+        {
+            "devices[0].status": {"in_dict1": "ok", "in_dict2": "error"},
+            "devices[3]": {"in_dict2": {"id": 42}}
+        }
+
+    """
+    diffs: dict[str, dict[str, Any]] = {}
+
     for i in range(max(len(list1), len(list2))):
+        key_path = f"{path}[{i}]"
         if i < len(list1) and i < len(list2):
-            if isinstance(list1[i], dict) and isinstance(list2[i], dict):
+            a, b = list1[i], list2[i]
+            if isinstance(a, dict) and isinstance(b, dict):
                 sub_diffs = compare_dicts(
-                    list1[i], list2[i], f"{path}[{i}].", check_values
+                    a, b, f"{key_path}.", check_values=check_values
                 )
                 diffs.update(sub_diffs)
-            elif check_values and list1[i] != list2[i]:
-                diffs[f"{path}[{i}]"] = {"in_dict1": list1[i], "in_dict2": list2[i]}
+            elif check_values and a != b:
+                diffs[key_path] = {"in_dict1": a, "in_dict2": b}
         elif i < len(list1):
-            diffs[f"{path}[{i}]"] = {"in_dict1": list1[i]}
+            diffs[key_path] = {"in_dict1": list1[i]}
         else:
-            diffs[f"{path}[{i}]"] = {"in_dict2": list2[i]}
+            diffs[key_path] = {"in_dict2": list2[i]}
+
     return diffs
 
 
-def group_keys_by_section(keys, depth=2):
+def group_keys_by_section(keys: list[str], depth: int = 2) -> dict[str, list[str]]:
     """
     Group dotted keys by their prefix up to `depth` segments.
 
-    Example: depth=2 groups 'data.quota.JTS1...' into 'data.quota'.
+    Example:
+        depth=2 groups 'data.quota.JTS1.value' into 'data.quota'.
+
+    Args:
+        keys: List of dotted key strings, e.g., 'data.quota.JTS1.value'.
+        depth: Number of segments to use for grouping (default 2).
+
+    Returns:
+        Dictionary mapping prefix to list of full keys.
+
+    Example:
+            {
+                "data.quota": ["data.quota.JTS1.value", "data.quota.JTS2.value"],
+                "data.status": ["data.status.online"]
+            }
     """
-    groups = {}
+    groups: dict[str, list[str]] = {}
     for k in keys:
         parts = k.split(".")
         prefix = ".".join(parts[:depth]) if len(parts) >= depth else parts[0]
@@ -302,280 +347,273 @@ def apply_redact(data):
     return _redact_recursive(data)
 
 
-async def run_check():
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Check PowerOcean parameters.")
-    parser.add_argument("--sn", default="MY_SERIAL_NUMBER", help="Serial number")
-    parser.add_argument("--username", default="MY_USERNAME", help="Username")
-    parser.add_argument("--password", default="MY_PASSWORD", help="Password")
+
     parser.add_argument(
-        "--variant", default="MY_VARIANT", help="Variant (e.g. 83, 85, 86, 87)"
+        "--sn",
+        default="MY_SERIAL_NUMBER",
+        help="Serial number (default: MY_SERIAL_NUMBER)",
     )
+
+    parser.add_argument(
+        "--username",
+        default="MY_USERNAME",
+        help="Username (default: MY_USERNAME)",
+    )
+
+    parser.add_argument(
+        "--password",
+        default="MY_PASSWORD",
+        help="Password (default: MY_PASSWORD)",
+    )
+
+    parser.add_argument(
+        "--variant",
+        default="MY_VARIANT",
+        help="Variant (e.g. 83, 85, 86, 87)",
+    )
+
     parser.add_argument(
         "--fn_json",
-        help="Reference JSON file for comparison (searched in data/powerocean by default)",
+        help="Reference JSON file for comparison",
     )
+
     parser.add_argument(
         "--save_new",
         action="store_true",
-        help="Save current response to data/powerocean",
+        help="Save current response to data directory",
     )
+
     parser.add_argument(
-        "--save_diff", action="store_true", help="Save differences to data/powerocean"
+        "--save_diff",
+        action="store_true",
+        help="Save differences to data directory",
     )
+
     parser.add_argument(
         "--diff_mode",
         choices=["txt", "json", "both"],
         default="both",
-        help="Which diff files to save: txt (human), json (machine), or both",
+        help="Which diff files to save (default: both)",
     )
+
     parser.add_argument(
         "--human_format",
         choices=["txt", "yaml"],
         default="txt",
-        help="Format of human-readable report when saving (txt or yaml)",
+        help="Format of human-readable report (default: txt)",
     )
+
     parser.add_argument(
         "--redact",
         action="store_true",
-        help="Redact sensitive data (SNs, location, etc.) in saved new response",
+        help="Redact sensitive data in saved response",
     )
 
-    args = parser.parse_args()
+    return parser
 
-    # Ensure data directory exists
-    if not os.path.exists(BASE_DIR):
-        os.makedirs(BASE_DIR, exist_ok=True)
 
-    date_str = datetime.now().strftime("%Y-%m-%d")
-
-    # Init and authorize
+async def fetch_current_response(args) -> dict:
     ef = EcoflowApi(args.sn, args.username, args.password, args.variant)
+
     print(f"Authorizing for {args.username}...")
-    try:
-        await ef.async_authorize()
-    except Exception as e:
-        print(f"Auth failed: {e}")
-        return
+    await ef.async_authorize()
 
     print("Fetching current data...")
-
     response = await ef.fetch_raw()
     await ef.close()
+
+    return response
+
+
+def calculate_diff(old: dict, new: dict) -> tuple[dict, list, list, list]:
+    diff = compare_dicts(old, new, check_values=True)
+
+    new_keys = [k for k, v in diff.items() if "in_dict2" in v and "in_dict1" not in v]
+    removed_keys = [
+        k for k, v in diff.items() if "in_dict1" in v and "in_dict2" not in v
+    ]
+    updated_keys = [k for k, v in diff.items() if "in_dict1" in v and "in_dict2" in v]
+
+    return diff, new_keys, removed_keys, updated_keys
+
+
+def resolve_reference_file(fn: str) -> str | None:
+    """
+    Resolve the reference JSON file path.
+
+    Checks:
+    1. Provided path
+    2. BASE_DIR
+
+    Returns full path if exists, else None.
+    """
+    if os.path.exists(fn):
+        return fn
+
+    fn_in_base = os.path.join(BASE_DIR, fn)
+    if os.path.exists(fn_in_base):
+        return fn_in_base
+
+    return None
+
+
+def print_summary(
+    new_keys: list[str], removed_keys: list[str], updated_keys: list[str]
+) -> None:
+    """
+    Print a concise summary of new, removed, and updated keys.
+    """
+    print("Comparison Summary:")
+    print(f"- Number of new keys: {len(new_keys)}")
+    print(f"- Number of removed keys: {len(removed_keys)}")
+    print(f"- Number of updated keys: {len(updated_keys)}\n")
+
+
+import json
+from typing import Any
+
+import yaml
+
+
+def save_diff_reports(
+    diff: dict[str, Any],
+    new_keys: list[str],
+    removed_keys: list[str],
+    updated_keys: list[str],
+    response_old: dict[str, Any],
+    response_new: dict[str, Any],
+    date_str: str,
+    args,
+) -> None:
+    """
+    Save the differences to human-readable (TXT/YAML) and machine-readable (JSON) files.
+    """
+
+    # Human-readable
+    human_ok = True
+    if args.human_format == "yaml":
+        try:
+            fn_human = os.path.join(BASE_DIR, f"Response-Difference_{date_str}.yaml")
+            report = {
+                "old_version": "Reference JSON",
+                "new_version": f"Current API response ({date_str})",
+                "counts": {
+                    "new": len(new_keys),
+                    "removed": len(removed_keys),
+                    "updated": len(updated_keys),
+                },
+                "new": {k: diff[k].get("in_dict2") for k in new_keys},
+                "removed": {k: diff[k].get("in_dict1") for k in removed_keys},
+                "updated": {
+                    k: {
+                        "before": diff[k].get("in_dict1"),
+                        "after": diff[k].get("in_dict2"),
+                    }
+                    for k in updated_keys
+                },
+            }
+            with open(fn_human, "w") as f:
+                yaml.safe_dump(report, f, sort_keys=False, allow_unicode=True)
+            print(f"Saved YAML differences to {fn_human}")
+        except Exception:
+            human_ok = False
+            print("Warning: PyYAML not available; falling back to TXT report.")
+
+    # TXT fallback
+    if args.human_format == "txt" or not human_ok:
+        fn_human = os.path.join(BASE_DIR, f"Response-Difference_{date_str}.txt")
+        with open(fn_human, "w") as f:
+            f.write("Comparison Report\n=================\n\n")
+            f.write(f"Old version: Reference JSON\n")
+            f.write(f"New version: Current API response ({date_str})\n\n")
+            f.write(f"Number of new keys: {len(new_keys)}\n")
+            f.write(f"Number of removed keys: {len(removed_keys)}\n")
+            f.write(f"Number of updated keys: {len(updated_keys)}\n\n")
+            if new_keys:
+                f.write("New Keys:\n")
+                f.writelines(
+                    f" - {k}: {format_value(diff[k].get('in_dict2'))}\n"
+                    for k in new_keys
+                )
+            if removed_keys:
+                f.write("\nRemoved Keys:\n")
+                f.writelines(
+                    f" - {k}: {format_value(diff[k].get('in_dict1'))}\n"
+                    for k in removed_keys
+                )
+            if updated_keys:
+                f.write("\nUpdated Keys:\n")
+                f.writelines(
+                    f" - {k}: {format_value(diff[k].get('in_dict1'))} -> {format_value(diff[k].get('in_dict2'))}\n"
+                    for k in updated_keys
+                )
+        print(f"Saved TXT differences to {fn_human}")
+
+    # JSON diff
+    if args.diff_mode in ("json", "both"):
+        fn_json = os.path.join(BASE_DIR, f"Response-Difference_{date_str}.json")
+        try:
+            with open(fn_json, "w") as fjson:
+                json.dump(diff, fjson, indent=2, ensure_ascii=False)
+            print(f"Saved JSON diff to {fn_json}")
+        except Exception as e:
+            print(f"Warning: failed to save JSON diff: {e}")
+
+
+async def run_check() -> None:
+    parser = build_parser()
+    args = parser.parse_args()
+
+    os.makedirs(BASE_DIR, exist_ok=True)
+    date_str = datetime.now().strftime("%Y-%m-%d")
+
+    try:
+        response = await fetch_current_response(args)
+    except Exception as e:
+        print(f"Auth/API failed: {e}")
+        return
+
     nkeys_new = count_keys_of_dict(response)
     print(f"Current response has {nkeys_new} keys.")
 
     if args.save_new:
         if args.redact:
-            print("Redacting sensitive data...")
             response = apply_redact(response)
 
         fnout = os.path.join(BASE_DIR, f"Response-EcoFlowAPI_{date_str}.json")
         with open(fnout, "w") as f:
-            json.dump(response, f, indent=2)
+            json.dump(response, f, indent=2, ensure_ascii=False)
         print(f"Saved current response to {fnout}")
 
-    fn_ref = args.fn_json
-    if fn_ref:
-        # If file not found in current dir, check data dir
-        if not os.path.exists(fn_ref):
-            fn_ref_in_data = os.path.join(BASE_DIR, fn_ref)
-            if os.path.exists(fn_ref_in_data):
-                fn_ref = fn_ref_in_data
+    if not args.fn_json:
+        return
 
-        if os.path.exists(fn_ref):
-            print(f"Comparing with {fn_ref}...")
-            with open(fn_ref) as f:
-                response_old = json.load(f)
+    # load old response
+    fn_ref = resolve_reference_file(args.fn_json)
+    if not fn_ref:
+        print("Reference file not found.")
+        return
 
-            nkeys_old = count_keys_of_dict(response_old)
-            diff = compare_dicts(response_old, response, check_values=True)
+    with open(fn_ref) as f:
+        response_old = json.load(f)
 
-            if not diff:
-                print(">>> No new parameters encountered!")
-            else:
-                # Categorize differences
-                new_keys = [
-                    k
-                    for k, v in diff.items()
-                    if "in_dict2" in v and "in_dict1" not in v
-                ]
-                removed_keys = [
-                    k
-                    for k, v in diff.items()
-                    if "in_dict1" in v and "in_dict2" not in v
-                ]
-                updated_keys = [
-                    k for k, v in diff.items() if "in_dict1" in v and "in_dict2" in v
-                ]
+    diff, new_keys, removed_keys, updated_keys = calculate_diff(response_old, response)
 
-                print("Differences found:")
-                print(f"- Number of new keys: {len(new_keys)}")
-                print(f"- Number of removed keys: {len(removed_keys)}")
-                print(f"- Number of updated keys: {len(updated_keys)}")
-                print("")
+    print_summary(new_keys, removed_keys, updated_keys)
 
-                # Group by top-level sections for readability
-                new_groups = group_keys_by_section(new_keys, depth=2)
-                removed_groups = group_keys_by_section(removed_keys, depth=2)
-                updated_groups = group_keys_by_section(updated_keys, depth=2)
-
-                if new_keys:
-                    print("New keys (grouped):")
-                    for sec, keys_in_sec in sorted(new_groups.items()):
-                        print(f"- {sec}:")
-                        for k in keys_in_sec:
-                            print(
-                                f"    - {k.split('.')[-1]}: {format_value(diff[k].get('in_dict2'))}"
-                            )
-                    print("")
-
-                if removed_keys:
-                    print("Removed keys (grouped):")
-                    for sec, keys_in_sec in sorted(removed_groups.items()):
-                        print(f"- {sec}:")
-                        for k in keys_in_sec:
-                            print(
-                                f"    - {k.split('.')[-1]}: {format_value(diff[k].get('in_dict1'))}"
-                            )
-                    print("")
-
-                if updated_keys:
-                    print("Updated keys (grouped):")
-                    for sec, keys_in_sec in sorted(updated_groups.items()):
-                        print(f"- {sec}:")
-                        for k in keys_in_sec:
-                            before = format_value(diff[k].get("in_dict1"))
-                            after = format_value(diff[k].get("in_dict2"))
-                            print(f"    - {k.split('.')[-1]}: {before} -> {after}")
-                    print("")
-
-                if args.save_diff:
-                    # Human-readable report (TXT or YAML)
-                    human_ok = True
-                    if args.human_format == "yaml":
-                        try:
-                            fn_human = os.path.join(
-                                BASE_DIR, f"Response-Difference_{date_str}.yaml"
-                            )
-                            with open(fn_human, "w") as f:
-                                # Build structured report dict for YAML
-                                report = {
-                                    "old_version": fn_ref,
-                                    "new_version": f"Current API response ({date_str})",
-                                    "total_keys_old": nkeys_old,
-                                    "total_keys_new": nkeys_new,
-                                    "counts": {
-                                        "new": len(new_keys),
-                                        "removed": len(removed_keys),
-                                        "updated": len(updated_keys),
-                                    },
-                                    "new": {
-                                        sec: [
-                                            {"key": k, "value": diff[k].get("in_dict2")}
-                                            for k in keys_in_sec
-                                        ]
-                                        for sec, keys_in_sec in sorted(
-                                            new_groups.items()
-                                        )
-                                    },
-                                    "removed": {
-                                        sec: [
-                                            {"key": k, "value": diff[k].get("in_dict1")}
-                                            for k in keys_in_sec
-                                        ]
-                                        for sec, keys_in_sec in sorted(
-                                            removed_groups.items()
-                                        )
-                                    },
-                                    "updated": {
-                                        sec: [
-                                            {
-                                                "key": k,
-                                                "before": diff[k].get("in_dict1"),
-                                                "after": diff[k].get("in_dict2"),
-                                            }
-                                            for k in keys_in_sec
-                                        ]
-                                        for sec, keys_in_sec in sorted(
-                                            updated_groups.items()
-                                        )
-                                    },
-                                }
-                                yaml.safe_dump(
-                                    report, f, sort_keys=False, allow_unicode=True
-                                )
-                            print(f"Saved YAML differences to {fn_human}")
-                        except Exception:
-                            human_ok = False
-                            print(
-                                "Warning: PyYAML not available; falling back to TXT report."
-                            )
-
-                    if args.human_format == "txt" or not human_ok:
-                        fn_human = os.path.join(
-                            BASE_DIR, f"Response-Difference_{date_str}.txt"
-                        )
-                        with open(fn_human, "w") as f:
-                            f.write("Comparison Report\n")
-                            f.write("=================\n\n")
-                            f.write(f"Old version: {fn_ref}\n")
-                            f.write(
-                                f"New version: Current API response ({date_str})\n\n"
-                            )
-                            f.write(f"Total keys in old version: {nkeys_old}\n")
-                            f.write(f"Total keys in new version: {nkeys_new}\n\n")
-                            f.write(f"Number of new keys: {len(new_keys)}\n")
-                            f.write(f"Number of removed keys: {len(removed_keys)}\n")
-                            f.write(f"Number of updated keys: {len(updated_keys)}\n\n")
-
-                            if new_keys:
-                                f.write("New Keys (grouped):\n")
-                                for sec, keys_in_sec in sorted(new_groups.items()):
-                                    f.write(f"- {sec}:\n")
-                                    for k in keys_in_sec:
-                                        f.write(
-                                            f"    - {k.split('.')[-1]}: {format_value(diff[k].get('in_dict2'))}\n"
-                                        )
-                                f.write("\n")
-
-                            if removed_keys:
-                                f.write("Removed Keys (grouped):\n")
-                                for sec, keys_in_sec in sorted(removed_groups.items()):
-                                    f.write(f"- {sec}:\n")
-                                    for k in keys_in_sec:
-                                        f.write(
-                                            f"    - {k.split('.')[-1]}: {format_value(diff[k].get('in_dict1'))}\n"
-                                        )
-                                f.write("\n")
-
-                            if updated_keys:
-                                f.write("Updated Keys (grouped):\n")
-                                for sec, keys_in_sec in sorted(updated_groups.items()):
-                                    f.write(f"- {sec}:\n")
-                                    for k in keys_in_sec:
-                                        f.write(
-                                            f"    - {k.split('.')[-1]}: {format_value(diff[k].get('in_dict1'))} -> {format_value(diff[k].get('in_dict2'))}\n"
-                                        )
-                                    f.write("\n")
-                        print(f"Saved differences to {fn_human}")
-
-                    # prepare a readable JSON diff when requested
-                    if args.diff_mode in ("json", "both"):
-                        fn_diff_json = os.path.join(
-                            BASE_DIR, f"Response-Difference_{date_str}.json"
-                        )
-                        try:
-                            with open(fn_diff_json, "w") as fj:
-                                json.dump(diff, fj, indent=2, ensure_ascii=False)
-                            print(f"Saved JSON diff to {fn_diff_json}")
-                        except Exception as e:
-                            print(f"Warning: failed to save JSON diff: {e}")
-            print("")
-            print(f">>> number of keys in old version: {nkeys_old}")
-            print(f">>> number of keys in new version: {nkeys_new}")
-            print("")
-        else:
-            print(f"File {args.fn_json} not found in current directory or {BASE_DIR}.")
+    if args.save_diff:
+        save_diff_reports(
+            diff,
+            new_keys,
+            removed_keys,
+            updated_keys,
+            response_old,
+            response,
+            date_str,
+            args,
+        )
 
 
 if __name__ == "__main__":
