@@ -47,6 +47,79 @@ template:
           {{ val if val > 0 else 0 }}
         availability: >
           {{ has_value('sensor.powerocean_mpptpv2_pwr') }}
+      - name: "House Battery Charge Runtime"
+        unique_id: "house_battery_charge_runtime"
+        unit_of_measurement: "hours"
+        state: >
+          {# Max Kapazität in kWh, später durch Sensor ersetzen #}
+          {% set battery_capacity = 10.0 %}
+          {# Backup in %, später durch Sensor ersetzen #}
+          {% set backup_percent = 5.0 %}
+          {% set soc = states('sensor.powerocean_bpsoc') | float(0) %}
+          {# Ladeleistung (Watt), ersetze durch Sensor für Ladeleistung #}
+          {% set charging_power = states('sensor.powerocean_SN_solartobattery') | float(0) %}
+
+          {# Nur wenn Batterie lädt (positiver Wert für Ladeleistung) #}
+          {% if charging_power > 0 %}
+
+            {# Prozent unterhalb Backup #}
+            {% set max_soc = 100.0 %}
+            {% set chargeable_percent = max_soc - backup_percent - soc %}
+
+            {# Wenn ein Ladezustand verfügbar ist (Prozent unter Backup) #}
+            {% if chargeable_percent > 0 %}
+              {% set chargeable_capacity = battery_capacity * (chargeable_percent / 100) %}
+
+              # Ladezeit in Stunden (Kapazität / Ladeleistung)
+              {{ (chargeable_capacity * 1000 / charging_power) | round(2) }}  # *1000 wegen kWh zu Watt
+            {% else %}
+              0
+            {% endif %}
+
+          {% else %}
+            0
+          {% endif %}
+      - name: "House Battery Discharge Runtime"
+        unique_id: "house_battery_discharge_runtime"
+        unit_of_measurement: "hours"
+        state: >
+          {% set battery_load = states('sensor.powerocean_SN_batterytohouse') | float(0) %}
+          {# Max Kapazität in kWh, später durch Sensor ersetzen #}
+          {% set battery_capacity = 10.0 %}
+          {# Backup in %, später durch Sensor ersetzen #}
+          {% set backup_percent = 5.0 %}
+          {% set soc = states('sensor.powerocean_bpsoc') | float(0) %}
+
+          {# Nur wenn Batterie ins Haus entlädt (positiver Wert) #}
+          {% if battery_load > 0 %}
+
+            {# Prozent oberhalb Backup #}
+            {% set usable_percent = [soc - backup_percent, 0] | max %}
+            {% set available_capacity = battery_capacity * (usable_percent / 100) %}
+
+            {{ (available_capacity / (battery_load / 1000)) | round(2) }}
+
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "House Battery Empty At"
+        unique_id: "house_battery_empty_at"
+        state: >
+          {% set battery_load = states('sensor.powerocean_SN_batterytohouse') | float(0) %}
+          {% set battery_capacity = 10.0 %}
+          {% set backup_percent = 5.0 %}
+          {% set soc = states('sensor.powerocean_bpsoc') | float(0) %}
+
+          {% if battery_load > 0 %}
+            {% set usable_percent = [soc - backup_percent, 0] | max %}
+            {% set available_capacity = battery_capacity * (usable_percent / 100) %}
+            {% set runtime = available_capacity / (battery_load / 1000) %}
+            {% set empty_at = now() + timedelta(hours=runtime) %}
+            {{ empty_at.strftime('%A %d %B %H:%M') }}
+          {% else %}
+            Battery not discharging
+          {% endif %}
 
 sensor:
   # Integrale für PowerOcean
