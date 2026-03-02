@@ -17,11 +17,11 @@ This tool is useful for monitoring structural or value changes in the
 PowerOcean API or device configuration over time.
 
 Usage:
-    python3 powerocean_check_response.py [OPTIONS]
+    python -m documentation.powerocean_check_response [OPTIONS]
 
 Examples:
     Save the current API response with redaction:
-        python3 powerocean_check_response.py \
+        python -m documentation.powerocean_check_response \
             --username your@email.com \
             --password yourpassword \
             --sn your_sn \
@@ -30,7 +30,7 @@ Examples:
             --redact
 
     Compare current API response to a reference file:
-        python3 powerocean_check_response.py \
+        python -m documentation.powerocean_check_response \
             --username your@email.com \
             --password yourpassword \
             --sn your_sn \
@@ -38,7 +38,7 @@ Examples:
             --fn_json powerocean/Response-EcoFlowAPI_2024-09-25_17-06-15.json
 
     Save differences in TXT and JSON format:
-        python3 powerocean_check_response.py \
+        python -m documentation.powerocean_check_response \
             --username your@email.com \
             --password yourpassword \
             --sn your_sn \
@@ -47,7 +47,7 @@ Examples:
             --save_diff
 
     Generate a YAML diff report:
-        python3 powerocean_check_response.py \
+        python -m documentation.powerocean_check_response \
             --username your@email.com \
             --password yourpassword \
             --sn your_sn \
@@ -57,7 +57,7 @@ Examples:
             --human_format yaml
 
 For a full list of options:
-    python3 powerocean_check_response.py --help
+    python -m documentation.powerocean_check_response --help
 
 """
 
@@ -67,13 +67,37 @@ import argparse
 import asyncio
 import json
 import logging
-import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
 
 import yaml
+
+from custom_components.powerocean.api import EcoflowApi
+
+SERIAL_NUMBER_LENGTH = 16
+
+
+@dataclass
+class DiffResult:
+    """
+    Container for structured differences between two API responses.
+
+    Attributes:
+        diff: Mapping of keys to their difference details.
+              Each key contains values from the old and/or new response.
+        new_keys: Keys present only in the new response.
+        removed_keys: Keys present only in the old response.
+        updated_keys: Keys present in both responses but with changed values.
+
+    """
+
+    diff: dict[str, Any]
+    new_keys: list[str]
+    removed_keys: list[str]
+    updated_keys: list[str]
+
 
 # Logging-Setup
 logging.basicConfig(
@@ -85,10 +109,6 @@ logger = logging.getLogger(__name__)
 # PowerOcean-Package zum Pfad hinzufügen
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent / "custom_components"
-
-sys.path.append(str(PROJECT_ROOT))
-
-from powerocean.api import EcoflowApi
 
 
 # =====================================
@@ -162,6 +182,7 @@ def group_keys_by_section(keys: list[str], depth: int = 2) -> dict[str, list[str
                 "data.quota": ["data.quota.JTS1.value", "data.quota.JTS2.value"],
                 "data.status": ["data.status.online"]
             }
+
     """
     groups: dict[str, list[str]] = {}
     for k in keys:
@@ -188,40 +209,41 @@ def format_value(
     """
 
     def _truncate(text: str, suffix: str = "... (truncated)") -> str:
-        if len(text) > max_chars:
-            return f"{text[:max_chars]}{suffix}"
-        return text
+        return text if len(text) <= max_chars else f"{text[:max_chars]}{suffix}"
+
+    result: str
 
     if value is None:
-        return ""
+        result = ""
 
-    if isinstance(value, (int, float, bool)):
-        return str(value)
+    elif isinstance(value, (int, float, bool)):
+        result = str(value)
 
-    if isinstance(value, str):
-        return _truncate(value)
+    elif isinstance(value, str):
+        result = _truncate(value)
 
-    try:
-        if isinstance(value, dict):
-            return _truncate(
-                json.dumps(value, indent=2, ensure_ascii=False),
-                suffix="\n... (truncated)",
-            )
-
-        if isinstance(value, list):
-            if len(value) > max_list_items:
-                preview = json.dumps(value[:max_list_items], ensure_ascii=False)
-                return f"{preview} ... (+{len(value) - max_list_items} items)"
-            return json.dumps(value, ensure_ascii=False)
-
-        return _truncate(str(value))
-
-    except (TypeError, ValueError):
-        # JSON serialization failed
+    else:
         try:
-            return _truncate(str(value))
-        except Exception:
-            return "<unprintable>"
+            if isinstance(value, dict):
+                text = json.dumps(value, indent=2, ensure_ascii=False)
+                result = _truncate(text, suffix="\n... (truncated)")
+
+            elif isinstance(value, list):
+                if len(value) > max_list_items:
+                    preview = json.dumps(value[:max_list_items], ensure_ascii=False)
+                    remainder = len(value) - max_list_items
+                    result = f"{preview} ... (+{remainder} items)"
+                else:
+                    result = json.dumps(value, ensure_ascii=False)
+
+            else:
+                result = _truncate(str(value))
+
+        except (TypeError, ValueError):
+            # JSON serialization failed
+            result = _truncate(str(value))
+
+    return result
 
 
 def compare_dicts(
@@ -327,7 +349,12 @@ def apply_redact(data: Any) -> Any:
 
                 # Replace serial-number-like keys
                 new_key = k
-                if isinstance(k, str) and len(k) == 16 and k.isalnum() and k.isupper():
+                if (
+                    isinstance(k, str)
+                    and len(k) == SERIAL_NUMBER_LENGTH
+                    and k.isalnum()
+                    and k.isupper()
+                ):
                     if k not in sn_map:
                         sn_map[k] = f"MY-SerialNumber{sn_counter}"
                         sn_counter += 1
@@ -549,16 +576,23 @@ class DiffArgs:
 
 
 def save_diff_reports(
-    diff: dict[str, Any],
-    new_keys: list[str],
-    removed_keys: list[str],
-    updated_keys: list[str],
-    response_old: dict[str, Any],
-    response_new: dict[str, Any],
+    result: DiffResult,
     date_str: str,
     args: DiffArgs,
 ) -> None:
-    """Save differences as human-readable (TXT/YAML) and machine-readable (JSON) reports."""
+    """
+    Save API response differences to disk.
+
+    Creates:
+        - Human-readable report (YAML or TXT)
+        - Optional machine-readable JSON diff
+
+    Args:
+        result: DiffResult containing diff data and key changes.
+        date_str: Timestamp string for filenames.
+        args: Configuration controlling output format and diff mode.
+
+    """
     human_ok = True
 
     # -------------------------
@@ -572,18 +606,20 @@ def save_diff_reports(
                 "old_version": "Reference JSON",
                 "new_version": f"Current API response ({date_str})",
                 "counts": {
-                    "new": len(new_keys),
-                    "removed": len(removed_keys),
-                    "updated": len(updated_keys),
+                    "new": len(result.new_keys),
+                    "removed": len(result.removed_keys),
+                    "updated": len(result.updated_keys),
                 },
-                "new": {k: diff[k].get("in_dict2") for k in new_keys},
-                "removed": {k: diff[k].get("in_dict1") for k in removed_keys},
+                "new": {k: result.diff[k].get("in_dict2") for k in result.new_keys},
+                "removed": {
+                    k: result.diff[k].get("in_dict1") for k in result.removed_keys
+                },
                 "updated": {
                     k: {
-                        "before": diff[k].get("in_dict1"),
-                        "after": diff[k].get("in_dict2"),
+                        "before": result.diff[k].get("in_dict1"),
+                        "after": result.diff[k].get("in_dict2"),
                     }
-                    for k in updated_keys
+                    for k in result.updated_keys
                 },
             }
 
@@ -592,9 +628,9 @@ def save_diff_reports(
 
             logger.info("Saved YAML differences to %s", fn_human)
 
-        except Exception:
+        except (ImportError, AttributeError, OSError) as err:
             human_ok = False
-            logger.warning("PyYAML not available; falling back to TXT report.")
+            logger.warning("Failed to create YAML report: %s", err)
 
     # -------------------------
     # TXT fallback
@@ -606,31 +642,9 @@ def save_diff_reports(
             f.write("Comparison Report\n=================\n\n")
             f.write("Old version: Reference JSON\n")
             f.write(f"New version: Current API response ({date_str})\n\n")
-            f.write(f"Number of new keys: {len(new_keys)}\n")
-            f.write(f"Number of removed keys: {len(removed_keys)}\n")
-            f.write(f"Number of updated keys: {len(updated_keys)}\n\n")
-
-            if new_keys:
-                f.write("New Keys:\n")
-                f.writelines(
-                    f" - {k}: {format_value(diff[k].get('in_dict2'))}\n"
-                    for k in new_keys
-                )
-
-            if removed_keys:
-                f.write("\nRemoved Keys:\n")
-                f.writelines(
-                    f" - {k}: {format_value(diff[k].get('in_dict1'))}\n"
-                    for k in removed_keys
-                )
-
-            if updated_keys:
-                f.write("\nUpdated Keys:\n")
-                f.writelines(
-                    f" - {k}: {format_value(diff[k].get('in_dict1'))} -> "
-                    f"{format_value(diff[k].get('in_dict2'))}\n"
-                    for k in updated_keys
-                )
+            f.write(f"Number of new keys: {len(result.new_keys)}\n")
+            f.write(f"Number of removed keys: {len(result.removed_keys)}\n")
+            f.write(f"Number of updated keys: {len(result.updated_keys)}\n\n")
 
         logger.info("Saved TXT differences to %s", fn_human)
 
@@ -642,12 +656,12 @@ def save_diff_reports(
 
         try:
             with fn_json.open("w", encoding="utf-8") as fjson:
-                json.dump(diff, fjson, indent=2, ensure_ascii=False)
+                json.dump(result.diff, fjson, indent=2, ensure_ascii=False)
 
             logger.info("Saved JSON diff to %s", fn_json)
 
-        except Exception as e:
-            logger.exception("Failed to save JSON diff: %s", e)
+        except OSError:
+            logger.exception("Failed to save JSON diff.")
 
 
 async def run_check() -> None:
@@ -673,8 +687,8 @@ async def run_check() -> None:
 
     try:
         response = await fetch_current_response(parsed_args)
-    except Exception as e:
-        logger.exception("Auth/API failed: %s", e)
+    except Exception:
+        logger.exception("Auth/API failed.")
         return
 
     nkeys_new = count_keys_of_dict(response)
@@ -722,14 +736,14 @@ async def run_check() -> None:
     # -------------------------
     if parsed_args.save_diff:
         save_diff_reports(
-            diff,
-            new_keys,
-            removed_keys,
-            updated_keys,
-            response_old,
-            response,
-            date_str,
-            diff_args,
+            result=DiffResult(
+                diff=diff,
+                new_keys=new_keys,
+                removed_keys=removed_keys,
+                updated_keys=updated_keys,
+            ),
+            date_str=date_str,
+            args=diff_args,
         )
 
 
