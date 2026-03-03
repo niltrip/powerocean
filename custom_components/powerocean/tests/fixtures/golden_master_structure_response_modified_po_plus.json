@@ -1171,6 +1171,86 @@
       "unit": null
     }
   },
+  "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_bpOnlineSum": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "bpOnlineSum",
+      "friendly_name": "bpOnlineSum",
+      "icon": "mdi:package-check",
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_bpOnlineSum",
+      "name": "SN_INVERTERBOX01_bpOnlineSum",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_bpSoc": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "Ladezustand der Batterie",
+      "friendly_name": "bpSoc",
+      "icon": "mdi:battery",
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_bpSoc",
+      "name": "SN_INVERTERBOX01_bpSoc",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "battery",
+        "%",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_bpTotalChgEnergy": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "bpTotalChgEnergy",
+      "friendly_name": "bpTotalChgEnergy",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_bpTotalChgEnergy",
+      "name": "SN_INVERTERBOX01_bpTotalChgEnergy",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "energy",
+        "Wh",
+        "total_increasing"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_bpTotalDsgEnergy": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "bpTotalDsgEnergy",
+      "friendly_name": "bpTotalDsgEnergy",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_bpTotalDsgEnergy",
+      "name": "SN_INVERTERBOX01_bpTotalDsgEnergy",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "energy",
+        "Wh",
+        "total_increasing"
+      ]
+    }
+  },
   "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_emsCtrlLedBright": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -1184,6 +1264,108 @@
       "icon": "mdi:brightness-percent",
       "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_emsCtrlLedBright",
       "name": "SN_INVERTERBOX01_emsCtrlLedBright",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt1FaultCode": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "mppt1FaultCode",
+      "friendly_name": "mppt1FaultCode",
+      "icon": "mdi:alert-circle-outline",
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt1FaultCode",
+      "name": "SN_INVERTERBOX01_mppt1FaultCode",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt1WarningCode": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "mppt1WarningCode",
+      "friendly_name": "mppt1WarningCode",
+      "icon": "mdi:alert-circle-outline",
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt1WarningCode",
+      "name": "SN_INVERTERBOX01_mppt1WarningCode",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt2FaultCode": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "mppt2FaultCode",
+      "friendly_name": "mppt2FaultCode",
+      "icon": "mdi:alert-circle-outline",
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt2FaultCode",
+      "name": "SN_INVERTERBOX01_mppt2FaultCode",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt2WarningCode": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "mppt2WarningCode",
+      "friendly_name": "mppt2WarningCode",
+      "icon": "mdi:alert-circle-outline",
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt2WarningCode",
+      "name": "SN_INVERTERBOX01_mppt2WarningCode",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt3FaultCode": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "mppt3FaultCode",
+      "friendly_name": "mppt3FaultCode",
+      "icon": "mdi:alert-circle-outline",
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt3FaultCode",
+      "name": "SN_INVERTERBOX01_mppt3FaultCode",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt3WarningCode": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "mppt3WarningCode",
+      "friendly_name": "mppt3WarningCode",
+      "icon": "mdi:alert-circle-outline",
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt3WarningCode",
+      "name": "SN_INVERTERBOX01_mppt3WarningCode",
       "serial": "SN_INVERTERBOX01",
       "unit": null
     }
