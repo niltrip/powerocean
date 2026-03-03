@@ -39,6 +39,54 @@
       "unit": null
     }
   },
+  "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAccuChgEnergy": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_BATTERIEPACK01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "bpAccuChgEnergy",
+      "friendly_name": "bpAccuChgEnergy",
+      "icon": null,
+      "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAccuChgEnergy",
+      "name": "SN_BATTERIEPACK01_bpAccuChgEnergy",
+      "serial": "SN_BATTERIEPACK01",
+      "unit": [
+        "energy",
+        "Wh",
+        "total_increasing"
+      ]
+    }
+  },
+  "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAccuDsgEnergy": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_BATTERIEPACK01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "bpAccuDsgEnergy",
+      "friendly_name": "bpAccuDsgEnergy",
+      "icon": null,
+      "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAccuDsgEnergy",
+      "name": "SN_BATTERIEPACK01_bpAccuDsgEnergy",
+      "serial": "SN_BATTERIEPACK01",
+      "unit": [
+        "energy",
+        "Wh",
+        "total_increasing"
+      ]
+    }
+  },
   "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAmp": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -393,6 +441,54 @@
       "name": "SN_BATTERIEPACK02_bmsRunSta",
       "serial": "SN_BATTERIEPACK02",
       "unit": null
+    }
+  },
+  "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAccuChgEnergy": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_BATTERIEPACK02",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "bpAccuChgEnergy",
+      "friendly_name": "bpAccuChgEnergy",
+      "icon": null,
+      "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAccuChgEnergy",
+      "name": "SN_BATTERIEPACK02_bpAccuChgEnergy",
+      "serial": "SN_BATTERIEPACK02",
+      "unit": [
+        "energy",
+        "Wh",
+        "total_increasing"
+      ]
+    }
+  },
+  "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAccuDsgEnergy": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_BATTERIEPACK02",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "bpAccuDsgEnergy",
+      "friendly_name": "bpAccuDsgEnergy",
+      "icon": null,
+      "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAccuDsgEnergy",
+      "name": "SN_BATTERIEPACK02_bpAccuDsgEnergy",
+      "serial": "SN_BATTERIEPACK02",
+      "unit": [
+        "energy",
+        "Wh",
+        "total_increasing"
+      ]
     }
   },
   "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAmp": {
