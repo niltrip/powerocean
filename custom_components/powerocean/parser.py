@@ -431,12 +431,12 @@ class EcoflowParser:
         if report == ReportMode.EMS_CHANGE.value:
             # Keys für den "neuen" Report finden
             ems_state_keys = [
-                k for k in response if k.endswith("_EMS_STATE_CHANGE_REPORT")
+                k for k in response if k.endswith(ReportMode.EMS_STATE_CHANGE.value)
             ]
             for ems_key in ems_state_keys:
                 extra_data = response.get(ems_key)
                 if isinstance(extra_data, dict):
-                    # nur die Keys behalten, die im REPORT_DATAPOINTS[EMS_CHANGE] definiert sind
+                    # Keys behalten, die im REPORT_DATAPOINTS[EMS_CHANGE] definiert sind
                     for k in REPORT_DATAPOINTS[ReportMode.EMS_CHANGE.value]:
                         if k in extra_data:
                             d[k] = extra_data[k]
