@@ -3,7 +3,7 @@ default_config:
 
 # https://www.home-assistant.io/integrations/homeassistant/
 homeassistant:
-  debug: true
+  debug: false
 
 # https://www.home-assistant.io/integrations/logger/
 logger:
@@ -70,8 +70,9 @@ template:
             {% if chargeable_percent > 0 %}
               {% set chargeable_capacity = battery_capacity * (chargeable_percent / 100) %}
 
-              # Ladezeit in Stunden (Kapazität / Ladeleistung)
-              {{ (chargeable_capacity * 1000 / charging_power) | round(2) }}  # *1000 wegen kWh zu Watt
+              {# Ladezeit in Stunden (Kapazität / Ladeleistung) #}
+              {# *1000 wegen kWh zu Watt #}
+              {{ (chargeable_capacity * 1000 / charging_power) | round(2) }}
             {% else %}
               0
             {% endif %}
