@@ -189,11 +189,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Migrate old config entries to new structure."""
     version = entry.version
+    data = dict(entry.data)
+    options = dict(entry.options)
 
-    if version == 1.3:
-        data = dict(entry.data)
-        options = dict(entry.options)
-
+    if version < 2:
         # ALT → NEU
         if "user_input" in data:
             old = data.pop("user_input")
@@ -212,13 +211,14 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 CONF_FRIENDLY_NAME,
                 old.get(CONF_FRIENDLY_NAME, DEFAULT_NAME),
             )
+        version = 2
 
-        hass.config_entries.async_update_entry(
-            entry,
-            data=data,
-            options=options,
-            version=2,
-        )
+    hass.config_entries.async_update_entry(
+        entry,
+        data=data,
+        options=options,
+        version=version,
+    )
 
     return True
 
