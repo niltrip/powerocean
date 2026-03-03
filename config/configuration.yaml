@@ -53,9 +53,11 @@ template:
         device_class: "power"
         icon: mdi:transmission-tower-import
         state: >
+          {# replace SN with your inverter SN #}
           {% set val = states('sensor.powerocean_SN_gridtohouse')|float(0) %}
           {{ val if val > 0 else 0 }}
         availability: >
+          {# replace SN with your inverter SN #}
           {{ has_value('sensor.powerocean_SN_gridtohouse') }}
       - name: "PowerOcean Solar Export"
         unique_id: "powerocean_solar_export"
@@ -63,9 +65,11 @@ template:
         device_class: "power"
         icon: mdi:transmission-tower-export
         state: >
+          {# replace SN with your inverter SN #}
           {% set val = states('sensor.powerocean_SN_solartogrid')|float(0) %}
           {{ val if val > 0 else 0 }}
         availability: >
+          {# replace SN with your inverter SN #}
           {{ has_value('sensor.powerocean_SN_solartogrid') }}
 
       - name: "House Battery Charge Runtime"
@@ -105,6 +109,7 @@ template:
         unique_id: "house_battery_discharge_runtime"
         unit_of_measurement: "hours"
         state: >
+          {# replace SN with your inverter SN #}
           {% set battery_load = states('sensor.powerocean_SN_batterytohouse') | float(0) %}
           {# Max Kapazität in kWh, später durch Sensor ersetzen #}
           {% set battery_capacity = 10.0 %}
@@ -128,6 +133,7 @@ template:
       - name: "House Battery Empty At"
         unique_id: "house_battery_empty_at"
         state: >
+          {# replace SN with your inverter SN #}
           {% set battery_load = states('sensor.powerocean_SN_batterytohouse') | float(0) %}
           {% set battery_capacity = 10.0 %}
           {% set backup_percent = 5.0 %}
