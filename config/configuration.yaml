@@ -47,6 +47,27 @@ template:
           {{ val if val > 0 else 0 }}
         availability: >
           {{ has_value('sensor.powerocean_mpptpv2_pwr') }}
+      - name: "PowerOcean Grid Import"
+        unique_id: "powerocean_grid_import"
+        unit_of_measurement: "W"
+        device_class: "power"
+        icon: mdi:transmission-tower-import
+        state: >
+          {% set val = states('sensor.powerocean_SN_gridtohouse')|float(0) %}
+          {{ val if val > 0 else 0 }}
+        availability: >
+          {{ has_value('sensor.powerocean_SN_gridtohouse') }}
+      - name: "PowerOcean Solar Export"
+        unique_id: "powerocean_solar_export"
+        unit_of_measurement: "W"
+        device_class: "power"
+        icon: mdi:transmission-tower-export
+        state: >
+          {% set val = states('sensor.powerocean_SN_solartogrid')|float(0) %}
+          {{ val if val > 0 else 0 }}
+        availability: >
+          {{ has_value('sensor.powerocean_SN_solartogrid') }}
+
       - name: "House Battery Charge Runtime"
         unique_id: "house_battery_charge_runtime"
         unit_of_measurement: "hours"
@@ -146,6 +167,24 @@ sensor:
     source: sensor.powerocean_solar_string_02
     name: "PowerOcean Solar String 02 kWh"
     unique_id: powerocean_solar_string_02_kWh
+    unit_prefix: k
+    unit_time: h
+    round: 2
+    method: left
+
+  - platform: integration
+    source: sensor.powerocean_grid_import
+    name: "PowerOcean Grid Import kWh"
+    unique_id: powerocean_grid_import_kWh
+    unit_prefix: k
+    unit_time: h
+    round: 2
+    method: left
+
+  - platform: integration
+    source: sensor.powerocean_solar_export
+    name: "PowerOcean Solar Export kWh"
+    unique_id: powerocean_solar_export_kWh
     unit_prefix: k
     unit_time: h
     round: 2
