@@ -96,6 +96,8 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "bpMinCellTemp",
         "bpMaxCellTemp",
         "moduleAplSwVer",
+        "bpAccuChgEnergy",
+        "bpAccuDsgEnergy",
     },
     ReportMode.EMS.value: {
         "bpRemainWatth",
