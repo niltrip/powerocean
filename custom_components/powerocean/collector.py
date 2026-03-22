@@ -7,11 +7,12 @@ Defines interfaces and concrete collectors for parsing EcoFlow API responses:
 - `ValueCollector`: Collects live sensor values only.
 """
 
-from typing import Any, Protocol
-
-from homeassistant.helpers.device_registry import DeviceInfo
+from typing import TYPE_CHECKING, Any, Protocol
 
 from .types import PowerOceanEndPoint, SensorMetaHelper
+
+if TYPE_CHECKING:
+    from homeassistant.helpers.device_registry import DeviceInfo
 
 
 class ReportCollector(Protocol):

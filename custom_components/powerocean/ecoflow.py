@@ -16,13 +16,11 @@ Usage:
     data = await api.fetch_raw()
 """
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady, IntegrationError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.util.json import json_loads
-from pydantic import Json
 
 from .api import (
     AuthenticationError,
@@ -34,6 +32,10 @@ from .const import (
     MOCKED_RESPONSE,
     USE_MOCKED_RESPONSE,
 )
+
+if TYPE_CHECKING:
+    from homeassistant.core import HomeAssistant
+    from pydantic import Json
 
 HTTP_OK = 200
 

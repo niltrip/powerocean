@@ -17,7 +17,7 @@ handling and presentation in Home Assistant.
 
 import re
 from dataclasses import dataclass
-from typing import ClassVar, TypeAlias
+from typing import TYPE_CHECKING, ClassVar, TypeAlias
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -32,7 +32,9 @@ from homeassistant.const import (
     UnitOfTemperature,
     UnitOfVolume,
 )
-from homeassistant.helpers.device_registry import DeviceInfo
+
+if TYPE_CHECKING:
+    from homeassistant.helpers.device_registry import DeviceInfo
 
 SensorClassTuple: TypeAlias = tuple[
     SensorDeviceClass | None,

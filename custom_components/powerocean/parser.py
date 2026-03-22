@@ -22,7 +22,7 @@ The module interacts with:
 
 import base64
 import binascii
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import orjson
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -35,7 +35,6 @@ from .const import (
     MODEL_NAME_MAP,
     PowerOceanModel,
 )
-from .types import PowerOceanEndPoint
 from .utils import (
     BOX_SCHEMAS,
     REPORT_DATAPOINTS,
@@ -45,6 +44,9 @@ from .utils import (
     clean_zero,
     decode_version,
 )
+
+if TYPE_CHECKING:
+    from .types import PowerOceanEndPoint
 
 
 class EcoflowParser:

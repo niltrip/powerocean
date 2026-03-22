@@ -12,9 +12,11 @@ Classes:
     SensorMetaHelper: Helper class for sensor metadata (units, descriptions, icons)
 """
 
-from collections.abc import Callable
 from enum import Enum, StrEnum
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 DEVICE_SN_KEYS = (
     "evSn",
