@@ -20,8 +20,8 @@ Functions:
 """
 
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_DEVICE_ID,
     CONF_EMAIL,
@@ -30,14 +30,12 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_SCAN_INTERVAL,
 )
-from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import (
     ConfigEntryNotReady,
     HomeAssistantError,
     IntegrationError,
 )
 from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers.typing import ConfigType
 from homeassistant.loader import async_get_integration
 
 from .const import (
@@ -52,6 +50,11 @@ from .const import (
 from .coordinator import PowerOceanCoordinator
 from .ecoflow import HAEcoflowApi
 from .parser import EcoflowParser
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.typing import ConfigType
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
@@ -231,7 +234,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         return False
 
     # Remove from hass.data
-    hass.data.get(DOMAIN, {}).pop(entry.entry_id, None)
+    data = hass.data.get(DOMAIN, {}).pop(entry.entry_id, None)
+    if data and "api" in data:
+        await data["api"].close()
+
     return unload_ok
 
 

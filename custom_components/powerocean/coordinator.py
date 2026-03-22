@@ -16,14 +16,20 @@ Usage:
   await coordinator.async_config_entry_first_refresh()
 """
 
-from datetime import timedelta
+from typing import TYPE_CHECKING
 
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
+from .api import EcoflowApiError
 from .const import LOGGER
-from .ecoflow import HAEcoflowApi
 from .parser import EcoflowParser
+
+if TYPE_CHECKING:
+    from datetime import timedelta
+
+    from homeassistant.core import HomeAssistant
+
+    from .ecoflow import HAEcoflowApi
 
 
 class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]]):
@@ -46,6 +52,22 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self.parser = EcoflowParser(variant=self.api.variant, sn=self.api.sn)
 
     async def _async_update_data(self) -> dict[str, float | int | str]:
-        """Holt LIVE-Daten und parsed NUR Values."""
-        response = await self.api.fetch_raw()
-        return self.parser.parse_values(response)
+        try:
+            response = await self.api.fetch_raw()
+            return self.parser.parse_values(response)
+
+        except EcoflowApiError as err:
+            LOGGER.debug("API failure during update: %s", err)
+            msg = f"API error: {err}"
+            raise UpdateFailed(msg) from err
+
+        except RuntimeError as err:
+            if "Session is closed" in str(err):
+                msg = "Session closed"
+                raise UpdateFailed(msg) from err
+            raise
+
+        except Exception as err:
+            # fallback safety net
+            msg = f"Unexpected error: {err}"
+            raise UpdateFailed(msg) from err

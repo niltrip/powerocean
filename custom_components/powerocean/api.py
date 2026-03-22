@@ -97,14 +97,27 @@ class EcoflowApi:
 
     async def _get_session(self) -> aiohttp.ClientSession:
         """Return an existing session or create a new aiohttp session."""
-        if self._session:
+        if self._external_session:
+            if self._external_session.closed:
+                msg = "Home Assistant session closed"
+                raise EcoflowApiError(msg)
+            return self._external_session
+
+        if self._session and not self._session.closed:
             return self._session
+
+        if self._session and self._session.closed:
+            LOGGER.debug("Internal session was closed, creating a new one")
+
         self._session = aiohttp.ClientSession()
         return self._session
 
     async def close(self) -> None:
         """Close internally created aiohttp session."""
-        if self._session and not self._external_session:
+        if self._external_session:
+            return  # never touch external session
+
+        if self._session and not self._session.closed:
             await self._session.close()
 
     async def async_authorize(self) -> None:
