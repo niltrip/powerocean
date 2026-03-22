@@ -157,24 +157,6 @@ class EcoflowParser:
             )
         return
 
-    def _get_device_info(
-        self,
-        sn: str,
-        name: str,
-        model: str,
-        via_sn: str | None = None,
-    ) -> DeviceInfo:
-        info = DeviceInfo(
-            identifiers={(DOMAIN, sn)},
-            serial_number=sn,
-            name=name,
-            manufacturer="EcoFlow",
-            model=model,
-        )
-        if via_sn:
-            info["via_device"] = (DOMAIN, via_sn)
-        return info
-
     def _parse_battery_data(self, raw_data: dict | str | None) -> dict | None:
         if raw_data is None:
             LOGGER.debug("Battery payload is None (no battery present)")
