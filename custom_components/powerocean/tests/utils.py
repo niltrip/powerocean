@@ -1,9 +1,10 @@
 """tests/utils."""
 
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from custom_components.powerocean.types import PowerOceanEndPoint
+if TYPE_CHECKING:
+    from custom_components.powerocean.po_types import PowerOceanEndPoint
 
 
 def serialize_sensors(sensors: dict[str, PowerOceanEndPoint]) -> dict:

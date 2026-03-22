@@ -1,8 +1,9 @@
 """serialize_structure."""
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from custom_components.powerocean.types import PowerOceanEndPoint
+if TYPE_CHECKING:
+    from custom_components.powerocean.po_types import PowerOceanEndPoint
 
 
 def serialize_structure(endpoints: dict[str, Any]) -> dict:

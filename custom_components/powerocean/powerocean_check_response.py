@@ -61,8 +61,6 @@ For a full list of options:
 
 """
 
-from __future__ import annotations
-
 import argparse
 import asyncio
 import json
@@ -74,7 +72,7 @@ from typing import Any, Literal
 
 import yaml
 
-from custom_components.powerocean.api import EcoflowApi
+from .api import EcoflowApi
 
 SERIAL_NUMBER_LENGTH = 16
 
@@ -239,7 +237,7 @@ def format_value(
             else:
                 result = _truncate(str(value))
 
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             # JSON serialization failed
             result = _truncate(str(value))
 
