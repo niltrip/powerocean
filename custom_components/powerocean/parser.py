@@ -306,33 +306,39 @@ class EcoflowParser:
         payload: dict,
     ) -> tuple[str, DeviceInfo]:
         """Resolve serial number and DeviceInfo for non-boxed reports."""
-        # bekannte SN-Felder (Reihenfolge = Priorität)
-        sn_keys = ("evSn", "hrSn")
+        base_model = MODEL_NAME_MAP[PowerOceanModel(self.ecoflow_variant)]
+
+        sn_map = {
+            "evSn": ("Charger", "PowerOcean Charger"),
+            "hrSn": ("Heating Rod", "PowerOcean Heating Rod"),
+        }
 
         device_sn = self.sn_inverter
         prefix = "PowerOcean"
-        model = MODEL_NAME_MAP[PowerOceanModel(self.ecoflow_variant)]
+        model = base_model
         via_sn = None
 
-        for key in sn_keys:
+        for key, (pfx, mdl) in sn_map.items():
             raw_sn = payload.get(key)
-            if isinstance(raw_sn, str):
-                decoded = self._decode_sn(raw_sn)
-                if decoded:
-                    device_sn = decoded
-                    prefix = "Charger" if key == "evSn" else "Heating Rod"
-                    model = f"PowerOcean {prefix}"
-                    via_sn = self.sn_inverter
-                    break
+            if not isinstance(raw_sn, str):
+                continue
 
-        device_info = self._make_device_info(
+            decoded = self._decode_sn(raw_sn)
+            if not decoded:
+                continue
+
+            device_sn = decoded
+            prefix = pfx
+            model = mdl
+            via_sn = self.sn_inverter
+            break
+
+        return device_sn, self._make_device_info(
             sn=device_sn,
             prefix=prefix,
             model=model,
             via_sn=via_sn,
         )
-
-        return device_sn, device_info
 
     def _make_device_info(
         self, sn: str, prefix: str, model: str, via_sn: str | None = None
@@ -340,11 +346,11 @@ class EcoflowParser:
         info = DeviceInfo(
             identifiers={(DOMAIN, sn)},
             serial_number=sn,
-            name=f"{prefix} {sn}",
+            name=f"{prefix} {sn}".strip(),
             manufacturer="EcoFlow",
             model=model,
         )
-        if via_sn:
+        if via_sn is not None:
             info["via_device"] = (DOMAIN, via_sn)
         return info
 
