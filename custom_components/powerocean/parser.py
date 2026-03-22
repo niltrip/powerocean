@@ -46,7 +46,7 @@ from .utils import (
 )
 
 if TYPE_CHECKING:
-    from .types import PowerOceanEndPoint
+    from .po_types import PowerOceanEndPoint
 
 
 class EcoflowParser:

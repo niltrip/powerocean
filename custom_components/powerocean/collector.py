@@ -9,7 +9,7 @@ Defines interfaces and concrete collectors for parsing EcoFlow API responses:
 
 from typing import TYPE_CHECKING, Any, Protocol
 
-from .types import PowerOceanEndPoint, SensorMetaHelper
+from .po_types import PowerOceanEndPoint, SensorMetaHelper
 
 if TYPE_CHECKING:
     from homeassistant.helpers.device_registry import DeviceInfo

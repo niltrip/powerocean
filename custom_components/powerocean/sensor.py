@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
     from .coordinator import PowerOceanCoordinator
-    from .types import PowerOceanEndPoint
+    from .po_types import PowerOceanEndPoint
 
 
 async def async_setup_entry(

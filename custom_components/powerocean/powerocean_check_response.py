@@ -72,7 +72,7 @@ from typing import Any, Literal
 
 import yaml
 
-from .api import EcoflowApi
+from custom_components.powerocean.api import EcoflowApi
 
 SERIAL_NUMBER_LENGTH = 16
 
