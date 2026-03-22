@@ -105,7 +105,7 @@ class EcoflowParser:
             return
 
         self.sn_inverter = self.sn
-        reports_data = list(REPORT_DATAPOINTS.keys())
+        reports_data = REPORT_DATAPOINTS.keys()
         reports = []
 
         # Handle generic 'data' report
@@ -205,7 +205,7 @@ class EcoflowParser:
         )
         return None
 
-    def _deep_get_by_key(self, data: Any, target_key: str) -> None:
+    def _deep_get_by_key(self, data: Any, target_key: str) -> Any | None:
         """Search recursive for the occurrence of target_key in nested dict/list."""
         if isinstance(data, dict):
             for key, value in data.items():
@@ -310,12 +310,13 @@ class EcoflowParser:
     def _decode_sn(self, value: str | None) -> str | None:
         if not value or not isinstance(value, str):
             return None
+
         try:
-            return base64.b64decode(value, validate=True).decode("utf-8").strip()
-        except binascii.Error:
-            LOGGER.warning("Invalid base64 string for SN: %s", value)
-            return value
-        except UnicodeDecodeError:
+            padded = value + "=" * (-len(value) % 4)
+            decoded = base64.b64decode(padded)
+            return decoded.decode("utf-8")
+        except (binascii.Error, UnicodeDecodeError) as err:
+            LOGGER.debug("Failed to decode SN '%s': %s", value, err)
             return value
 
     def _resolve_device_info(
@@ -623,83 +624,15 @@ class EcoflowParser:
                     mppt_ins_resist,
                     device_info=device_info,
                 )
+            flows = self._compute_energy_flows(d, total_power)
 
-            # ------------------------------
-            # Energy flows: grid, battery, solar, house
-            # ------------------------------
-
-            solar = max(float(total_power), 0.0)
-
-            # grid +- Werte in "pcsMeterPower", positiv = Import, negativ = Export
-            grid = float(d.get("pcsMeterPower", 0))
-
-            # battery +- Werte in "emsBpPower", positiv = Ladung, negativ = Entladung
-            battery = float(d.get("emsBpPower", 0))
-
-            # ------------------------------
-            # Vorzeichen normalisieren
-            # ------------------------------
-            grid_import = max(grid, 0.0)
-            grid_export = max(-grid, 0.0)
-
-            battery_charge = max(battery, 0.0)
-            battery_discharge = max(-battery, 0.0)
-
-            # ------------------------------
-            # Hausverbrauch (physikalische Bilanz)
-            # ------------------------------
-            house_consumption = solar + grid + battery_discharge - battery_charge
-            house_consumption = max(house_consumption, 0.0)
-
-            # ------------------------------
-            # SOLAR-Verteilung
-            # ------------------------------
-            solar_to_house = min(solar, house_consumption)
-
-            solar_surplus = solar - solar_to_house
-
-            solar_to_battery = min(solar_surplus, battery_charge)
-
-            solar_to_grid = solar_surplus - solar_to_battery
-
-            # ------------------------------
-            # BATTERIE-Flüsse
-            # ------------------------------
-            battery_to_house = max(battery_discharge, 0.0)
-
-            grid_to_battery = battery_charge - solar_to_battery
-
-            # ------------------------------
-            # NETZ-Flüsse
-            # ------------------------------
-            grid_to_house = grid_import - grid_to_battery
-
-            # Numerische Sicherheit
-            grid_to_house = max(grid_to_house, 0.0)
-            grid_to_battery = max(grid_to_battery, 0.0)
-            solar_to_grid = max(solar_to_grid, 0.0)
-
-            # ------------------------------
-            # Sensorliste
-            # ------------------------------
-            sensors = [
-                ("housePower", house_consumption),
-                ("gridPower", grid),
-                ("gridToBattery", grid_to_battery),
-                ("gridToHouse", grid_to_house),
-                ("batteryToHouse", battery_to_house),
-                ("solarToBattery", solar_to_battery),
-                ("solarToGrid", solar_to_grid),
-                ("solarToHouse", solar_to_house),
-            ]
-
-            for key, value in sensors:
+            for key, value in flows.items():
                 self._collect_sensor(
                     collector,
                     self.sn_inverter,
                     report_mppt,
                     key,
-                    clean_zero(round(value, 1)),
+                    round(clean_zero(value), 1),
                     device_info=device_info,
                 )
 
@@ -856,3 +789,54 @@ class EcoflowParser:
                 value=value,
                 device_info=device_info,
             )
+
+    def _compute_energy_flows(self, d: dict, total_power: float) -> dict[str, float]:
+        solar = max(float(total_power), 0.0)
+        grid = float(d.get("pcsMeterPower", 0))
+        battery = float(d.get("emsBpPower", 0))
+
+        # Normalize signs
+        grid_import = max(grid, 0.0)
+        grid_export = max(-grid, 0.0)
+
+        battery_charge = max(battery, 0.0)
+        battery_discharge = max(-battery, 0.0)
+
+        # House consumption (grid already signed)
+        house = solar + grid + battery_discharge - battery_charge
+        house = max(house, 0.0)
+
+        # Solar distribution
+        solar_to_house = min(solar, house)
+        solar_surplus = solar - solar_to_house
+        solar_to_battery = min(solar_surplus, battery_charge)
+        solar_to_grid = max(solar_surplus - solar_to_battery, 0.0)
+
+        # Battery flows
+        battery_to_house = battery_discharge
+        grid_to_battery = max(battery_charge - solar_to_battery, 0.0)
+
+        # Grid flows
+        grid_to_house = max(grid_import - grid_to_battery, 0.0)
+
+        # Optional sanity check
+        balance_in = solar + grid_import + battery_discharge
+        balance_out = house + battery_charge + grid_export
+
+        if abs(balance_in - balance_out) > 50:
+            LOGGER.debug(
+                "Energy imbalance: in=%.1f out=%.1f",
+                balance_in,
+                balance_out,
+            )
+
+        return {
+            "housePower": house,
+            "gridPower": grid,
+            "gridToBattery": grid_to_battery,
+            "gridToHouse": grid_to_house,
+            "batteryToHouse": battery_to_house,
+            "solarToBattery": solar_to_battery,
+            "solarToGrid": solar_to_grid,
+            "solarToHouse": solar_to_house,
+        }
