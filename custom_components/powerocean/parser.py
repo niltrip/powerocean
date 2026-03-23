@@ -371,7 +371,7 @@ class EcoflowParser:
             value=value,
             device_info=device_info,
             name=f"{device_sn}_{key}",
-            friendly_name=f"{key}",
+            friendly_name=key,
         )
 
     def _extract_sensors_from_report(
@@ -673,36 +673,49 @@ class EcoflowParser:
         collector: ReportCollector,
     ) -> None:
         """Handle parallel energy stream data extraction."""
-        para_list = d.get("paraEnergyStream", [])
+        para_list = d.get("paraEnergyStream")
+
         if not isinstance(para_list, list):
             LOGGER.warning("paraEnergyStream is not a list")
             return
-        report = f"{report}_paraEnergyStream"
-        for device_data in para_list:
-            raw_sn = device_data.get("devSn")
-            device_sn = self._decode_sn(raw_sn) if raw_sn else None
 
-            # Wenn keine SN vorhanden → aggregierter Wert
+        report_id = f"{report}_paraEnergyStream"
+        device_cache: dict[str, DeviceInfo] = {}
+
+        for device_data in para_list:
+            if not isinstance(device_data, dict):
+                continue
+
+            raw_sn = device_data.get("devSn")
+            device_sn = self._decode_sn(raw_sn) if isinstance(raw_sn, str) else None
+
+            # Aggregierter Fallback
             if not device_sn:
                 device_sn = f"{self.sn}_all"
 
-            # DeviceInfo
-            prefix = "Inverter"
-            device_info = self._make_device_info(
-                sn=device_sn,
-                prefix=prefix,
-                model=f"PowerOcean {prefix}",
-                via_sn=self.sn if device_sn != self.sn else None,
-            )
-            for key, value in device_data.items():
-                if isinstance(value, dict):
+            # DeviceInfo cachen
+            if device_sn not in device_cache:
+                device_cache[device_sn] = self._make_device_info(
+                    sn=device_sn,
+                    prefix="Inverter",
+                    model="PowerOcean Inverter",
+                    via_sn=self.sn if device_sn != self.sn else None,
+                )
+
+            device_info = device_cache[device_sn]
+
+            for key, raw_value in device_data.items():
+                if isinstance(raw_value, dict):
                     continue
-                if key.endswith("Sn") and isinstance(value, str):
-                    self._decode_sn(value)
+                value = raw_value
+
+                if key.endswith("Sn") and isinstance(value, str) and value:
+                    value = self._decode_sn(value)
+
                 self._collect_sensor(
                     collector=collector,
                     device_sn=device_sn,
-                    report=report,
+                    report=report_id,
                     key=key,
                     value=value,
                     device_info=device_info,
