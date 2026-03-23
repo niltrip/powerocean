@@ -79,6 +79,7 @@ class EcoflowParser:
             representing the device and sensor structure without runtime values.
 
         """
+        self._deep_cache.clear()
         collector = StructureCollector()
         self._walk_reports(response, collector)
         return collector.endpoints
@@ -94,6 +95,7 @@ class EcoflowParser:
             A dictionary mapping unique endpoint IDs to their current values.
 
         """
+        self._deep_cache.clear()
         collector = ValueCollector()
         self._walk_reports(response, collector)
         return collector.values
@@ -511,7 +513,9 @@ class EcoflowParser:
             detected = self._detect_box_schema(payload)
 
             if not detected:
-                LOGGER.debug("Unknown boxed device schema")
+                LOGGER.debug(
+                    "Unknown boxed device schema: keys=%s", list(payload.keys())
+                )
                 continue
 
             # box_type wird aktuell nicht genutzt
@@ -740,7 +744,7 @@ class EcoflowParser:
         collector: ReportCollector,
     ) -> None:
         # spezielle Behandlung für 'data' Report
-        report_id = "" if report == ReportMode.DEFAULT.value else f"{report}"
+        report_id = "" if report == ReportMode.DEFAULT.value else report
         device_sn, device_info = self._resolve_device_info(d)
 
         for key, raw_value in d.items():
@@ -803,7 +807,7 @@ class EcoflowParser:
             )
 
     def _compute_energy_flows(self, d: dict, total_power: float) -> dict[str, float]:
-        solar = max(float(total_power), 0.0)
+        solar = max(float(total_power or 0), 0.0)
         grid = float(d.get("pcsMeterPower", 0))
         battery = float(d.get("emsBpPower", 0))
 
