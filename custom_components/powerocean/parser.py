@@ -64,6 +64,7 @@ class EcoflowParser:
         self.ecoflow_variant = variant
         self.sn = sn
         self.sn_inverter = sn
+        self._deep_cache = {}
 
     # Public Methods
     def parse_structure(self, response: dict) -> dict[str, PowerOceanEndPoint]:
@@ -189,23 +190,29 @@ class EcoflowParser:
 
     def _deep_get_by_key(self, data: Any, target_key: str) -> Any | None:
         """Search recursive for the occurrence of target_key in nested dict/list."""
-        if isinstance(data, dict):
-            for key, value in data.items():
-                # Treffer
-                if key == target_key:
-                    return value
+        cache_key = (id(data), target_key)
+        if cache_key in self._deep_cache:
+            return self._deep_cache[cache_key]
 
-                # Rekursiv tiefer suchen
-                result = self._deep_get_by_key(value, target_key)
-                if result is not None:
-                    return result
+        result = None
+
+        if isinstance(data, dict):
+            if target_key in data:
+                result = data[target_key]
+            else:
+                for value in data.values():
+                    result = self._deep_get_by_key(value, target_key)
+                    if result is not None:
+                        break
 
         elif isinstance(data, list):
             for item in data:
                 result = self._deep_get_by_key(item, target_key)
                 if result is not None:
-                    return result
-        return None
+                    break
+
+        self._deep_cache[cache_key] = result
+        return result
 
     @staticmethod
     def _get_nested_value(data: dict[str, Any], path: list[str]) -> Any | None:
