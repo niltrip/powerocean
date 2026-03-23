@@ -581,7 +581,11 @@ class EcoflowParser:
 
         # Besonderheit mpptPv
         if "mpptHeartBeat" in d:
-            mppt_data = d["mpptHeartBeat"][0]
+            mppt_list = d.get("mpptHeartBeat")
+            if not isinstance(mppt_list, list) or not mppt_list:
+                return
+
+            mppt_data = mppt_list[0]
             report_mppt = f"{report}_mpptHeartBeat"
 
             # Einzelne MPPT-Module
