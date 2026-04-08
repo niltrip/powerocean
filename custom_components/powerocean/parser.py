@@ -383,6 +383,30 @@ class EcoflowParser:
             friendly_name=f"{key}",
         )
 
+    def _resolve_bp_power_for_ems(self, response: dict[str, Any]) -> float | int | None:
+        """Resolve bpPwr from sibling report context for EMS calculations.
+
+        Priority:
+        1) bpPwr from *_ENERGY_STREAM_REPORT in the same response context
+        2) response['data']['bpPwr']
+        """
+        for report_key, payload in response.items():
+            if not isinstance(report_key, str) or not isinstance(payload, dict):
+                continue
+
+            if report_key.endswith(ReportMode.ENERGY_STREAM.value):
+                value = payload.get("bpPwr")
+                if isinstance(value, (int, float)):
+                    return value
+
+        data_payload = response.get("data")
+        if isinstance(data_payload, dict):
+            value = data_payload.get("bpPwr")
+            if isinstance(value, (int, float)):
+                return value
+
+        return None
+
     def _extract_sensors_from_report(
         self,
         response: dict[str, Any],
@@ -458,10 +482,12 @@ class EcoflowParser:
             return
         # EMS Heartbeat Mode
         if ReportMode.EMS.value in report:
+            bp_power_override = self._resolve_bp_power_for_ems(response)
             self._handle_ems_heartbeat_mode(
                 d,
                 report,
                 sens_select,
+                bp_power_override=bp_power_override,
                 collector=collector,
             )
             return
@@ -546,6 +572,7 @@ class EcoflowParser:
         d: dict,
         report: str,
         sens_select: list,
+        bp_power_override: float | int | None,
         collector: ReportCollector,
     ) -> None:
         device_info = self._make_device_info(
@@ -623,62 +650,73 @@ class EcoflowParser:
                 )
 
             # ------------------------------
-            # Energy flows: grid, battery, solar, house
+            # Energy flows
             # ------------------------------
-
+            
             solar = max(float(total_power), 0.0)
-
-            # grid +- Werte in "pcsMeterPower", positiv = Import, negativ = Export
-            grid = float(d.get("pcsMeterPower", 0))
-
-            # battery +- Werte in "emsBpPower", positiv = Ladung, negativ = Entladung
-            battery = float(d.get("emsBpPower", 0))
-
+            
+            # grid: + import, - export
+            grid = -float(d.get("pcsMeterPower", 0))
+            
+            # battery: + charge, - discharge
+            battery_source = bp_power_override
+            if battery_source is None:
+                battery_source = d.get("emsBpPower", 0)
+            battery = float(battery_source)
+            
             # ------------------------------
-            # Vorzeichen normalisieren
+            # Sign normalization (correct)
             # ------------------------------
             grid_import = max(grid, 0.0)
             grid_export = max(-grid, 0.0)
-
+            
             battery_charge = max(battery, 0.0)
             battery_discharge = max(-battery, 0.0)
-
+            
             # ------------------------------
-            # Hausverbrauch (physikalische Bilanz)
+            # House consumption (correct)
             # ------------------------------
-            house_consumption = solar + grid + battery_discharge - battery_charge
+            house_consumption = (solar - battery_charge + grid_import - grid_export)
             house_consumption = max(house_consumption, 0.0)
-
+            
             # ------------------------------
-            # SOLAR-Verteilung
+            # PRIORITY FLOW MODEL
             # ------------------------------
+            
+            # Solar serves house FIRST
             solar_to_house = min(solar, house_consumption)
-
-            solar_surplus = solar - solar_to_house
-
-            solar_to_battery = min(solar_surplus, battery_charge)
-
-            solar_to_grid = solar_surplus - solar_to_battery
-
+            
+            remaining = house_consumption - solar_to_house
+            
+            # Battery discharge next
+            battery_to_house = min(battery_discharge, remaining)
+            
+            remaining -= battery_to_house
+            
+            # Grid last
+            grid_to_house = remaining
+            
             # ------------------------------
-            # BATTERIE-Flüsse
+            # Solar excess
             # ------------------------------
-            battery_to_house = max(battery_discharge, 0.0)
-
-            grid_to_battery = battery_charge - solar_to_battery
-
+            solar_excess = solar - solar_to_house
+            
+            solar_to_battery = min(solar_excess, battery_charge)
+            solar_to_grid = solar_excess - solar_to_battery
+            
             # ------------------------------
-            # NETZ-Flüsse
+            # Optional (approximation)
             # ------------------------------
-            grid_to_house = grid_import - grid_to_battery
-
-            # Numerische Sicherheit
+            grid_to_battery = max(battery_charge - solar_to_battery, 0.0)
+            
+            # ------------------------------
+            # Safety clamps
+            # ------------------------------
             grid_to_house = max(grid_to_house, 0.0)
-            grid_to_battery = max(grid_to_battery, 0.0)
             solar_to_grid = max(solar_to_grid, 0.0)
-
+            
             # ------------------------------
-            # Sensorliste
+            # Sensors
             # ------------------------------
             sensors = [
                 ("housePower", house_consumption),
@@ -690,6 +728,7 @@ class EcoflowParser:
                 ("solarToGrid", solar_to_grid),
                 ("solarToHouse", solar_to_house),
             ]
+
 
             for key, value in sensors:
                 self._collect_sensor(
@@ -854,3 +893,4 @@ class EcoflowParser:
                 value=value,
                 device_info=device_info,
             )
+
