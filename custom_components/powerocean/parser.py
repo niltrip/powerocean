@@ -663,19 +663,27 @@ class EcoflowParser:
             # ------------------------------
             # BATTERIE-Flüsse
             # ------------------------------
-            battery_to_house = max(battery_discharge, 0.0)
+            # Dem Haus kann die Batterie nur den Rest liefern, den Solar offen lässt.
+            battery_to_house = max(
+                min(battery_discharge, house_consumption - solar_to_house),
+                0.0,
+            )
+
+            # Was darüber hinaus entladen wird, geht ins Netz.
+            battery_to_grid = battery_discharge - battery_to_house
 
             grid_to_battery = battery_charge - solar_to_battery
 
             # ------------------------------
             # NETZ-Flüsse
             # ------------------------------
-            grid_to_house = grid_import - grid_to_battery
+            grid_to_house = house_consumption - solar_to_house - battery_to_house
 
             # Numerische Sicherheit
             grid_to_house = max(grid_to_house, 0.0)
             grid_to_battery = max(grid_to_battery, 0.0)
             solar_to_grid = max(solar_to_grid, 0.0)
+            battery_to_grid = max(battery_to_grid, 0.0)
 
             # ------------------------------
             # Sensorliste
@@ -686,6 +694,7 @@ class EcoflowParser:
                 ("gridToBattery", grid_to_battery),
                 ("gridToHouse", grid_to_house),
                 ("batteryToHouse", battery_to_house),
+                ("batteryToGrid", battery_to_grid),
                 ("solarToBattery", solar_to_battery),
                 ("solarToGrid", solar_to_grid),
                 ("solarToHouse", solar_to_house),
