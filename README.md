@@ -56,6 +56,31 @@ Additional attributes are presented on each sensor:
 
 The versions are from my system.
 
+### Which values update, and which do not
+
+The EcoFlow cloud does not refresh all values at the same rate. Some of them keep returning the same number for hours. The integration reports what the API hands it, so a flat line here is not a bug in this component.
+
+Measured on my own system over 72 hours (three-phase PowerOcean, one battery, release 2026.03.04):
+
+| sensor | report | distinct values in 72 h |
+|---|---|---|
+| `mpptPwr`, `bpPwr` | `data` | 1 (always 0 W) |
+| `pv1Pwr`, `pv2Pwr`, `pvInvPwr` | `ENERGY_STREAM_REPORT` | 1 (always 0 W) |
+| `sysGridPwr`, `sysLoadPwr` | `data` | 4 |
+| `todayElectricityGeneration` | `data` | about one per hour |
+| `pcsMeterPower`, `pcsActPwr`, `mpptPv_pwrTotal` | `EMS_HEARTBEAT` | more than 2100 |
+
+On 2026-08-21 at 13:16 `mpptPwr` read 0 W while `mpptPv_pwrTotal` read 4238 W. Both describe the same solar power, and both came out of the same response.
+
+Others report in [#34](https://github.com/niltrip/powerocean/issues/34) and [#28](https://github.com/niltrip/powerocean/issues/28) that these values start moving again while the app or the web portal is open. I cannot confirm that part myself.
+
+For a dashboard, take the values from `EMS_HEARTBEAT`:
+
+- grid: `pcsMeterPower` (positive = import, negative = export) rather than `sysGridPwr`
+- solar: `mpptPv_pwrTotal` rather than `mpptPwr`, `pv1Pwr` or `pvInvPwr`
+- battery: `emsBpPower` rather than `bpPwr`
+- house: `housePower`, which is calculated from the three values above
+
 ### Neuer Sensor (berechnet aus einzelnen Strings)
 
 ![sensor](documentation/mpptPv_pwrTotal.PNG)
