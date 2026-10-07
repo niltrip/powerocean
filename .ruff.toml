@@ -15,6 +15,7 @@ ignore = [
     "COM812", # incompatible with formatter
     "ISC001", # incompatible with formatter
     "EXE002",
+    "CPY001", # Missing copyright notice at top of file
 ]
 
 [lint.per-file-ignores]
