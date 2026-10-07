@@ -51,6 +51,7 @@ class StructureCollector:
 
     def collect(
         self,
+        *,
         unique_id: str,
         device_sn: str,
         key: str,
@@ -90,6 +91,7 @@ class ValueCollector:
 
     def collect(
         self,
+        *,
         unique_id: str,
         device_sn: str,
         key: str,

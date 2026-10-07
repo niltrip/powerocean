@@ -370,6 +370,7 @@ class EcoflowParser:
         report: str,
         key: str,
         value: Any,
+        *,
         device_info: DeviceInfo | None = None,
     ) -> None:
         unique_id = _join_id(device_sn, report, key)
