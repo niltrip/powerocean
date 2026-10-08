@@ -190,6 +190,7 @@ class SensorMetaHelper:
             "gridToBattery": "Netz zu Batterie",
             "gridToHouse": "Netz zu Haus",
             "batteryToHouse": "Batterie zu Haus",
+            "batteryToGrid": "Batterie zu Netz",
             "solarToBattery": "Solar zu Batterie",
             "solarToGrid": "Solar zu Netz",
             "solarToHouse": "Solar zu Haus",
@@ -242,6 +243,7 @@ class SensorMetaHelper:
             ),
             (r"(gridtohouse|sysgridpwr|gridpower)", "mdi:transmission-tower-import"),
             (r"batterytohouse", "mdi:battery-arrow-up"),
+            (r"batterytogrid", "mdi:transmission-tower-export"),
             (r"gridtobattery", "mdi:battery-arrow-down"),
             # Strom / Spannung
             (r"_amp$", "mdi:current-ac"),

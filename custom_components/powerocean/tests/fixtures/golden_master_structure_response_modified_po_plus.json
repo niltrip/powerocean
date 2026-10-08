@@ -1576,6 +1576,27 @@
       "unit": null
     }
   },
+  "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_mpptHeartBeat_batteryToGrid": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "Batterie zu Netz",
+      "friendly_name": "batteryToGrid",
+      "icon": "mdi:transmission-tower-export",
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_mpptHeartBeat_batteryToGrid",
+      "name": "SN_INVERTERBOX01_batteryToGrid",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
   "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_mpptHeartBeat_batteryToHouse": {
     "device": {
       "manufacturer": "EcoFlow",
