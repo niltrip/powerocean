@@ -40,6 +40,10 @@
         }
     },
     "remoteUser": "vscode",
+    // pip installiert als "vscode" nach ~/.local (hass, ruff liegen in ~/.local/bin)
+    "remoteEnv": {
+        "PATH": "${containerEnv:PATH}:/home/vscode/.local/bin"
+    },
     "features": {}
     //     "ghghcr.io/devcontainers-extra/features/apt-packages:1": {
     //         "packages": [

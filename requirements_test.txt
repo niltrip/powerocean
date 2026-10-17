@@ -1,5 +1,5 @@
 homeassistant==2025.12.4
 pytest
 pytest-asyncio
-pytest-homeassistant-custom-component
+pytest-homeassistant-custom-component==0.13.301
 voluptuous
