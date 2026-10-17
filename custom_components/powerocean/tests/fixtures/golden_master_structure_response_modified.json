@@ -1065,6 +1065,23 @@
       "unit": null
     }
   },
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsMpptSelfcheckState": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "emsMpptSelfcheckState",
+      "friendly_name": "emsMpptSelfcheckState",
+      "icon": "mdi:information-outline",
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsMpptSelfcheckState",
+      "name": "SN_INVERTERBOX01_emsMpptSelfcheckState",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_batteryToGrid": {
     "device": {
       "manufacturer": "EcoFlow",

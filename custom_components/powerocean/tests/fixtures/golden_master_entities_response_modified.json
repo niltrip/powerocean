@@ -691,6 +691,19 @@
       "state_class": null,
       "unit_of_measurement": null
     },
+    "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsMpptSelfcheckState": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_emsmpptselfcheckstate",
+      "icon": "mdi:information-outline",
+      "original_name": "emsMpptSelfcheckState",
+      "product_description": "emsMpptSelfcheckState",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "1",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_batteryToGrid": {
       "device": "PowerOcean",
       "device_class": "power",
