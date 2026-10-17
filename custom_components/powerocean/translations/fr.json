@@ -63,6 +63,12 @@
         },
         "cannot_connect": {
             "message": "Impossible de joindre le cloud EcoFlow : {error}"
+        },
+        "unexpected_response": {
+            "message": "Réponse inattendue du cloud EcoFlow : {error}"
+        },
+        "missing_configuration": {
+            "message": "La configuration est incomplète (numéro de série ou modèle manquant). Veuillez supprimer puis ajouter à nouveau l'appareil."
         }
     }
 }

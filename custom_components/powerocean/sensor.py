@@ -10,26 +10,27 @@ from typing import Any
 from homeassistant.components.sensor import (
     SensorEntity,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     EntityCategory,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
 )
 
-from .const import (
-    DOMAIN,
-)
-from .coordinator import PowerOceanCoordinator
+from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
 from .types import PowerOceanEndPoint
+
+# Updates are fetched centrally by the coordinator
+PARALLEL_UPDATES = 0
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,  # noqa: ARG001
+    entry: PowerOceanConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """
     Set up PowerOcean sensors for a config entry.
@@ -47,18 +48,17 @@ async def async_setup_entry(
         None
 
     """
-    data = hass.data[DOMAIN][entry.entry_id]
-    coordinator = data["coordinator"]
-    endpoints = data["endpoints"]
+    coordinator = entry.runtime_data
 
     entities = [
-        PowerOceanSensor(coordinator, endpoint) for endpoint in endpoints.values()
+        PowerOceanSensor(coordinator, endpoint)
+        for endpoint in coordinator.endpoints.values()
     ]
 
     async_add_entities(entities)
 
 
-class PowerOceanSensor(CoordinatorEntity, SensorEntity):
+class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
     """Representation of a PowerOcean Sensor using DataUpdateCoordinator."""
 
     def __init__(
