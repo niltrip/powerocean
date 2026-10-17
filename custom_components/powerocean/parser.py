@@ -114,7 +114,7 @@ class EcoflowParser:
                 collector=collector,
             )
             reports = [r for r in reports_data if r != ReportMode.DEFAULT.value]
-            LOGGER.debug(f"Reports to look for: {reports}")
+            LOGGER.debug("Reports to look for: %s", reports)
 
         response_parallel = data.get("parallel")
         response_quota = data.get("quota")
@@ -203,7 +203,7 @@ class EcoflowParser:
         )
         return None
 
-    def _deep_get_by_key(self, data: Any, target_key: str) -> None:
+    def _deep_get_by_key(self, data: Any, target_key: str) -> Any:
         """Search recursive for the occurrence of target_key in nested dict/list."""
         if isinstance(data, dict):
             for key, value in data.items():
@@ -221,6 +221,22 @@ class EcoflowParser:
                 result = self._deep_get_by_key(item, target_key)
                 if result is not None:
                     return result
+        return None
+
+    @staticmethod
+    def _to_float(value: Any) -> float:
+        """Convert a power value to float, treating missing/invalid values as 0."""
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return 0.0
+
+    @staticmethod
+    def _first_mppt_heartbeat(d: dict) -> dict | None:
+        """Return the first entry of 'mpptHeartBeat' if it is usable."""
+        mppt_list = d.get("mpptHeartBeat")
+        if isinstance(mppt_list, list) and mppt_list and isinstance(mppt_list[0], dict):
+            return mppt_list[0]
         return None
 
     @staticmethod
@@ -298,9 +314,9 @@ class EcoflowParser:
         if not isinstance(key, str):
             return False
 
-        # Spezialfall ENERGY_STREAM_REPORT
+        # Spezialfall ENERGY_STREAM_REPORT (Key ohne "_" kann nicht passen)
         if report == ReportMode.ENERGY_STREAM.value:
-            return key.split("_", 1)[1] == report
+            return key.partition("_")[2] == report
 
         # Default-Fall
         return key.endswith(report)
@@ -542,6 +558,31 @@ class EcoflowParser:
                     device_info=device_info,
                 )
 
+    def _handle_pcs_phases(
+        self,
+        d: dict,
+        report: str,
+        device_info: DeviceInfo,
+        collector: ReportCollector,
+    ) -> None:
+        """Collect per-phase values (pcsAPhase, pcsBPhase, pcsCPhase)."""
+        phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
+        if not all(phase in d for phase in phases):
+            return
+        for phase in phases:
+            if not isinstance(d[phase], dict):
+                continue
+            for key, value in d[phase].items():
+                key_ext = f"{phase}_{key}"
+                self._collect_sensor(
+                    collector,
+                    self.sn_inverter,
+                    report,
+                    key_ext,
+                    value,
+                    device_info=device_info,
+                )
+
     def _handle_ems_heartbeat_mode(
         self,
         d: dict,
@@ -567,28 +608,20 @@ class EcoflowParser:
                     value,
                     device_info=device_info,
                 )
-        # Besonderheiten Phasen
-        phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
-        if all(phase in d for phase in phases):
-            for phase in phases:
-                for key, value in d[phase].items():
-                    key_ext = f"{phase}_{key}"
-                    self._collect_sensor(
-                        collector,
-                        self.sn_inverter,
-                        report,
-                        key_ext,
-                        value,
-                        device_info=device_info,
-                    )
+        self._handle_pcs_phases(d, report, device_info, collector)
 
         # Besonderheit mpptPv
-        if "mpptHeartBeat" in d:
-            mppt_data = d["mpptHeartBeat"][0]
+        mppt_data = self._first_mppt_heartbeat(d)
+        if mppt_data is not None:
             report_mppt = f"{report}_mpptHeartBeat"
+            mppt_pv = mppt_data.get("mpptPv")
+            if not isinstance(mppt_pv, list):
+                mppt_pv = []
 
-            # Einzelne MPPT-Module
-            for i, mppt in enumerate(mppt_data["mpptPv"], start=1):
+            # Einzelne MPPT-Module (Nummerierung nach Position in der Liste)
+            for i, mppt in enumerate(mppt_pv, start=1):
+                if not isinstance(mppt, dict):
+                    continue
                 for key, value in mppt.items():
                     key_ext = f"mpptPv{i}_{key}"
                     self._collect_sensor(
@@ -600,8 +633,13 @@ class EcoflowParser:
                         device_info=device_info,
                     )
 
-            # Gesamtleistung MPPT
-            total_power = sum(mppt.get("pwr", 0) for mppt in mppt_data["mpptPv"])
+            # Gesamtleistung MPPT (nur numerische Werte, Typ bleibt erhalten)
+            total_power = sum(
+                pwr
+                for mppt in mppt_pv
+                if isinstance(mppt, dict)
+                and isinstance(pwr := mppt.get("pwr", 0), (int, float))
+            )
             self._collect_sensor(
                 collector,
                 self.sn_inverter,
@@ -630,10 +668,10 @@ class EcoflowParser:
             solar = max(float(total_power), 0.0)
 
             # grid +- Werte in "pcsMeterPower", positiv = Import, negativ = Export
-            grid = float(d.get("pcsMeterPower", 0))
+            grid = self._to_float(d.get("pcsMeterPower"))
 
             # battery +- Werte in "emsBpPower", positiv = Ladung, negativ = Entladung
-            battery = float(d.get("emsBpPower", 0))
+            battery = self._to_float(d.get("emsBpPower"))
 
             # ------------------------------
             # Vorzeichen normalisieren
@@ -766,6 +804,8 @@ class EcoflowParser:
             return
         report = f"{report}_paraEnergyStream"
         for device_data in para_list:
+            if not isinstance(device_data, dict):
+                continue
             raw_sn = device_data.get("devSn")
             device_sn = self._decode_sn(raw_sn) if raw_sn else None
 
