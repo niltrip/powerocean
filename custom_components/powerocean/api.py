@@ -14,12 +14,14 @@ outside of Home Assistant.
 Classes:
     EcoflowApi: Main API client class.
     EcoflowApiError: Base exception.
-    AuthenticationError: Raised on login failure.
+    EcoflowConnectionError: Raised on network errors and timeouts.
+    AuthenticationError: Raised on login failure or rejected token.
     RegionDetectionError: Raised if API region cannot be detected.
 """
 
 import asyncio
 import base64
+from http import HTTPStatus
 from typing import Any, ClassVar
 
 import aiohttp
@@ -27,10 +29,15 @@ import aiohttp
 from .const import LOGGER
 
 HTTP_OK = 200
+API_CODE_OK = "0"
 
 
 class EcoflowApiError(Exception):
     """Base exception for all EcoFlow API errors."""
+
+
+class EcoflowConnectionError(EcoflowApiError):
+    """Raised when the EcoFlow cloud cannot be reached (network, timeout)."""
 
 
 class AuthenticationError(EcoflowApiError):
@@ -39,6 +46,38 @@ class AuthenticationError(EcoflowApiError):
 
 class RegionDetectionError(EcoflowApiError):
     """Raised when automatic API region detection fails."""
+
+
+def validate_response(response: Any) -> dict[str, Any]:
+    """
+    Validate the envelope of an EcoFlow API response.
+
+    EcoFlow reports most errors with HTTP 200 and a non-zero ``code`` field,
+    so the HTTP status alone is not enough.
+
+    Raises:
+        EcoflowApiError: If the response is not a successful data response.
+
+    """
+    if not isinstance(response, dict):
+        msg = "API response is not a JSON object"
+        raise EcoflowApiError(msg)
+
+    code = response.get("code")
+    if code is not None and str(code) != API_CODE_OK:
+        msg = f"API returned error code {code}: {response.get('message')}"
+        raise EcoflowApiError(msg)
+
+    data = response.get("data")
+    if data is None:
+        msg = "API response missing required 'data' field"
+        raise EcoflowApiError(msg)
+
+    if not isinstance(data, dict):
+        msg = "API response field 'data' is not an object"
+        raise EcoflowApiError(msg)
+
+    return response
 
 
 class EcoflowApi:
@@ -126,13 +165,23 @@ class EcoflowApi:
                 ) as resp:
                     resp.raise_for_status()
                     response_data = await resp.json()
-        except Exception as e:
-            msg = "Login failed"
-            raise AuthenticationError(msg) from e
+        except aiohttp.ClientResponseError as e:
+            if e.status in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
+                msg = "Login rejected"
+                raise AuthenticationError(msg) from e
+            msg = f"Login failed with HTTP {e.status}"
+            if e.status >= HTTPStatus.INTERNAL_SERVER_ERROR:
+                raise EcoflowConnectionError(msg) from e
+            raise EcoflowApiError(msg) from e
+        except (TimeoutError, aiohttp.ClientError) as e:
+            msg = "Login failed: EcoFlow cloud not reachable"
+            raise EcoflowConnectionError(msg) from e
 
-        token = response_data.get("data", {}).get("token")
+        # Wrong credentials are answered with HTTP 200 and no token.
+        response_body = response_data if isinstance(response_data, dict) else {}
+        token = (response_body.get("data") or {}).get("token")
         if not token:
-            msg = "Missing token in response"
+            msg = f"Login rejected: {response_body.get('message', 'no token')}"
             raise AuthenticationError(msg)
 
         self.token = token
@@ -141,6 +190,7 @@ class EcoflowApi:
     async def _detect_region(self) -> None:
         """Detect API region (EU or US) by probing known endpoints."""
         session = await self._get_session()
+        any_host_reached = False
 
         for host in self.REGION_HOSTS.values():
             url = f"https://{host}/provider-service/user/device/detail?sn={self.sn}"
@@ -153,6 +203,7 @@ class EcoflowApi:
             try:
                 async with asyncio.timeout(10):
                     async with session.get(url, headers=headers) as resp:
+                        any_host_reached = True
                         if resp.status == HTTP_OK:
                             self.api_host = host
                             return
@@ -160,11 +211,23 @@ class EcoflowApi:
                 LOGGER.debug("Region (%s) failed during detection: %s", host, err)
                 continue  # Nur bekannte Netzwerk-/Timeout-Fehler abfangen
 
+        if not any_host_reached:
+            msg = "Region detection failed: EcoFlow cloud not reachable"
+            raise EcoflowConnectionError(msg)
+
         msg = "Could not detect region"
         raise RegionDetectionError(msg)
 
     async def fetch_raw(self) -> dict[str, Any]:
-        """Fetch data from Url (Async version)."""
+        """
+        Fetch and validate the device detail response.
+
+        Raises:
+            EcoflowConnectionError: On network errors, timeouts or HTTP 5xx.
+            AuthenticationError: If the token was rejected (HTTP 401/403).
+            EcoflowApiError: If the API answered with an error payload.
+
+        """
         if not self.api_host:
             msg = "Region not detected"
             raise EcoflowApiError(msg)
@@ -180,7 +243,21 @@ class EcoflowApi:
             "product-type": self.variant,
         }
 
-        async with asyncio.timeout(30):
-            async with session.get(url, headers=headers) as resp:
-                resp.raise_for_status()
-                return await resp.json()
+        try:
+            async with asyncio.timeout(30):
+                async with session.get(url, headers=headers) as resp:
+                    resp.raise_for_status()
+                    response = await resp.json()
+        except aiohttp.ClientResponseError as e:
+            if e.status in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
+                msg = "Token rejected"
+                raise AuthenticationError(msg) from e
+            msg = f"Fetching data failed with HTTP {e.status}"
+            if e.status >= HTTPStatus.INTERNAL_SERVER_ERROR:
+                raise EcoflowConnectionError(msg) from e
+            raise EcoflowApiError(msg) from e
+        except (TimeoutError, aiohttp.ClientError) as e:
+            msg = "Fetching data failed: EcoFlow cloud not reachable"
+            raise EcoflowConnectionError(msg) from e
+
+        return validate_response(response)
