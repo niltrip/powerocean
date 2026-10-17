@@ -6,6 +6,21 @@
             "type": "shell",
             "command": "scripts/develop",
             "problemMatcher": []
+        },
+        {
+            "label": "Stop Home Assistant",
+            "type": "shell",
+            "command": "pkill -f '[h]ass --config' && echo 'Home Assistant wird beendet.' || echo 'Home Assistant läuft nicht.'",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "Restart Home Assistant",
+            "type": "shell",
+            "command": "if pkill -f '[h]ass --config'; then echo 'Home Assistant wird beendet ...'; while pgrep -f '[h]ass --config' > /dev/null; do sleep 0.5; done; fi; scripts/develop",
+            "problemMatcher": []
         }
     ]
 }
