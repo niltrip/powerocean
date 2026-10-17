@@ -8,7 +8,7 @@ value, Base64 encoded, as dict key or inside an embedded JSON string. The
 encoding is kept, so an anonymized response parses like the original one and
 can be used as test fixture.
 
-Other personal data (system name, location, SIM card id, ...) is redacted.
+Other personal data (system name, location, time zone, SIM card id, ...) is redacted.
 
 This module does not depend on Home Assistant.
 """
@@ -40,6 +40,7 @@ REDACT_KEYS = {
     "eagleEyeTraceId",
     "location",
     "systemName",
+    "timezone",
     "wireless4gIccid",
 }
 

@@ -63,6 +63,7 @@ def test_structure_hints_and_encodings() -> None:
     response = {
         "data": {
             "systemName": "Mein Haus",
+            "timezone": "Europe/Berlin",
             "quota": {
                 "JTS1_BP_STA_REPORT": {
                     "BATTERY000001": json.dumps({"bpSn": battery_sn, "bpSoc": 50}),
@@ -80,6 +81,7 @@ def test_structure_hints_and_encodings() -> None:
     payload = json.loads(quota["JTS1_BP_STA_REPORT"]["SN_BP01"])
 
     assert result["data"]["systemName"] == REDACTED
+    assert result["data"]["timezone"] == REDACTED
     assert payload == {"bpSn": base64.b64encode(b"SN_BP01").decode(), "bpSoc": 50}
     assert quota["JTS1_BP_STA_REPORT"]["updateTime"] == "2026-01-20 05:18:05"
     assert quota["JTS1_ERROR_CHANGE_REPORT"]["bpErrCode"][0]["moduleSn"] == "SN_BP01"
