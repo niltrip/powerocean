@@ -68,6 +68,8 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self.parser = EcoflowParser(variant=self.api.variant, sn=self.api.sn)
         # Filled from the first successful response, read by the platforms
         self.endpoints: dict[str, PowerOceanEndPoint] = {}
+        # Last raw API response, for diagnostics
+        self.last_response: dict[str, Any] | None = None
 
     async def _async_setup(self) -> None:
         """Log in once before the first refresh."""
@@ -76,6 +78,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
     async def _async_update_data(self) -> dict[str, float | int | str]:
         """Holt LIVE-Daten und parsed NUR Values."""
         response = await self._async_fetch()
+        self.last_response = response
 
         try:
             if not self.endpoints:
