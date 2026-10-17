@@ -4,6 +4,9 @@ ecoflow.py: Home Assistant adapter for the EcoFlow PowerOcean API client.
 This module provides `HAEcoflowApi`, which wires the framework-agnostic
 `EcoflowApi` to Home Assistant's shared aiohttp session.
 
+Errors are raised as the exceptions defined in `api.py`; callers map them
+to the matching Home Assistant behavior (form error, setup retry, reauth).
+
 Usage:
     api = HAEcoflowApi(hass, serialnumber, username, password, variant)
     await api.async_authorize()
@@ -13,16 +16,10 @@ Usage:
 from typing import Any
 
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady, IntegrationError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.util.json import json_loads
 
-from .api import (
-    AuthenticationError,
-    EcoflowApi,
-    EcoflowApiError,
-    validate_response,
-)
+from .api import EcoflowApi, validate_response
 from .const import (
     LOGGER,
     MOCKED_RESPONSE,
@@ -34,7 +31,7 @@ class HAEcoflowApi(EcoflowApi):
     """
     Home Assistant wrapper around EcoflowApi.
 
-    Adds HA-specific session handling and exception mapping.
+    Adds HA-specific session handling and the optional mocked response.
     """
 
     def __init__(
@@ -66,23 +63,6 @@ class HAEcoflowApi(EcoflowApi):
         )
         self.hass = hass
 
-    async def async_authorize(self) -> None:
-        """
-        Authorize against the EcoFlow API and map errors to HA exceptions.
-
-        Raises:
-            IntegrationError: If credentials are invalid.
-            ConfigEntryNotReady: If the API is temporarily unavailable.
-
-        """
-        try:
-            await super().async_authorize()
-        except AuthenticationError as e:
-            msg = "Invalid username or password"
-            raise IntegrationError(msg) from e
-        except EcoflowApiError as e:
-            raise ConfigEntryNotReady from e
-
     async def fetch_raw(self) -> dict[str, Any]:
         """
         Fetch raw device data from the EcoFlow API.
@@ -107,7 +87,3 @@ class HAEcoflowApi(EcoflowApi):
 
         LOGGER.debug("API response received: %s", api_response)
         return api_response
-
-
-class AuthenticationFailedError(Exception):
-    """Exception to indicate authentication failure."""

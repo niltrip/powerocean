@@ -9,14 +9,12 @@ This module sets up the PowerOcean integration, handling:
 - Creation of a DataUpdateCoordinator for periodic polling.
 - Registration in the Home Assistant device registry.
 - Forwarding entry setups to sensor/platform components.
-- Reloading the config entry when options are updated.
 
 Functions:
 - async_setup: Set up the integration and log basic info.
 - async_setup_entry: Set up a PowerOcean device from a config entry.
 - async_migrate_entry: Migrate older config entries to the latest version.
 - async_unload_entry: Unload a config entry and clean up resources.
-- update_listener: Reload a config entry when its options are updated.
 """
 
 from datetime import timedelta
@@ -32,14 +30,15 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import (
+    ConfigEntryAuthFailed,
     ConfigEntryNotReady,
     HomeAssistantError,
-    IntegrationError,
 )
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.loader import async_get_integration
 
+from .api import AuthenticationError, EcoflowApiError
 from .const import (
     DEFAULT_NAME,
     DEFAULT_SCAN_INTERVAL,
@@ -136,13 +135,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # --- Authentifizieren ---
     try:
         await api.async_authorize()
-    except ConfigEntryNotReady:
-        # Netzwerkproblem → Setup wird retryt
-        raise
-    except IntegrationError as e:
-        # Auth-Fehler oder unerwartete API-Probleme → Setup schlägt fehl
-        LOGGER.error("Failed to authenticate EcoFlow device %s: %s", entry.title, e)
-        return False
+    except AuthenticationError as err:
+        # Zugangsdaten abgelehnt → HA startet den Reauth-Flow
+        raise ConfigEntryAuthFailed(
+            translation_domain=DOMAIN, translation_key="invalid_auth"
+        ) from err
+    except EcoflowApiError as err:
+        # Netzwerk-/Cloudproblem → HA wiederholt das Setup automatisch
+        raise ConfigEntryNotReady(
+            translation_domain=DOMAIN,
+            translation_key="cannot_connect",
+            translation_placeholders={"error": str(err)},
+        ) from err
 
     # --- Struktur & Parser ---
     raw = await api.fetch_raw()
@@ -179,9 +183,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         model_id=model_id,
         configuration_url="https://user-portal.ecoflow.com/",
     )
-
-    # Listener für Optionsänderungen
-    entry.async_on_unload(entry.add_update_listener(update_listener))
 
     return True
 
@@ -233,9 +234,3 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Remove from hass.data
     hass.data.get(DOMAIN, {}).pop(entry.entry_id, None)
     return unload_ok
-
-
-async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Reload the config entry when options are updated (z.B. polling interval)."""
-    LOGGER.debug("Reloading PowerOcean entry %s due to options change", entry.entry_id)
-    await hass.config_entries.async_reload(entry.entry_id)

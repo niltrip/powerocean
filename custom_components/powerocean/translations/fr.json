@@ -25,16 +25,25 @@
                     "password": "Mot de passe",
                     "model_id": "Modèle PowerOcean"
                 }
+            },
+            "reauth_confirm": {
+                "description": "Les identifiants EcoFlow pour {device_id} ne sont plus valides. Veuillez les saisir à nouveau.",
+                "data": {
+                    "email": "Adresse e-mail",
+                    "password": "Mot de passe"
+                }
             }
         },
         "error": {
-            "cannot_connect": "Échec de la connexion. Veuillez vérifier vos identifiants.",
+            "cannot_connect": "Échec de la connexion au cloud EcoFlow. Veuillez vérifier le numéro de série, le modèle et votre connexion réseau.",
             "invalid_auth": "Authentification invalide",
             "unknown": "Erreur inattendue"
         },
         "abort": {
             "already_configured": "Cet appareil est déjà configuré.",
-            "reconfiguration_completed": "Reconfiguration de l'appareil terminée. L'intégration sera rechargée."
+            "reconfigure_successful": "Reconfiguration de l'appareil terminée. L'intégration sera rechargée.",
+            "reauth_successful": "La ré-authentification a réussi.",
+            "wrong_device": "Le numéro de série appartient à un autre appareil. Veuillez l'ajouter comme nouvel appareil."
         }
     },
     "options": {
@@ -46,6 +55,14 @@
                     "scan_interval": "Intervalle de mise à jour (en secondes)"
                 }
             }
+        }
+    },
+    "exceptions": {
+        "invalid_auth": {
+            "message": "Le cloud EcoFlow a refusé les identifiants."
+        },
+        "cannot_connect": {
+            "message": "Impossible de joindre le cloud EcoFlow : {error}"
         }
     }
 }
