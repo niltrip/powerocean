@@ -16,16 +16,18 @@ This component was inspired by [tolwi/hassio-ecoflow-cloud](https://github.com/t
 ## Disclaimers
 
 ⚠️ Temporary quick solution to my problem ("Nothing is more persistent than a makeshift solution.").
-I hope of an integrate PowerOcean into [tolwi/hassio-ecoflow-cloud](https://github.com/tolwi/hassio-ecoflow-cloud) with an official API.
+I hope for an integration of PowerOcean into [tolwi/hassio-ecoflow-cloud](https://github.com/tolwi/hassio-ecoflow-cloud) with an official API.
 
 Nevertheless, I hope that it works for others as well.
 
 ## Prerequisites
 
-I have tested the component with my System.
-I use the Android App and the Webportal at https://user-portal.ecoflow.com/
+- Home Assistant **2025.8.0** or newer
+- The serial number (S/N) of your inverter, as shown in the EcoFlow app
+- The e-mail address and password of your EcoFlow account
 
-You need the S/N number of your inverter and your credentinals
+I have tested the component with my system.
+I use the Android app and the web portal at https://user-portal.ecoflow.com/
 
 ## Installation
 
@@ -45,16 +47,29 @@ Follow the flow.
 
 
 ### Sensors
-Sensors are registered to device as `sensor.{device_name}_{sensor_name}` with an friendly name of `sensor_name`.
-Additional attributes are presented on each sensor:
-- Product Description, Destination Name, Source Name: internal names
-- Internal Unique ID: `{serial}_{sensor_name}` or `{serial}_{report}_{sensor_name}`
-- Device Name: `{serial}`
-- Vendor Product Serial: serial number of the PowerOcean inverter
-- Vendor Firmware Version: 5.1.27
-- Vendor Product Build: 28
+Sensors are registered to their device as `sensor.{device_name}_{sensor_name}` with the friendly name `sensor_name`, the name of the value in the EcoFlow API.
+The unique ID is `{serial}_{report}_{sensor_name}`, e.g. `{serial}_JTS1_EMS_HEARTBEAT_pcsMeterPower`, or `{serial}_{sensor_name}` for values outside a report.
 
-The versions are from my system.
+Each sensor has these attributes:
+- `product_description`: description of the value, if known (otherwise its name)
+- `product_serial`: serial number of the device the value belongs to
+
+### Active errors
+The sensor `errorCount` (description "Aktive Fehler") of each inverter counts the errors the system currently reports, as the app shows them: from the EMS, the inverter (PCS) and the battery packs.
+Its attribute `errors` lists each active error with module, serial number of the module and error code; for known codes also name and level (Info, Warning, Error):
+
+```yaml
+errors:
+  - module: ems
+    module_sn: ...
+    code: 521
+    name: Energy storage communication error
+    level: Warning
+```
+
+Cause and solution are only available in the [EcoFlow web portal](https://user-portal.ecoflow.com/); the attribute `error_details` points there. The link "Visit" on the device page opens the portal as well.
+
+<!-- Screenshot: documentation/error_sensor.png (sensor errorCount with its attributes; black out serial numbers) -->
 
 ### Which values update, and which do not
 
@@ -81,22 +96,29 @@ For a dashboard, take the values from `EMS_HEARTBEAT`:
 - battery: `emsBpPower` rather than `bpPwr`
 - house: `housePower`, which is calculated from the three values above
 
-### Neuer Sensor (berechnet aus einzelnen Strings)
+### New sensor (calculated from the PV strings)
 
 ![sensor](documentation/mpptPv_pwrTotal.PNG)
 
-### Darstellung einzelner Geräte über SN
+### Devices by serial number
 ![integration](documentation/integration.PNG)
 ![powerpulse](documentation/powerpulse.png)
 ![powerglow](documentation/powerglow.png)
 
 
-### Energiedashboard
+### Energy dashboard
 ![dashboard](documentation/dashboard.PNG)
 
 
 ## Troubleshooting
-Please set your logging for the this custom component to debug during initial setup phase. If everything works well, you are safe to remove the debug logging:
+
+**Diagnostics:** When you report a problem, please attach the diagnostics:
+*Settings → Devices & services → Ecoflow PowerOcean → ⋮ → Download diagnostics*.
+The file contains the last response of the EcoFlow cloud and the detected devices. Credentials, system name, location and time zone are removed, serial numbers are replaced by placeholders (`SN_MAIN`, `SN_BP01`, ...).
+
+**Login:** If EcoFlow rejects the credentials (e.g. after you changed your password), Home Assistant asks you to sign in again. If the cloud cannot be reached, the integration retries on its own.
+
+**Debug logging:** For more details, set the logging of this custom component to debug. If everything works well, you can remove it again:
 
 ```yaml
 logger:
@@ -107,6 +129,6 @@ logger:
 
 ## Credits
 
-Thanks to my kollege David for giving me a start point.
+Thanks to my colleague David for giving me a starting point.
 
 And also thanks for the great work of the team from homeassistant and the great community.
