@@ -281,7 +281,7 @@
     "SN_BP01_JTS1_BP_STA_REPORT_bpRealSoh": {
       "device": "Battery SN_BP01",
       "device_class": "battery",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_bp01_bprealsoh",
       "icon": "mdi:battery-heart-variant",
       "original_name": "bpRealSoh",
@@ -333,7 +333,7 @@
     "SN_BP01_JTS1_BP_STA_REPORT_bpSoh": {
       "device": "Battery SN_BP01",
       "device_class": "battery",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_bp01_bpsoh",
       "icon": "mdi:battery-heart-variant",
       "original_name": "bpSoh",
@@ -635,7 +635,7 @@
     "SN_BP02_JTS1_BP_STA_REPORT_bpRealSoh": {
       "device": "Battery SN_BP02",
       "device_class": "battery",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_bp02_bprealsoh",
       "icon": "mdi:battery-heart-variant",
       "original_name": "bpRealSoh",
@@ -687,7 +687,7 @@
     "SN_BP02_JTS1_BP_STA_REPORT_bpSoh": {
       "device": "Battery SN_BP02",
       "device_class": "battery",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_bp02_bpsoh",
       "icon": "mdi:battery-heart-variant",
       "original_name": "bpSoh",

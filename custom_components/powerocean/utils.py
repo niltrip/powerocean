@@ -321,6 +321,14 @@ UPDATE_TIME_KEYS: dict[str, str] = {
     ReportMode.EMS_CHANGE.value: "emsChangeUpdateTime",
 }
 
+# Entities of these keys are shown under "Diagnostic", although they have
+# a unit (entities without a unit always are)
+DIAGNOSTIC_KEYS: set[str] = {
+    # State of health of the battery packs
+    "bpSoh",
+    "bpRealSoh",
+}
+
 # Entities of these keys are created disabled; users can enable them.
 # Only for keys added later: existing entities keep their state anyway.
 DISABLED_BY_DEFAULT: set[str] = {

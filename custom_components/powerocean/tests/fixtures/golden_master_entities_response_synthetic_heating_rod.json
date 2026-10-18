@@ -294,7 +294,7 @@
     "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpRealSoh": {
       "device": "Battery SN_BATTERIEPACK01",
       "device_class": "battery",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_batteriepack01_bprealsoh",
       "icon": "mdi:battery-heart-variant",
       "original_name": "bpRealSoh",
@@ -346,7 +346,7 @@
     "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoh": {
       "device": "Battery SN_BATTERIEPACK01",
       "device_class": "battery",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_batteriepack01_bpsoh",
       "icon": "mdi:battery-heart-variant",
       "original_name": "bpSoh",
@@ -648,7 +648,7 @@
     "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpRealSoh": {
       "device": "Battery SN_BATTERIEPACK02",
       "device_class": "battery",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_batteriepack02_bprealsoh",
       "icon": "mdi:battery-heart-variant",
       "original_name": "bpRealSoh",
@@ -700,7 +700,7 @@
     "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoh": {
       "device": "Battery SN_BATTERIEPACK02",
       "device_class": "battery",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_batteriepack02_bpsoh",
       "icon": "mdi:battery-heart-variant",
       "original_name": "bpSoh",

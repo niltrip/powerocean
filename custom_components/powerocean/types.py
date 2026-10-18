@@ -36,7 +36,7 @@ from homeassistant.const import (
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from .const import DOMAIN
-from .utils import DISABLED_BY_DEFAULT
+from .utils import DIAGNOSTIC_KEYS, DISABLED_BY_DEFAULT
 
 if TYPE_CHECKING:
     from .devices import Device
@@ -77,6 +77,7 @@ class PowerOceanEndPoint:
     icon: str | None
     device_info: DeviceInfo | None = None
     enabled_default: bool = True
+    diagnostic: bool = False
 
     @classmethod
     def from_datapoint(cls, datapoint: "Datapoint") -> "PowerOceanEndPoint":
@@ -93,6 +94,7 @@ class PowerOceanEndPoint:
             icon=SensorMetaHelper.get_special_icon(key),
             device_info=device_info(datapoint.device),
             enabled_default=key not in DISABLED_BY_DEFAULT,
+            diagnostic=key in DIAGNOSTIC_KEYS,
         )
 
 
