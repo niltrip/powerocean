@@ -10,7 +10,7 @@ It handles:
 - Automatic periodic updates
 - A new login when the EcoFlow cloud rejects the current token
 - Mapping API errors to `UpdateFailed` / `ConfigEntryAuthFailed`
-- Building the endpoint structure from the first response
+- Building the endpoints, extended by datapoints that appear later
 
 Usage:
   coordinator = PowerOceanCoordinator(hass, entry, api)
@@ -65,7 +65,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             ),
         )
         self.api = api
-        # Filled from the first successful response, read by the platforms
+        # Grows with every new datapoint, read by the platforms
         self.endpoints: dict[str, PowerOceanEndPoint] = {}
         # Last raw API response, for diagnostics
         self.last_response: dict[str, Any] | None = None
@@ -77,17 +77,18 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         await self._async_authorize()
 
     async def _async_update_data(self) -> dict[str, float | int | str]:
-        """Fetch and parse the live data; the endpoints come from the first one."""
+        """Fetch and parse the live data, adding endpoints for new datapoints."""
         response = await self._async_fetch()
         self.last_response = response
 
         try:
             result = parse(response, self.api.sn, self.api.variant)
-            if not self.endpoints:
-                self.endpoints = {
-                    unique_id: PowerOceanEndPoint.from_datapoint(datapoint)
-                    for unique_id, datapoint in result.first().items()
-                }
+            # A device that was offline at startup brings its datapoints later
+            for unique_id, datapoint in result.first().items():
+                if unique_id not in self.endpoints:
+                    self.endpoints[unique_id] = PowerOceanEndPoint.from_datapoint(
+                        datapoint
+                    )
         except PARSE_ERRORS as err:
             raise UpdateFailed(
                 translation_domain=DOMAIN,

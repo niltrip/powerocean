@@ -13,7 +13,7 @@ from homeassistant.components.sensor import (
 from homeassistant.const import (
     EntityCategory,
 )
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
@@ -42,7 +42,8 @@ async def async_setup_entry(
 
     This function is called by Home Assistant when a config entry
     is set up. It creates sensor entities for each endpoint and
-    registers them with Home Assistant.
+    registers them with Home Assistant. Endpoints that appear with a
+    later update (e.g. a battery that was offline) are added then.
 
     Args:
         hass: The Home Assistant instance.
@@ -54,13 +55,24 @@ async def async_setup_entry(
 
     """
     coordinator = entry.runtime_data
+    added: set[str] = set()
 
-    entities = [
-        PowerOceanSensor(coordinator, endpoint)
-        for endpoint in coordinator.endpoints.values()
-    ]
+    @callback
+    def _add_new_entities() -> None:
+        new = [
+            endpoint
+            for unique_id, endpoint in coordinator.endpoints.items()
+            if unique_id not in added
+        ]
+        if not new:
+            return
+        added.update(endpoint.internal_unique_id for endpoint in new)
+        async_add_entities(
+            [PowerOceanSensor(coordinator, endpoint) for endpoint in new]
+        )
 
-    async_add_entities(entities)
+    _add_new_entities()
+    entry.async_on_unload(coordinator.async_add_listener(_add_new_entities))
 
 
 class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):

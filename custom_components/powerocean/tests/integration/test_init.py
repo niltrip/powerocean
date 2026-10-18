@@ -1,5 +1,6 @@
 """test_init: setup, error handling, re-login and migration of config entries."""
 
+import copy
 import json
 from collections.abc import Generator
 from pathlib import Path
@@ -269,6 +270,61 @@ async def test_scan_interval_from_options(
     await _setup(hass, entry)
 
     assert entry.runtime_data.update_interval.total_seconds() == 42
+
+
+def _without_battery(sn: str) -> dict:
+    """Return the response as if the battery pack `sn` was offline."""
+    response = copy.deepcopy(RESPONSE)
+    del response["data"]["quota"]["JTS1_BP_STA_REPORT"][sn]
+    return response
+
+
+def _entity_ids(hass: HomeAssistant, entry: MockConfigEntry) -> dict[str, str]:
+    return {
+        entity.unique_id: entity.entity_id
+        for entity in er.async_entries_for_config_entry(
+            er.async_get(hass), entry.entry_id
+        )
+    }
+
+
+async def test_battery_offline_at_startup_is_added_later(
+    hass: HomeAssistant, mock_authorize: AsyncMock, mock_fetch: AsyncMock
+) -> None:
+    """Datapoints missing at startup get their entities with a later update."""
+    battery = "SN_BATTERIEPACK02"
+    soc = f"{battery}_JTS1_BP_STA_REPORT_bpSoc"
+    mock_fetch.return_value = _without_battery(battery)
+    entry = _entry()
+    await _setup(hass, entry)
+    coordinator = entry.runtime_data
+    before = _entity_ids(hass, entry)
+    assert soc not in before
+    assert not dr.async_get(hass).async_get_device(identifiers={(DOMAIN, battery)})
+
+    # The battery is back
+    mock_fetch.return_value = RESPONSE
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+
+    after = _entity_ids(hass, entry)
+    added = set(after) - set(before)
+    assert soc in added
+    assert all(unique_id.startswith(f"{battery}_") for unique_id in added)
+    # Existing entities are unchanged
+    assert {uid: after[uid] for uid in before} == before
+    assert hass.states.get(after[soc]).state == "10"
+    device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, battery)})
+    assert device
+    assert device.via_device_id
+
+    # Offline again: the entities stay, without a value
+    mock_fetch.return_value = _without_battery(battery)
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+
+    assert _entity_ids(hass, entry) == after
+    assert hass.states.get(after[soc]).state == "unknown"
 
 
 # -----------------------------
