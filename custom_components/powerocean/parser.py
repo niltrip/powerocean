@@ -35,6 +35,7 @@ from .const import (
     MODEL_NAME_MAP,
     PowerOceanModel,
 )
+from .errors import ActiveError, parse_error_report
 from .types import PowerOceanEndPoint
 from .utils import (
     BOX_SCHEMAS,
@@ -62,6 +63,9 @@ class EcoflowParser:
         self.ecoflow_variant = variant
         self.sn = sn
         self.sn_inverter = sn
+        # Active errors of the last parsed response, by unique_id of the
+        # error count sensor
+        self.active_errors: dict[str, list[ActiveError]] = {}
 
     # Public Methods
     def parse_structure(self, response: dict) -> dict[str, PowerOceanEndPoint]:
@@ -103,6 +107,7 @@ class EcoflowParser:
             return
 
         self.sn_inverter = self.sn
+        self.active_errors = {}
         reports_data = list(REPORT_DATAPOINTS.keys())
         reports = []
 
@@ -400,7 +405,8 @@ class EcoflowParser:
             friendly_name=f"{key}",
         )
 
-    def _extract_sensors_from_report(
+    # One handler per report type; replaced by a table with the parser rewrite
+    def _extract_sensors_from_report(  # noqa: PLR0912
         self,
         response: dict[str, Any],
         report: str,
@@ -491,6 +497,10 @@ class EcoflowParser:
                 sens_select=sens_select,
                 collector=collector,
             )
+            return
+
+        if ReportMode.ERROR.value in report:
+            self._handle_error_report(d, report, collector=collector)
             return
 
         if ReportMode.WALLBOX_SYS.value in report:
@@ -748,6 +758,34 @@ class EcoflowParser:
                     clean_zero(round(value, 1)),
                     device_info=device_info,
                 )
+
+    def _handle_error_report(
+        self,
+        d: dict,
+        report: str,
+        collector: ReportCollector,
+    ) -> None:
+        """Count the active errors of all modules of the inverter."""
+        if not d:
+            return
+
+        errors = parse_error_report(d)
+        self.active_errors[_join_id(self.sn_inverter, report, "errorCount")] = errors
+
+        device_info = self._make_device_info(
+            sn=self.sn_inverter,
+            prefix="PowerOcean",
+            model=MODEL_NAME_MAP[PowerOceanModel(self.ecoflow_variant)],
+            via_sn=None,
+        )
+        self._collect_sensor(
+            collector,
+            self.sn_inverter,
+            report,
+            "errorCount",
+            len(errors),
+            device_info=device_info,
+        )
 
     def _handle_heating_rod_energy_stream(
         self,

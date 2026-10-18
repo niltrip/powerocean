@@ -26,6 +26,11 @@ from .types import PowerOceanEndPoint
 # Updates are fetched centrally by the coordinator
 PARALLEL_UPDATES = 0
 
+# Cause and solution of error codes are only available in the portal
+ERROR_DETAILS_HINT = (
+    "Ursache und Lösung im EcoFlow-Webportal: https://portal.ecoflow.com"
+)
+
 
 async def async_setup_entry(
     hass: HomeAssistant,  # noqa: ARG001
@@ -102,6 +107,11 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
             attr["product_description"] = self._endpoint_description
         if self._endpoint_serial:
             attr["product_serial"] = self._endpoint_serial
+        errors = self.coordinator.active_errors.get(self._endpoint_id)
+        if errors is not None:
+            attr["errors"] = [error.as_dict() for error in errors]
+            if errors:
+                attr["error_details"] = ERROR_DETAILS_HINT
         return attr
 
     @property

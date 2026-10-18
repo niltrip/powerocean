@@ -33,6 +33,7 @@ from .ecoflow import HAEcoflowApi
 from .parser import EcoflowParser
 
 if TYPE_CHECKING:
+    from .errors import ActiveError
     from .types import PowerOceanEndPoint
 
 type PowerOceanConfigEntry = ConfigEntry[PowerOceanCoordinator]
@@ -70,6 +71,8 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self.endpoints: dict[str, PowerOceanEndPoint] = {}
         # Last raw API response, for diagnostics
         self.last_response: dict[str, Any] | None = None
+        # Active errors, by unique_id of the error count sensor
+        self.active_errors: dict[str, list[ActiveError]] = {}
 
     async def _async_setup(self) -> None:
         """Log in once before the first refresh."""
@@ -83,13 +86,16 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         try:
             if not self.endpoints:
                 self.endpoints = self.parser.parse_structure(response)
-            return self.parser.parse_values(response)
+            values = self.parser.parse_values(response)
         except PARSE_ERRORS as err:
             raise UpdateFailed(
                 translation_domain=DOMAIN,
                 translation_key="unexpected_response",
                 translation_placeholders={"error": repr(err)},
             ) from err
+
+        self.active_errors = self.parser.active_errors
+        return values
 
     async def _async_fetch(self) -> dict[str, Any]:
         """Fetch data, logging in again once if the request was rejected."""

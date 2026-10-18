@@ -704,6 +704,19 @@
       "state_class": "measurement",
       "unit_of_measurement": "W"
     },
+    "SN_INVERTERBOX01_JTS1_ERROR_CHANGE_REPORT_errorCount": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_errorcount",
+      "icon": "mdi:alert-circle-outline",
+      "original_name": "errorCount",
+      "product_description": "Aktive Fehler",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "0",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
     "SN_INVERTERBOX01_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_bpPwr": {
       "device": "PowerOcean",
       "device_class": "power",
@@ -1678,6 +1691,19 @@
       "state": "-11.216274",
       "state_class": "measurement",
       "unit_of_measurement": "W"
+    },
+    "SN_INVERTERBOX02_JTS1_ERROR_CHANGE_REPORT_errorCount": {
+      "device": "PowerOcean SN_INVERTERBOX02",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox02_errorcount",
+      "icon": "mdi:alert-circle-outline",
+      "original_name": "errorCount",
+      "product_description": "Aktive Fehler",
+      "product_serial": "SN_INVERTERBOX02",
+      "state": "0",
+      "state_class": null,
+      "unit_of_measurement": null
     },
     "SN_INVERTERBOX02_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_bpPwr": {
       "device": "PowerOcean SN_INVERTERBOX02",
