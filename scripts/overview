@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Übersicht, wie eine API-Antwort in Home Assistant erscheint (Markdown).
+# Beispiel: scripts/overview response_modified_po_dual.json -o dual.md
+# Hilfe:    scripts/overview --help
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+.venv/bin/python scripts/overview.py "$@"
