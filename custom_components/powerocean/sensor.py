@@ -22,16 +22,15 @@ from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
 )
 
+from .const import PORTAL_URL
 from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
-from .types import PowerOceanEndPoint
+from .types import DISPLAY_PRECISION, PowerOceanEndPoint
 
 # Updates are fetched centrally by the coordinator
 PARALLEL_UPDATES = 0
 
 # Cause and solution of error codes are only available in the portal
-ERROR_DETAILS_HINT = (
-    "Ursache und Lösung im EcoFlow-Webportal: https://portal.ecoflow.com"
-)
+ERROR_DETAILS_HINT = f"Ursache und Lösung im EcoFlow-Webportal: {PORTAL_URL}"
 
 
 async def async_setup_entry(
@@ -106,6 +105,9 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
         self._attr_name = self._endpoint_friendly_name
         self._attr_icon = self._endpoint_icon
         self._attr_entity_registry_enabled_default = endpoint.enabled_default
+        self._attr_suggested_display_precision = DISPLAY_PRECISION.get(
+            self._attr_native_unit_of_measurement
+        )
         if self._attr_native_unit_of_measurement is None or endpoint.diagnostic:
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
 

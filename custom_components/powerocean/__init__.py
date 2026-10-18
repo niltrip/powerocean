@@ -34,6 +34,7 @@ from .const import (
     LOGGER,
     MODEL_NAME_MAP,
     PLATFORMS,
+    PORTAL_URL,
     PowerOceanModel,
 )
 from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
@@ -77,7 +78,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: PowerOceanConfigEntry) -
         name=entry.options.get(CONF_FRIENDLY_NAME),
         model=model_name,
         model_id=model_id,
-        configuration_url="https://user-portal.ecoflow.com/",
+        configuration_url=PORTAL_URL,
     )
 
     return True

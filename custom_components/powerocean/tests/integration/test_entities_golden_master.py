@@ -70,6 +70,9 @@ def _snapshot(hass: HomeAssistant, entry: MockConfigEntry) -> dict[str, Any]:
         # Only for disabled entities, so the other entries stay unchanged
         if entity.disabled_by:
             entities[entity.unique_id]["disabled_by"] = entity.disabled_by
+        precision = entity.options.get("sensor", {}).get("suggested_display_precision")
+        if precision is not None:
+            entities[entity.unique_id]["display_precision"] = precision
 
     devices = {}
     for device in dr.async_entries_for_config_entry(device_registry, entry.entry_id):
@@ -85,6 +88,7 @@ def _snapshot(hass: HomeAssistant, entry: MockConfigEntry) -> dict[str, Any]:
             "model": device.model,
             "model_id": device.model_id,
             "via_device": via.serial_number if via else None,
+            "configuration_url": device.configuration_url,
         }
 
     return json.loads(

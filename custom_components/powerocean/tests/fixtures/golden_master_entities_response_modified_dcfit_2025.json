@@ -1,6 +1,7 @@
 {
   "devices": {
     "SN_INVERTERBOX01": {
+      "configuration_url": "https://user-portal.ecoflow.com/",
       "identifiers": [
         [
           "powerocean",
@@ -187,6 +188,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpInDayEnergy": {
       "device": "PowerOcean",
       "device_class": "energy",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_bpindayenergy",
       "icon": null,
@@ -200,6 +202,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpOutDayEnergy": {
       "device": "PowerOcean",
       "device_class": "energy",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_bpoutdayenergy",
       "icon": null,
@@ -213,6 +216,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpRemainWatth": {
       "device": "PowerOcean",
       "device_class": "energy",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_bpremainwatth",
       "icon": "mdi:home-battery",
@@ -252,6 +256,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpSoc": {
       "device": "PowerOcean",
       "device_class": "battery",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_bpsoc",
       "icon": null,
@@ -408,6 +413,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_gridInDayEnergy": {
       "device": "PowerOcean",
       "device_class": "energy",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_gridindayenergy",
       "icon": null,
@@ -421,6 +427,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_gridOutDayEnergy": {
       "device": "PowerOcean",
       "device_class": "energy",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_gridoutdayenergy",
       "icon": null,
@@ -486,6 +493,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_loadDayEnergy": {
       "device": "PowerOcean",
       "device_class": "energy",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_loaddayenergy",
       "icon": null,
@@ -499,6 +507,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_manualSetStartChargePower": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_manualsetstartchargepower",
       "icon": null,
@@ -512,6 +521,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterACurrent": {
       "device": "PowerOcean",
       "device_class": "current",
+      "display_precision": 2,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_meteracurrent",
       "icon": null,
@@ -525,6 +535,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterAVoltage": {
       "device": "PowerOcean",
       "device_class": "voltage",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_meteravoltage",
       "icon": null,
@@ -551,6 +562,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterBCurrent": {
       "device": "PowerOcean",
       "device_class": "current",
+      "display_precision": 2,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_meterbcurrent",
       "icon": null,
@@ -564,6 +576,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterBVoltage": {
       "device": "PowerOcean",
       "device_class": "voltage",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_meterbvoltage",
       "icon": null,
@@ -577,6 +590,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterCCurrent": {
       "device": "PowerOcean",
       "device_class": "current",
+      "display_precision": 2,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_meterccurrent",
       "icon": null,
@@ -590,6 +604,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterCVoltage": {
       "device": "PowerOcean",
       "device_class": "voltage",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_metercvoltage",
       "icon": null,
@@ -603,6 +618,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterPhasePower": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_meterphasepower",
       "icon": null,
@@ -642,6 +658,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterTotalPower": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_metertotalpower",
       "icon": null,
@@ -668,6 +685,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptRatePower": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptratepower",
       "icon": null,
@@ -707,6 +725,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptWithstandVoltage": {
       "device": "PowerOcean",
       "device_class": "voltage",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptwithstandvoltage",
       "icon": null,
@@ -746,6 +765,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pvInDayEnergy": {
       "device": "PowerOcean",
       "device_class": "energy",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_pvindayenergy",
       "icon": null,
@@ -811,6 +831,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_startDischargePower": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_startdischargepower",
       "icon": null,
@@ -837,6 +858,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_sysRunMeterFeedPower": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_sysrunmeterfeedpower",
       "icon": "mdi:information-outline",
@@ -850,6 +872,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_sysRunMeterTakePower": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_sysrunmetertakepower",
       "icon": "mdi:information-outline",
@@ -902,6 +925,7 @@
     "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_dcdcPwr": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_dcdcpwr",
       "icon": null,
@@ -928,6 +952,7 @@
     "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_gridPwr": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_gridpwr",
       "icon": null,
@@ -941,6 +966,7 @@
     "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_heatingPower": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_heatingpower",
       "icon": null,
@@ -954,6 +980,7 @@
     "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_loadPwr": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_loadpwr",
       "icon": null,
@@ -980,6 +1007,7 @@
     "SN_INVERTERBOX01_bpPwr": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_bppwr",
       "icon": null,
@@ -993,6 +1021,7 @@
     "SN_INVERTERBOX01_mpptPwr": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptpwr",
       "icon": "mdi:solar-power",
@@ -1019,6 +1048,7 @@
     "SN_INVERTERBOX01_sysGridPwr": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_sysgridpwr",
       "icon": "mdi:transmission-tower-import",
@@ -1032,6 +1062,7 @@
     "SN_INVERTERBOX01_sysLoadPwr": {
       "device": "PowerOcean",
       "device_class": "power",
+      "display_precision": 0,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_sysloadpwr",
       "icon": "mdi:home-lightning-bolt",

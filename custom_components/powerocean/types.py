@@ -35,7 +35,7 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.device_registry import DeviceInfo
 
-from .const import DOMAIN
+from .const import DOMAIN, PORTAL_URL
 from .utils import (
     DIAGNOSTIC_KEYS,
     DIAGNOSTIC_PATTERNS,
@@ -44,6 +44,12 @@ from .utils import (
 )
 
 _DIAGNOSTIC_PATTERNS = [re.compile(pattern) for pattern in DIAGNOSTIC_PATTERNS]
+
+# Decimal places Home Assistant shows, by unit; only the display changes
+DISPLAY_PRECISION: dict[str, int] = {
+    PERCENTAGE: 0,
+    "Ω": 1,
+}
 
 if TYPE_CHECKING:
     from .devices import Device
@@ -125,6 +131,7 @@ def device_info(device: "Device") -> DeviceInfo:
         name=device.name,
         manufacturer="EcoFlow",
         model=device.model,
+        configuration_url=PORTAL_URL,
     )
     if device.via_sn:
         info["via_device"] = (DOMAIN, device.via_sn)
