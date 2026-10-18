@@ -384,6 +384,10 @@ TRANSLATED_STATES: set[str] = {
     "sys14aEnable",
     "emsSgReadyEn",
     "breakerEnableState",
+    # Battery packs (their state was the raw value before, e.g. PB_CHG_STATE)
+    "bmsChgDsgSta",
+    "bmsRunSta",
+    "bpSysState",
 }
 
 # Entities of these keys are created disabled; users can enable them.

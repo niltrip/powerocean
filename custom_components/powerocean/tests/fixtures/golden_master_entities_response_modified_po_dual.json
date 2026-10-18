@@ -2687,7 +2687,7 @@
       "original_name": "bmsChgDsgSta",
       "product_description": "bmsChgDsgSta",
       "product_serial": "SN_M_BATTERIEPACK01",
-      "state": "PB_CHG_STATE",
+      "state": "pb_chg_state",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -2700,7 +2700,7 @@
       "original_name": "bmsRunSta",
       "product_description": "bmsRunSta",
       "product_serial": "SN_M_BATTERIEPACK01",
-      "state": "PB_BMS_STATE_NORMAL",
+      "state": "pb_bms_state_normal",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -2989,7 +2989,7 @@
       "original_name": "bpSysState",
       "product_description": "bpSysState",
       "product_serial": "SN_M_BATTERIEPACK01",
-      "state": "NORMAL_STATE",
+      "state": "normal_state",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -3055,7 +3055,7 @@
       "original_name": "bmsChgDsgSta",
       "product_description": "bmsChgDsgSta",
       "product_serial": "SN_M_BATTERIEPACK02",
-      "state": "PB_CHG_STATE",
+      "state": "pb_chg_state",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -3068,7 +3068,7 @@
       "original_name": "bmsRunSta",
       "product_description": "bmsRunSta",
       "product_serial": "SN_M_BATTERIEPACK02",
-      "state": "PB_BMS_STATE_NORMAL",
+      "state": "pb_bms_state_normal",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -3357,7 +3357,7 @@
       "original_name": "bpSysState",
       "product_description": "bpSysState",
       "product_serial": "SN_M_BATTERIEPACK02",
-      "state": "NORMAL_STATE",
+      "state": "normal_state",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -3423,7 +3423,7 @@
       "original_name": "bmsChgDsgSta",
       "product_description": "bmsChgDsgSta",
       "product_serial": "SN_S_BATTERIEPACK01",
-      "state": "PB_CHG_STATE",
+      "state": "pb_chg_state",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -3436,7 +3436,7 @@
       "original_name": "bmsRunSta",
       "product_description": "bmsRunSta",
       "product_serial": "SN_S_BATTERIEPACK01",
-      "state": "PB_BMS_STATE_NORMAL",
+      "state": "pb_bms_state_normal",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -3725,7 +3725,7 @@
       "original_name": "bpSysState",
       "product_description": "bpSysState",
       "product_serial": "SN_S_BATTERIEPACK01",
-      "state": "NORMAL_STATE",
+      "state": "normal_state",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -3791,7 +3791,7 @@
       "original_name": "bmsChgDsgSta",
       "product_description": "bmsChgDsgSta",
       "product_serial": "SN_S_BATTERIEPACK02",
-      "state": "PB_CHG_STATE",
+      "state": "pb_chg_state",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -3804,7 +3804,7 @@
       "original_name": "bmsRunSta",
       "product_description": "bmsRunSta",
       "product_serial": "SN_S_BATTERIEPACK02",
-      "state": "PB_BMS_STATE_NORMAL",
+      "state": "pb_bms_state_normal",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -4093,7 +4093,7 @@
       "original_name": "bpSysState",
       "product_description": "bpSysState",
       "product_serial": "SN_S_BATTERIEPACK02",
-      "state": "NORMAL_STATE",
+      "state": "normal_state",
       "state_class": null,
       "unit_of_measurement": null
     },

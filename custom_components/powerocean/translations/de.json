@@ -107,6 +107,24 @@
                     "true": "An",
                     "false": "Aus"
                 }
+            },
+            "bms_chg_dsg_sta": {
+                "state": {
+                    "pb_chg_state": "Laden",
+                    "pb_dsg_state": "Entladen",
+                    "pb_standby_state": "Standby"
+                }
+            },
+            "bms_run_sta": {
+                "state": {
+                    "pb_bms_state_chargeable": "Ladebereit",
+                    "pb_bms_state_normal": "Normal"
+                }
+            },
+            "bp_sys_state": {
+                "state": {
+                    "normal_state": "Normal"
+                }
             }
         }
     }
