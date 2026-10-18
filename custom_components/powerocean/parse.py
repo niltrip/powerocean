@@ -14,6 +14,7 @@ This module does not depend on Home Assistant.
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import orjson
@@ -31,6 +32,7 @@ from .flows import energy_flows
 from .utils import (
     BOX_SCHEMAS,
     REPORT_DATAPOINTS,
+    UPDATE_TIME_KEYS,
     BoxSchema,
     ReportMode,
     _join_id,
@@ -38,6 +40,11 @@ from .utils import (
 )
 
 PRIMITIVE_TYPES = (int, float, str)
+
+# "updateTime" is the time of the EcoFlow server (UTC+8, no daylight saving
+# time): in all fixtures it is exactly 8 hours ahead of the battery's
+# bpTimestamp (Unix time), in winter and summer alike.
+SERVER_TIMEZONE = timezone(timedelta(hours=8))
 
 
 @dataclass(frozen=True)
@@ -200,6 +207,21 @@ def _read_report(ctx: _Context, reports: dict[str, Any], report_type: str) -> No
 
     handler = HANDLERS.get(report_type, _read_standard)
     handler(ctx, name or report_type, payload, REPORT_DATAPOINTS.get(report_type, ()))
+
+    time_key = UPDATE_TIME_KEYS.get(report_type)
+    if name and time_key and (time := _server_time(payload.get("updateTime"))):
+        ctx.add(ctx.inverter(), name, time_key, time)
+
+
+def _server_time(value: Any) -> int | None:
+    """Return a server time such as "2026-10-18 06:42:15" as Unix time."""
+    if not isinstance(value, str):
+        return None
+    try:
+        local = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")  # noqa: DTZ007
+    except ValueError:
+        return None
+    return int(local.replace(tzinfo=SERVER_TIMEZONE).timestamp())
 
 
 # -----------------------------

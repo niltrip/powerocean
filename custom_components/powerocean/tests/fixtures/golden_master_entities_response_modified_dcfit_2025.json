@@ -431,6 +431,19 @@
       "state_class": "total",
       "unit_of_measurement": "Wh"
     },
+    "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_heartbeatUpdateTime": {
+      "device": "PowerOcean",
+      "device_class": "timestamp",
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_heartbeatupdatetime",
+      "icon": null,
+      "original_name": "heartbeatUpdateTime",
+      "product_description": "heartbeatUpdateTime",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "2025-01-13T15:48:35+00:00",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_invWiringType": {
       "device": "PowerOcean",
       "device_class": null,
@@ -898,6 +911,19 @@
       "state": "0.0",
       "state_class": "measurement",
       "unit_of_measurement": "W"
+    },
+    "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_energyStreamUpdateTime": {
+      "device": "PowerOcean",
+      "device_class": "timestamp",
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_energystreamupdatetime",
+      "icon": null,
+      "original_name": "energyStreamUpdateTime",
+      "product_description": "energyStreamUpdateTime",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "2025-01-12T17:55:08+00:00",
+      "state_class": null,
+      "unit_of_measurement": null
     },
     "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_gridPwr": {
       "device": "PowerOcean",

@@ -136,6 +136,15 @@ class SensorClassHelper:
                 SensorStateClass.MEASUREMENT,
             ),
         ),
+        **dict.fromkeys(
+            (
+                "bpTimestamp",
+                "heartbeatUpdateTime",
+                "energyStreamUpdateTime",
+                "emsChangeUpdateTime",
+            ),
+            (SensorDeviceClass.TIMESTAMP, None, None),
+        ),
         "emsNtcTempMax": (
             SensorDeviceClass.TEMPERATURE,
             UnitOfTemperature.CELSIUS,

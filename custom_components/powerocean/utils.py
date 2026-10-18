@@ -154,6 +154,8 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "bpMinMosTemp",
         "dabModSta",
         "bpErrCode",
+        # Time of the battery's last values (Unix time)
+        "bpTimestamp",
     },
     ReportMode.EMS.value: {
         "bpRemainWatth",
@@ -303,6 +305,15 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
     },
 }
 
+
+# Time of the last report, as a datapoint of the inverter. Shows how old
+# its values are; the key names the report, the value is its updateTime.
+UPDATE_TIME_KEYS: dict[str, str] = {
+    ReportMode.EMS.value: "heartbeatUpdateTime",
+    ReportMode.ENERGY_STREAM.value: "energyStreamUpdateTime",
+    # Sent on changes only, so it can be hours old (battery energy totals)
+    ReportMode.EMS_CHANGE.value: "emsChangeUpdateTime",
+}
 
 # Entities of these keys are created disabled; users can enable them.
 # Only for keys added later: existing entities keep their state anyway.

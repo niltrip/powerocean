@@ -113,3 +113,16 @@ def test_unknown_variant_fails() -> None:
     # The coordinator turns this into a failed update
     with pytest.raises(ValueError, match="default"):
         parse_values({"data": {"quota": {}}}, "default", SN)
+
+
+def test_report_update_time_in_server_time() -> None:
+    values = _parse({HEARTBEAT: {"updateTime": "2026-10-18 06:42:15"}})
+    # Server time is UTC+8: 2026-10-17 22:42:15 UTC
+    assert _value(values, "heartbeatUpdateTime") == 1792276935
+
+
+def test_report_update_time_invalid() -> None:
+    for bad in (None, "", "gestern", 1792276935, "2026-13-40 99:00:00"):
+        values = _parse({HEARTBEAT: {"bpRemainWatth": 5000, "updateTime": bad}})
+        assert _value(values, "bpRemainWatth") == 5000
+        assert _value(values, "heartbeatUpdateTime") is None

@@ -79,6 +79,27 @@
       ]
     }
   },
+  "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_emsChangeUpdateTime": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "emsChangeUpdateTime",
+      "friendly_name": "emsChangeUpdateTime",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_emsChangeUpdateTime",
+      "name": "SN_INVERTERBOX01_emsChangeUpdateTime",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "timestamp",
+        null,
+        null
+      ]
+    }
+  },
   "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_emsCtrlLedBright": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -584,6 +605,27 @@
       "name": "SN_INVERTERBOX01_emsMpptSelfcheckState",
       "serial": "SN_INVERTERBOX01",
       "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_heartbeatUpdateTime": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "heartbeatUpdateTime",
+      "friendly_name": "heartbeatUpdateTime",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_heartbeatUpdateTime",
+      "name": "SN_INVERTERBOX01_heartbeatUpdateTime",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "timestamp",
+        null,
+        null
+      ]
     }
   },
   "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_batteryToGrid": {
@@ -2169,6 +2211,27 @@
       ]
     }
   },
+  "SN_INVERTERBOX02_JTS1_EMS_CHANGE_REPORT_emsChangeUpdateTime": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX02",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "emsChangeUpdateTime",
+      "friendly_name": "emsChangeUpdateTime",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX02_JTS1_EMS_CHANGE_REPORT_emsChangeUpdateTime",
+      "name": "SN_INVERTERBOX02_emsChangeUpdateTime",
+      "serial": "SN_INVERTERBOX02",
+      "unit": [
+        "timestamp",
+        null,
+        null
+      ]
+    }
+  },
   "SN_INVERTERBOX02_JTS1_EMS_CHANGE_REPORT_emsCtrlLedBright": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -2674,6 +2737,27 @@
       "name": "SN_INVERTERBOX02_emsMpptSelfcheckState",
       "serial": "SN_INVERTERBOX02",
       "unit": null
+    }
+  },
+  "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_heartbeatUpdateTime": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX02",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "heartbeatUpdateTime",
+      "friendly_name": "heartbeatUpdateTime",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_heartbeatUpdateTime",
+      "name": "SN_INVERTERBOX02_heartbeatUpdateTime",
+      "serial": "SN_INVERTERBOX02",
+      "unit": [
+        "timestamp",
+        null,
+        null
+      ]
     }
   },
   "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_mpptHeartBeat_batteryToGrid": {
@@ -4257,6 +4341,30 @@
       "unit": null
     }
   },
+  "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpTimestamp": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_M_BATTERIEPACK01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "bpTimestamp",
+      "friendly_name": "bpTimestamp",
+      "icon": null,
+      "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpTimestamp",
+      "name": "SN_M_BATTERIEPACK01_bpTimestamp",
+      "serial": "SN_M_BATTERIEPACK01",
+      "unit": [
+        "timestamp",
+        null,
+        null
+      ]
+    }
+  },
   "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpVol": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -4843,6 +4951,30 @@
       "name": "SN_M_BATTERIEPACK02_bpSysState",
       "serial": "SN_M_BATTERIEPACK02",
       "unit": null
+    }
+  },
+  "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpTimestamp": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_M_BATTERIEPACK02",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "bpTimestamp",
+      "friendly_name": "bpTimestamp",
+      "icon": null,
+      "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpTimestamp",
+      "name": "SN_M_BATTERIEPACK02_bpTimestamp",
+      "serial": "SN_M_BATTERIEPACK02",
+      "unit": [
+        "timestamp",
+        null,
+        null
+      ]
     }
   },
   "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpVol": {
@@ -5433,6 +5565,30 @@
       "unit": null
     }
   },
+  "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpTimestamp": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_S_BATTERIEPACK01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX02"
+      ]
+    },
+    "sensors": {
+      "description": "bpTimestamp",
+      "friendly_name": "bpTimestamp",
+      "icon": null,
+      "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpTimestamp",
+      "name": "SN_S_BATTERIEPACK01_bpTimestamp",
+      "serial": "SN_S_BATTERIEPACK01",
+      "unit": [
+        "timestamp",
+        null,
+        null
+      ]
+    }
+  },
   "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpVol": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -6019,6 +6175,30 @@
       "name": "SN_S_BATTERIEPACK02_bpSysState",
       "serial": "SN_S_BATTERIEPACK02",
       "unit": null
+    }
+  },
+  "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpTimestamp": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Battery",
+      "sn": "SN_S_BATTERIEPACK02",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX02"
+      ]
+    },
+    "sensors": {
+      "description": "bpTimestamp",
+      "friendly_name": "bpTimestamp",
+      "icon": null,
+      "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpTimestamp",
+      "name": "SN_S_BATTERIEPACK02_bpTimestamp",
+      "serial": "SN_S_BATTERIEPACK02",
+      "unit": [
+        "timestamp",
+        null,
+        null
+      ]
     }
   },
   "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpVol": {

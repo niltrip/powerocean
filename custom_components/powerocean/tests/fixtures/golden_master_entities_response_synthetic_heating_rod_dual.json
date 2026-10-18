@@ -301,6 +301,19 @@
       "state_class": "total_increasing",
       "unit_of_measurement": "Wh"
     },
+    "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_emsChangeUpdateTime": {
+      "device": "PowerOcean",
+      "device_class": "timestamp",
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_emschangeupdatetime",
+      "icon": null,
+      "original_name": "emsChangeUpdateTime",
+      "product_description": "emsChangeUpdateTime",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "2025-06-01T09:20:00+00:00",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
     "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_emsCtrlLedBright": {
       "device": "PowerOcean",
       "device_class": null,
@@ -653,6 +666,19 @@
       "product_description": "emsMpptSelfcheckState",
       "product_serial": "SN_INVERTERBOX01",
       "state": "1",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_heartbeatUpdateTime": {
+      "device": "PowerOcean",
+      "device_class": "timestamp",
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_heartbeatupdatetime",
+      "icon": null,
+      "original_name": "heartbeatUpdateTime",
+      "product_description": "heartbeatUpdateTime",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "2025-06-01T09:20:21+00:00",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -1644,6 +1670,19 @@
       "state_class": "total_increasing",
       "unit_of_measurement": "Wh"
     },
+    "SN_INVERTERBOX02_JTS1_EMS_CHANGE_REPORT_emsChangeUpdateTime": {
+      "device": "PowerOcean SN_INVERTERBOX02",
+      "device_class": "timestamp",
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox02_emschangeupdatetime",
+      "icon": null,
+      "original_name": "emsChangeUpdateTime",
+      "product_description": "emsChangeUpdateTime",
+      "product_serial": "SN_INVERTERBOX02",
+      "state": "2025-06-01T09:19:55+00:00",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
     "SN_INVERTERBOX02_JTS1_EMS_CHANGE_REPORT_emsCtrlLedBright": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": null,
@@ -1996,6 +2035,19 @@
       "product_description": "emsMpptSelfcheckState",
       "product_serial": "SN_INVERTERBOX02",
       "state": "1",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_heartbeatUpdateTime": {
+      "device": "PowerOcean SN_INVERTERBOX02",
+      "device_class": "timestamp",
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox02_heartbeatupdatetime",
+      "icon": null,
+      "original_name": "heartbeatUpdateTime",
+      "product_description": "heartbeatUpdateTime",
+      "product_serial": "SN_INVERTERBOX02",
+      "state": "2025-06-01T09:20:49+00:00",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -2951,6 +3003,19 @@
       "state_class": null,
       "unit_of_measurement": null
     },
+    "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpTimestamp": {
+      "device": "Battery SN_M_BATTERIEPACK01",
+      "device_class": "timestamp",
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.battery_sn_m_batteriepack01_bptimestamp",
+      "icon": null,
+      "original_name": "bpTimestamp",
+      "product_description": "bpTimestamp",
+      "product_serial": "SN_M_BATTERIEPACK01",
+      "state": "2025-06-01T09:17:39+00:00",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
     "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpVol": {
       "device": "Battery SN_M_BATTERIEPACK01",
       "device_class": "voltage",
@@ -3289,6 +3354,19 @@
       "product_description": "bpSysState",
       "product_serial": "SN_M_BATTERIEPACK02",
       "state": "NORMAL_STATE",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpTimestamp": {
+      "device": "Battery SN_M_BATTERIEPACK02",
+      "device_class": "timestamp",
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.battery_sn_m_batteriepack02_bptimestamp",
+      "icon": null,
+      "original_name": "bpTimestamp",
+      "product_description": "bpTimestamp",
+      "product_serial": "SN_M_BATTERIEPACK02",
+      "state": "2025-06-01T09:17:41+00:00",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -3633,6 +3711,19 @@
       "state_class": null,
       "unit_of_measurement": null
     },
+    "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpTimestamp": {
+      "device": "Battery SN_S_BATTERIEPACK01",
+      "device_class": "timestamp",
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.battery_sn_s_batteriepack01_bptimestamp",
+      "icon": null,
+      "original_name": "bpTimestamp",
+      "product_description": "bpTimestamp",
+      "product_serial": "SN_S_BATTERIEPACK01",
+      "state": "2025-06-01T09:16:46+00:00",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
     "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpVol": {
       "device": "Battery SN_S_BATTERIEPACK01",
       "device_class": "voltage",
@@ -3971,6 +4062,19 @@
       "product_description": "bpSysState",
       "product_serial": "SN_S_BATTERIEPACK02",
       "state": "NORMAL_STATE",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpTimestamp": {
+      "device": "Battery SN_S_BATTERIEPACK02",
+      "device_class": "timestamp",
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.battery_sn_s_batteriepack02_bptimestamp",
+      "icon": null,
+      "original_name": "bpTimestamp",
+      "product_description": "bpTimestamp",
+      "product_serial": "SN_S_BATTERIEPACK02",
+      "state": "2025-06-01T09:16:43+00:00",
       "state_class": null,
       "unit_of_measurement": null
     },

@@ -5,9 +5,11 @@ This module defines the setup and management of PowerOcean sensor entities,
 including data fetching, entity registration, and periodic updates.
 """
 
+from datetime import UTC, datetime
 from typing import Any
 
 from homeassistant.components.sensor import (
+    SensorDeviceClass,
     SensorEntity,
 )
 from homeassistant.const import (
@@ -110,7 +112,14 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
     @property
     def native_value(self) -> Any:
         """Return the current value of the sensor from coordinator."""
-        return self.coordinator.data.get(self._endpoint_id)
+        value = self.coordinator.data.get(self._endpoint_id)
+        # Times are parsed as Unix time
+        if self._attr_device_class == SensorDeviceClass.TIMESTAMP:
+            try:
+                return datetime.fromtimestamp(value, UTC)
+            except (TypeError, ValueError, OverflowError, OSError):
+                return None
+        return value
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
