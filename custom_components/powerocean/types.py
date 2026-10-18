@@ -40,6 +40,7 @@ from .utils import (
     DIAGNOSTIC_KEYS,
     DIAGNOSTIC_PATTERNS,
     DISABLED_BY_DEFAULT,
+    TRANSLATED_STATES,
     ReportMode,
 )
 
@@ -91,6 +92,7 @@ class PowerOceanEndPoint:
     device_info: DeviceInfo | None = None
     enabled_default: bool = True
     diagnostic: bool = False
+    translation_key: str | None = None
 
     @classmethod
     def from_datapoint(cls, datapoint: "Datapoint") -> "PowerOceanEndPoint":
@@ -108,7 +110,13 @@ class PowerOceanEndPoint:
             device_info=device_info(datapoint.device),
             enabled_default=datapoint.in_use and key not in DISABLED_BY_DEFAULT,
             diagnostic=_is_diagnostic(datapoint),
+            translation_key=translation_key(key) if key in TRANSLATED_STATES else None,
         )
+
+
+def translation_key(key: str) -> str:
+    """Return the translation key of a datapoint key: emsWordMode -> ems_word_mode."""
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", key).lower()
 
 
 def _is_diagnostic(datapoint: "Datapoint") -> bool:

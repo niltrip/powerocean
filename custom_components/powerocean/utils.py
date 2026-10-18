@@ -373,6 +373,19 @@ DIAGNOSTIC_PATTERNS: tuple[str, ...] = (
     r"^mpptPv\d+_(vol|amp)$",
 )
 
+# Entities of these keys show translated states (translations/*.json,
+# entity.sensor.<key in snake_case>.state). Their state is the value in
+# lowercase, as Home Assistant requires for translated states; values
+# without a translation are shown as they are.
+TRANSLATED_STATES: set[str] = {
+    "emsWordMode",
+    "pcsRunSta",
+    "dabModSta",
+    "sys14aEnable",
+    "emsSgReadyEn",
+    "breakerEnableState",
+}
+
 # Entities of these keys are created disabled; users can enable them.
 # Only for keys added later: existing entities keep their state anyway.
 DISABLED_BY_DEFAULT: set[str] = {

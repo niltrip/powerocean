@@ -245,7 +245,7 @@
       "original_name": "emsWordMode",
       "product_description": "emsWordMode",
       "product_serial": "SN_INVERTERBOX01",
-      "state": "WORKMODE_SELFUSE",
+      "state": "workmode_selfuse",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -378,7 +378,7 @@
       "original_name": "pcsRunSta",
       "product_description": "pcsRunSta",
       "product_serial": "SN_INVERTERBOX01",
-      "state": "RUNSTA_RUN",
+      "state": "runsta_run",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -1686,7 +1686,7 @@
       "original_name": "emsWordMode",
       "product_description": "emsWordMode",
       "product_serial": "SN_INVERTERBOX02",
-      "state": "WORKMODE_SELFUSE",
+      "state": "workmode_selfuse",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -1819,7 +1819,7 @@
       "original_name": "pcsRunSta",
       "product_description": "pcsRunSta",
       "product_serial": "SN_INVERTERBOX02",
-      "state": "RUNSTA_RUN",
+      "state": "runsta_run",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -3029,7 +3029,7 @@
       "original_name": "dabModSta",
       "product_description": "dabModSta",
       "product_serial": "SN_M_BATTERIEPACK01",
-      "state": "PB_MOD_STA_NORMAL",
+      "state": "pb_mod_sta_normal",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -3397,7 +3397,7 @@
       "original_name": "dabModSta",
       "product_description": "dabModSta",
       "product_serial": "SN_M_BATTERIEPACK02",
-      "state": "PB_MOD_STA_NORMAL",
+      "state": "pb_mod_sta_normal",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -3765,7 +3765,7 @@
       "original_name": "dabModSta",
       "product_description": "dabModSta",
       "product_serial": "SN_S_BATTERIEPACK01",
-      "state": "PB_MOD_STA_NORMAL",
+      "state": "pb_mod_sta_normal",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -4133,7 +4133,7 @@
       "original_name": "dabModSta",
       "product_description": "dabModSta",
       "product_serial": "SN_S_BATTERIEPACK02",
-      "state": "PB_MOD_STA_NORMAL",
+      "state": "pb_mod_sta_normal",
       "state_class": null,
       "unit_of_measurement": null
     },

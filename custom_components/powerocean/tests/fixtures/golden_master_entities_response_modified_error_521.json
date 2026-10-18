@@ -409,7 +409,7 @@
       "original_name": "dabModSta",
       "product_description": "dabModSta",
       "product_serial": "SN_BP01",
-      "state": "PB_MOD_STA_WARNNING",
+      "state": "pb_mod_sta_warnning",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -777,7 +777,7 @@
       "original_name": "dabModSta",
       "product_description": "dabModSta",
       "product_serial": "SN_BP02",
-      "state": "PB_MOD_STA_WARNNING",
+      "state": "pb_mod_sta_warnning",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -952,7 +952,7 @@
       "original_name": "emsSgReadyEn",
       "product_description": "emsSgReadyEn",
       "product_serial": "SN_INVERTERBOX01",
-      "state": "False",
+      "state": "false",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -979,7 +979,7 @@
       "original_name": "emsWordMode",
       "product_description": "emsWordMode",
       "product_serial": "SN_INVERTERBOX01",
-      "state": "WORKMODE_SELFUSE",
+      "state": "workmode_selfuse",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -1177,7 +1177,7 @@
       "original_name": "pcsRunSta",
       "product_description": "pcsRunSta",
       "product_serial": "SN_INVERTERBOX01",
-      "state": "RUNSTA_STOP",
+      "state": "runsta_stop",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -1243,7 +1243,7 @@
       "original_name": "sys14aEnable",
       "product_description": "sys14aEnable",
       "product_serial": "SN_INVERTERBOX01",
-      "state": "False",
+      "state": "false",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -1962,7 +1962,7 @@
       "original_name": "breakerEnableState",
       "product_description": "breakerEnableState",
       "product_serial": "SN_INVERTERBOX01",
-      "state": "True",
+      "state": "true",
       "state_class": null,
       "unit_of_measurement": null
     },

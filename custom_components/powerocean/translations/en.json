@@ -70,5 +70,44 @@
         "missing_configuration": {
             "message": "The configuration is incomplete (serial number or model missing). Please remove and add the device again."
         }
+    },
+    "entity": {
+        "sensor": {
+            "ems_word_mode": {
+                "state": {
+                    "workmode_selfuse": "Self-consumption"
+                }
+            },
+            "pcs_run_sta": {
+                "state": {
+                    "runsta_run": "Running",
+                    "runsta_stop": "Stopped"
+                }
+            },
+            "dab_mod_sta": {
+                "state": {
+                    "pb_mod_sta_normal": "Normal",
+                    "pb_mod_sta_warnning": "Warning"
+                }
+            },
+            "sys14a_enable": {
+                "state": {
+                    "true": "On",
+                    "false": "Off"
+                }
+            },
+            "ems_sg_ready_en": {
+                "state": {
+                    "true": "On",
+                    "false": "Off"
+                }
+            },
+            "breaker_enable_state": {
+                "state": {
+                    "true": "On",
+                    "false": "Off"
+                }
+            }
+        }
     }
 }

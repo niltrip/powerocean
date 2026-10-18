@@ -105,6 +105,8 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
         self._attr_name = self._endpoint_friendly_name
         self._attr_icon = self._endpoint_icon
         self._attr_entity_registry_enabled_default = endpoint.enabled_default
+        # The name stays the key (_attr_name); the key only translates states
+        self._attr_translation_key = endpoint.translation_key
         self._attr_suggested_display_precision = DISPLAY_PRECISION.get(
             self._attr_native_unit_of_measurement
         )
@@ -115,6 +117,9 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
     def native_value(self) -> Any:
         """Return the current value of the sensor from coordinator."""
         value = self.coordinator.data.get(self._endpoint_id)
+        # Translated states must be lowercase: WORKMODE_SELFUSE, True
+        if self._attr_translation_key and value is not None:
+            return str(value).lower()
         # Times are parsed as Unix time
         if self._attr_device_class == SensorDeviceClass.TIMESTAMP:
             # 0 means no time (e.g. no charging order), not 1970

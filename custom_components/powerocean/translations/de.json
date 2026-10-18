@@ -70,5 +70,44 @@
         "missing_configuration": {
             "message": "Die Konfiguration ist unvollständig (Seriennummer oder Modell fehlt). Bitte das Gerät entfernen und neu hinzufügen."
         }
+    },
+    "entity": {
+        "sensor": {
+            "ems_word_mode": {
+                "state": {
+                    "workmode_selfuse": "Eigenbedarf"
+                }
+            },
+            "pcs_run_sta": {
+                "state": {
+                    "runsta_run": "Läuft",
+                    "runsta_stop": "Gestoppt"
+                }
+            },
+            "dab_mod_sta": {
+                "state": {
+                    "pb_mod_sta_normal": "Normal",
+                    "pb_mod_sta_warnning": "Warnung"
+                }
+            },
+            "sys14a_enable": {
+                "state": {
+                    "true": "An",
+                    "false": "Aus"
+                }
+            },
+            "ems_sg_ready_en": {
+                "state": {
+                    "true": "An",
+                    "false": "Aus"
+                }
+            },
+            "breaker_enable_state": {
+                "state": {
+                    "true": "An",
+                    "false": "Aus"
+                }
+            }
+        }
     }
 }
