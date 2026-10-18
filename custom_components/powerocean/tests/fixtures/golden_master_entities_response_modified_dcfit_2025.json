@@ -1037,7 +1037,7 @@
       "device_class": null,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_online",
-      "icon": "mdi:cloud-check",
+      "icon": null,
       "original_name": "online",
       "product_description": "Online",
       "product_serial": "SN_INVERTERBOX01",

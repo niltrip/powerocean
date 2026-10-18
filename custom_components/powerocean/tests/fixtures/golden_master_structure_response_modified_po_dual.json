@@ -389,7 +389,7 @@
     "sensors": {
       "description": "pcsRunSta",
       "friendly_name": "pcsRunSta",
-      "icon": "mdi:state-machine",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_pcsRunSta",
       "name": "SN_INVERTERBOX01_pcsRunSta",
       "serial": "SN_INVERTERBOX01",
@@ -1943,7 +1943,7 @@
     "sensors": {
       "description": "Online",
       "friendly_name": "online",
-      "icon": "mdi:cloud-check",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_online",
       "name": "SN_INVERTERBOX01_online",
       "serial": "SN_INVERTERBOX01",
@@ -2521,7 +2521,7 @@
     "sensors": {
       "description": "pcsRunSta",
       "friendly_name": "pcsRunSta",
-      "icon": "mdi:state-machine",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX02_JTS1_EMS_CHANGE_REPORT_pcsRunSta",
       "name": "SN_INVERTERBOX02_pcsRunSta",
       "serial": "SN_INVERTERBOX02",
@@ -3830,7 +3830,7 @@
     "sensors": {
       "description": "bmsChgDsgSta",
       "friendly_name": "bmsChgDsgSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsChgDsgSta",
       "name": "SN_M_BATTERIEPACK01_bmsChgDsgSta",
       "serial": "SN_M_BATTERIEPACK01",
@@ -3850,7 +3850,7 @@
     "sensors": {
       "description": "bmsRunSta",
       "friendly_name": "bmsRunSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsRunSta",
       "name": "SN_M_BATTERIEPACK01_bmsRunSta",
       "serial": "SN_M_BATTERIEPACK01",
@@ -4442,7 +4442,7 @@
     "sensors": {
       "description": "bmsChgDsgSta",
       "friendly_name": "bmsChgDsgSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsChgDsgSta",
       "name": "SN_M_BATTERIEPACK02_bmsChgDsgSta",
       "serial": "SN_M_BATTERIEPACK02",
@@ -4462,7 +4462,7 @@
     "sensors": {
       "description": "bmsRunSta",
       "friendly_name": "bmsRunSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsRunSta",
       "name": "SN_M_BATTERIEPACK02_bmsRunSta",
       "serial": "SN_M_BATTERIEPACK02",
@@ -5054,7 +5054,7 @@
     "sensors": {
       "description": "bmsChgDsgSta",
       "friendly_name": "bmsChgDsgSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsChgDsgSta",
       "name": "SN_S_BATTERIEPACK01_bmsChgDsgSta",
       "serial": "SN_S_BATTERIEPACK01",
@@ -5074,7 +5074,7 @@
     "sensors": {
       "description": "bmsRunSta",
       "friendly_name": "bmsRunSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsRunSta",
       "name": "SN_S_BATTERIEPACK01_bmsRunSta",
       "serial": "SN_S_BATTERIEPACK01",
@@ -5666,7 +5666,7 @@
     "sensors": {
       "description": "bmsChgDsgSta",
       "friendly_name": "bmsChgDsgSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsChgDsgSta",
       "name": "SN_S_BATTERIEPACK02_bmsChgDsgSta",
       "serial": "SN_S_BATTERIEPACK02",
@@ -5686,7 +5686,7 @@
     "sensors": {
       "description": "bmsRunSta",
       "friendly_name": "bmsRunSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsRunSta",
       "name": "SN_S_BATTERIEPACK02_bmsRunSta",
       "serial": "SN_S_BATTERIEPACK02",

@@ -1421,7 +1421,7 @@
     "sensors": {
       "description": "Online",
       "friendly_name": "online",
-      "icon": "mdi:cloud-check",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_online",
       "name": "SN_INVERTERBOX01_online",
       "serial": "SN_INVERTERBOX01",

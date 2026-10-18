@@ -12,7 +12,7 @@
     "sensors": {
       "description": "bmsChgDsgSta",
       "friendly_name": "bmsChgDsgSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_BP01_JTS1_BP_STA_REPORT_bmsChgDsgSta",
       "name": "SN_BP01_bmsChgDsgSta",
       "serial": "SN_BP01",
@@ -32,7 +32,7 @@
     "sensors": {
       "description": "bmsRunSta",
       "friendly_name": "bmsRunSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_BP01_JTS1_BP_STA_REPORT_bmsRunSta",
       "name": "SN_BP01_bmsRunSta",
       "serial": "SN_BP01",
@@ -624,7 +624,7 @@
     "sensors": {
       "description": "bmsChgDsgSta",
       "friendly_name": "bmsChgDsgSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_BP02_JTS1_BP_STA_REPORT_bmsChgDsgSta",
       "name": "SN_BP02_bmsChgDsgSta",
       "serial": "SN_BP02",
@@ -644,7 +644,7 @@
     "sensors": {
       "description": "bmsRunSta",
       "friendly_name": "bmsRunSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_BP02_JTS1_BP_STA_REPORT_bmsRunSta",
       "name": "SN_BP02_bmsRunSta",
       "serial": "SN_BP02",
@@ -1749,7 +1749,7 @@
     "sensors": {
       "description": "pcsRunSta",
       "friendly_name": "pcsRunSta",
-      "icon": "mdi:state-machine",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_pcsRunSta",
       "name": "SN_INVERTERBOX01_pcsRunSta",
       "serial": "SN_INVERTERBOX01",
@@ -3217,7 +3217,7 @@
     "sensors": {
       "description": "Online",
       "friendly_name": "online",
-      "icon": "mdi:cloud-check",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_online",
       "name": "SN_INVERTERBOX01_online",
       "serial": "SN_INVERTERBOX01",

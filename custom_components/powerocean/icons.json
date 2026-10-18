@@ -28,6 +28,47 @@
           "0": "mdi:weather-sunny",
           "2": "mdi:weather-night"
         }
+      },
+      "pcs_run_sta": {
+        "default": "mdi:state-machine",
+        "state": {
+          "runsta_run": "mdi:play-circle-outline",
+          "runsta_stop": "mdi:stop-circle-outline",
+          "runsta_standby": "mdi:pause-circle-outline"
+        }
+      },
+      "dab_mod_sta": {
+        "default": "mdi:information-outline",
+        "state": {
+          "pb_mod_sta_normal": "mdi:check-circle-outline",
+          "pb_mod_sta_warnning": "mdi:alert-outline",
+          "pb_mod_sta_fault": "mdi:alert-octagon-outline"
+        }
+      },
+      "bms_chg_dsg_sta": {
+        "default": "mdi:battery",
+        "state": {
+          "pb_chg_state": "mdi:battery-arrow-up",
+          "pb_dsg_state": "mdi:battery-arrow-down",
+          "pb_standby_state": "mdi:battery"
+        }
+      },
+      "bms_run_sta": {
+        "default": "mdi:battery-heart-variant",
+        "state": {
+          "pb_bms_state_normal": "mdi:battery-check",
+          "pb_bms_state_chargeable": "mdi:battery-check",
+          "pb_bms_state_dischargeable": "mdi:battery-check",
+          "pb_bms_state_fault": "mdi:battery-alert",
+          "pb_bms_state_shutdown": "mdi:battery-off"
+        }
+      },
+      "online": {
+        "default": "mdi:cloud-question-outline",
+        "state": {
+          "1": "mdi:cloud-check",
+          "0": "mdi:cloud-off-outline"
+        }
       }
     }
   }

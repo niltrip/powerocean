@@ -366,7 +366,18 @@ class SensorMetaHelper:
         "bpSoc": None,
         "bpRealSoc": None,
         "emsWordMode": "mdi:cog-outline",
-        "pcsRunSta": "mdi:state-machine",
+        # Icon by state from icons.json
+        **dict.fromkeys(
+            (
+                "pcsRunSta",
+                "dabModSta",
+                "bmsChgDsgSta",
+                "bmsRunSta",
+                "online",
+                *(f"mppt{n}FaultCode" for n in range(1, 5)),
+            ),
+            None,
+        ),
         "sysGridSta": "mdi:transmission-tower",
         "pcsAcFreq": "mdi:sine-wave",
         "sysBatChgUpLimit": "mdi:battery-arrow-up",
@@ -389,8 +400,6 @@ class SensorMetaHelper:
             ("sys14aEnable", "sys14aType", "relay14a"), "mdi:transmission-tower-off"
         ),
         **dict.fromkeys(("emsSgReadyEn", "emsSgRunStat"), "mdi:heat-pump"),
-        # Icon by state (sun/moon) from icons.json
-        **dict.fromkeys((f"mppt{n}FaultCode" for n in range(1, 5)), None),
         "wifiStaStat": "mdi:wifi",
         "ethWanStat": "mdi:ethernet",
         "iot4gSta": "mdi:signal",

@@ -158,6 +158,12 @@
           "0": "Producing",
           "2": "Not producing"
         }
+      },
+      "online": {
+        "state": {
+          "1": "Online",
+          "0": "Offline"
+        }
       }
     }
   }
