@@ -95,3 +95,48 @@ def test_battery_export_is_not_counted_as_house_supply() -> None:
     assert flows.get("batteryToGrid", 0.0) == pytest.approx(2205.0, abs=0.2)
     assert flows["gridToHouse"] == pytest.approx(0.0, abs=0.2)
     assert flows["gridToBattery"] == pytest.approx(0.0, abs=0.2)
+
+
+# Solar, grid (+ import / - export) and battery (+ charge / - discharge) in W
+SOLAR = (0.0, 100.0, 500.0, 1318.0, 1900.0, 3000.0)
+GRID = (-3000.0, -2787.0, -500.0, 0.0, 500.0, 2000.0)
+BATTERY = (-2205.0, -1000.0, -300.0, 0.0, 300.0, 1500.0)
+BALANCE_SCENARIOS = [
+    (solar, grid, battery)
+    for solar in SOLAR
+    for grid in GRID
+    for battery in BATTERY
+    # The house can't feed power back
+    if solar + grid - battery >= 0
+]
+
+
+@pytest.mark.parametrize(("solar", "grid", "battery"), BALANCE_SCENARIOS)
+def test_energy_balance(solar: float, grid: float, battery: float) -> None:
+    """Every source and every sink must be fully split into flows."""
+    parser = EcoflowParser(variant="83", sn="SN_INVERTERBOX01")
+    values = parser.parse_values(_build_response(solar, grid, battery))
+    flows = _flows_per_inverter(values)[0]
+
+    grid_import, grid_export = max(grid, 0.0), max(-grid, 0.0)
+    charge, discharge = max(battery, 0.0), max(-battery, 0.0)
+    balance = {
+        "house": (
+            flows["solarToHouse"] + flows["batteryToHouse"] + flows["gridToHouse"],
+            solar + grid - battery,
+        ),
+        "solar": (
+            flows["solarToHouse"] + flows["solarToBattery"] + flows["solarToGrid"],
+            solar,
+        ),
+        "discharge": (flows["batteryToHouse"] + flows["batteryToGrid"], discharge),
+        "charge": (flows["solarToBattery"] + flows["gridToBattery"], charge),
+        "export": (flows["solarToGrid"] + flows["batteryToGrid"], grid_export),
+        "import": (flows["gridToHouse"] + flows["gridToBattery"], grid_import),
+    }
+
+    assert flows["housePower"] == pytest.approx(solar + grid - battery, abs=0.2)
+    for name, (total, expected) in balance.items():
+        assert total == pytest.approx(expected, abs=0.2), name
+    for key, value in flows.items():
+        assert value >= 0.0, f"{key} is negative"
