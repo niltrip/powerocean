@@ -81,13 +81,15 @@
       "pcs_run_sta": {
         "state": {
           "runsta_run": "Running",
-          "runsta_stop": "Stopped"
+          "runsta_stop": "Stopped",
+          "runsta_standby": "Standby"
         }
       },
       "dab_mod_sta": {
         "state": {
           "pb_mod_sta_normal": "Normal",
-          "pb_mod_sta_warnning": "Warning"
+          "pb_mod_sta_warnning": "Warning",
+          "pb_mod_sta_fault": "Fault"
         }
       },
       "sys14a_enable": {
@@ -118,12 +120,19 @@
       "bms_run_sta": {
         "state": {
           "pb_bms_state_chargeable": "Ready to charge",
-          "pb_bms_state_normal": "Normal"
+          "pb_bms_state_normal": "Normal",
+          "pb_bms_state_dischargeable": "Ready to discharge",
+          "pb_bms_state_shutdown": "Shut down",
+          "pb_bms_state_fault": "Fault"
         }
       },
       "bp_sys_state": {
         "state": {
-          "normal_state": "Normal"
+          "normal_state": "Normal",
+          "pre_power_on_state": "Starting",
+          "cfm_power_on_state": "Switched on",
+          "power_off_state": "Switched off",
+          "sleep_state": "Sleep"
         }
       }
     }
