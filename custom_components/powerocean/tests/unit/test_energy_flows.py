@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from custom_components.powerocean.parser import EcoflowParser
+from custom_components.powerocean.tests.utils import parse_values
 
 FLOW_KEYS = (
     "housePower",
@@ -61,9 +61,7 @@ def test_house_inflow_matches_house_consumption() -> None:
         response = json.loads(
             (fixtures_dir / fixture_file_name).read_text(encoding="utf-8")
         )
-        parser = EcoflowParser(variant=variant, sn="SN_INVERTERBOX01")
-
-        for flows in _flows_per_inverter(parser.parse_values(response)):
+        for flows in _flows_per_inverter(parse_values(response, variant)):
             inflow = (
                 flows.get("solarToHouse", 0.0)
                 + flows.get("batteryToHouse", 0.0)
@@ -84,8 +82,7 @@ def test_battery_export_is_not_counted_as_house_supply() -> None:
     Values measured on a live system: 1900 W solar, 2787 W exported,
     2205 W supplied by the battery, leaving 1318 W for the house.
     """
-    parser = EcoflowParser(variant="83", sn="SN_INVERTERBOX01")
-    values = parser.parse_values(_build_response(1900.0, -2787.0, -2205.0))
+    values = parse_values(_build_response(1900.0, -2787.0, -2205.0), "83")
     flows = _flows_per_inverter(values)[0]
 
     assert flows["housePower"] == pytest.approx(1318.0, abs=0.2)
@@ -114,8 +111,7 @@ BALANCE_SCENARIOS = [
 @pytest.mark.parametrize(("solar", "grid", "battery"), BALANCE_SCENARIOS)
 def test_energy_balance(solar: float, grid: float, battery: float) -> None:
     """Every source and every sink must be fully split into flows."""
-    parser = EcoflowParser(variant="83", sn="SN_INVERTERBOX01")
-    values = parser.parse_values(_build_response(solar, grid, battery))
+    values = parse_values(_build_response(solar, grid, battery), "83")
     flows = _flows_per_inverter(values)[0]
 
     grid_import, grid_export = max(grid, 0.0), max(-grid, 0.0)

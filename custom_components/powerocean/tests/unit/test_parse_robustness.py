@@ -1,5 +1,5 @@
 """
-test_parser_robustness: incomplete or unexpected API payloads.
+test_parse_robustness: incomplete or unexpected API payloads.
 
 A single malformed field must not abort the whole update (which would make
 every sensor unavailable). Valid payloads are covered by the golden masters.
@@ -7,16 +7,16 @@ every sensor unavailable). Valid payloads are covered by the golden masters.
 
 from typing import Any
 
-from custom_components.powerocean.parser import EcoflowParser
-from custom_components.powerocean.utils import ReportMode
+import pytest
+
+from custom_components.powerocean.tests.utils import parse_values
 
 SN = "SN_INVERTERBOX01"
 HEARTBEAT = "JTS1_EMS_HEARTBEAT"
 
 
 def _parse(quota: dict[str, Any]) -> dict[str, Any]:
-    parser = EcoflowParser(variant="83", sn=SN)
-    return parser.parse_values({"data": {"quota": quota}})
+    return parse_values({"data": {"quota": quota}}, "83", SN)
 
 
 def _value(values: dict[str, Any], key: str) -> Any:
@@ -25,10 +25,6 @@ def _value(values: dict[str, Any], key: str) -> Any:
 
 def _flow(values: dict[str, Any], key: str) -> Any:
     return values.get(f"{SN}_{HEARTBEAT}_mpptHeartBeat_{key}")
-
-
-def test_matching_report_key_without_underscore(parser) -> None:
-    assert not parser._is_matching_report("updateTime", ReportMode.ENERGY_STREAM.value)
 
 
 def test_quota_key_without_underscore() -> None:
@@ -95,7 +91,6 @@ def test_heartbeat_phase_not_a_dict() -> None:
 
 
 def test_parallel_energy_stream_invalid_entry() -> None:
-    parser = EcoflowParser(variant="83", sn=SN)
     response = {
         "data": {
             "parallel": {
@@ -107,8 +102,14 @@ def test_parallel_energy_stream_invalid_entry() -> None:
             }
         }
     }
-    values = parser.parse_values(response)
+    values = parse_values(response, "83", SN)
     assert (
         values[f"{SN}_all_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_gridPwr"]
         == 10
     )
+
+
+def test_unknown_variant_fails() -> None:
+    # The coordinator turns this into a failed update
+    with pytest.raises(ValueError, match="default"):
+        parse_values({"data": {"quota": {}}}, "default", SN)

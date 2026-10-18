@@ -3,7 +3,25 @@
 from enum import Enum
 from typing import Any
 
+from custom_components.powerocean.parse import parse
 from custom_components.powerocean.types import PowerOceanEndPoint
+
+SN = "SN_INVERTERBOX01"
+
+
+def parse_structure(
+    response: dict, variant: str, sn: str = SN
+) -> dict[str, PowerOceanEndPoint]:
+    """Return the endpoints of a response, as the coordinator builds them."""
+    return {
+        unique_id: PowerOceanEndPoint.from_datapoint(datapoint)
+        for unique_id, datapoint in parse(response, sn, variant).first().items()
+    }
+
+
+def parse_values(response: dict, variant: str, sn: str = SN) -> dict[str, Any]:
+    """Return the values of a response, as the coordinator returns them."""
+    return parse(response, sn, variant).values()
 
 
 def serialize_sensors(sensors: dict[str, PowerOceanEndPoint]) -> dict:
