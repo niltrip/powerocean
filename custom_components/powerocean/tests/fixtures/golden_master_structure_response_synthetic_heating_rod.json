@@ -1871,7 +1871,7 @@
       "via_device": null
     },
     "sensors": {
-      "description": "mppt1FaultCode",
+      "description": "PV-String 1: 0 = erzeugt, 2 = erzeugt nicht (kein Fehler)",
       "friendly_name": "mppt1FaultCode",
       "icon": "mdi:alert-circle-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_mppt1FaultCode",
@@ -1905,7 +1905,7 @@
       "via_device": null
     },
     "sensors": {
-      "description": "mppt2FaultCode",
+      "description": "PV-String 2: 0 = erzeugt, 2 = erzeugt nicht (kein Fehler)",
       "friendly_name": "mppt2FaultCode",
       "icon": "mdi:alert-circle-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_mppt2FaultCode",

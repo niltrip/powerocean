@@ -346,6 +346,14 @@ class SensorMetaHelper:
             "bpCycles": "Ladezyklen",
             "bpTemp": "Temperatur der Batteriezellen",
             "errorCount": "Aktive Fehler",
+            # Meaning not published by EcoFlow; observed: 0 while the string
+            # produces, 2 at night. Follows sunrise and sunset, not an error.
+            **{
+                f"mppt{n}FaultCode": (
+                    f"PV-String {n}: 0 = erzeugt, 2 = erzeugt nicht (kein Fehler)"
+                )
+                for n in range(1, 5)
+            },
         }
 
         # Use .get() to avoid KeyErrors and return default value
