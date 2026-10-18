@@ -3,8 +3,7 @@ coordinator.py: Home Assistant DataUpdateCoordinator for PowerOcean.
 
 This module defines `PowerOceanCoordinator`, a subclass of
 `DataUpdateCoordinator` that periodically fetches live data from
-EcoFlow devices using `HAEcoflowApi` and parses sensor values using
-`EcoflowParser`.
+EcoFlow devices using `HAEcoflowApi` and parses them with `parse()`.
 
 It handles:
 - Login during the first refresh (`_async_setup`)
@@ -30,11 +29,11 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .api import AuthenticationError, EcoflowApiError, EcoflowConnectionError
 from .const import DEFAULT_SCAN_INTERVAL, DOMAIN, LOGGER
 from .ecoflow import HAEcoflowApi
-from .parser import EcoflowParser
+from .parse import parse
+from .types import PowerOceanEndPoint
 
 if TYPE_CHECKING:
     from .errors import ActiveError
-    from .types import PowerOceanEndPoint
 
 type PowerOceanConfigEntry = ConfigEntry[PowerOceanCoordinator]
 
@@ -66,7 +65,6 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             ),
         )
         self.api = api
-        self.parser = EcoflowParser(variant=self.api.variant, sn=self.api.sn)
         # Filled from the first successful response, read by the platforms
         self.endpoints: dict[str, PowerOceanEndPoint] = {}
         # Last raw API response, for diagnostics
@@ -79,14 +77,17 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         await self._async_authorize()
 
     async def _async_update_data(self) -> dict[str, float | int | str]:
-        """Holt LIVE-Daten und parsed NUR Values."""
+        """Fetch and parse the live data; the endpoints come from the first one."""
         response = await self._async_fetch()
         self.last_response = response
 
         try:
+            result = parse(response, self.api.sn, self.api.variant)
             if not self.endpoints:
-                self.endpoints = self.parser.parse_structure(response)
-            values = self.parser.parse_values(response)
+                self.endpoints = {
+                    unique_id: PowerOceanEndPoint.from_datapoint(datapoint)
+                    for unique_id, datapoint in result.first().items()
+                }
         except PARSE_ERRORS as err:
             raise UpdateFailed(
                 translation_domain=DOMAIN,
@@ -94,8 +95,8 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
                 translation_placeholders={"error": repr(err)},
             ) from err
 
-        self.active_errors = self.parser.active_errors
-        return values
+        self.active_errors = result.active_errors
+        return result.values()
 
     async def _async_fetch(self) -> dict[str, Any]:
         """Fetch data, logging in again once if the request was rejected."""

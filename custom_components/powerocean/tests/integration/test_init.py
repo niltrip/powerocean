@@ -167,7 +167,7 @@ async def test_setup_retries_on_unparsable_response(
 ) -> None:
     entry = _entry()
     with patch(
-        "custom_components.powerocean.coordinator.EcoflowParser.parse_values",
+        "custom_components.powerocean.coordinator.parse",
         side_effect=KeyError("mpptPv"),
     ):
         await _setup(hass, entry)
