@@ -3069,6 +3069,102 @@
       ]
     }
   },
+  "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterL1Pwr": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Smart Meter",
+      "sn": "SN_INVERTERBOX01_meter106",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "meterL1Pwr",
+      "friendly_name": "meterL1Pwr",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterL1Pwr",
+      "name": "SN_INVERTERBOX01_meter106_meterL1Pwr",
+      "serial": "SN_INVERTERBOX01_meter106",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterL2Pwr": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Smart Meter",
+      "sn": "SN_INVERTERBOX01_meter106",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "meterL2Pwr",
+      "friendly_name": "meterL2Pwr",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterL2Pwr",
+      "name": "SN_INVERTERBOX01_meter106_meterL2Pwr",
+      "serial": "SN_INVERTERBOX01_meter106",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterL3Pwr": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Smart Meter",
+      "sn": "SN_INVERTERBOX01_meter106",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "meterL3Pwr",
+      "friendly_name": "meterL3Pwr",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterL3Pwr",
+      "name": "SN_INVERTERBOX01_meter106_meterL3Pwr",
+      "serial": "SN_INVERTERBOX01_meter106",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterTotalPwr": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Smart Meter",
+      "sn": "SN_INVERTERBOX01_meter106",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "meterTotalPwr",
+      "friendly_name": "meterTotalPwr",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterTotalPwr",
+      "name": "SN_INVERTERBOX01_meter106_meterTotalPwr",
+      "serial": "SN_INVERTERBOX01_meter106",
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
+    }
+  },
   "SN_INVERTERBOX01_monthElectricityGeneration": {
     "device": {
       "manufacturer": "EcoFlow",

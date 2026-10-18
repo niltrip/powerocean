@@ -346,6 +346,47 @@ def _read_ems_heartbeat(
     if mppt is not None:
         _read_mppt(ctx, device, f"{name}_mpptHeartBeat", mppt, payload)
 
+    _read_meters(ctx, f"{name}_meterHeartBeat", payload, selected)
+
+
+# Three-phase smart meter: meterData is [L1, L2, L3, total] in W. The other
+# types seen (1, 13, 15) report zeros or the total only; they are skipped
+# until their meaning is known.
+METER_TYPE_THREE_PHASE = 11
+METER_KEYS = ("meterL1Pwr", "meterL2Pwr", "meterL3Pwr", "meterTotalPwr")
+
+
+def _read_meters(
+    ctx: _Context, report: str, payload: dict[str, Any], selected: Any
+) -> None:
+    """Read the smart meters, each as its own device."""
+    meters = payload.get("meterHeartBeat")
+    if not isinstance(meters, list):
+        return
+    for meter in meters:
+        if not isinstance(meter, dict):
+            continue
+        address = meter.get("meterAddr")
+        data = meter.get("meterData")
+        if (
+            meter.get("meterType") != METER_TYPE_THREE_PHASE
+            or not isinstance(address, int)
+            or not isinstance(data, list)
+        ):
+            continue
+        # The meter has no serial number of its own
+        device = make_device(
+            f"{ctx.inverter_sn}_meter{address}",
+            "Smart Meter",
+            "PowerOcean Smart Meter",
+            ctx.inverter_sn,
+        )
+        for key, value in zip(METER_KEYS, data, strict=False):
+            if key not in selected or isinstance(value, bool):
+                continue
+            if isinstance(value, (int, float)):
+                ctx.add(device, report, key, value)
+
 
 def _read_mppt(
     ctx: _Context,

@@ -126,3 +126,42 @@ def test_report_update_time_invalid() -> None:
         values = _parse({HEARTBEAT: {"bpRemainWatth": 5000, "updateTime": bad}})
         assert _value(values, "bpRemainWatth") == 5000
         assert _value(values, "heartbeatUpdateTime") is None
+
+
+def _meter(values: dict[str, Any], key: str) -> Any:
+    return values.get(f"{SN}_meter106_{HEARTBEAT}_meterHeartBeat_{key}")
+
+
+def test_smart_meter_three_phase() -> None:
+    meter = {
+        "meterAddr": 106,
+        "meterType": 11,
+        "meterData": [167.5, -6.3, 149.2, 310.4],
+    }
+    values = _parse({HEARTBEAT: {"meterHeartBeat": [meter]}})
+    assert _meter(values, "meterL1Pwr") == 167.5
+    assert _meter(values, "meterL2Pwr") == -6.3
+    assert _meter(values, "meterL3Pwr") == 149.2
+    assert _meter(values, "meterTotalPwr") == 310.4
+
+
+def test_smart_meter_other_type_is_skipped() -> None:
+    meter = {"meterAddr": 106, "meterType": 1, "meterData": [0.0, 0.0, 0.0, -17.0]}
+    values = _parse({HEARTBEAT: {"meterHeartBeat": [meter]}})
+    assert not [uid for uid in values if "_meter106_" in uid]
+
+
+def test_smart_meter_invalid_entries() -> None:
+    meters = [
+        None,
+        {"meterType": 11, "meterData": [1.0, 2.0, 3.0, 6.0]},  # no address
+        {"meterAddr": 107, "meterType": 11, "meterData": "x"},
+        {"meterAddr": 106, "meterType": 11, "meterData": [1.0, None, True]},
+    ]
+    values = _parse({HEARTBEAT: {"bpRemainWatth": 5000, "meterHeartBeat": meters}})
+    assert _value(values, "bpRemainWatth") == 5000
+    assert _meter(values, "meterL1Pwr") == 1.0
+    assert _meter(values, "meterL2Pwr") is None
+    assert _meter(values, "meterL3Pwr") is None
+    assert _meter(values, "meterTotalPwr") is None
+    assert not [uid for uid in values if "_meter107_" in uid]

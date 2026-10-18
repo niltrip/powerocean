@@ -233,6 +233,12 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "gridFeedPowerMinimum",
         "epoSwitchState",
         "pcsAcFreq",
+        # Smart meter (meterHeartBeat, meter type 11): power per phase and
+        # total in W, positive = from the grid
+        "meterL1Pwr",
+        "meterL2Pwr",
+        "meterL3Pwr",
+        "meterTotalPwr",
         # Current power limit of the inverter (charge / discharge)
         "pcsActivePowerLimitUp",
         "pcsActivePowerLimitDn",
