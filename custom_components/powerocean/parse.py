@@ -374,12 +374,12 @@ def _read_meters(
             or not isinstance(data, list)
         ):
             continue
-        # The meter has no serial number of its own
-        device = make_device(
-            f"{ctx.inverter_sn}_meter{address}",
-            "Smart Meter",
-            "PowerOcean Smart Meter",
-            ctx.inverter_sn,
+        # The meter has no serial number of its own, so its name has none
+        device = Device(
+            sn=f"{ctx.inverter_sn}_meter{address}",
+            name="Smart Meter",
+            model="PowerOcean Smart Meter",
+            via_sn=ctx.inverter_sn,
         )
         for key, value in zip(METER_KEYS, data, strict=False):
             if key not in selected or isinstance(value, bool):
