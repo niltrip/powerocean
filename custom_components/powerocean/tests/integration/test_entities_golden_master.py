@@ -67,6 +67,9 @@ def _snapshot(hass: HomeAssistant, entry: MockConfigEntry) -> dict[str, Any]:
             "product_description": attributes.get("product_description"),
             "product_serial": attributes.get("product_serial"),
         }
+        # Only for disabled entities, so the other entries stay unchanged
+        if entity.disabled_by:
+            entities[entity.unique_id]["disabled_by"] = entity.disabled_by
 
     devices = {}
     for device in dr.async_entries_for_config_entry(device_registry, entry.entry_id):

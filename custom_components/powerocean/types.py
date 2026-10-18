@@ -36,6 +36,7 @@ from homeassistant.const import (
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from .const import DOMAIN
+from .utils import DISABLED_BY_DEFAULT
 
 if TYPE_CHECKING:
     from .devices import Device
@@ -75,6 +76,7 @@ class PowerOceanEndPoint:
     description: str
     icon: str | None
     device_info: DeviceInfo | None = None
+    enabled_default: bool = True
 
     @classmethod
     def from_datapoint(cls, datapoint: "Datapoint") -> "PowerOceanEndPoint":
@@ -90,6 +92,7 @@ class PowerOceanEndPoint:
             description=SensorMetaHelper.get_description(key),
             icon=SensorMetaHelper.get_special_icon(key),
             device_info=device_info(datapoint.device),
+            enabled_default=key not in DISABLED_BY_DEFAULT,
         )
 
 

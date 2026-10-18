@@ -103,6 +103,7 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
         self._attr_unique_id = self._endpoint_id
         self._attr_name = self._endpoint_friendly_name
         self._attr_icon = self._endpoint_icon
+        self._attr_entity_registry_enabled_default = endpoint.enabled_default
         if self._attr_native_unit_of_measurement is None:
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
 

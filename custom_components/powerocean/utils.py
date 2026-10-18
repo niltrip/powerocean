@@ -304,6 +304,25 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
 }
 
 
+# Entities of these keys are created disabled; users can enable them.
+# Only for keys added later: existing entities keep their state anyway.
+DISABLED_BY_DEFAULT: set[str] = {
+    # Connection codes without known meaning
+    "wifiStaStat",
+    "ethWanStat",
+    "iot4gSta",
+    # Only of interest with §14a EnWG or an SG Ready heat pump
+    "sys14aType",
+    "relay14a",
+    "emsSgRunStat",
+    "pcsPowerDeratingSet",
+    # Internal battery values
+    "bpMaxMosTemp",
+    "bpMinMosTemp",
+    "bpRealSoc",
+}
+
+
 class BoxSchema(TypedDict):
     """Schema for a detected device (box) in PowerOcean responses."""
 
