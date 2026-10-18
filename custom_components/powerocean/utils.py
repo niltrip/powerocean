@@ -55,6 +55,10 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "yearElectricityGeneration",
         "totalElectricityGeneration",
         "systemName",
+        # Charge and discharge limit of the battery in %, as set in the app
+        "sysBatChgUpLimit",
+        "sysBatDsgDownLimit",
+        "sysGridSta",
     },
     ReportMode.ENERGY_STREAM.value: {
         "pv1Pwr",
@@ -79,6 +83,39 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "mppt2WarningCode",
         "mppt3FaultCode",
         "mppt3WarningCode",
+        # Operating state
+        "emsWordMode",
+        "pcsRunSta",
+        "batteryLimitReason",
+        "pcsPowerDeratingFlag",
+        "pcsPowerDeratingSet",
+        # Feed-in limit and backup reserve
+        "emsFeedMode",
+        "emsFeedPwr",
+        "emsFeedRatio",
+        "emsKeepSoc",
+        "sysBatBackupRatio",
+        # Controllable consumers (German §14a EnWG) and SG Ready heat pump
+        "sys14aEnable",
+        "sys14aType",
+        "relay14a",
+        "emsSgReadyEn",
+        "emsSgRunStat",
+        # Connection: Wi-Fi, Ethernet, 4G
+        "wifiStaStat",
+        "ethWanStat",
+        "iot4gSta",
+        # Error and warning codes of the inverter
+        "pcsAcErrCode",
+        "pcsDcErrCode",
+        "pcsAcWarningCode",
+        # How often the grid protection tripped (voltage, frequency)
+        "pcsOvpProtectCnt",
+        "pcsAvgOvpProtectCnt",
+        "pcsUvp1ProtectCnt",
+        "pcsUvp2ProtectCnt",
+        "pcsOfpProtectCnt",
+        "pcsUfpProtectCnt",
     },
     ReportMode.BATTERY.value: {
         "bpSn",
@@ -99,6 +136,15 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "moduleAplSwVer",
         "bpAccuChgEnergy",
         "bpAccuDsgEnergy",
+        # Highest and lowest cell voltage in mV
+        "bpCellMaxVol",
+        "bpCellMinVol",
+        "bpRealSoh",
+        "bpRealSoc",
+        "bpMaxMosTemp",
+        "bpMinMosTemp",
+        "dabModSta",
+        "bpErrCode",
     },
     ReportMode.EMS.value: {
         "bpRemainWatth",
@@ -175,6 +221,11 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "mpptVoltageMaximum",
         "gridFeedPowerMinimum",
         "epoSwitchState",
+        "pcsAcFreq",
+        # Current power limit of the inverter (charge / discharge)
+        "pcsActivePowerLimitUp",
+        "pcsActivePowerLimitDn",
+        "emsNtcTempMax",
     },
     ReportMode.CHARGEBOX.value: {
         "evSn",

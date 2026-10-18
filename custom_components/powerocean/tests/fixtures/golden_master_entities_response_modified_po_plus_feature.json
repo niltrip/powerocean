@@ -145,6 +145,32 @@
       "state_class": null,
       "unit_of_measurement": null
     },
+    "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpCellMaxVol": {
+      "device": "Battery SN_BATTERIEPACK01",
+      "device_class": "voltage",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack01_bpcellmaxvol",
+      "icon": null,
+      "original_name": "bpCellMaxVol",
+      "product_description": "bpCellMaxVol",
+      "product_serial": "SN_BATTERIEPACK01",
+      "state": "3320.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "mV"
+    },
+    "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpCellMinVol": {
+      "device": "Battery SN_BATTERIEPACK01",
+      "device_class": "voltage",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack01_bpcellminvol",
+      "icon": null,
+      "original_name": "bpCellMinVol",
+      "product_description": "bpCellMinVol",
+      "product_serial": "SN_BATTERIEPACK01",
+      "state": "3318.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "mV"
+    },
     "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpCycles": {
       "device": "Battery SN_BATTERIEPACK01",
       "device_class": null,
@@ -171,6 +197,19 @@
       "state_class": "measurement",
       "unit_of_measurement": "°C"
     },
+    "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpErrCode": {
+      "device": "Battery SN_BATTERIEPACK01",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.battery_sn_batteriepack01_bperrcode",
+      "icon": "mdi:alert-circle-outline",
+      "original_name": "bpErrCode",
+      "product_description": "bpErrCode",
+      "product_serial": "SN_BATTERIEPACK01",
+      "state": "0",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
     "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpMaxCellTemp": {
       "device": "Battery SN_BATTERIEPACK01",
       "device_class": "temperature",
@@ -181,6 +220,19 @@
       "product_description": "bpMaxCellTemp",
       "product_serial": "SN_BATTERIEPACK01",
       "state": "19.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "°C"
+    },
+    "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpMaxMosTemp": {
+      "device": "Battery SN_BATTERIEPACK01",
+      "device_class": "temperature",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack01_bpmaxmostemp",
+      "icon": "mdi:thermometer",
+      "original_name": "bpMaxMosTemp",
+      "product_description": "bpMaxMosTemp",
+      "product_serial": "SN_BATTERIEPACK01",
+      "state": "34.0",
       "state_class": "measurement",
       "unit_of_measurement": "°C"
     },
@@ -197,6 +249,19 @@
       "state_class": "measurement",
       "unit_of_measurement": "°C"
     },
+    "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpMinMosTemp": {
+      "device": "Battery SN_BATTERIEPACK01",
+      "device_class": "temperature",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack01_bpminmostemp",
+      "icon": "mdi:thermometer",
+      "original_name": "bpMinMosTemp",
+      "product_description": "bpMinMosTemp",
+      "product_serial": "SN_BATTERIEPACK01",
+      "state": "31.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "°C"
+    },
     "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpPwr": {
       "device": "Battery SN_BATTERIEPACK01",
       "device_class": "power",
@@ -209,6 +274,32 @@
       "state": "141.25923",
       "state_class": "measurement",
       "unit_of_measurement": "W"
+    },
+    "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpRealSoc": {
+      "device": "Battery SN_BATTERIEPACK01",
+      "device_class": "battery",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack01_bprealsoc",
+      "icon": "mdi:battery",
+      "original_name": "bpRealSoc",
+      "product_description": "bpRealSoc",
+      "product_serial": "SN_BATTERIEPACK01",
+      "state": "29.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "%"
+    },
+    "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpRealSoh": {
+      "device": "Battery SN_BATTERIEPACK01",
+      "device_class": "battery",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack01_bprealsoh",
+      "icon": "mdi:battery-heart-variant",
+      "original_name": "bpRealSoh",
+      "product_description": "bpRealSoh",
+      "product_serial": "SN_BATTERIEPACK01",
+      "state": "100.080475",
+      "state_class": "measurement",
+      "unit_of_measurement": "%"
     },
     "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpRemainWatth": {
       "device": "Battery SN_BATTERIEPACK01",
@@ -287,6 +378,19 @@
       "state": "53.057",
       "state_class": "measurement",
       "unit_of_measurement": "V"
+    },
+    "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_dabModSta": {
+      "device": "Battery SN_BATTERIEPACK01",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.battery_sn_batteriepack01_dabmodsta",
+      "icon": null,
+      "original_name": "dabModSta",
+      "product_description": "dabModSta",
+      "product_serial": "SN_BATTERIEPACK01",
+      "state": "PB_MOD_STA_NORMAL",
+      "state_class": null,
+      "unit_of_measurement": null
     },
     "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_moduleAplSwVer": {
       "device": "Battery SN_BATTERIEPACK01",
@@ -379,6 +483,32 @@
       "state_class": null,
       "unit_of_measurement": null
     },
+    "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpCellMaxVol": {
+      "device": "Battery SN_BATTERIEPACK02",
+      "device_class": "voltage",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack02_bpcellmaxvol",
+      "icon": null,
+      "original_name": "bpCellMaxVol",
+      "product_description": "bpCellMaxVol",
+      "product_serial": "SN_BATTERIEPACK02",
+      "state": "3321.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "mV"
+    },
+    "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpCellMinVol": {
+      "device": "Battery SN_BATTERIEPACK02",
+      "device_class": "voltage",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack02_bpcellminvol",
+      "icon": null,
+      "original_name": "bpCellMinVol",
+      "product_description": "bpCellMinVol",
+      "product_serial": "SN_BATTERIEPACK02",
+      "state": "3319.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "mV"
+    },
     "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpCycles": {
       "device": "Battery SN_BATTERIEPACK02",
       "device_class": null,
@@ -405,6 +535,19 @@
       "state_class": "measurement",
       "unit_of_measurement": "°C"
     },
+    "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpErrCode": {
+      "device": "Battery SN_BATTERIEPACK02",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.battery_sn_batteriepack02_bperrcode",
+      "icon": "mdi:alert-circle-outline",
+      "original_name": "bpErrCode",
+      "product_description": "bpErrCode",
+      "product_serial": "SN_BATTERIEPACK02",
+      "state": "0",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
     "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpMaxCellTemp": {
       "device": "Battery SN_BATTERIEPACK02",
       "device_class": "temperature",
@@ -415,6 +558,19 @@
       "product_description": "bpMaxCellTemp",
       "product_serial": "SN_BATTERIEPACK02",
       "state": "18.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "°C"
+    },
+    "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpMaxMosTemp": {
+      "device": "Battery SN_BATTERIEPACK02",
+      "device_class": "temperature",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack02_bpmaxmostemp",
+      "icon": "mdi:thermometer",
+      "original_name": "bpMaxMosTemp",
+      "product_description": "bpMaxMosTemp",
+      "product_serial": "SN_BATTERIEPACK02",
+      "state": "32.0",
       "state_class": "measurement",
       "unit_of_measurement": "°C"
     },
@@ -431,6 +587,19 @@
       "state_class": "measurement",
       "unit_of_measurement": "°C"
     },
+    "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpMinMosTemp": {
+      "device": "Battery SN_BATTERIEPACK02",
+      "device_class": "temperature",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack02_bpminmostemp",
+      "icon": "mdi:thermometer",
+      "original_name": "bpMinMosTemp",
+      "product_description": "bpMinMosTemp",
+      "product_serial": "SN_BATTERIEPACK02",
+      "state": "30.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "°C"
+    },
     "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpPwr": {
       "device": "Battery SN_BATTERIEPACK02",
       "device_class": "power",
@@ -443,6 +612,32 @@
       "state": "139.4177",
       "state_class": "measurement",
       "unit_of_measurement": "W"
+    },
+    "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpRealSoc": {
+      "device": "Battery SN_BATTERIEPACK02",
+      "device_class": "battery",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack02_bprealsoc",
+      "icon": "mdi:battery",
+      "original_name": "bpRealSoc",
+      "product_description": "bpRealSoc",
+      "product_serial": "SN_BATTERIEPACK02",
+      "state": "29.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "%"
+    },
+    "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpRealSoh": {
+      "device": "Battery SN_BATTERIEPACK02",
+      "device_class": "battery",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack02_bprealsoh",
+      "icon": "mdi:battery-heart-variant",
+      "original_name": "bpRealSoh",
+      "product_description": "bpRealSoh",
+      "product_serial": "SN_BATTERIEPACK02",
+      "state": "99.32862",
+      "state_class": "measurement",
+      "unit_of_measurement": "%"
     },
     "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpRemainWatth": {
       "device": "Battery SN_BATTERIEPACK02",
@@ -521,6 +716,19 @@
       "state": "53.07",
       "state_class": "measurement",
       "unit_of_measurement": "V"
+    },
+    "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_dabModSta": {
+      "device": "Battery SN_BATTERIEPACK02",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.battery_sn_batteriepack02_dabmodsta",
+      "icon": null,
+      "original_name": "dabModSta",
+      "product_description": "dabModSta",
+      "product_serial": "SN_BATTERIEPACK02",
+      "state": "PB_MOD_STA_NORMAL",
+      "state_class": null,
+      "unit_of_measurement": null
     },
     "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_moduleAplSwVer": {
       "device": "Battery SN_BATTERIEPACK02",
@@ -613,6 +821,32 @@
       "state_class": null,
       "unit_of_measurement": null
     },
+    "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpCellMaxVol": {
+      "device": "Battery SN_BATTERIEPACK03",
+      "device_class": "voltage",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack03_bpcellmaxvol",
+      "icon": null,
+      "original_name": "bpCellMaxVol",
+      "product_description": "bpCellMaxVol",
+      "product_serial": "SN_BATTERIEPACK03",
+      "state": "3318.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "mV"
+    },
+    "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpCellMinVol": {
+      "device": "Battery SN_BATTERIEPACK03",
+      "device_class": "voltage",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack03_bpcellminvol",
+      "icon": null,
+      "original_name": "bpCellMinVol",
+      "product_description": "bpCellMinVol",
+      "product_serial": "SN_BATTERIEPACK03",
+      "state": "3316.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "mV"
+    },
     "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpCycles": {
       "device": "Battery SN_BATTERIEPACK03",
       "device_class": null,
@@ -639,6 +873,19 @@
       "state_class": "measurement",
       "unit_of_measurement": "°C"
     },
+    "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpErrCode": {
+      "device": "Battery SN_BATTERIEPACK03",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.battery_sn_batteriepack03_bperrcode",
+      "icon": "mdi:alert-circle-outline",
+      "original_name": "bpErrCode",
+      "product_description": "bpErrCode",
+      "product_serial": "SN_BATTERIEPACK03",
+      "state": "0",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
     "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpMaxCellTemp": {
       "device": "Battery SN_BATTERIEPACK03",
       "device_class": "temperature",
@@ -649,6 +896,19 @@
       "product_description": "bpMaxCellTemp",
       "product_serial": "SN_BATTERIEPACK03",
       "state": "18.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "°C"
+    },
+    "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpMaxMosTemp": {
+      "device": "Battery SN_BATTERIEPACK03",
+      "device_class": "temperature",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack03_bpmaxmostemp",
+      "icon": "mdi:thermometer",
+      "original_name": "bpMaxMosTemp",
+      "product_description": "bpMaxMosTemp",
+      "product_serial": "SN_BATTERIEPACK03",
+      "state": "33.0",
       "state_class": "measurement",
       "unit_of_measurement": "°C"
     },
@@ -665,6 +925,19 @@
       "state_class": "measurement",
       "unit_of_measurement": "°C"
     },
+    "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpMinMosTemp": {
+      "device": "Battery SN_BATTERIEPACK03",
+      "device_class": "temperature",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack03_bpminmostemp",
+      "icon": "mdi:thermometer",
+      "original_name": "bpMinMosTemp",
+      "product_description": "bpMinMosTemp",
+      "product_serial": "SN_BATTERIEPACK03",
+      "state": "30.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "°C"
+    },
     "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpPwr": {
       "device": "Battery SN_BATTERIEPACK03",
       "device_class": "power",
@@ -677,6 +950,32 @@
       "state": "59.45447",
       "state_class": "measurement",
       "unit_of_measurement": "W"
+    },
+    "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpRealSoc": {
+      "device": "Battery SN_BATTERIEPACK03",
+      "device_class": "battery",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack03_bprealsoc",
+      "icon": "mdi:battery",
+      "original_name": "bpRealSoc",
+      "product_description": "bpRealSoc",
+      "product_serial": "SN_BATTERIEPACK03",
+      "state": "30.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "%"
+    },
+    "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpRealSoh": {
+      "device": "Battery SN_BATTERIEPACK03",
+      "device_class": "battery",
+      "entity_category": null,
+      "entity_id": "sensor.battery_sn_batteriepack03_bprealsoh",
+      "icon": "mdi:battery-heart-variant",
+      "original_name": "bpRealSoh",
+      "product_description": "bpRealSoh",
+      "product_serial": "SN_BATTERIEPACK03",
+      "state": "98.927734",
+      "state_class": "measurement",
+      "unit_of_measurement": "%"
     },
     "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpRemainWatth": {
       "device": "Battery SN_BATTERIEPACK03",
@@ -755,6 +1054,19 @@
       "state": "53.045",
       "state_class": "measurement",
       "unit_of_measurement": "V"
+    },
+    "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_dabModSta": {
+      "device": "Battery SN_BATTERIEPACK03",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.battery_sn_batteriepack03_dabmodsta",
+      "icon": null,
+      "original_name": "dabModSta",
+      "product_description": "dabModSta",
+      "product_serial": "SN_BATTERIEPACK03",
+      "state": "PB_MOD_STA_NORMAL",
+      "state_class": null,
+      "unit_of_measurement": null
     },
     "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_moduleAplSwVer": {
       "device": "Battery SN_BATTERIEPACK03",
@@ -1029,6 +1341,110 @@
       "state_class": null,
       "unit_of_measurement": null
     },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_emsFeedMode": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_emsfeedmode",
+      "icon": null,
+      "original_name": "emsFeedMode",
+      "product_description": "emsFeedMode",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "3",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_emsFeedPwr": {
+      "device": "PowerOcean",
+      "device_class": "power",
+      "entity_category": null,
+      "entity_id": "sensor.powerocean_sn_inverterbox01_emsfeedpwr",
+      "icon": null,
+      "original_name": "emsFeedPwr",
+      "product_description": "emsFeedPwr",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "11100",
+      "state_class": "measurement",
+      "unit_of_measurement": "W"
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_emsFeedRatio": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": null,
+      "entity_id": "sensor.powerocean_sn_inverterbox01_emsfeedratio",
+      "icon": null,
+      "original_name": "emsFeedRatio",
+      "product_description": "emsFeedRatio",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "100",
+      "state_class": "measurement",
+      "unit_of_measurement": "%"
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_emsSgReadyEn": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_emssgreadyen",
+      "icon": null,
+      "original_name": "emsSgReadyEn",
+      "product_description": "emsSgReadyEn",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "False",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_emsSgRunStat": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_emssgrunstat",
+      "icon": "mdi:information-outline",
+      "original_name": "emsSgRunStat",
+      "product_description": "emsSgRunStat",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "0",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_emsWordMode": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_emswordmode",
+      "icon": null,
+      "original_name": "emsWordMode",
+      "product_description": "emsWordMode",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "WORKMODE_SELFUSE",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_ethWanStat": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_ethwanstat",
+      "icon": null,
+      "original_name": "ethWanStat",
+      "product_description": "ethWanStat",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "0",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_iot4gSta": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_iot4gsta",
+      "icon": null,
+      "original_name": "iot4gSta",
+      "product_description": "iot4gSta",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "2",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
     "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt1FaultCode": {
       "device": "PowerOcean",
       "device_class": null,
@@ -1104,6 +1520,110 @@
       "product_description": "mppt3WarningCode",
       "product_serial": "SN_INVERTERBOX01",
       "state": "0",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_pcsAcErrCode": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_pcsacerrcode",
+      "icon": "mdi:alert-circle-outline",
+      "original_name": "pcsAcErrCode",
+      "product_description": "pcsAcErrCode",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "0",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_pcsAcWarningCode": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_pcsacwarningcode",
+      "icon": "mdi:alert-circle-outline",
+      "original_name": "pcsAcWarningCode",
+      "product_description": "pcsAcWarningCode",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "0",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_pcsDcErrCode": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_pcsdcerrcode",
+      "icon": "mdi:alert-circle-outline",
+      "original_name": "pcsDcErrCode",
+      "product_description": "pcsDcErrCode",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "0",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_pcsRunSta": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_pcsrunsta",
+      "icon": "mdi:information-outline",
+      "original_name": "pcsRunSta",
+      "product_description": "pcsRunSta",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "RUNSTA_RUN",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_relay14a": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_relay14a",
+      "icon": null,
+      "original_name": "relay14a",
+      "product_description": "relay14a",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "0",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_sys14aEnable": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_sys14aenable",
+      "icon": null,
+      "original_name": "sys14aEnable",
+      "product_description": "sys14aEnable",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "False",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_sys14aType": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_sys14atype",
+      "icon": null,
+      "original_name": "sys14aType",
+      "product_description": "sys14aType",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "1",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_wifiStaStat": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_wifistastat",
+      "icon": null,
+      "original_name": "wifiStaStat",
+      "product_description": "wifiStaStat",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "10",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -1184,6 +1704,19 @@
       "state": "1",
       "state_class": null,
       "unit_of_measurement": null
+    },
+    "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_emsNtcTempMax": {
+      "device": "PowerOcean",
+      "device_class": "temperature",
+      "entity_category": null,
+      "entity_id": "sensor.powerocean_sn_inverterbox01_emsntctempmax",
+      "icon": "mdi:thermometer",
+      "original_name": "emsNtcTempMax",
+      "product_description": "emsNtcTempMax",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "44.125",
+      "state_class": "measurement",
+      "unit_of_measurement": "°C"
     },
     "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_mpptHeartBeat_batteryToGrid": {
       "device": "PowerOcean",
@@ -1549,6 +2082,19 @@
       "state_class": "measurement",
       "unit_of_measurement": "V"
     },
+    "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_pcsAcFreq": {
+      "device": "PowerOcean",
+      "device_class": "frequency",
+      "entity_category": null,
+      "entity_id": "sensor.powerocean_sn_inverterbox01_pcsacfreq",
+      "icon": null,
+      "original_name": "pcsAcFreq",
+      "product_description": "pcsAcFreq",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "49.98",
+      "state_class": "measurement",
+      "unit_of_measurement": "Hz"
+    },
     "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_pcsActPwr": {
       "device": "PowerOcean",
       "device_class": "power",
@@ -1559,6 +2105,32 @@
       "product_description": "pcsActPwr",
       "product_serial": "SN_INVERTERBOX01",
       "state": "-53.688522",
+      "state_class": "measurement",
+      "unit_of_measurement": "W"
+    },
+    "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_pcsActivePowerLimitDn": {
+      "device": "PowerOcean",
+      "device_class": "power",
+      "entity_category": null,
+      "entity_id": "sensor.powerocean_sn_inverterbox01_pcsactivepowerlimitdn",
+      "icon": null,
+      "original_name": "pcsActivePowerLimitDn",
+      "product_description": "pcsActivePowerLimitDn",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "-25000.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "W"
+    },
+    "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_pcsActivePowerLimitUp": {
+      "device": "PowerOcean",
+      "device_class": "power",
+      "entity_category": null,
+      "entity_id": "sensor.powerocean_sn_inverterbox01_pcsactivepowerlimitup",
+      "icon": null,
+      "original_name": "pcsActivePowerLimitUp",
+      "product_description": "pcsActivePowerLimitUp",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "544.14575",
       "state_class": "measurement",
       "unit_of_measurement": "W"
     },
@@ -1822,6 +2394,32 @@
       "state_class": null,
       "unit_of_measurement": null
     },
+    "SN_INVERTERBOX01_sysBatChgUpLimit": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": null,
+      "entity_id": "sensor.powerocean_sn_inverterbox01_sysbatchguplimit",
+      "icon": null,
+      "original_name": "sysBatChgUpLimit",
+      "product_description": "sysBatChgUpLimit",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "0",
+      "state_class": "measurement",
+      "unit_of_measurement": "%"
+    },
+    "SN_INVERTERBOX01_sysBatDsgDownLimit": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": null,
+      "entity_id": "sensor.powerocean_sn_inverterbox01_sysbatdsgdownlimit",
+      "icon": null,
+      "original_name": "sysBatDsgDownLimit",
+      "product_description": "sysBatDsgDownLimit",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "0",
+      "state_class": "measurement",
+      "unit_of_measurement": "%"
+    },
     "SN_INVERTERBOX01_sysGridPwr": {
       "device": "PowerOcean",
       "device_class": "power",
@@ -1834,6 +2432,19 @@
       "state": "0.0",
       "state_class": "measurement",
       "unit_of_measurement": "W"
+    },
+    "SN_INVERTERBOX01_sysGridSta": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_sysgridsta",
+      "icon": null,
+      "original_name": "sysGridSta",
+      "product_description": "sysGridSta",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "0",
+      "state_class": null,
+      "unit_of_measurement": null
     },
     "SN_INVERTERBOX01_sysLoadPwr": {
       "device": "PowerOcean",

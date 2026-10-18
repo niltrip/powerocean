@@ -28,6 +28,7 @@ from homeassistant.const import (
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
     UnitOfEnergy,
+    UnitOfFrequency,
     UnitOfPower,
     UnitOfTemperature,
     UnitOfVolume,
@@ -108,6 +109,56 @@ def device_info(device: "Device") -> DeviceInfo:
 
 class SensorClassHelper:
     """Infer SensorDeviceClass, unit and SensorStateClass from a sensor key."""
+
+    # Keys whose name ending does not tell the unit; checked first
+    _KEY_CLASSES: ClassVar[dict[str, SensorClassTuple]] = {
+        "pcsAcFreq": (
+            SensorDeviceClass.FREQUENCY,
+            UnitOfFrequency.HERTZ,
+            SensorStateClass.MEASUREMENT,
+        ),
+        **dict.fromkeys(
+            ("bpCellMaxVol", "bpCellMinVol"),
+            (
+                SensorDeviceClass.VOLTAGE,
+                UnitOfElectricPotential.MILLIVOLT,
+                SensorStateClass.MEASUREMENT,
+            ),
+        ),
+        **dict.fromkeys(
+            ("pcsActivePowerLimitUp", "pcsActivePowerLimitDn"),
+            (
+                SensorDeviceClass.POWER,
+                UnitOfPower.WATT,
+                SensorStateClass.MEASUREMENT,
+            ),
+        ),
+        "emsNtcTempMax": (
+            SensorDeviceClass.TEMPERATURE,
+            UnitOfTemperature.CELSIUS,
+            SensorStateClass.MEASUREMENT,
+        ),
+        **dict.fromkeys(
+            (
+                "sysBatChgUpLimit",
+                "sysBatDsgDownLimit",
+                "emsFeedRatio",
+                "sysBatBackupRatio",
+            ),
+            (None, PERCENTAGE, SensorStateClass.MEASUREMENT),
+        ),
+        **dict.fromkeys(
+            (
+                "pcsOvpProtectCnt",
+                "pcsAvgOvpProtectCnt",
+                "pcsUvp1ProtectCnt",
+                "pcsUvp2ProtectCnt",
+                "pcsOfpProtectCnt",
+                "pcsUfpProtectCnt",
+            ),
+            (None, None, SensorStateClass.TOTAL_INCREASING),
+        ),
+    }
 
     _CLASS_PATTERNS: ClassVar[list[tuple[re.Pattern[str], SensorClassTuple]]] = [
         (
@@ -197,6 +248,9 @@ class SensorClassHelper:
     @classmethod
     def infer_class(cls, key: str) -> SensorClassTuple | None:
         """Infer device class, unit and state class from key name."""
+        if key in cls._KEY_CLASSES:
+            return cls._KEY_CLASSES[key]
+
         key_lower = key.lower()
 
         for pattern, sensor_class in cls._CLASS_PATTERNS:
