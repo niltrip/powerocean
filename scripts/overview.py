@@ -82,17 +82,18 @@ def overview(response: dict[str, Any], variant: str, sn: str, title: str) -> str
     for endpoint in endpoints:
         info = endpoint.device_info or {}
         device_sn = endpoint.serial
-        via = info.get("via_device")
-        devices.setdefault(
-            device_sn,
-            {
-                # The main device is named after the config entry
-                "name": DEFAULT_NAME if device_sn == sn else info.get("name"),
-                "model": info.get("model"),
-                "via": via[1] if via else None,
-            },
-        )
+        # Like the device registry: each entity updates name and model, so
+        # the last one wins; a missing via_device keeps the known one
+        device = devices.setdefault(device_sn, {"via": None})
+        device["name"] = info.get("name")
+        device["model"] = info.get("model")
+        if via := info.get("via_device"):
+            device["via"] = via[1]
         entities[device_sn].append(endpoint)
+
+    # The main device is named after the config entry (__init__.py)
+    if sn in devices:
+        devices[sn]["name"] = DEFAULT_NAME
 
     lines = [f"# Übersicht: {title}", ""]
     sections = defaultdict(int)
