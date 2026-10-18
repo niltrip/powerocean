@@ -1637,9 +1637,9 @@
       "name": "SN_EV_CHARGER_01_orderStartTimestamp",
       "serial": "SN_EV_CHARGER_01",
       "unit": [
-        "current",
-        "A",
-        "measurement"
+        "timestamp",
+        null,
+        null
       ]
     }
   },

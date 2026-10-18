@@ -117,9 +117,12 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
         value = self.coordinator.data.get(self._endpoint_id)
         # Times are parsed as Unix time
         if self._attr_device_class == SensorDeviceClass.TIMESTAMP:
+            # 0 means no time (e.g. no charging order), not 1970
+            if not isinstance(value, (int, float)) or value <= 0:
+                return None
             try:
                 return datetime.fromtimestamp(value, UTC)
-            except (TypeError, ValueError, OverflowError, OSError):
+            except (ValueError, OverflowError, OSError):
                 return None
         return value
 

@@ -167,6 +167,9 @@ class SensorClassHelper:
         **dict.fromkeys(
             (
                 "bpTimestamp",
+                # Wallbox: start of the charging order (ends in "amp", which
+                # made it a current in A before)
+                "orderStartTimestamp",
                 "heartbeatUpdateTime",
                 "energyStreamUpdateTime",
                 "emsChangeUpdateTime",

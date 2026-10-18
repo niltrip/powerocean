@@ -1047,17 +1047,16 @@
     },
     "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_orderStartTimestamp": {
       "device": "PowerPulse SN_EV_CHARGER_01",
-      "device_class": "current",
-      "display_precision": 2,
-      "entity_category": null,
+      "device_class": "timestamp",
+      "entity_category": "diagnostic",
       "entity_id": "sensor.charger_sn_ev_charger_01_orderstarttimestamp",
       "icon": null,
       "original_name": "orderStartTimestamp",
       "product_description": "orderStartTimestamp",
       "product_serial": "SN_EV_CHARGER_01",
-      "state": "1748768727",
-      "state_class": "measurement",
-      "unit_of_measurement": "A"
+      "state": "2025-06-01T09:05:27+00:00",
+      "state_class": null,
+      "unit_of_measurement": null
     },
     "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_useGridFirst": {
       "device": "PowerPulse SN_EV_CHARGER_01",
