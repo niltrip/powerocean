@@ -10,26 +10,32 @@ from typing import Any
 from homeassistant.components.sensor import (
     SensorEntity,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     EntityCategory,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
 )
 
-from .const import (
-    DOMAIN,
-)
-from .coordinator import PowerOceanCoordinator
+from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
 from .types import PowerOceanEndPoint
+
+# Updates are fetched centrally by the coordinator
+PARALLEL_UPDATES = 0
+
+# Cause and solution of error codes are only available in the portal
+ERROR_DETAILS_HINT = (
+    "Ursache und Lösung im EcoFlow-Webportal: https://portal.ecoflow.com"
+)
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,  # noqa: ARG001
+    entry: PowerOceanConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """
     Set up PowerOcean sensors for a config entry.
@@ -47,18 +53,17 @@ async def async_setup_entry(
         None
 
     """
-    data = hass.data[DOMAIN][entry.entry_id]
-    coordinator = data["coordinator"]
-    endpoints = data["endpoints"]
+    coordinator = entry.runtime_data
 
     entities = [
-        PowerOceanSensor(coordinator, endpoint) for endpoint in endpoints.values()
+        PowerOceanSensor(coordinator, endpoint)
+        for endpoint in coordinator.endpoints.values()
     ]
 
     async_add_entities(entities)
 
 
-class PowerOceanSensor(CoordinatorEntity, SensorEntity):
+class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
     """Representation of a PowerOcean Sensor using DataUpdateCoordinator."""
 
     def __init__(
@@ -102,6 +107,11 @@ class PowerOceanSensor(CoordinatorEntity, SensorEntity):
             attr["product_description"] = self._endpoint_description
         if self._endpoint_serial:
             attr["product_serial"] = self._endpoint_serial
+        errors = self.coordinator.active_errors.get(self._endpoint_id)
+        if errors is not None:
+            attr["errors"] = [error.as_dict() for error in errors]
+            if errors:
+                attr["error_details"] = ERROR_DETAILS_HINT
         return attr
 
     @property

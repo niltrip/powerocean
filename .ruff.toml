@@ -39,6 +39,8 @@ ignore = [
     "F841", # unused variables
     "ANN201", # missing return type
     "SLF001", # Private member accessed
+    "S105", # dummy credentials in tests
+    "S106", # dummy credentials in tests
 ]
 "documentation/**/*.py" = ["ALL"]
 

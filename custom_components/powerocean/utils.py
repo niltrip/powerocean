@@ -39,6 +39,7 @@ class ReportMode(Enum):
     EMS_CHANGE = "EMS_CHANGE_REPORT"
     EMS_STATE_CHANGE = "EMS_STATE_CHANGE_REPORT"
     ENERGY_STREAM = "ENERGY_STREAM_REPORT"
+    ERROR = "ERROR_CHANGE_REPORT"
 
 
 REPORT_DATAPOINTS: dict[str, set[str]] = {
@@ -223,6 +224,10 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "solarCurrentMin",
         "phaseSpecified",
         "chargingStatus",
+    },
+    # Calculated from the error codes of all modules, see errors.py
+    ReportMode.ERROR.value: {
+        "errorCount",
     },
     ReportMode.WALLBOX_SYS.value: {
         "devSn",

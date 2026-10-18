@@ -20,6 +20,7 @@ API_FIXTURES = [
     ("response_modified_po_dual.json", "83"),
     ("response_modified_po_plus.json", "87"),
     ("response_modified_po_plus_feature.json", "87"),
+    ("response_modified_error_521.json", "83"),
 ]
 
 

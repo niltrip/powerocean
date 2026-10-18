@@ -204,6 +204,7 @@ class SensorMetaHelper:
             "bpAmp": "Batteriestrom",
             "bpCycles": "Ladezyklen",
             "bpTemp": "Temperatur der Batteriezellen",
+            "errorCount": "Aktive Fehler",
         }
 
         # Use .get() to avoid KeyErrors and return default value
@@ -216,6 +217,7 @@ class SensorMetaHelper:
         keyword_icons = [
             # Status / Diagnose
             (r"online$", "mdi:cloud-check"),
+            (r"errorcount$", "mdi:alert-circle-outline"),
             (r"(code)", "mdi:alert-circle-outline"),
             (r"(ems|bms|bp).*state", "mdi:information-outline"),
             (r"(bmsrunsta|bmschgdsgsta)", "mdi:chip"),

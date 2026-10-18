@@ -2744,6 +2744,23 @@
       ]
     }
   },
+  "SN_INVERTERBOX01_RE307_ERROR_CHANGE_REPORT_errorCount": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "Aktive Fehler",
+      "friendly_name": "errorCount",
+      "icon": "mdi:alert-circle-outline",
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_ERROR_CHANGE_REPORT_errorCount",
+      "name": "SN_INVERTERBOX01_errorCount",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
   "SN_INVERTERBOX01_bpPwr": {
     "device": {
       "manufacturer": "EcoFlow",

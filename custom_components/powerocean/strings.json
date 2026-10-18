@@ -25,6 +25,13 @@
           "password": "[%key:common::config_flow::data::password%]",
           "model_id": "[%key:common::config_flow::data::model_id%]"
         }
+      },
+      "reauth_confirm": {
+        "description": "The EcoFlow credentials for {device_id} are no longer valid.",
+        "data": {
+          "email": "[%key:common::config_flow::data::email%]",
+          "password": "[%key:common::config_flow::data::password%]"
+        }
       }
     },
     "error": {
@@ -34,7 +41,9 @@
     },
     "abort": {
       "already_configured": "[%key:common::config_flow::abort::already_configured_device%]",
-      "reconfiguration_completed": "[%key:common::config_flow::abort::reconfiguration_completed%]"
+      "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]",
+      "reauth_successful": "[%key:common::config_flow::abort::reauth_successful%]",
+      "wrong_device": "The serial number belongs to a different device. Please add it as a new device instead."
     }
   },
   "options": {
@@ -46,6 +55,20 @@
           "scan_interval": "[%key:common::config_flow::data::polling_interval%]"
         }
       }
+    }
+  },
+  "exceptions": {
+    "invalid_auth": {
+      "message": "The EcoFlow cloud rejected the credentials."
+    },
+    "cannot_connect": {
+      "message": "Could not reach the EcoFlow cloud: {error}"
+    },
+    "unexpected_response": {
+      "message": "Unexpected response from the EcoFlow cloud: {error}"
+    },
+    "missing_configuration": {
+      "message": "The configuration is incomplete (serial number or model missing). Please remove and add the device again."
     }
   }
 }

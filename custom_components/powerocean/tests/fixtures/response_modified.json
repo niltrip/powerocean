@@ -32,9 +32,12 @@
                 "pvInvPwr": 0.0,
                 "pv2Pwr": 0.0,
                 "otherPvPwr": 0.0,
-                "pv3Pwr": 0.0
+                "pv3Pwr": 0.0,
+                "spain4gPvPwr": 0.0,
+                "midMeterPwr": 0.0
             },
             "JTS1_EMS_CHANGE_REPORT": {
+                "appSwitchBitOne": 14,
                 "pcsAvgOvpProtectValue": 0.0,
                 "pcsOverVolDeratingTimeConst": 10.0,
                 "chgDsgPwr": 0.0,
@@ -99,6 +102,7 @@
                 "pcsOverVolRideThroughProtectTime2": 1000,
                 "pcsOverVolTime3": 0,
                 "pcsOverFreqDeratingTransitionPoint": 51.5,
+                "flashEraseCnt": 0,
                 "pcsAcWarningCode": 0,
                 "afciEn": 0,
                 "rateCtrlSwtich": false,
@@ -181,6 +185,7 @@
                 "pcsUvp1ProtectCnt": 0,
                 "pcsAcErrCode": 0,
                 "afciProtectValueCh2": 0.0,
+                "batteryLimitReason": 0,
                 "pcsLowVolRideThroughStart1": 184.0,
                 "pcsOverVolTime2": 100,
                 "batRelayCloseFailFlag": 0,
@@ -354,6 +359,11 @@
             "JTS1_EMS_PV_INV_ENERGY_STREAM_REPORT": {
                 "pvInvPwr": 0.0,
                 "updateTime": "2026-01-20 05:21:08"
+            },
+            "JTS1_ALL_HEATING_TASK_REPORT": {
+                "timeTaskCfg": [
+                ],
+                "updateTime": "2026-01-20 04:17:02"
             },
             "JT303_EDEV_PRIORITY_LIST_REPORT": {
                 "updateTime": "2026-01-20 04:17:02",
@@ -591,7 +601,7 @@
                 "bpRemainWatth": 997.0,
                 "pcsActivePowerRef": 10000.0,
                 "pcsLeakAmp": -4.189453,
-                "emsMpptSelfcheckSta\r\nte": 1,
+                "emsMpptSelfcheckState": 1,
                 "emsBpSelfcheckState": 1
             },
             "JT303_TOU_ALL_TASK_REPORT": {
