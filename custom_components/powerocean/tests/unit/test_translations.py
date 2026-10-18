@@ -44,6 +44,18 @@ def test_translations_have_the_states_of_strings(file: str) -> None:
         assert set(sensors[name]["state"]) == set(entry["state"]), name
 
 
+def test_icons_belong_to_translated_states() -> None:
+    """Home Assistant ignores state icons of keys without translation_key."""
+    icons = json.loads((COMPONENT_DIR / "icons.json").read_text("utf-8"))
+    sensors = icons["entity"]["sensor"]
+    assert set(sensors) <= {translation_key(key) for key in TRANSLATED_STATES}
+    for name, entry in sensors.items():
+        assert entry["default"].startswith("mdi:"), name
+        for state, icon in entry["state"].items():
+            assert TRANSLATION_KEY.match(state), f"{name}: {state}"
+            assert icon.startswith("mdi:"), f"{name}: {state}"
+
+
 @pytest.fixture
 def enable_custom_integrations_fixture(enable_custom_integrations):
     """Enable custom integrations in HA tests."""

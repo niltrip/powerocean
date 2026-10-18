@@ -134,6 +134,30 @@
                     "power_off_state": "Ausgeschaltet",
                     "sleep_state": "Ruhezustand"
                 }
+            },
+            "mppt1_fault_code": {
+                "state": {
+                    "0": "Erzeugt",
+                    "2": "Erzeugt nicht"
+                }
+            },
+            "mppt2_fault_code": {
+                "state": {
+                    "0": "Erzeugt",
+                    "2": "Erzeugt nicht"
+                }
+            },
+            "mppt3_fault_code": {
+                "state": {
+                    "0": "Erzeugt",
+                    "2": "Erzeugt nicht"
+                }
+            },
+            "mppt4_fault_code": {
+                "state": {
+                    "0": "Erzeugt",
+                    "2": "Erzeugt nicht"
+                }
             }
         }
     }

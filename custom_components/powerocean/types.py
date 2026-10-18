@@ -360,7 +360,8 @@ class SensorMetaHelper:
         return description_mapping.get(key, key)  # Default to key if not found
 
     # Icons of single keys; checked first. None: the icon of the device class,
-    # e.g. the battery level icon that shows how full the battery is.
+    # e.g. the battery level icon that shows how full the battery is, or the
+    # icon by state from icons.json.
     _KEY_ICONS: ClassVar[dict[str, str | None]] = {
         "bpSoc": None,
         "bpRealSoc": None,
@@ -388,6 +389,8 @@ class SensorMetaHelper:
             ("sys14aEnable", "sys14aType", "relay14a"), "mdi:transmission-tower-off"
         ),
         **dict.fromkeys(("emsSgReadyEn", "emsSgRunStat"), "mdi:heat-pump"),
+        # Icon by state (sun/moon) from icons.json
+        **dict.fromkeys((f"mppt{n}FaultCode" for n in range(1, 5)), None),
         "wifiStaStat": "mdi:wifi",
         "ethWanStat": "mdi:ethernet",
         "iot4gSta": "mdi:signal",

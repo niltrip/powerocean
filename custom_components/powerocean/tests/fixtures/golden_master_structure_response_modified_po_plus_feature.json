@@ -2453,7 +2453,7 @@
     "sensors": {
       "description": "PV-String 1: 0 = erzeugt, 2 = erzeugt nicht (kein Fehler)",
       "friendly_name": "mppt1FaultCode",
-      "icon": "mdi:alert-circle-outline",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt1FaultCode",
       "name": "SN_INVERTERBOX01_mppt1FaultCode",
       "serial": "SN_INVERTERBOX01",
@@ -2487,7 +2487,7 @@
     "sensors": {
       "description": "PV-String 2: 0 = erzeugt, 2 = erzeugt nicht (kein Fehler)",
       "friendly_name": "mppt2FaultCode",
-      "icon": "mdi:alert-circle-outline",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt2FaultCode",
       "name": "SN_INVERTERBOX01_mppt2FaultCode",
       "serial": "SN_INVERTERBOX01",
@@ -2521,7 +2521,7 @@
     "sensors": {
       "description": "PV-String 3: 0 = erzeugt, 2 = erzeugt nicht (kein Fehler)",
       "friendly_name": "mppt3FaultCode",
-      "icon": "mdi:alert-circle-outline",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt3FaultCode",
       "name": "SN_INVERTERBOX01_mppt3FaultCode",
       "serial": "SN_INVERTERBOX01",
