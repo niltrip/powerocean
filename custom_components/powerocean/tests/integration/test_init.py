@@ -9,6 +9,7 @@ import pytest
 from homeassistant.config_entries import SOURCE_REAUTH, ConfigEntryState
 from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -275,21 +276,60 @@ async def test_scan_interval_from_options(
 # -----------------------------
 
 
+# Config entry as created by releases 2024.01.01 (version 1) up to
+# 2025.08.28 (version 1.3)
+LEGACY_V1_DATA = {
+    "user_input": DATA,
+    "device_info": {"name": "PowerOcean", "serial": SN},
+    "options": {"friendly_name": "Garage", "scan_interval": 30},
+}
+
+
+@pytest.mark.parametrize("version", [1, 1.3])
 async def test_migrate_v1_entry(
-    hass: HomeAssistant, mock_authorize: AsyncMock, mock_fetch: AsyncMock
+    hass: HomeAssistant,
+    mock_authorize: AsyncMock,
+    mock_fetch: AsyncMock,
+    version: float,
 ) -> None:
-    entry = _entry(
-        data={"user_input": {**DATA, "friendly_name": "Alt"}},
-        options={},
-        version=1,
-        minor_version=1,
-    )
+    entry = _entry(data=LEGACY_V1_DATA, options={}, version=version, minor_version=1)
     await _setup(hass, entry)
 
     assert entry.state is ConfigEntryState.LOADED
     assert (entry.version, entry.minor_version) == (2, 2)
     assert dict(entry.data) == DATA
-    assert dict(entry.options) == {"friendly_name": "Alt", "scan_interval": 10}
+    assert dict(entry.options) == {"friendly_name": "Garage", "scan_interval": 30}
+    assert entry.runtime_data.update_interval.total_seconds() == 30
+    device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, SN)})
+    assert device.name == "Garage"
+
+
+async def test_migrate_v2_1_restores_name_lost_by_earlier_migration(
+    hass: HomeAssistant, mock_authorize: AsyncMock, mock_fetch: AsyncMock
+) -> None:
+    """Releases 2026.02.x set the default name when migrating from 1.x."""
+    entry = _entry(
+        data={**DATA, "device_info": {}, "options": LEGACY_V1_DATA["options"]},
+        options={"friendly_name": "PowerOcean", "scan_interval": 30},
+        minor_version=1,
+    )
+    await _setup(hass, entry)
+
+    assert dict(entry.options) == {"friendly_name": "Garage", "scan_interval": 30}
+    assert dict(entry.data) == DATA
+
+
+async def test_migrate_v2_1_keeps_name_set_later(
+    hass: HomeAssistant, mock_authorize: AsyncMock, mock_fetch: AsyncMock
+) -> None:
+    entry = _entry(
+        data={**DATA, "options": LEGACY_V1_DATA["options"]},
+        options={"friendly_name": "Keller", "scan_interval": 20},
+        minor_version=1,
+    )
+    await _setup(hass, entry)
+
+    assert dict(entry.options) == {"friendly_name": "Keller", "scan_interval": 20}
 
 
 async def test_migrate_v2_1_backfills_missing_options(

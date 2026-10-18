@@ -95,7 +95,8 @@ async def async_migrate_entry(
     options = dict(entry.options)
 
     if entry.version < 2 and "user_input" in data:
-        # ALT → NEU
+        # 1.x: Zugangsdaten unter data["user_input"], Name und Intervall
+        # unter data["options"] (siehe unten)
         old = data.pop("user_input")
 
         data.update(
@@ -107,23 +108,22 @@ async def async_migrate_entry(
             }
         )
 
-        # Optionen auslagern
-        options.setdefault(
-            CONF_FRIENDLY_NAME,
-            old.get(CONF_FRIENDLY_NAME, DEFAULT_NAME),
-        )
-
     if entry.version < 2 or entry.minor_version < 2:
-        # 2.2: fehlende Optionen ergänzen (vorher bei jedem Setup erledigt)
-        legacy_options = data.get("options", {})
+        # 1.x und 2.1: Optionen aus data["options"] übernehmen und die
+        # Altlasten aus data entfernen
+        legacy_options = data.pop("options", None) or {}
+        data.pop("device_info", None)
+        legacy_name = legacy_options.get(CONF_FRIENDLY_NAME)
+
         options.setdefault(
             CONF_SCAN_INTERVAL,
-            legacy_options.get("scan_interval", DEFAULT_SCAN_INTERVAL),
+            legacy_options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
         )
-        options.setdefault(
-            CONF_FRIENDLY_NAME,
-            legacy_options.get("friendly_name", DEFAULT_NAME),
-        )
+        # Die Migration auf 2.1 hat den Namen aus data["options"] übersehen
+        # und den Standardnamen gesetzt. Einen eigenen Namen nicht anfassen.
+        if legacy_name and options.get(CONF_FRIENDLY_NAME) in (None, DEFAULT_NAME):
+            options[CONF_FRIENDLY_NAME] = legacy_name
+        options.setdefault(CONF_FRIENDLY_NAME, DEFAULT_NAME)
 
     hass.config_entries.async_update_entry(
         entry,
