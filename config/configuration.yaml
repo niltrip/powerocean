@@ -16,141 +16,121 @@ logger:
     homeassistant.setup:
       - ".*go2rtc.*"
 template:
+  # Examples for the PowerOcean sensors. Replace SN with the serial number of
+  # your inverter in lowercase; check the entity IDs under
+  # Settings -> Devices & services -> Entities, they depend on the device name.
   - sensor:
+      # Solar power without negative values, source of the kWh sensors below
       - name: "PowerOcean Solar All"
         unique_id: "powerocean_solar_all"
         unit_of_measurement: "W"
         device_class: "power"
         icon: mdi:home-lightning-bolt
         state: >
-          {% set val = states('sensor.powerocean_mpptpv_pwrtotal')|float(0) %}
+          {% set val = states('sensor.powerocean_SN_mpptpv_pwrtotal')|float(0) %}
           {{ val if val > 0 else 0 }}
         availability: >
-          {{ has_value('sensor.powerocean_mpptpv_pwrtotal') }}
+          {{ has_value('sensor.powerocean_SN_mpptpv_pwrtotal') }}
       - name: "PowerOcean Solar String 01"
         unique_id: "powerocean_solar_string_01"
         unit_of_measurement: "W"
         device_class: "power"
         icon: mdi:home-lightning-bolt
         state: >
-          {% set val = states('sensor.powerocean_mpptpv1_pwr')|float(0) %}
+          {% set val = states('sensor.powerocean_SN_mpptpv1_pwr')|float(0) %}
           {{ val if val > 0 else 0 }}
         availability: >
-          {{ has_value('sensor.powerocean_mpptpv1_pwr') }}
+          {{ has_value('sensor.powerocean_SN_mpptpv1_pwr') }}
       - name: "PowerOcean Solar String 02"
         unique_id: "powerocean_solar_string_02"
         unit_of_measurement: "W"
         device_class: "power"
         icon: mdi:home-lightning-bolt
         state: >
-          {% set val = states('sensor.powerocean_mpptpv2_pwr')|float(0) %}
+          {% set val = states('sensor.powerocean_SN_mpptpv2_pwr')|float(0) %}
           {{ val if val > 0 else 0 }}
         availability: >
-          {{ has_value('sensor.powerocean_mpptpv2_pwr') }}
-      - name: "PowerOcean Grid Import"
-        unique_id: "powerocean_grid_import"
-        unit_of_measurement: "W"
-        device_class: "power"
-        icon: mdi:transmission-tower-import
-        state: >
-          {# replace SN with your inverter SN #}
-          {% set val = states('sensor.powerocean_SN_gridtohouse')|float(0) %}
-          {{ val if val > 0 else 0 }}
-        availability: >
-          {# replace SN with your inverter SN #}
-          {{ has_value('sensor.powerocean_SN_gridtohouse') }}
-      - name: "PowerOcean Solar Export"
-        unique_id: "powerocean_solar_export"
-        unit_of_measurement: "W"
-        device_class: "power"
-        icon: mdi:transmission-tower-export
-        state: >
-          {# replace SN with your inverter SN #}
-          {% set val = states('sensor.powerocean_SN_solartogrid')|float(0) %}
-          {{ val if val > 0 else 0 }}
-        availability: >
-          {# replace SN with your inverter SN #}
-          {{ has_value('sensor.powerocean_SN_solartogrid') }}
+          {{ has_value('sensor.powerocean_SN_mpptpv2_pwr') }}
 
+      # Battery: capacity (kWh) and backup reserve (%) of your own system
       - name: "House Battery Charge Runtime"
-        unique_id: "house_battery_charge_runtime"
-        unit_of_measurement: "hours"
+        unique_id: house_battery_charge_runtime
+        unit_of_measurement: "h"
+        device_class: duration
+        state_class: measurement
+        availability: >
+          {{
+            has_value('sensor.powerocean_SN_bpsoc')
+            and has_value('sensor.powerocean_SN_solartobattery')
+          }}
         state: >
-          {# Max Kapazität in kWh, später durch Sensor ersetzen #}
           {% set battery_capacity = 10.0 %}
-          {# Backup in %, später durch Sensor ersetzen #}
-          {% set backup_percent = 5.0 %}
-          {% set soc = states('sensor.powerocean_bpsoc') | float(0) %}
-          {# Ladeleistung (Watt), ersetze durch Sensor für Ladeleistung #}
-          {% set charging_power = states('sensor.powerocean_SN_solartobattery') | float(0) %}
+          {% set soc = states('sensor.powerocean_SN_bpsoc') | float %}
+          {% set charging_power =
+            states('sensor.powerocean_SN_solartobattery') | float %}
 
-          {# Nur wenn Batterie lädt (positiver Wert für Ladeleistung) #}
           {% if charging_power > 0 %}
-
-            {# Prozent unterhalb Backup #}
-            {% set max_soc = 100.0 %}
-            {% set chargeable_percent = max_soc - backup_percent - soc %}
-
-            {# Wenn ein Ladezustand verfügbar ist (Prozent unter Backup) #}
-            {% if chargeable_percent > 0 %}
-              {% set chargeable_capacity = battery_capacity * (chargeable_percent / 100) %}
-
-              {# Ladezeit in Stunden (Kapazität / Ladeleistung) #}
-              {# *1000 wegen kWh zu Watt #}
-              {{ (chargeable_capacity * 1000 / charging_power) | round(2) }}
-            {% else %}
-              0
-            {% endif %}
-
+            {% set remaining_capacity =
+              battery_capacity * ((100 - soc) / 100) %}
+            {{ (remaining_capacity * 1000 / charging_power) | round(2) }}
           {% else %}
             0
           {% endif %}
+
       - name: "House Battery Discharge Runtime"
-        unique_id: "house_battery_discharge_runtime"
-        unit_of_measurement: "hours"
+        unique_id: house_battery_discharge_runtime
+        unit_of_measurement: "h"
+        device_class: duration
+        state_class: measurement
+        availability: >
+          {{
+            has_value('sensor.powerocean_SN_bpsoc')
+            and has_value('sensor.powerocean_SN_batterytohouse')
+          }}
         state: >
-          {# replace SN with your inverter SN #}
-          {% set battery_load = states('sensor.powerocean_SN_batterytohouse') | float(0) %}
-          {# Max Kapazität in kWh, später durch Sensor ersetzen #}
           {% set battery_capacity = 10.0 %}
-          {# Backup in %, später durch Sensor ersetzen #}
           {% set backup_percent = 5.0 %}
-          {% set soc = states('sensor.powerocean_bpsoc') | float(0) %}
+          {% set soc = states('sensor.powerocean_SN_bpsoc') | float %}
+          {% set battery_load =
+            states('sensor.powerocean_SN_batterytohouse') | float %}
 
-          {# Nur wenn Batterie ins Haus entlädt (positiver Wert) #}
           {% if battery_load > 0 %}
-
-            {# Prozent oberhalb Backup #}
             {% set usable_percent = [soc - backup_percent, 0] | max %}
-            {% set available_capacity = battery_capacity * (usable_percent / 100) %}
-
-            {{ (available_capacity / (battery_load / 1000)) | round(2) }}
-
+            {% set available_capacity =
+              battery_capacity * (usable_percent / 100) %}
+            {{ (available_capacity * 1000 / battery_load) | round(2) }}
           {% else %}
             0
           {% endif %}
 
       - name: "House Battery Empty At"
-        unique_id: "house_battery_empty_at"
+        unique_id: house_battery_empty_at
+        device_class: timestamp
+        availability: >
+          {{
+            has_value('sensor.powerocean_SN_bpsoc')
+            and has_value('sensor.powerocean_SN_batterytohouse')
+          }}
         state: >
-          {# replace SN with your inverter SN #}
-          {% set battery_load = states('sensor.powerocean_SN_batterytohouse') | float(0) %}
+          {% set battery_load =
+            states('sensor.powerocean_SN_batterytohouse') | float %}
           {% set battery_capacity = 10.0 %}
           {% set backup_percent = 5.0 %}
-          {% set soc = states('sensor.powerocean_bpsoc') | float(0) %}
+          {% set soc = states('sensor.powerocean_SN_bpsoc') | float %}
 
-          {% if battery_load > 0 %}
-            {% set usable_percent = [soc - backup_percent, 0] | max %}
-            {% set available_capacity = battery_capacity * (usable_percent / 100) %}
-            {% set runtime = available_capacity / (battery_load / 1000) %}
-            {% set empty_at = now() + timedelta(hours=runtime) %}
-            {{ empty_at.strftime('%A %d %B %H:%M') }}
+          {% if battery_load > 0 and soc > backup_percent %}
+            {% set usable_percent = soc - backup_percent %}
+            {% set available_capacity =
+              battery_capacity * (usable_percent / 100) %}
+            {% set runtime =
+              available_capacity / (battery_load / 1000) %}
+            {{ (now() + timedelta(hours=runtime)).isoformat() }}
           {% else %}
-            Battery not discharging
+            {{ none }}
           {% endif %}
 
 sensor:
-  # Integrale für PowerOcean
+  # Solar energy (kWh) for the energy dashboard, from the power sensors above
   - platform: integration
     source: sensor.powerocean_solar_all
     name: "PowerOcean Solar All kWh"
@@ -173,24 +153,6 @@ sensor:
     source: sensor.powerocean_solar_string_02
     name: "PowerOcean Solar String 02 kWh"
     unique_id: powerocean_solar_string_02_kWh
-    unit_prefix: k
-    unit_time: h
-    round: 2
-    method: left
-
-  - platform: integration
-    source: sensor.powerocean_grid_import
-    name: "PowerOcean Grid Import kWh"
-    unique_id: powerocean_grid_import_kWh
-    unit_prefix: k
-    unit_time: h
-    round: 2
-    method: left
-
-  - platform: integration
-    source: sensor.powerocean_solar_export
-    name: "PowerOcean Solar Export kWh"
-    unique_id: powerocean_solar_export_kWh
     unit_prefix: k
     unit_time: h
     round: 2
