@@ -17,7 +17,7 @@ handling and presentation in Home Assistant.
 
 import re
 from dataclasses import dataclass
-from typing import ClassVar, TypeAlias
+from typing import TYPE_CHECKING, ClassVar, TypeAlias
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -33,6 +33,12 @@ from homeassistant.const import (
     UnitOfVolume,
 )
 from homeassistant.helpers.device_registry import DeviceInfo
+
+from .const import DOMAIN
+
+if TYPE_CHECKING:
+    from .devices import Device
+    from .parse import Datapoint
 
 SensorClassTuple: TypeAlias = tuple[
     SensorDeviceClass | None,
@@ -68,6 +74,36 @@ class PowerOceanEndPoint:
     description: str
     icon: str | None
     device_info: DeviceInfo | None = None
+
+    @classmethod
+    def from_datapoint(cls, datapoint: "Datapoint") -> "PowerOceanEndPoint":
+        """Return the endpoint of a parsed datapoint, with metadata from its key."""
+        key = datapoint.key
+        return cls(
+            internal_unique_id=datapoint.unique_id,
+            serial=datapoint.device.sn,
+            name=f"{datapoint.device.sn}_{key}",
+            friendly_name=key,
+            value=None,
+            cls=SensorMetaHelper.get_class(key),
+            description=SensorMetaHelper.get_description(key),
+            icon=SensorMetaHelper.get_special_icon(key),
+            device_info=device_info(datapoint.device),
+        )
+
+
+def device_info(device: "Device") -> DeviceInfo:
+    """Return the Home Assistant device info of a device."""
+    info = DeviceInfo(
+        identifiers={(DOMAIN, device.sn)},
+        serial_number=device.sn,
+        name=device.name,
+        manufacturer="EcoFlow",
+        model=device.model,
+    )
+    if device.via_sn:
+        info["via_device"] = (DOMAIN, device.via_sn)
+    return info
 
 
 class SensorClassHelper:
