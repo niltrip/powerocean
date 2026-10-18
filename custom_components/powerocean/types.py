@@ -36,7 +36,14 @@ from homeassistant.const import (
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from .const import DOMAIN
-from .utils import DIAGNOSTIC_KEYS, DISABLED_BY_DEFAULT
+from .utils import (
+    DIAGNOSTIC_KEYS,
+    DIAGNOSTIC_PATTERNS,
+    DISABLED_BY_DEFAULT,
+    ReportMode,
+)
+
+_DIAGNOSTIC_PATTERNS = [re.compile(pattern) for pattern in DIAGNOSTIC_PATTERNS]
 
 if TYPE_CHECKING:
     from .devices import Device
@@ -94,8 +101,20 @@ class PowerOceanEndPoint:
             icon=SensorMetaHelper.get_special_icon(key),
             device_info=device_info(datapoint.device),
             enabled_default=key not in DISABLED_BY_DEFAULT,
-            diagnostic=key in DIAGNOSTIC_KEYS,
+            diagnostic=_is_diagnostic(datapoint),
         )
+
+
+def _is_diagnostic(datapoint: "Datapoint") -> bool:
+    """Return True if the entity belongs under "Diagnostic" despite its unit."""
+    # The per-inverter energy streams of a dual system have no calculated
+    # counterpart, so their values stay sensors
+    if ReportMode.PARALLEL.value in datapoint.unique_id:
+        return False
+    key = datapoint.key
+    return key in DIAGNOSTIC_KEYS or any(
+        pattern.search(key) for pattern in _DIAGNOSTIC_PATTERNS
+    )
 
 
 def device_info(device: "Device") -> DeviceInfo:

@@ -342,7 +342,36 @@ DIAGNOSTIC_KEYS: set[str] = {
     "sysBatBackupRatio",
     "sysBatChgUpLimit",
     "sysBatDsgDownLimit",
+    # Values of the API that are also calculated from the heartbeat, which
+    # updates more often: see housePower, gridPower and mpptPv_pwrTotal
+    "sysLoadPwr",
+    "sysGridPwr",
+    "mpptPwr",
+    # Details of the inverter: shown elsewhere as overview or energy flow
+    "mpptInsResist",
+    "pcsActPwr",
+    "pcsMeterPower",
+    "emsBpPower",
+    "pv1Pwr",
+    "pv2Pwr",
+    "pv3Pwr",
+    "pvInvPwr",
+    "otherPvPwr",
+    # Details of the battery packs
+    "bpVol",
+    "bpAmp",
+    "bpEnvTemp",
+    "bpMaxCellTemp",
+    "bpMinCellTemp",
 }
+
+# ... and the keys matching these patterns (regular expressions)
+DIAGNOSTIC_PATTERNS: tuple[str, ...] = (
+    # Voltage, current and power of each phase
+    r"^pcs[ABC]Phase_",
+    # Voltage and current of each PV string (their power stays)
+    r"^mpptPv\d+_(vol|amp)$",
+)
 
 # Entities of these keys are created disabled; users can enable them.
 # Only for keys added later: existing entities keep their state anyway.

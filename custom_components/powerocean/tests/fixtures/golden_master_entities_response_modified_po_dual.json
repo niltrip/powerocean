@@ -467,7 +467,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsBpPower": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_emsbppower",
       "icon": null,
       "original_name": "emsBpPower",
@@ -610,7 +610,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptInsResist": {
       "device": "PowerOcean",
       "device_class": null,
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptinsresist",
       "icon": "mdi:resistor",
       "original_name": "mpptInsResist",
@@ -623,7 +623,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv1_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptpv1_amp",
       "icon": "mdi:current-dc",
       "original_name": "mpptPv1_amp",
@@ -662,7 +662,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv1_vol": {
       "device": "PowerOcean",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptpv1_vol",
       "icon": null,
       "original_name": "mpptPv1_vol",
@@ -675,7 +675,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv2_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptpv2_amp",
       "icon": "mdi:current-dc",
       "original_name": "mpptPv2_amp",
@@ -714,7 +714,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv2_vol": {
       "device": "PowerOcean",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptpv2_vol",
       "icon": null,
       "original_name": "mpptPv2_vol",
@@ -779,7 +779,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsAPhase_actPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsaphase_actpwr",
       "icon": "mdi:flash",
       "original_name": "pcsAPhase_actPwr",
@@ -792,7 +792,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsAPhase_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsaphase_amp",
       "icon": "mdi:current-ac",
       "original_name": "pcsAPhase_amp",
@@ -805,7 +805,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsAPhase_apparentPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsaphase_apparentpwr",
       "icon": "mdi:flash-outline",
       "original_name": "pcsAPhase_apparentPwr",
@@ -818,7 +818,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsAPhase_reactPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsaphase_reactpwr",
       "icon": "mdi:flash",
       "original_name": "pcsAPhase_reactPwr",
@@ -831,7 +831,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsAPhase_vol": {
       "device": "PowerOcean",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsaphase_vol",
       "icon": null,
       "original_name": "pcsAPhase_vol",
@@ -857,7 +857,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsActPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsactpwr",
       "icon": "mdi:flash",
       "original_name": "pcsActPwr",
@@ -896,7 +896,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsBPhase_actPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsbphase_actpwr",
       "icon": "mdi:flash",
       "original_name": "pcsBPhase_actPwr",
@@ -909,7 +909,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsBPhase_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsbphase_amp",
       "icon": "mdi:current-ac",
       "original_name": "pcsBPhase_amp",
@@ -922,7 +922,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsBPhase_apparentPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsbphase_apparentpwr",
       "icon": "mdi:flash-outline",
       "original_name": "pcsBPhase_apparentPwr",
@@ -935,7 +935,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsBPhase_reactPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsbphase_reactpwr",
       "icon": "mdi:flash",
       "original_name": "pcsBPhase_reactPwr",
@@ -948,7 +948,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsBPhase_vol": {
       "device": "PowerOcean",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsbphase_vol",
       "icon": null,
       "original_name": "pcsBPhase_vol",
@@ -961,7 +961,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsCPhase_actPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcscphase_actpwr",
       "icon": "mdi:flash",
       "original_name": "pcsCPhase_actPwr",
@@ -974,7 +974,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsCPhase_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcscphase_amp",
       "icon": "mdi:current-ac",
       "original_name": "pcsCPhase_amp",
@@ -987,7 +987,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsCPhase_apparentPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcscphase_apparentpwr",
       "icon": "mdi:flash-outline",
       "original_name": "pcsCPhase_apparentPwr",
@@ -1000,7 +1000,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsCPhase_reactPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcscphase_reactpwr",
       "icon": "mdi:flash",
       "original_name": "pcsCPhase_reactPwr",
@@ -1013,7 +1013,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsCPhase_vol": {
       "device": "PowerOcean",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcscphase_vol",
       "icon": null,
       "original_name": "pcsCPhase_vol",
@@ -1026,7 +1026,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsMeterPower": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsmeterpower",
       "icon": "mdi:home-lightning-bolt",
       "original_name": "pcsMeterPower",
@@ -1325,7 +1325,7 @@
     "SN_INVERTERBOX01_mpptPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptpwr",
       "icon": "mdi:solar-power",
       "original_name": "mpptPwr",
@@ -1377,7 +1377,7 @@
     "SN_INVERTERBOX01_sysGridPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_sysgridpwr",
       "icon": "mdi:transmission-tower-import",
       "original_name": "sysGridPwr",
@@ -1403,7 +1403,7 @@
     "SN_INVERTERBOX01_sysLoadPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_sysloadpwr",
       "icon": "mdi:home-lightning-bolt",
       "original_name": "sysLoadPwr",
@@ -1839,7 +1839,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_emsBpPower": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_emsbppower",
       "icon": null,
       "original_name": "emsBpPower",
@@ -1982,7 +1982,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptInsResist": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": null,
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_mpptinsresist",
       "icon": "mdi:resistor",
       "original_name": "mpptInsResist",
@@ -1995,7 +1995,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv1_amp": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_mpptpv1_amp",
       "icon": "mdi:current-dc",
       "original_name": "mpptPv1_amp",
@@ -2034,7 +2034,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv1_vol": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_mpptpv1_vol",
       "icon": null,
       "original_name": "mpptPv1_vol",
@@ -2047,7 +2047,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv2_amp": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_mpptpv2_amp",
       "icon": "mdi:current-dc",
       "original_name": "mpptPv2_amp",
@@ -2086,7 +2086,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv2_vol": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_mpptpv2_vol",
       "icon": null,
       "original_name": "mpptPv2_vol",
@@ -2151,7 +2151,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsAPhase_actPwr": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsaphase_actpwr",
       "icon": "mdi:flash",
       "original_name": "pcsAPhase_actPwr",
@@ -2164,7 +2164,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsAPhase_amp": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsaphase_amp",
       "icon": "mdi:current-ac",
       "original_name": "pcsAPhase_amp",
@@ -2177,7 +2177,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsAPhase_apparentPwr": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsaphase_apparentpwr",
       "icon": "mdi:flash-outline",
       "original_name": "pcsAPhase_apparentPwr",
@@ -2190,7 +2190,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsAPhase_reactPwr": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsaphase_reactpwr",
       "icon": "mdi:flash",
       "original_name": "pcsAPhase_reactPwr",
@@ -2203,7 +2203,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsAPhase_vol": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsaphase_vol",
       "icon": null,
       "original_name": "pcsAPhase_vol",
@@ -2229,7 +2229,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsActPwr": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsactpwr",
       "icon": "mdi:flash",
       "original_name": "pcsActPwr",
@@ -2268,7 +2268,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsBPhase_actPwr": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsbphase_actpwr",
       "icon": "mdi:flash",
       "original_name": "pcsBPhase_actPwr",
@@ -2281,7 +2281,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsBPhase_amp": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsbphase_amp",
       "icon": "mdi:current-ac",
       "original_name": "pcsBPhase_amp",
@@ -2294,7 +2294,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsBPhase_apparentPwr": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsbphase_apparentpwr",
       "icon": "mdi:flash-outline",
       "original_name": "pcsBPhase_apparentPwr",
@@ -2307,7 +2307,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsBPhase_reactPwr": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsbphase_reactpwr",
       "icon": "mdi:flash",
       "original_name": "pcsBPhase_reactPwr",
@@ -2320,7 +2320,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsBPhase_vol": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsbphase_vol",
       "icon": null,
       "original_name": "pcsBPhase_vol",
@@ -2333,7 +2333,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsCPhase_actPwr": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcscphase_actpwr",
       "icon": "mdi:flash",
       "original_name": "pcsCPhase_actPwr",
@@ -2346,7 +2346,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsCPhase_amp": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcscphase_amp",
       "icon": "mdi:current-ac",
       "original_name": "pcsCPhase_amp",
@@ -2359,7 +2359,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsCPhase_apparentPwr": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcscphase_apparentpwr",
       "icon": "mdi:flash-outline",
       "original_name": "pcsCPhase_apparentPwr",
@@ -2372,7 +2372,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsCPhase_reactPwr": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcscphase_reactpwr",
       "icon": "mdi:flash",
       "original_name": "pcsCPhase_reactPwr",
@@ -2385,7 +2385,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsCPhase_vol": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcscphase_vol",
       "icon": null,
       "original_name": "pcsCPhase_vol",
@@ -2398,7 +2398,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsMeterPower": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsmeterpower",
       "icon": "mdi:home-lightning-bolt",
       "original_name": "pcsMeterPower",
@@ -2606,7 +2606,7 @@
     "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAmp": {
       "device": "Battery SN_M_BATTERIEPACK01",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_m_batteriepack01_bpamp",
       "icon": null,
       "original_name": "bpAmp",
@@ -2671,7 +2671,7 @@
     "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpEnvTemp": {
       "device": "Battery SN_M_BATTERIEPACK01",
       "device_class": "temperature",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_m_batteriepack01_bpenvtemp",
       "icon": "mdi:thermometer",
       "original_name": "bpEnvTemp",
@@ -2697,7 +2697,7 @@
     "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMaxCellTemp": {
       "device": "Battery SN_M_BATTERIEPACK01",
       "device_class": "temperature",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_m_batteriepack01_bpmaxcelltemp",
       "icon": "mdi:thermometer",
       "original_name": "bpMaxCellTemp",
@@ -2724,7 +2724,7 @@
     "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMinCellTemp": {
       "device": "Battery SN_M_BATTERIEPACK01",
       "device_class": "temperature",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_m_batteriepack01_bpmincelltemp",
       "icon": "mdi:thermometer",
       "original_name": "bpMinCellTemp",
@@ -2869,7 +2869,7 @@
     "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpVol": {
       "device": "Battery SN_M_BATTERIEPACK01",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_m_batteriepack01_bpvol",
       "icon": null,
       "original_name": "bpVol",
@@ -2960,7 +2960,7 @@
     "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAmp": {
       "device": "Battery SN_M_BATTERIEPACK02",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_m_batteriepack02_bpamp",
       "icon": null,
       "original_name": "bpAmp",
@@ -3025,7 +3025,7 @@
     "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpEnvTemp": {
       "device": "Battery SN_M_BATTERIEPACK02",
       "device_class": "temperature",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_m_batteriepack02_bpenvtemp",
       "icon": "mdi:thermometer",
       "original_name": "bpEnvTemp",
@@ -3051,7 +3051,7 @@
     "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMaxCellTemp": {
       "device": "Battery SN_M_BATTERIEPACK02",
       "device_class": "temperature",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_m_batteriepack02_bpmaxcelltemp",
       "icon": "mdi:thermometer",
       "original_name": "bpMaxCellTemp",
@@ -3078,7 +3078,7 @@
     "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMinCellTemp": {
       "device": "Battery SN_M_BATTERIEPACK02",
       "device_class": "temperature",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_m_batteriepack02_bpmincelltemp",
       "icon": "mdi:thermometer",
       "original_name": "bpMinCellTemp",
@@ -3223,7 +3223,7 @@
     "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpVol": {
       "device": "Battery SN_M_BATTERIEPACK02",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_m_batteriepack02_bpvol",
       "icon": null,
       "original_name": "bpVol",
@@ -3314,7 +3314,7 @@
     "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAmp": {
       "device": "Battery SN_S_BATTERIEPACK01",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_s_batteriepack01_bpamp",
       "icon": null,
       "original_name": "bpAmp",
@@ -3379,7 +3379,7 @@
     "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpEnvTemp": {
       "device": "Battery SN_S_BATTERIEPACK01",
       "device_class": "temperature",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_s_batteriepack01_bpenvtemp",
       "icon": "mdi:thermometer",
       "original_name": "bpEnvTemp",
@@ -3405,7 +3405,7 @@
     "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMaxCellTemp": {
       "device": "Battery SN_S_BATTERIEPACK01",
       "device_class": "temperature",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_s_batteriepack01_bpmaxcelltemp",
       "icon": "mdi:thermometer",
       "original_name": "bpMaxCellTemp",
@@ -3432,7 +3432,7 @@
     "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpMinCellTemp": {
       "device": "Battery SN_S_BATTERIEPACK01",
       "device_class": "temperature",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_s_batteriepack01_bpmincelltemp",
       "icon": "mdi:thermometer",
       "original_name": "bpMinCellTemp",
@@ -3577,7 +3577,7 @@
     "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpVol": {
       "device": "Battery SN_S_BATTERIEPACK01",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_s_batteriepack01_bpvol",
       "icon": null,
       "original_name": "bpVol",
@@ -3668,7 +3668,7 @@
     "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAmp": {
       "device": "Battery SN_S_BATTERIEPACK02",
       "device_class": "current",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_s_batteriepack02_bpamp",
       "icon": null,
       "original_name": "bpAmp",
@@ -3733,7 +3733,7 @@
     "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpEnvTemp": {
       "device": "Battery SN_S_BATTERIEPACK02",
       "device_class": "temperature",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_s_batteriepack02_bpenvtemp",
       "icon": "mdi:thermometer",
       "original_name": "bpEnvTemp",
@@ -3759,7 +3759,7 @@
     "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMaxCellTemp": {
       "device": "Battery SN_S_BATTERIEPACK02",
       "device_class": "temperature",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_s_batteriepack02_bpmaxcelltemp",
       "icon": "mdi:thermometer",
       "original_name": "bpMaxCellTemp",
@@ -3786,7 +3786,7 @@
     "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpMinCellTemp": {
       "device": "Battery SN_S_BATTERIEPACK02",
       "device_class": "temperature",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_s_batteriepack02_bpmincelltemp",
       "icon": "mdi:thermometer",
       "original_name": "bpMinCellTemp",
@@ -3931,7 +3931,7 @@
     "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpVol": {
       "device": "Battery SN_S_BATTERIEPACK02",
       "device_class": "voltage",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_s_batteriepack02_bpvol",
       "icon": null,
       "original_name": "bpVol",

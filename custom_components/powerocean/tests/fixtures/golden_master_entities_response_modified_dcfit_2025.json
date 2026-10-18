@@ -993,7 +993,7 @@
     "SN_INVERTERBOX01_mpptPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptpwr",
       "icon": "mdi:solar-power",
       "original_name": "mpptPwr",
@@ -1019,7 +1019,7 @@
     "SN_INVERTERBOX01_sysGridPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_sysgridpwr",
       "icon": "mdi:transmission-tower-import",
       "original_name": "sysGridPwr",
@@ -1032,7 +1032,7 @@
     "SN_INVERTERBOX01_sysLoadPwr": {
       "device": "PowerOcean",
       "device_class": "power",
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_sysloadpwr",
       "icon": "mdi:home-lightning-bolt",
       "original_name": "sysLoadPwr",
