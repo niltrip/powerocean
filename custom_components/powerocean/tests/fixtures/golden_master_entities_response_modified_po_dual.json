@@ -1143,14 +1143,15 @@
     "SN_INVERTERBOX01_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_pvInvPwr": {
       "device": "PowerOcean",
       "device_class": "power",
+      "disabled_by": "integration",
       "entity_category": null,
       "entity_id": "sensor.inverter_sn_inverterbox01_pvinvpwr",
       "icon": "mdi:solar-power",
       "original_name": "pvInvPwr",
-      "product_description": "pvInvPwr",
-      "product_serial": "SN_INVERTERBOX01",
-      "state": "0.0",
-      "state_class": "measurement",
+      "product_description": null,
+      "product_serial": null,
+      "state": null,
+      "state_class": null,
       "unit_of_measurement": "W"
     },
     "SN_INVERTERBOX01_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_sysGridPwr": {
@@ -1260,14 +1261,15 @@
     "SN_INVERTERBOX01_all_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_pvInvPwr": {
       "device": "Inverter SN_INVERTERBOX01_all",
       "device_class": "power",
+      "disabled_by": "integration",
       "entity_category": null,
       "entity_id": "sensor.inverter_sn_inverterbox01_all_pvinvpwr",
       "icon": "mdi:solar-power",
       "original_name": "pvInvPwr",
-      "product_description": "pvInvPwr",
-      "product_serial": "SN_INVERTERBOX01_all",
-      "state": "0.0",
-      "state_class": "measurement",
+      "product_description": null,
+      "product_serial": null,
+      "state": null,
+      "state_class": null,
       "unit_of_measurement": "W"
     },
     "SN_INVERTERBOX01_all_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_sysGridPwr": {
@@ -2515,14 +2517,15 @@
     "SN_INVERTERBOX02_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_pvInvPwr": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
+      "disabled_by": "integration",
       "entity_category": null,
       "entity_id": "sensor.inverter_sn_inverterbox02_pvinvpwr",
       "icon": "mdi:solar-power",
       "original_name": "pvInvPwr",
-      "product_description": "pvInvPwr",
-      "product_serial": "SN_INVERTERBOX02",
-      "state": "0.0",
-      "state_class": "measurement",
+      "product_description": null,
+      "product_serial": null,
+      "state": null,
+      "state_class": null,
       "unit_of_measurement": "W"
     },
     "SN_INVERTERBOX02_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_sysGridPwr": {

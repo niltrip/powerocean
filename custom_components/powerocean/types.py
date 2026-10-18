@@ -100,7 +100,7 @@ class PowerOceanEndPoint:
             description=SensorMetaHelper.get_description(key),
             icon=SensorMetaHelper.get_special_icon(key),
             device_info=device_info(datapoint.device),
-            enabled_default=key not in DISABLED_BY_DEFAULT,
+            enabled_default=datapoint.in_use and key not in DISABLED_BY_DEFAULT,
             diagnostic=_is_diagnostic(datapoint),
         )
 

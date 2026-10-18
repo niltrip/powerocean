@@ -385,6 +385,9 @@ DISABLED_BY_DEFAULT: set[str] = {
     "relay14a",
     "emsSgRunStat",
     "pcsPowerDeratingSet",
+    # Second PV inverter: no hint in the response whether there is one
+    "pvInvPwr",
+    "otherPvPwr",
     # Settings that hardly ever change
     "emsFeedRatio",
     "emsKeepSoc",

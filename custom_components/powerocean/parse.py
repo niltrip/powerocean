@@ -12,6 +12,7 @@ Entities, history and automations depend on it, so it must never change.
 This module does not depend on Home Assistant.
 """
 
+import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -46,6 +47,9 @@ PRIMITIVE_TYPES = (int, float, str)
 # bpTimestamp (Unix time), in winter and summer alike.
 SERVER_TIMEZONE = timezone(timedelta(hours=8))
 
+# Power of PV string n in the energy stream report
+PV_STRING_POWER = re.compile(r"^pv(\d+)Pwr$")
+
 
 @dataclass(frozen=True)
 class Datapoint:
@@ -55,6 +59,8 @@ class Datapoint:
     device: Device
     key: str
     value: Any
+    # False if the system lacks what the value is about (e.g. a PV string)
+    in_use: bool = True
 
 
 @dataclass
@@ -91,6 +97,8 @@ class _Context:
     result: ParseResult
     # Inverter whose reports are read (differs from main_sn in dual systems)
     inverter_sn: str = ""
+    # Number of PV strings of the inverter, if the heartbeat tells
+    pv_strings: int | None = None
 
     def inverter(self) -> Device:
         return make_device(self.inverter_sn, "PowerOcean", self.model)
@@ -102,7 +110,15 @@ class _Context:
                 device=device,
                 key=key,
                 value=value,
+                in_use=self._in_use(key),
             )
+        )
+
+    def _in_use(self, key: str) -> bool:
+        # pv3Pwr of the energy stream is 0 forever without a third string
+        match = PV_STRING_POWER.match(key)
+        return not (
+            match and self.pv_strings is not None and int(match[1]) > self.pv_strings
         )
 
 
@@ -145,6 +161,7 @@ def parse(response: dict[str, Any], main_sn: str, variant: str) -> ParseResult:
         for inverter_sn in list(parallel.keys()) or [main_sn]:
             ctx.inverter_sn = inverter_sn
             reports = parallel.get(inverter_sn, {})
+            ctx.pv_strings = _pv_strings(reports)
             for report_type in report_types:
                 # KNOWN BUG, kept until fixed in its own commit: the substring
                 # check also replaces HEATING_ROD_ENERGY_STREAM_REPORT, so the
@@ -153,6 +170,7 @@ def parse(response: dict[str, Any], main_sn: str, variant: str) -> ParseResult:
                     report_type = ReportMode.PARALLEL.value  # noqa: PLW2901
                 _read_report(ctx, reports, report_type)
     elif quota:
+        ctx.pv_strings = _pv_strings(quota)
         for report_type in report_types:
             _read_report(ctx, quota, report_type)
     else:
@@ -166,6 +184,16 @@ def parse(response: dict[str, Any], main_sn: str, variant: str) -> ParseResult:
 # -----------------------------
 # Finding reports
 # -----------------------------
+
+
+def _pv_strings(reports: Any) -> int | None:
+    """Return the number of PV strings listed in the heartbeat, if any."""
+    if not isinstance(reports, dict):
+        return None
+    _, heartbeat = _find_report(reports, ReportMode.EMS.value)
+    mppt = _first_mppt_heartbeat(heartbeat)
+    strings = mppt.get("mpptPv") if mppt else None
+    return len(strings) if isinstance(strings, list) else None
 
 
 def _matches(key: Any, report_type: str) -> bool:
