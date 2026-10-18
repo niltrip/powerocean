@@ -23,7 +23,7 @@ Nevertheless, I hope that it works for others as well.
 ## Prerequisites
 
 I have tested the component with my System.
-I use the Android App and the Webportal at https://portal.ecoflow.com/user/eu/de/login
+I use the Android App and the Webportal at https://user-portal.ecoflow.com/
 
 You need the S/N number of your inverter and your credentinals
 

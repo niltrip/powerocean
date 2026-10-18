@@ -20,6 +20,7 @@ from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
 )
 
+from .const import PORTAL_URL
 from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
 from .types import PowerOceanEndPoint
 
@@ -27,9 +28,7 @@ from .types import PowerOceanEndPoint
 PARALLEL_UPDATES = 0
 
 # Cause and solution of error codes are only available in the portal
-ERROR_DETAILS_HINT = (
-    "Ursache und Lösung im EcoFlow-Webportal: https://portal.ecoflow.com"
-)
+ERROR_DETAILS_HINT = f"Ursache und Lösung im EcoFlow-Webportal: {PORTAL_URL}"
 
 
 async def async_setup_entry(
