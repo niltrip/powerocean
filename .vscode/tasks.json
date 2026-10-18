@@ -8,6 +8,18 @@
             "problemMatcher": []
         },
         {
+            "label": "Run Home Assistant with mocked response",
+            "detail": "Saved API response instead of the EcoFlow cloud (no login)",
+            "type": "shell",
+            "command": "scripts/develop",
+            "options": {
+                "env": {
+                    "POWEROCEAN_MOCK_RESPONSE": "${input:mockResponse}"
+                }
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Stop Home Assistant",
             "type": "shell",
             "command": "pkill -f '[h]ass --config' && echo 'Home Assistant wird beendet.' || echo 'Home Assistant läuft nicht.'",
@@ -21,6 +33,24 @@
             "type": "shell",
             "command": "if pkill -f '[h]ass --config'; then echo 'Home Assistant wird beendet ...'; while pgrep -f '[h]ass --config' > /dev/null; do sleep 0.5; done; fi; scripts/develop",
             "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "mockResponse",
+            "type": "pickString",
+            "description": "API response from tests/fixtures",
+            "options": [
+                "response_modified.json",
+                "response_modified_error_521.json",
+                "response_modified_po_dual.json",
+                "response_modified_po_plus.json",
+                "response_modified_po_plus_feature.json",
+                "response_modified_dcfit_2025.json",
+                "response_synthetic_heating_rod.json",
+                "response_synthetic_heating_rod_dual.json"
+            ],
+            "default": "response_modified_po_dual.json"
         }
     ]
 }
