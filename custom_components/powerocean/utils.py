@@ -37,6 +37,7 @@ class ReportMode(Enum):
     EMS = "EMS_HEARTBEAT"
     PARALLEL = "PARALLEL_ENERGY_STREAM_REPORT"
     EMS_CHANGE = "EMS_CHANGE_REPORT"
+    EMS_PARAM_CHANGE = "EMS_PARAM_CHANGE_REPORT"
     EMS_STATE_CHANGE = "EMS_STATE_CHANGE_REPORT"
     ENERGY_STREAM = "ENERGY_STREAM_REPORT"
     ERROR = "ERROR_CHANGE_REPORT"
@@ -116,6 +117,14 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "pcsUvp2ProtectCnt",
         "pcsOfpProtectCnt",
         "pcsUfpProtectCnt",
+        # Load management of the house connection (PowerOcean Plus)
+        "breakerCapacityMax",
+        "breakerEnableState",
+    },
+    ReportMode.EMS_PARAM_CHANGE.value: {
+        # Load management of the house connection
+        "breakerCapacityMax",
+        "breakerEnableState",
     },
     ReportMode.BATTERY.value: {
         "bpSn",

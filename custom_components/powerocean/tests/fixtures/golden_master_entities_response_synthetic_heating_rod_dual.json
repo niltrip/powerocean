@@ -1159,6 +1159,19 @@
       "state_class": "measurement",
       "unit_of_measurement": "W"
     },
+    "SN_INVERTERBOX01_JTS1_EMS_PARAM_CHANGE_REPORT_breakerCapacityMax": {
+      "device": "PowerOcean",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox01_breakercapacitymax",
+      "icon": null,
+      "original_name": "breakerCapacityMax",
+      "product_description": "breakerCapacityMax",
+      "product_serial": "SN_INVERTERBOX01",
+      "state": "120",
+      "state_class": null,
+      "unit_of_measurement": null
+    },
     "SN_INVERTERBOX01_JTS1_ERROR_CHANGE_REPORT_errorCount": {
       "device": "PowerOcean",
       "device_class": null,
@@ -2484,6 +2497,19 @@
       "state": "-11.216274",
       "state_class": "measurement",
       "unit_of_measurement": "W"
+    },
+    "SN_INVERTERBOX02_JTS1_EMS_PARAM_CHANGE_REPORT_breakerCapacityMax": {
+      "device": "PowerOcean SN_INVERTERBOX02",
+      "device_class": null,
+      "entity_category": "diagnostic",
+      "entity_id": "sensor.powerocean_sn_inverterbox02_breakercapacitymax",
+      "icon": null,
+      "original_name": "breakerCapacityMax",
+      "product_description": "breakerCapacityMax",
+      "product_serial": "SN_INVERTERBOX02",
+      "state": "120",
+      "state_class": null,
+      "unit_of_measurement": null
     },
     "SN_INVERTERBOX02_JTS1_ERROR_CHANGE_REPORT_errorCount": {
       "device": "PowerOcean SN_INVERTERBOX02",

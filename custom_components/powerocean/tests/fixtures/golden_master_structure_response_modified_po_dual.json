@@ -1397,6 +1397,23 @@
       ]
     }
   },
+  "SN_INVERTERBOX01_JTS1_EMS_PARAM_CHANGE_REPORT_breakerCapacityMax": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "breakerCapacityMax",
+      "friendly_name": "breakerCapacityMax",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_PARAM_CHANGE_REPORT_breakerCapacityMax",
+      "name": "SN_INVERTERBOX01_breakerCapacityMax",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
   "SN_INVERTERBOX01_JTS1_ERROR_CHANGE_REPORT_errorCount": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -3468,6 +3485,23 @@
         "W",
         "measurement"
       ]
+    }
+  },
+  "SN_INVERTERBOX02_JTS1_EMS_PARAM_CHANGE_REPORT_breakerCapacityMax": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX02",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "breakerCapacityMax",
+      "friendly_name": "breakerCapacityMax",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX02_JTS1_EMS_PARAM_CHANGE_REPORT_breakerCapacityMax",
+      "name": "SN_INVERTERBOX02_breakerCapacityMax",
+      "serial": "SN_INVERTERBOX02",
+      "unit": null
     }
   },
   "SN_INVERTERBOX02_JTS1_ERROR_CHANGE_REPORT_errorCount": {
