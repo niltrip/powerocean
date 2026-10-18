@@ -254,7 +254,7 @@
       "device_class": "battery",
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_bpsoc",
-      "icon": "mdi:battery",
+      "icon": null,
       "original_name": "bpSoc",
       "product_description": "Ladezustand der Batterie",
       "product_serial": "SN_INVERTERBOX01",

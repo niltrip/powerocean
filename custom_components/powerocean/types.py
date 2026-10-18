@@ -314,9 +314,60 @@ class SensorMetaHelper:
         # Use .get() to avoid KeyErrors and return default value
         return description_mapping.get(key, key)  # Default to key if not found
 
+    # Icons of single keys; checked first. None: the icon of the device class,
+    # e.g. the battery level icon that shows how full the battery is.
+    _KEY_ICONS: ClassVar[dict[str, str | None]] = {
+        "bpSoc": None,
+        "bpRealSoc": None,
+        "emsWordMode": "mdi:cog-outline",
+        "pcsRunSta": "mdi:state-machine",
+        "sysGridSta": "mdi:transmission-tower",
+        "pcsAcFreq": "mdi:sine-wave",
+        "sysBatChgUpLimit": "mdi:battery-arrow-up",
+        "sysBatDsgDownLimit": "mdi:battery-arrow-down",
+        "emsKeepSoc": "mdi:battery-lock",
+        "sysBatBackupRatio": "mdi:battery-lock",
+        **dict.fromkeys(
+            ("pcsActivePowerLimitUp", "pcsActivePowerLimitDn"), "mdi:speedometer"
+        ),
+        **dict.fromkeys(
+            ("batteryLimitReason", "pcsPowerDeratingFlag", "pcsPowerDeratingSet"),
+            "mdi:speedometer-slow",
+        ),
+        **dict.fromkeys(
+            ("emsFeedMode", "emsFeedPwr", "emsFeedRatio"),
+            "mdi:transmission-tower-export",
+        ),
+        **dict.fromkeys(("breakerCapacityMax", "breakerEnableState"), "mdi:fuse"),
+        **dict.fromkeys(
+            ("sys14aEnable", "sys14aType", "relay14a"), "mdi:transmission-tower-off"
+        ),
+        **dict.fromkeys(("emsSgReadyEn", "emsSgRunStat"), "mdi:heat-pump"),
+        "wifiStaStat": "mdi:wifi",
+        "ethWanStat": "mdi:ethernet",
+        "iot4gSta": "mdi:signal",
+        **dict.fromkeys(
+            (
+                "pcsOvpProtectCnt",
+                "pcsAvgOvpProtectCnt",
+                "pcsUvp1ProtectCnt",
+                "pcsUvp2ProtectCnt",
+                "pcsOfpProtectCnt",
+                "pcsUfpProtectCnt",
+            ),
+            "mdi:shield-alert-outline",
+        ),
+        **dict.fromkeys(
+            ("meterL1Pwr", "meterL2Pwr", "meterL3Pwr", "meterTotalPwr"),
+            "mdi:meter-electric",
+        ),
+    }
+
     @staticmethod
     def get_special_icon(key: str) -> str | None:
         """Infer a Home Assistant icon from key semantics (generisch)."""
+        if key in SensorMetaHelper._KEY_ICONS:
+            return SensorMetaHelper._KEY_ICONS[key]
         k = key.lower()
         keyword_icons = [
             # Status / Diagnose

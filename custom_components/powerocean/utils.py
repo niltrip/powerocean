@@ -327,6 +327,21 @@ DIAGNOSTIC_KEYS: set[str] = {
     # State of health of the battery packs
     "bpSoh",
     "bpRealSoh",
+    # Cell voltages of the battery packs
+    "bpCellMaxVol",
+    "bpCellMinVol",
+    # Grid frequency and inverter temperature
+    "pcsAcFreq",
+    "emsNtcTempMax",
+    # Limits and settings
+    "pcsActivePowerLimitUp",
+    "pcsActivePowerLimitDn",
+    "emsFeedPwr",
+    "emsFeedRatio",
+    "emsKeepSoc",
+    "sysBatBackupRatio",
+    "sysBatChgUpLimit",
+    "sysBatDsgDownLimit",
 }
 
 # Entities of these keys are created disabled; users can enable them.
@@ -341,6 +356,10 @@ DISABLED_BY_DEFAULT: set[str] = {
     "relay14a",
     "emsSgRunStat",
     "pcsPowerDeratingSet",
+    # Settings that hardly ever change
+    "emsFeedRatio",
+    "emsKeepSoc",
+    "sysBatBackupRatio",
     # Internal battery values
     "bpMaxMosTemp",
     "bpMinMosTemp",
