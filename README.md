@@ -69,7 +69,9 @@ errors:
 
 Cause and solution are only available in the [EcoFlow web portal](https://user-portal.ecoflow.com/); the attribute `error_details` points there. The link "Visit" on the device page opens the portal as well.
 
-<!-- Screenshot: documentation/error_sensor.png (sensor errorCount with its attributes; black out serial numbers) -->
+Since Home Assistant 2026.2 the dialog of a sensor no longer lists its attributes; open them via ⋮ → Details:
+
+![sensor errorCount with its attributes](documentation/error_sensor.png)
 
 ### Which values update, and which do not
 
