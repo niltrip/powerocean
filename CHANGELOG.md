@@ -41,12 +41,15 @@
 
 ### Changed
 
-- Rarely needed sensors are disabled by default (connection codes, error and
-  warning codes of inverter and PV strings, protection counters, states
-  without known meaning, internal battery temperatures, settings that hardly
-  ever change, reactive and apparent power per phase, PV strings the system
-  does not have). This applies to new installations; existing entities keep
-  their state. You can enable them under *Settings → Entities*.
+- **Fewer diagnostic sensors.** Rarely needed sensors are disabled by default
+  (connection codes, error and warning codes of inverter and PV strings,
+  protection counters, states without known meaning, internal battery
+  temperatures, settings that hardly ever change, reactive and apparent power
+  per phase, PV strings the system does not have). You can enable them under
+  *Settings → Entities*.
+  - **If you update:** sensors you already have stay as they are, nothing
+    disappears. Sensors added with this version arrive disabled.
+  - **New installations:** all of these sensors start disabled.
 - Percentages are shown without decimals, insulation resistance with one.
   Stored values keep their full precision.
 - Battery state of charge shows the battery level icon.
