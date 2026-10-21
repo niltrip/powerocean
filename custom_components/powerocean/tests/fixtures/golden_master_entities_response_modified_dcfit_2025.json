@@ -939,13 +939,14 @@
     "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_energyStreamUpdateTime": {
       "device": "PowerOcean",
       "device_class": "timestamp",
+      "disabled_by": "integration",
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_energystreamupdatetime",
       "icon": null,
       "original_name": "energyStreamUpdateTime",
-      "product_description": "energyStreamUpdateTime",
-      "product_serial": "SN_INVERTERBOX01",
-      "state": "2025-01-12T17:55:08+00:00",
+      "product_description": null,
+      "product_serial": null,
+      "state": null,
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -1076,13 +1077,14 @@
     "SN_INVERTERBOX01_systemName": {
       "device": "PowerOcean",
       "device_class": null,
+      "disabled_by": "integration",
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_systemname",
       "icon": "mdi:label-outline",
       "original_name": "systemName",
-      "product_description": "System Name",
-      "product_serial": "SN_INVERTERBOX01",
-      "state": "systemName",
+      "product_description": null,
+      "product_serial": null,
+      "state": null,
       "state_class": null,
       "unit_of_measurement": null
     }

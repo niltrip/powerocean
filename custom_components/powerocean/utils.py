@@ -393,13 +393,52 @@ TRANSLATED_STATES: set[str] = {
 }
 
 # Entities of these keys are created disabled; users can enable them.
-# Only for keys added later: existing entities keep their state anyway.
+# Applies to new entities only: existing ones keep their state.
 DISABLED_BY_DEFAULT: set[str] = {
+    # Protection counters, so far always 0
+    "pcsAvgOvpProtectCnt",
+    "pcsOfpProtectCnt",
+    "pcsOvpProtectCnt",
+    "pcsUfpProtectCnt",
+    "pcsUvp1ProtectCnt",
+    "pcsUvp2ProtectCnt",
+    # Error and warning codes: active errors are shown by errorCount
+    "pcsAcErrCode",
+    "pcsDcErrCode",
+    "pcsAcWarningCode",
+    *(f"mppt{n}FaultCode" for n in range(1, 5)),
+    *(f"mppt{n}WarningCode" for n in range(1, 5)),
+    # States without known meaning or always the same
+    "emsBpSelfcheckState",
+    "emsMpptSelfcheckState",
+    "emsMpptRunState",
+    *(f"mpptPv{n}_lightSta" for n in range(1, 5)),
+    "sysGridSta",
+    "batteryLimitReason",
+    "pcsPowerDeratingFlag",
+    # Settings that hardly ever change
+    "breakerCapacityMax",
+    "breakerEnableState",
+    "pcsActivePowerLimitUp",
+    "pcsActivePowerLimitDn",
+    "emsFeedMode",
+    "emsCtrlLedBright",
+    # Details: reactive and apparent power of each phase
+    *(f"pcs{phase}Phase_reactPwr" for phase in "ABC"),
+    *(f"pcs{phase}Phase_apparentPwr" for phase in "ABC"),
+    # Same as bpOnlineSum
+    "emsBpAliveNum",
+    "systemName",
+    # One time of the last values is enough: heartbeatUpdateTime
+    "emsChangeUpdateTime",
+    "energyStreamUpdateTime",
     # Connection codes without known meaning
     "wifiStaStat",
     "ethWanStat",
     "iot4gSta",
     # Only of interest with §14a EnWG or an SG Ready heat pump
+    "sys14aEnable",
+    "emsSgReadyEn",
     "sys14aType",
     "relay14a",
     "emsSgRunStat",
