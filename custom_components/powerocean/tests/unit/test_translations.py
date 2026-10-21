@@ -71,5 +71,5 @@ async def test_home_assistant_loads_the_states(
 
     texts = await async_get_translations(hass, "de", "entity", {"powerocean"})
     prefix = "component.powerocean.entity.sensor"
-    assert texts[f"{prefix}.ems_word_mode.state.workmode_selfuse"] == "Eigenbedarf"
+    assert texts[f"{prefix}.ems_word_mode.state.workmode_selfuse"] == "Eigenstromversorgung"
     assert texts[f"{prefix}.pcs_run_sta.state.runsta_stop"] == "Gestoppt"

@@ -75,7 +75,7 @@
         "sensor": {
             "ems_word_mode": {
                 "state": {
-                    "workmode_selfuse": "Eigenbedarf"
+                    "workmode_selfuse": "Eigenstromversorgung"
                 }
             },
             "pcs_run_sta": {
