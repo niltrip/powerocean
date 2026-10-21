@@ -1,34 +1,6 @@
 {
   "entity": {
     "sensor": {
-      "mppt1_fault_code": {
-        "default": "mdi:solar-panel",
-        "state": {
-          "0": "mdi:weather-sunny",
-          "2": "mdi:weather-night"
-        }
-      },
-      "mppt2_fault_code": {
-        "default": "mdi:solar-panel",
-        "state": {
-          "0": "mdi:weather-sunny",
-          "2": "mdi:weather-night"
-        }
-      },
-      "mppt3_fault_code": {
-        "default": "mdi:solar-panel",
-        "state": {
-          "0": "mdi:weather-sunny",
-          "2": "mdi:weather-night"
-        }
-      },
-      "mppt4_fault_code": {
-        "default": "mdi:solar-panel",
-        "state": {
-          "0": "mdi:weather-sunny",
-          "2": "mdi:weather-night"
-        }
-      },
       "pcs_run_sta": {
         "default": "mdi:state-machine",
         "state": {

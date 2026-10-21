@@ -135,30 +135,6 @@
                     "sleep_state": "Sleep"
                 }
             },
-            "mppt1_fault_code": {
-                "state": {
-                    "0": "Producing",
-                    "2": "Not producing"
-                }
-            },
-            "mppt2_fault_code": {
-                "state": {
-                    "0": "Producing",
-                    "2": "Not producing"
-                }
-            },
-            "mppt3_fault_code": {
-                "state": {
-                    "0": "Producing",
-                    "2": "Not producing"
-                }
-            },
-            "mppt4_fault_code": {
-                "state": {
-                    "0": "Producing",
-                    "2": "Not producing"
-                }
-            },
             "online": {
                 "state": {
                     "1": "Online",

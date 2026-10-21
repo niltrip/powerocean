@@ -388,8 +388,6 @@ TRANSLATED_STATES: set[str] = {
     "bmsChgDsgSta",
     "bmsRunSta",
     "bpSysState",
-    # PV strings: 0 producing, 2 not producing; not an error (state stays "0"/"2")
-    *(f"mppt{n}FaultCode" for n in range(1, 5)),
     # Online/Offline (state stays "1"/"0")
     "online",
 }

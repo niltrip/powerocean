@@ -1987,9 +1987,9 @@
       "via_device": null
     },
     "sensors": {
-      "description": "PV-String 1: 0 = erzeugt, 2 = erzeugt nicht (kein Fehler)",
+      "description": "Fehlercode PV-String 1 (Bedeutung nicht ver\u00f6ffentlicht; nachts meist 2)",
       "friendly_name": "mppt1FaultCode",
-      "icon": null,
+      "icon": "mdi:alert-circle-outline",
       "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt1FaultCode",
       "name": "SN_INVERTERBOX01_mppt1FaultCode",
       "serial": "SN_INVERTERBOX01",
@@ -2021,9 +2021,9 @@
       "via_device": null
     },
     "sensors": {
-      "description": "PV-String 2: 0 = erzeugt, 2 = erzeugt nicht (kein Fehler)",
+      "description": "Fehlercode PV-String 2 (Bedeutung nicht ver\u00f6ffentlicht; nachts meist 2)",
       "friendly_name": "mppt2FaultCode",
-      "icon": null,
+      "icon": "mdi:alert-circle-outline",
       "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt2FaultCode",
       "name": "SN_INVERTERBOX01_mppt2FaultCode",
       "serial": "SN_INVERTERBOX01",
@@ -2055,9 +2055,9 @@
       "via_device": null
     },
     "sensors": {
-      "description": "PV-String 3: 0 = erzeugt, 2 = erzeugt nicht (kein Fehler)",
+      "description": "Fehlercode PV-String 3 (Bedeutung nicht ver\u00f6ffentlicht; nachts meist 2)",
       "friendly_name": "mppt3FaultCode",
-      "icon": null,
+      "icon": "mdi:alert-circle-outline",
       "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_mppt3FaultCode",
       "name": "SN_INVERTERBOX01_mppt3FaultCode",
       "serial": "SN_INVERTERBOX01",
