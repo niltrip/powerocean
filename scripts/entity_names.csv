@@ -28,17 +28,22 @@ group;key;context;en;de;note
 Übersicht;energyStreamUpdateTime;;Last update energy flow;Letzte Aktualisierung Energiefluss;
 Übersicht;emsChangeUpdateTime;;Last update status;Letzte Aktualisierung Status;
 Übersicht;dcdcPwr;;DC-DC power;DC-DC-Leistung;Bedeutung geraten
-Dual: je Wechselrichter;sysLoadPwr;inverter;House consumption;Hausverbrauch;Energiefluss je Wechselrichter, ohne berechnetes Gegenstück
-Dual: je Wechselrichter;sysGridPwr;inverter;Grid power;Netzleistung;Energiefluss je Wechselrichter, ohne berechnetes Gegenstück
-Dual: je Wechselrichter;mpptPwr;inverter;Solar power;Solarleistung;Energiefluss je Wechselrichter, ohne berechnetes Gegenstück
-Dual: je Wechselrichter;bpPwr;inverter;Battery power;Batterieleistung;Energiefluss je Wechselrichter, ohne berechnetes Gegenstück
-Energiefluss-Report;pv1Pwr;;PV 1 power (energy flow);PV 1 Leistung (Energiefluss);
-Energiefluss-Report;pv2Pwr;;PV 2 power (energy flow);PV 2 Leistung (Energiefluss);
-Energiefluss-Report;pv3Pwr;;PV 3 power (energy flow);PV 3 Leistung (Energiefluss);
-Energiefluss-Report;pvInvPwr;;Second PV inverter power;Leistung zweiter PV-Wechselrichter;
-Energiefluss-Report;otherPvPwr;;Other PV power;Sonstige PV-Leistung;
-Energiefluss-Report;gridPwr;;Grid power (energy flow);Netzleistung (Energiefluss);
-Energiefluss-Report;loadPwr;;House consumption (energy flow);Hausverbrauch (Energiefluss);
+Dual: je Wechselrichter;sysLoadPwr;inverter;House consumption (energy flow);Hausverbrauch (Energiefluss);Parallel-Report je Wechselrichter, wird laut #23 regelmäßig aktualisiert
+Dual: je Wechselrichter;sysGridPwr;inverter;Grid power (energy flow);Netzleistung (Energiefluss);Parallel-Report je Wechselrichter, wird laut #23 regelmäßig aktualisiert
+Dual: je Wechselrichter;mpptPwr;inverter;Solar power (energy flow);Solarleistung (Energiefluss);Parallel-Report je Wechselrichter, wird laut #23 regelmäßig aktualisiert
+Dual: je Wechselrichter;bpPwr;inverter;Battery power (energy flow);Batterieleistung (Energiefluss);Parallel-Report je Wechselrichter, wird laut #23 regelmäßig aktualisiert
+Dual: je Wechselrichter;bpSoc;inverter;Battery state of charge (energy flow);Batterie-Ladezustand (Energiefluss);Parallel-Report je Wechselrichter, wird laut #23 regelmäßig aktualisiert, 999 = keine Batterie
+Dual: je Wechselrichter;pv1Pwr;inverter;PV 1 power (energy flow);PV 1 Leistung (Energiefluss);Parallel-Report je Wechselrichter, wird laut #23 regelmäßig aktualisiert
+Dual: je Wechselrichter;pv2Pwr;inverter;PV 2 power (energy flow);PV 2 Leistung (Energiefluss);Parallel-Report je Wechselrichter, wird laut #23 regelmäßig aktualisiert
+Dual: je Wechselrichter;pv3Pwr;inverter;PV 3 power (energy flow);PV 3 Leistung (Energiefluss);Parallel-Report je Wechselrichter, wird laut #23 regelmäßig aktualisiert
+Dual: je Wechselrichter;pvInvPwr;inverter;Second PV inverter power (energy flow);Leistung zweiter PV-Wechselrichter (Energiefluss);Parallel-Report je Wechselrichter, wird laut #23 regelmäßig aktualisiert
+Energiefluss-Report;pv1Pwr;;PV 1 power (cloud);PV 1 Leistung (Cloud);nur bei offener App aktuell
+Energiefluss-Report;pv2Pwr;;PV 2 power (cloud);PV 2 Leistung (Cloud);nur bei offener App aktuell
+Energiefluss-Report;pv3Pwr;;PV 3 power (cloud);PV 3 Leistung (Cloud);nur bei offener App aktuell
+Energiefluss-Report;pvInvPwr;;Second PV inverter power (cloud);Leistung zweiter PV-Wechselrichter (Cloud);nur bei offener App aktuell
+Energiefluss-Report;otherPvPwr;;Other PV power (cloud);Sonstige PV-Leistung (Cloud);nur bei offener App aktuell
+Energiefluss-Report;gridPwr;;Grid power (cloud energy flow);Netzleistung (Cloud-Energiefluss);nur bei offener App aktuell, DC Fit hat zusätzlich sysGridPwr
+Energiefluss-Report;loadPwr;;House consumption (cloud energy flow);Hausverbrauch (Cloud-Energiefluss);nur bei offener App aktuell, DC Fit hat zusätzlich sysLoadPwr
 Heartbeat;pcsActPwr;;Inverter power;Wechselrichterleistung;
 Heartbeat;pcsMeterPower;;Grid power (meter);Netzleistung (Zähler);
 Heartbeat;emsBpPower;;Battery power;Batterieleistung;
