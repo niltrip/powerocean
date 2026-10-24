@@ -114,6 +114,11 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
     @property
+    def suggested_object_id(self) -> str | None:
+        """Return the key, so entity IDs do not depend on the name."""
+        return self._endpoint_friendly_name
+
+    @property
     def native_value(self) -> Any:
         """Return the current value of the sensor from coordinator."""
         value = self.coordinator.data.get(self._endpoint_id)
