@@ -38,6 +38,9 @@
 - **Translated states** (English, German) for operating mode, inverter and
   battery states and on/off values. Unknown values are shown as they are.
 - **Link to the EcoFlow web portal** on every device page.
+- **Devices that are gone can be deleted**, e.g. a replaced battery pack:
+  *device page → ⋮ → Delete*. Only possible while the device sends no
+  values. If it returns, it is added again.
 
 ### Changed
 
