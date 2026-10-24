@@ -9,10 +9,10 @@ group;key;context;en;de;note
 Übersicht;solarToBattery;;Solar to battery;Solar zu Batterie;
 Übersicht;solarToGrid;;Solar to grid;Solar zu Netz;
 Übersicht;solarToHouse;;Solar to house;Solar zu Haus;
-Übersicht;sysLoadPwr;;House consumption (summary);Hausverbrauch (Übersicht);Cloud-Übersicht
-Übersicht;sysGridPwr;;Grid power (summary);Netzleistung (Übersicht);Cloud-Übersicht
-Übersicht;mpptPwr;;Solar power (summary);Solarleistung (Übersicht);Cloud-Übersicht
-Übersicht;bpPwr;;Battery power (summary);Batterieleistung (Übersicht);Cloud-Übersicht
+Übersicht;sysLoadPwr;;House consumption (cloud);Hausverbrauch (Cloud);nur bei offener App aktuell, berechneter Wert bevorzugt
+Übersicht;sysGridPwr;;Grid power (cloud);Netzleistung (Cloud);nur bei offener App aktuell, berechneter Wert bevorzugt
+Übersicht;mpptPwr;;Solar power (cloud);Solarleistung (Cloud);nur bei offener App aktuell, berechneter Wert bevorzugt
+Übersicht;bpPwr;;Battery power (cloud);Batterieleistung (Cloud);nur bei offener App aktuell
 Übersicht;bpSoc;;Battery state of charge;Batterie-Ladezustand;
 Übersicht;bpRemainWatth;;Battery remaining energy;Batterie-Restenergie;
 Übersicht;bpTotalChgEnergy;;Battery charged energy;Batterie geladen gesamt;
@@ -43,7 +43,7 @@ Heartbeat;pcsActPwr;;Inverter power;Wechselrichterleistung;
 Heartbeat;pcsMeterPower;;Grid power (meter);Netzleistung (Zähler);
 Heartbeat;emsBpPower;;Battery power;Batterieleistung;
 Heartbeat;pcsAcFreq;;Grid frequency;Netzfrequenz;
-Heartbeat;emsNtcTempMax;;Inverter temperature;Wechselrichtertemperatur;
+Heartbeat;emsNtcTempMax;;Highest inverter temperature;Höchste Wechselrichtertemperatur;höchster Wert mehrerer NTC-Fühler
 Heartbeat;pcsActivePowerLimitUp;;Power limit charge;Leistungsgrenze Laden;Bedeutung geraten
 Heartbeat;pcsActivePowerLimitDn;;Power limit discharge;Leistungsgrenze Entladen;Bedeutung geraten
 Heartbeat;pcsAPhase_vol;;L1 voltage;L1 Spannung;
@@ -96,7 +96,7 @@ Status und Einstellungen;sysBatDsgDownLimit;;Discharge limit;Entladegrenze;
 Status und Einstellungen;batteryLimitReason;;Battery limit reason;Grund der Batteriebegrenzung;
 Status und Einstellungen;pcsPowerDeratingFlag;;Power derating;Leistungsreduzierung;
 Status und Einstellungen;pcsPowerDeratingSet;;Power derating setting;Leistungsreduzierung (Einstellung);
-Status und Einstellungen;sys14aEnable;;§14a enabled;§14a aktiv;
+Status und Einstellungen;sys14aEnable;;§14a control enabled;§14a-Steuerung aktiv;
 Status und Einstellungen;sys14aType;;§14a type;§14a-Typ;
 Status und Einstellungen;relay14a;;§14a relay;§14a-Relais;
 Status und Einstellungen;emsSgReadyEn;;SG Ready enabled;SG Ready aktiv;
