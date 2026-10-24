@@ -97,8 +97,8 @@ Status und Einstellungen;batteryLimitReason;;Battery limit reason;Grund der Batt
 Status und Einstellungen;pcsPowerDeratingFlag;;Power derating;Leistungsreduzierung;
 Status und Einstellungen;pcsPowerDeratingSet;;Power derating setting;Leistungsreduzierung (Einstellung);
 Status und Einstellungen;sys14aEnable;;§14a control enabled;§14a-Steuerung aktiv;
-Status und Einstellungen;sys14aType;;§14a type;§14a-Typ;
-Status und Einstellungen;relay14a;;§14a relay;§14a-Relais;
+Status und Einstellungen;sys14aType;;§14a mode;§14a-Modus;Bedeutung unbekannt
+Status und Einstellungen;relay14a;;§14a input;§14a-Eingang;Bedeutung unbekannt
 Status und Einstellungen;emsSgReadyEn;;SG Ready enabled;SG Ready aktiv;
 Status und Einstellungen;emsSgRunStat;;SG Ready state;SG-Ready-Zustand;
 Status und Einstellungen;breakerEnableState;;Load management;Lastmanagement;
