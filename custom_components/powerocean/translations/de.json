@@ -149,7 +149,7 @@
                 "name": "Batterie entladen heute"
             },
             "bp_pwr": {
-                "name": "Batterieleistung (Übersicht)"
+                "name": "Batterieleistung (Cloud)"
             },
             "bp_pwr_inverter": {
                 "name": "Batterieleistung"
@@ -261,7 +261,7 @@
                 "name": "MPPT-Selbsttest"
             },
             "ems_ntc_temp_max": {
-                "name": "Wechselrichtertemperatur"
+                "name": "Höchste Wechselrichtertemperatur"
             },
             "ems_sg_ready_en": {
                 "name": "SG Ready aktiv",
@@ -442,7 +442,7 @@
                 "name": "Solarleistung"
             },
             "mppt_pwr": {
-                "name": "Solarleistung (Übersicht)"
+                "name": "Solarleistung (Cloud)"
             },
             "mppt_pwr_inverter": {
                 "name": "Solarleistung"
@@ -595,7 +595,7 @@
                 "name": "Entladen ab Leistung"
             },
             "sys14a_enable": {
-                "name": "§14a aktiv",
+                "name": "§14a-Steuerung aktiv",
                 "state": {
                     "true": "An",
                     "false": "Aus"
@@ -614,7 +614,7 @@
                 "name": "Entladegrenze"
             },
             "sys_grid_pwr": {
-                "name": "Netzleistung (Übersicht)"
+                "name": "Netzleistung (Cloud)"
             },
             "sys_grid_pwr_inverter": {
                 "name": "Netzleistung"
@@ -623,7 +623,7 @@
                 "name": "Netzstatus"
             },
             "sys_load_pwr": {
-                "name": "Hausverbrauch (Übersicht)"
+                "name": "Hausverbrauch (Cloud)"
             },
             "sys_load_pwr_inverter": {
                 "name": "Hausverbrauch"

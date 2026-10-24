@@ -149,7 +149,7 @@
                 "name": "Battery discharged today"
             },
             "bp_pwr": {
-                "name": "Battery power (summary)"
+                "name": "Battery power (cloud)"
             },
             "bp_pwr_inverter": {
                 "name": "Battery power"
@@ -261,7 +261,7 @@
                 "name": "MPPT self-test"
             },
             "ems_ntc_temp_max": {
-                "name": "Inverter temperature"
+                "name": "Highest inverter temperature"
             },
             "ems_sg_ready_en": {
                 "name": "SG Ready enabled",
@@ -442,7 +442,7 @@
                 "name": "Solar power"
             },
             "mppt_pwr": {
-                "name": "Solar power (summary)"
+                "name": "Solar power (cloud)"
             },
             "mppt_pwr_inverter": {
                 "name": "Solar power"
@@ -595,7 +595,7 @@
                 "name": "Discharge start power"
             },
             "sys14a_enable": {
-                "name": "§14a enabled",
+                "name": "§14a control enabled",
                 "state": {
                     "true": "On",
                     "false": "Off"
@@ -614,7 +614,7 @@
                 "name": "Discharge limit"
             },
             "sys_grid_pwr": {
-                "name": "Grid power (summary)"
+                "name": "Grid power (cloud)"
             },
             "sys_grid_pwr_inverter": {
                 "name": "Grid power"
@@ -623,7 +623,7 @@
                 "name": "Grid state"
             },
             "sys_load_pwr": {
-                "name": "House consumption (summary)"
+                "name": "House consumption (cloud)"
             },
             "sys_load_pwr_inverter": {
                 "name": "House consumption"
