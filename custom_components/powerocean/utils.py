@@ -37,6 +37,7 @@ class ReportMode(Enum):
     EMS = "EMS_HEARTBEAT"
     PARALLEL = "PARALLEL_ENERGY_STREAM_REPORT"
     EMS_CHANGE = "EMS_CHANGE_REPORT"
+    EMS_PARAM_CHANGE = "EMS_PARAM_CHANGE_REPORT"
     EMS_STATE_CHANGE = "EMS_STATE_CHANGE_REPORT"
     ENERGY_STREAM = "ENERGY_STREAM_REPORT"
     ERROR = "ERROR_CHANGE_REPORT"
@@ -55,6 +56,10 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "yearElectricityGeneration",
         "totalElectricityGeneration",
         "systemName",
+        # Charge and discharge limit of the battery in %, as set in the app
+        "sysBatChgUpLimit",
+        "sysBatDsgDownLimit",
+        "sysGridSta",
     },
     ReportMode.ENERGY_STREAM.value: {
         "pv1Pwr",
@@ -79,6 +84,47 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "mppt2WarningCode",
         "mppt3FaultCode",
         "mppt3WarningCode",
+        # Operating state
+        "emsWordMode",
+        "pcsRunSta",
+        "batteryLimitReason",
+        "pcsPowerDeratingFlag",
+        "pcsPowerDeratingSet",
+        # Feed-in limit and backup reserve
+        "emsFeedMode",
+        "emsFeedPwr",
+        "emsFeedRatio",
+        "emsKeepSoc",
+        "sysBatBackupRatio",
+        # Controllable consumers (German §14a EnWG) and SG Ready heat pump
+        "sys14aEnable",
+        "sys14aType",
+        "relay14a",
+        "emsSgReadyEn",
+        "emsSgRunStat",
+        # Connection: Wi-Fi, Ethernet, 4G
+        "wifiStaStat",
+        "ethWanStat",
+        "iot4gSta",
+        # Error and warning codes of the inverter
+        "pcsAcErrCode",
+        "pcsDcErrCode",
+        "pcsAcWarningCode",
+        # How often the grid protection tripped (voltage, frequency)
+        "pcsOvpProtectCnt",
+        "pcsAvgOvpProtectCnt",
+        "pcsUvp1ProtectCnt",
+        "pcsUvp2ProtectCnt",
+        "pcsOfpProtectCnt",
+        "pcsUfpProtectCnt",
+        # Load management of the house connection (PowerOcean Plus)
+        "breakerCapacityMax",
+        "breakerEnableState",
+    },
+    ReportMode.EMS_PARAM_CHANGE.value: {
+        # Load management of the house connection
+        "breakerCapacityMax",
+        "breakerEnableState",
     },
     ReportMode.BATTERY.value: {
         "bpSn",
@@ -99,6 +145,17 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "moduleAplSwVer",
         "bpAccuChgEnergy",
         "bpAccuDsgEnergy",
+        # Highest and lowest cell voltage in mV
+        "bpCellMaxVol",
+        "bpCellMinVol",
+        "bpRealSoh",
+        "bpRealSoc",
+        "bpMaxMosTemp",
+        "bpMinMosTemp",
+        "dabModSta",
+        "bpErrCode",
+        # Time of the battery's last values (Unix time)
+        "bpTimestamp",
     },
     ReportMode.EMS.value: {
         "bpRemainWatth",
@@ -175,6 +232,17 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "mpptVoltageMaximum",
         "gridFeedPowerMinimum",
         "epoSwitchState",
+        "pcsAcFreq",
+        # Smart meter (meterHeartBeat, meter type 11): power per phase and
+        # total in W, positive = from the grid
+        "meterL1Pwr",
+        "meterL2Pwr",
+        "meterL3Pwr",
+        "meterTotalPwr",
+        # Current power limit of the inverter (charge / discharge)
+        "pcsActivePowerLimitUp",
+        "pcsActivePowerLimitDn",
+        "emsNtcTempMax",
     },
     ReportMode.CHARGEBOX.value: {
         "evSn",
@@ -241,6 +309,151 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "socCur",
         "pclPwrBase",
     },
+}
+
+
+# Time of the last report, as a datapoint of the inverter. Shows how old
+# its values are; the key names the report, the value is its updateTime.
+UPDATE_TIME_KEYS: dict[str, str] = {
+    ReportMode.EMS.value: "heartbeatUpdateTime",
+    ReportMode.ENERGY_STREAM.value: "energyStreamUpdateTime",
+    # Sent on changes only, so it can be hours old (battery energy totals)
+    ReportMode.EMS_CHANGE.value: "emsChangeUpdateTime",
+}
+
+# Entities of these keys are shown under "Diagnostic", although they have
+# a unit (entities without a unit always are)
+DIAGNOSTIC_KEYS: set[str] = {
+    # State of health of the battery packs
+    "bpSoh",
+    "bpRealSoh",
+    # Cell voltages of the battery packs
+    "bpCellMaxVol",
+    "bpCellMinVol",
+    # Grid frequency and inverter temperature
+    "pcsAcFreq",
+    "emsNtcTempMax",
+    # Limits and settings
+    "pcsActivePowerLimitUp",
+    "pcsActivePowerLimitDn",
+    "emsFeedPwr",
+    "emsFeedRatio",
+    "emsKeepSoc",
+    "sysBatBackupRatio",
+    "sysBatChgUpLimit",
+    "sysBatDsgDownLimit",
+    # Values of the API that are also calculated from the heartbeat, which
+    # updates more often: see housePower, gridPower and mpptPv_pwrTotal
+    "sysLoadPwr",
+    "sysGridPwr",
+    "mpptPwr",
+    # Details of the inverter: shown elsewhere as overview or energy flow
+    "mpptInsResist",
+    "pcsActPwr",
+    "pcsMeterPower",
+    "emsBpPower",
+    "pv1Pwr",
+    "pv2Pwr",
+    "pv3Pwr",
+    "pvInvPwr",
+    "otherPvPwr",
+    # Details of the battery packs
+    "bpVol",
+    "bpAmp",
+    "bpEnvTemp",
+    "bpMaxCellTemp",
+    "bpMinCellTemp",
+}
+
+# ... and the keys matching these patterns (regular expressions)
+DIAGNOSTIC_PATTERNS: tuple[str, ...] = (
+    # Voltage, current and power of each phase
+    r"^pcs[ABC]Phase_",
+    # Voltage and current of each PV string (their power stays)
+    r"^mpptPv\d+_(vol|amp)$",
+)
+
+# Entities of these keys show translated states (translations/*.json,
+# entity.sensor.<key in snake_case>.state). Their state is the value in
+# lowercase, as Home Assistant requires for translated states; values
+# without a translation are shown as they are.
+TRANSLATED_STATES: set[str] = {
+    "emsWordMode",
+    "pcsRunSta",
+    "dabModSta",
+    "sys14aEnable",
+    "emsSgReadyEn",
+    "breakerEnableState",
+    # Battery packs (their state was the raw value before, e.g. PB_CHG_STATE)
+    "bmsChgDsgSta",
+    "bmsRunSta",
+    "bpSysState",
+    # Online/Offline (state stays "1"/"0")
+    "online",
+}
+
+# Entities of these keys are created disabled; users can enable them.
+# Applies to new entities only: existing ones keep their state.
+DISABLED_BY_DEFAULT: set[str] = {
+    # Protection counters, so far always 0
+    "pcsAvgOvpProtectCnt",
+    "pcsOfpProtectCnt",
+    "pcsOvpProtectCnt",
+    "pcsUfpProtectCnt",
+    "pcsUvp1ProtectCnt",
+    "pcsUvp2ProtectCnt",
+    # Error and warning codes: active errors are shown by errorCount
+    "pcsAcErrCode",
+    "pcsDcErrCode",
+    "pcsAcWarningCode",
+    *(f"mppt{n}FaultCode" for n in range(1, 5)),
+    *(f"mppt{n}WarningCode" for n in range(1, 5)),
+    # States without known meaning or always the same
+    "emsBpSelfcheckState",
+    "emsMpptSelfcheckState",
+    "emsMpptRunState",
+    *(f"mpptPv{n}_lightSta" for n in range(1, 5)),
+    "sysGridSta",
+    "batteryLimitReason",
+    "pcsPowerDeratingFlag",
+    # Settings that hardly ever change
+    "breakerCapacityMax",
+    "breakerEnableState",
+    "pcsActivePowerLimitUp",
+    "pcsActivePowerLimitDn",
+    "emsFeedMode",
+    "emsCtrlLedBright",
+    # Details: reactive and apparent power of each phase
+    *(f"pcs{phase}Phase_reactPwr" for phase in "ABC"),
+    *(f"pcs{phase}Phase_apparentPwr" for phase in "ABC"),
+    # Same as bpOnlineSum
+    "emsBpAliveNum",
+    "systemName",
+    # One time of the last values is enough: heartbeatUpdateTime
+    "emsChangeUpdateTime",
+    "energyStreamUpdateTime",
+    # Connection codes without known meaning
+    "wifiStaStat",
+    "ethWanStat",
+    "iot4gSta",
+    # Only of interest with §14a EnWG or an SG Ready heat pump
+    "sys14aEnable",
+    "emsSgReadyEn",
+    "sys14aType",
+    "relay14a",
+    "emsSgRunStat",
+    "pcsPowerDeratingSet",
+    # Second PV inverter: no hint in the response whether there is one
+    "pvInvPwr",
+    "otherPvPwr",
+    # Settings that hardly ever change
+    "emsFeedRatio",
+    "emsKeepSoc",
+    "sysBatBackupRatio",
+    # Internal battery values
+    "bpMaxMosTemp",
+    "bpMinMosTemp",
+    "bpRealSoc",
 }
 
 

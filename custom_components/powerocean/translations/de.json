@@ -70,5 +70,77 @@
         "missing_configuration": {
             "message": "Die Konfiguration ist unvollständig (Seriennummer oder Modell fehlt). Bitte das Gerät entfernen und neu hinzufügen."
         }
+    },
+    "entity": {
+        "sensor": {
+            "ems_word_mode": {
+                "state": {
+                    "workmode_selfuse": "Eigenstromversorgung"
+                }
+            },
+            "pcs_run_sta": {
+                "state": {
+                    "runsta_run": "Läuft",
+                    "runsta_stop": "Gestoppt",
+                    "runsta_standby": "Standby"
+                }
+            },
+            "dab_mod_sta": {
+                "state": {
+                    "pb_mod_sta_normal": "Normal",
+                    "pb_mod_sta_warnning": "Warnung",
+                    "pb_mod_sta_fault": "Fehler"
+                }
+            },
+            "sys14a_enable": {
+                "state": {
+                    "true": "An",
+                    "false": "Aus"
+                }
+            },
+            "ems_sg_ready_en": {
+                "state": {
+                    "true": "An",
+                    "false": "Aus"
+                }
+            },
+            "breaker_enable_state": {
+                "state": {
+                    "true": "An",
+                    "false": "Aus"
+                }
+            },
+            "bms_chg_dsg_sta": {
+                "state": {
+                    "pb_chg_state": "Laden",
+                    "pb_dsg_state": "Entladen",
+                    "pb_standby_state": "Standby"
+                }
+            },
+            "bms_run_sta": {
+                "state": {
+                    "pb_bms_state_chargeable": "Ladebereit",
+                    "pb_bms_state_normal": "Normal",
+                    "pb_bms_state_dischargeable": "Entladebereit",
+                    "pb_bms_state_shutdown": "Abgeschaltet",
+                    "pb_bms_state_fault": "Fehler"
+                }
+            },
+            "bp_sys_state": {
+                "state": {
+                    "normal_state": "Normal",
+                    "pre_power_on_state": "Startet",
+                    "cfm_power_on_state": "Eingeschaltet",
+                    "power_off_state": "Ausgeschaltet",
+                    "sleep_state": "Ruhezustand"
+                }
+            },
+            "online": {
+                "state": {
+                    "1": "Online",
+                    "0": "Offline"
+                }
+            }
+        }
     }
 }

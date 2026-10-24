@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from custom_components.powerocean.anonymize import REDACT_KEYS, REDACTED, Anonymizer
-from custom_components.powerocean.parser import EcoflowParser
+from custom_components.powerocean.tests.utils import parse_structure, parse_values
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 # (API response file, variant), as in the golden master tests
@@ -41,15 +41,12 @@ def test_parser_result_is_unchanged(fixture_file_name: str, variant: str) -> Non
     response = _load(fixture_file_name)
     anonymizer = Anonymizer(MAIN_SN)
     anonymized = anonymizer.anonymize(response)
-    parser = EcoflowParser(variant=variant, sn=MAIN_SN)
-    anon_parser = EcoflowParser(variant=variant, sn="SN_MAIN")
-
-    structure = parser.parse_structure(response)
-    anon_structure = anon_parser.parse_structure(anonymized)
+    structure = parse_structure(response, variant, MAIN_SN)
+    anon_structure = parse_structure(anonymized, variant, "SN_MAIN")
     assert {anonymizer.anonymize(uid) for uid in structure} == set(anon_structure)
 
-    values = parser.parse_values(response)
-    anon_values = anon_parser.parse_values(anonymized)
+    values = parse_values(response, variant, MAIN_SN)
+    anon_values = parse_values(anonymized, variant, "SN_MAIN")
     for uid, value in values.items():
         anon_uid = anonymizer.anonymize(uid)
         if any(uid.endswith(f"_{key}") for key in REDACT_KEYS):

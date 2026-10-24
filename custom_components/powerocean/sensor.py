@@ -5,15 +5,17 @@ This module defines the setup and management of PowerOcean sensor entities,
 including data fetching, entity registration, and periodic updates.
 """
 
+from datetime import UTC, datetime
 from typing import Any
 
 from homeassistant.components.sensor import (
+    SensorDeviceClass,
     SensorEntity,
 )
 from homeassistant.const import (
     EntityCategory,
 )
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
@@ -22,7 +24,7 @@ from homeassistant.helpers.update_coordinator import (
 
 from .const import PORTAL_URL
 from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
-from .types import PowerOceanEndPoint
+from .types import DISPLAY_PRECISION, PowerOceanEndPoint
 
 # Updates are fetched centrally by the coordinator
 PARALLEL_UPDATES = 0
@@ -41,7 +43,8 @@ async def async_setup_entry(
 
     This function is called by Home Assistant when a config entry
     is set up. It creates sensor entities for each endpoint and
-    registers them with Home Assistant.
+    registers them with Home Assistant. Endpoints that appear with a
+    later update (e.g. a battery that was offline) are added then.
 
     Args:
         hass: The Home Assistant instance.
@@ -53,13 +56,24 @@ async def async_setup_entry(
 
     """
     coordinator = entry.runtime_data
+    added: set[str] = set()
 
-    entities = [
-        PowerOceanSensor(coordinator, endpoint)
-        for endpoint in coordinator.endpoints.values()
-    ]
+    @callback
+    def _add_new_entities() -> None:
+        new = [
+            endpoint
+            for unique_id, endpoint in coordinator.endpoints.items()
+            if unique_id not in added
+        ]
+        if not new:
+            return
+        added.update(endpoint.internal_unique_id for endpoint in new)
+        async_add_entities(
+            [PowerOceanSensor(coordinator, endpoint) for endpoint in new]
+        )
 
-    async_add_entities(entities)
+    _add_new_entities()
+    entry.async_on_unload(coordinator.async_add_listener(_add_new_entities))
 
 
 class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
@@ -90,13 +104,32 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
         self._attr_unique_id = self._endpoint_id
         self._attr_name = self._endpoint_friendly_name
         self._attr_icon = self._endpoint_icon
-        if self._attr_native_unit_of_measurement is None:
+        self._attr_entity_registry_enabled_default = endpoint.enabled_default
+        # The name stays the key (_attr_name); the key only translates states
+        self._attr_translation_key = endpoint.translation_key
+        self._attr_suggested_display_precision = DISPLAY_PRECISION.get(
+            self._attr_native_unit_of_measurement
+        )
+        if self._attr_native_unit_of_measurement is None or endpoint.diagnostic:
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
     @property
     def native_value(self) -> Any:
         """Return the current value of the sensor from coordinator."""
-        return self.coordinator.data.get(self._endpoint_id)
+        value = self.coordinator.data.get(self._endpoint_id)
+        # Translated states must be lowercase: WORKMODE_SELFUSE, True
+        if self._attr_translation_key and value is not None:
+            return str(value).lower()
+        # Times are parsed as Unix time
+        if self._attr_device_class == SensorDeviceClass.TIMESTAMP:
+            # 0 means no time (e.g. no charging order), not 1970
+            if not isinstance(value, (int, float)) or value <= 0:
+                return None
+            try:
+                return datetime.fromtimestamp(value, UTC)
+            except (ValueError, OverflowError, OSError):
+                return None
+        return value
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
