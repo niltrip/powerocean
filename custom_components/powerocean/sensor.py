@@ -16,7 +16,6 @@ from homeassistant.const import (
     EntityCategory,
 )
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
@@ -88,30 +87,23 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self.endpoint = endpoint
-        self._endpoint_id = endpoint.internal_unique_id
-        self._endpoint_friendly_name = endpoint.friendly_name
-        self._endpoint_icon = endpoint.icon
-        self._endpoint_description = endpoint.description
-        self._endpoint_serial = endpoint.serial
-        self._endpoint_device_info = endpoint.device_info
-
         (
             self._attr_device_class,
             self._attr_native_unit_of_measurement,
             self._attr_state_class,
-        ) = getattr(endpoint, "cls", None) or (None, None, None)
+        ) = endpoint.cls or (None, None, None)
 
         # HA attributes
         self._attr_has_entity_name = True
-        self._attr_unique_id = self._endpoint_id
+        self._attr_unique_id = endpoint.internal_unique_id
+        self._attr_device_info = endpoint.device_info
         # Without a translated name, the key is the name
         if not endpoint.named:
-            self._attr_name = self._endpoint_friendly_name
-        self._attr_icon = self._endpoint_icon
+            self._attr_name = endpoint.friendly_name
+        self._attr_icon = endpoint.icon
         self._attr_entity_registry_enabled_default = endpoint.enabled_default
         # Translated name and states
         self._attr_translation_key = endpoint.translation_key
-        self._translated_states = endpoint.translated_states
         self._attr_suggested_display_precision = DISPLAY_PRECISION.get(
             self._attr_native_unit_of_measurement
         )
@@ -121,19 +113,19 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
     @property
     def suggested_object_id(self) -> str | None:
         """Return the key, so entity IDs do not depend on the name."""
-        return self._endpoint_friendly_name
+        return self.endpoint.friendly_name
 
     @property
     def available(self) -> bool:
         """Return False while the response lacks the value (e.g. battery offline)."""
-        return super().available and self._endpoint_id in self.coordinator.data
+        return super().available and self.unique_id in self.coordinator.data
 
     @property
     def native_value(self) -> Any:
         """Return the current value of the sensor from coordinator."""
-        value = self.coordinator.data.get(self._endpoint_id)
+        value = self.coordinator.data.get(self.unique_id)
         # Translated states must be lowercase: WORKMODE_SELFUSE, True
-        if self._translated_states and value is not None:
+        if self.endpoint.translated_states and value is not None:
             return str(value).lower()
         # Times are parsed as Unix time
         if self._attr_device_class == SensorDeviceClass.TIMESTAMP:
@@ -150,18 +142,13 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return extra attributes for this sensor."""
         attr = {}
-        if self._endpoint_description:
-            attr["product_description"] = self._endpoint_description
-        if self._endpoint_serial:
-            attr["product_serial"] = self._endpoint_serial
-        errors = self.coordinator.active_errors.get(self._endpoint_id)
+        if self.endpoint.description:
+            attr["product_description"] = self.endpoint.description
+        if self.endpoint.serial:
+            attr["product_serial"] = self.endpoint.serial
+        errors = self.coordinator.active_errors.get(self.unique_id)
         if errors is not None:
             attr["errors"] = [error.as_dict() for error in errors]
             if errors:
                 attr["error_details"] = ERROR_DETAILS_HINT
         return attr
-
-    @property
-    def device_info(self) -> DeviceInfo | None:
-        """Return device info for Home Assistant."""
-        return self._endpoint_device_info
