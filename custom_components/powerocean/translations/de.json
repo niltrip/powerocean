@@ -77,10 +77,10 @@
                 "name": "Grund der Batteriebegrenzung"
             },
             "battery_to_grid": {
-                "name": "Batterie zu Netz"
+                "name": "Batterie zum Netz"
             },
             "battery_to_house": {
-                "name": "Batterie zu Haus"
+                "name": "Batterie zum Haus"
             },
             "bms_chg_dsg_sta": {
                 "name": "Lade-/Entladezustand",
@@ -301,10 +301,10 @@
                 "name": "Netzleistung (Energiefluss)"
             },
             "grid_to_battery": {
-                "name": "Netz zu Batterie"
+                "name": "Netz zur Batterie"
             },
             "grid_to_house": {
-                "name": "Netz zu Haus"
+                "name": "Netz zum Haus"
             },
             "heartbeat_update_time": {
                 "name": "Letzte Aktualisierung"
@@ -583,13 +583,13 @@
                 "name": "§14a-Eingang"
             },
             "solar_to_battery": {
-                "name": "Solar zu Batterie"
+                "name": "Solar zur Batterie"
             },
             "solar_to_grid": {
-                "name": "Solar zu Netz"
+                "name": "Solar zum Netz"
             },
             "solar_to_house": {
-                "name": "Solar zu Haus"
+                "name": "Solar zum Haus"
             },
             "start_discharge_power": {
                 "name": "Entladen ab Leistung"
