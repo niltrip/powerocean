@@ -47,7 +47,8 @@ Follow the flow.
 
 
 ### Sensors
-Sensors are registered to their device as `sensor.{device_name}_{sensor_name}` with the friendly name `sensor_name`, the name of the value in the EcoFlow API.
+Sensors are registered to their device as `sensor.{device_name}_{sensor_name}`, where `sensor_name` is the name of the value in the EcoFlow API. The entity ID does not depend on the language.
+The friendly name is readable, in English or German depending on the language of Home Assistant, e.g. "State of charge" for `bpSoc`. Values whose meaning is not known yet keep `sensor_name` as friendly name.
 The unique ID is `{serial}_{report}_{sensor_name}`, e.g. `{serial}_JTS1_EMS_HEARTBEAT_pcsMeterPower`, or `{serial}_{sensor_name}` for values outside a report.
 
 Each sensor has these attributes:
@@ -95,6 +96,9 @@ For a dashboard, take the values from `EMS_HEARTBEAT`:
 - solar: `mpptPv_pwrTotal` rather than `mpptPwr`, `pv1Pwr` or `pvInvPwr`
 - battery: `emsBpPower` rather than `bpPwr`
 - house: `housePower`, which is calculated from the three values above
+
+The friendly names point the way: values from `data` and `ENERGY_STREAM_REPORT` end in "(cloud)", e.g. "House consumption (cloud)", the calculated values have no suffix, e.g. "House consumption".
+In dual systems (master and slave inverter), the values from `PARALLEL_ENERGY_STREAM_REPORT` end in "(energy flow)". According to [#23](https://github.com/niltrip/powerocean/issues/23) they are updated regularly, unlike those from `data`.
 
 ### New sensor (calculated from the PV strings)
 
