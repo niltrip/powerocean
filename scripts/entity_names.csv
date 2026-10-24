@@ -151,7 +151,7 @@ Batterie;bpMinMosTemp;;Lowest MOSFET temperature;Niedrigste MOSFET-Temperatur;
 Batterie;bmsRunSta;;BMS state;BMS-Status;
 Batterie;bmsChgDsgSta;;Charge state;Lade-/Entladezustand;
 Batterie;bpSysState;;System state;Systemzustand;
-Batterie;dabModSta;;DAB module state;DAB-Modulstatus;
+Batterie;dabModSta;;DC-DC converter state;DC-DC-Wandler-Status;DAB = Dual Active Bridge, abgeleitet aus bpVol (~51 V) und bpBusVol (~770 V)
 Batterie;bpBalanceState;;Cell balancing;Zellausgleich;Bedeutung geraten
 Batterie;bpErrCode;;Error code;Fehlercode;
 Batterie;bpSn;;Serial number;Seriennummer;
