@@ -220,7 +220,7 @@
                 "name": "Netzwerkverbindung"
             },
             "dab_mod_sta": {
-                "name": "DAB-Modulstatus",
+                "name": "DC-DC-Wandler-Status",
                 "state": {
                     "pb_mod_sta_normal": "Normal",
                     "pb_mod_sta_warnning": "Warnung",

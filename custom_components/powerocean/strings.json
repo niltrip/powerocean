@@ -220,7 +220,7 @@
         "name": "Network connection"
       },
       "dab_mod_sta": {
-        "name": "DAB module state",
+        "name": "DC-DC converter state",
         "state": {
           "pb_mod_sta_normal": "Normal",
           "pb_mod_sta_warnning": "Warning",
