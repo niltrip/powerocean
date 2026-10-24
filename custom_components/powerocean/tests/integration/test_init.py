@@ -318,13 +318,13 @@ async def test_battery_offline_at_startup_is_added_later(
     assert device
     assert device.via_device_id
 
-    # Offline again: the entities stay, without a value
+    # Offline again: the entities stay, unavailable
     mock_fetch.return_value = _without_battery(battery)
     await coordinator.async_refresh()
     await hass.async_block_till_done()
 
     assert _entity_ids(hass, entry) == after
-    assert hass.states.get(after[soc]).state == "unknown"
+    assert hass.states.get(after[soc]).state == STATE_UNAVAILABLE
 
 
 # -----------------------------

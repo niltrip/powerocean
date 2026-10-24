@@ -53,3 +53,5 @@
 - Percentages are shown without decimals, insulation resistance with one.
   Stored values keep their full precision.
 - Battery state of charge shows the battery level icon.
+- Sensors without a current value, e.g. of a battery pack that is offline,
+  are shown as *unavailable* instead of *unknown*.

@@ -114,6 +114,11 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
     @property
+    def available(self) -> bool:
+        """Return False while the response lacks the value (e.g. battery offline)."""
+        return super().available and self._endpoint_id in self.coordinator.data
+
+    @property
     def native_value(self) -> Any:
         """Return the current value of the sensor from coordinator."""
         value = self.coordinator.data.get(self._endpoint_id)
