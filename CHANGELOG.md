@@ -38,6 +38,14 @@
 - **Translated states** (English, German) for operating mode, inverter and
   battery states and on/off values. Unknown values are shown as they are.
 - **Link to the EcoFlow web portal** on every device page.
+- **Readable entity names** in English and German, e.g. "State of charge"
+  instead of `bpSoc`. Entity IDs stay the same, also for new installations,
+  and names you set yourself are kept. Values whose meaning is unknown keep
+  their key as name.
+  Values the cloud only refreshes while the EcoFlow app is open end in
+  "(cloud)"; use the calculated values without suffix instead. In dual
+  systems, the values per inverter from the parallel report end in
+  "(energy flow)".
 - **Devices that are gone can be deleted**, e.g. a replaced battery pack:
   *device page → ⋮ → Delete*. Only possible while the device sends no
   values. If it returns, it is added again.

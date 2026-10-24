@@ -1,7 +1,9 @@
-"""Translated states: every key has texts, in the format hassfest accepts."""
+"""Translated names and states, in the format hassfest accepts."""
 
 import json
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -10,6 +12,7 @@ from custom_components.powerocean.types import translation_key
 from custom_components.powerocean.utils import TRANSLATED_STATES
 
 COMPONENT_DIR = Path(__file__).parent.parent.parent
+ROOT = COMPONENT_DIR.parent.parent
 FILES = ["strings.json", "translations/en.json", "translations/de.json"]
 # As hassfest checks translation keys: lowercase, no leading/double "_"
 TRANSLATION_KEY = re.compile(r"^(?!.+[_-]{2})(?![_-])[a-z0-9-_]+(?<![_-])$")
@@ -23,17 +26,31 @@ def _sensor_translations(file: str) -> dict:
 def test_translation_key() -> None:
     assert translation_key("emsWordMode") == "ems_word_mode"
     assert translation_key("sys14aEnable") == "sys14a_enable"
+    assert translation_key("mpptPv1_vol") == "mppt_pv1_vol"
+    assert translation_key("pcsAPhase_vol") == "pcs_a_phase_vol"
 
 
 @pytest.mark.parametrize("file", FILES)
 def test_every_translated_key_has_states(file: str) -> None:
     sensors = _sensor_translations(file)
-    assert set(sensors) == {translation_key(key) for key in TRANSLATED_STATES}
+    with_states = {name for name, entry in sensors.items() if "state" in entry}
+    assert with_states == {translation_key(key) for key in TRANSLATED_STATES}
     for name, entry in sensors.items():
         assert TRANSLATION_KEY.match(name), name
-        assert entry["state"], name
-        for state in entry["state"]:
+        assert set(entry) <= {"name", "state"}, name
+        for state in entry.get("state", ()):
             assert TRANSLATION_KEY.match(state), f"{name}: {state}"
+
+
+def test_names_match_the_table() -> None:
+    """The names are generated from scripts/entity_names.csv."""
+    result = subprocess.run(  # noqa: S603 (our own script)
+        [sys.executable, str(ROOT / "scripts" / "names.py"), "--check"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, f"scripts/names ausführen:\n{result.stdout}"
 
 
 @pytest.mark.parametrize("file", FILES[1:])
@@ -41,7 +58,8 @@ def test_translations_have_the_states_of_strings(file: str) -> None:
     strings = _sensor_translations("strings.json")
     sensors = _sensor_translations(file)
     for name, entry in strings.items():
-        assert set(sensors[name]["state"]) == set(entry["state"]), name
+        if "state" in entry:
+            assert set(sensors[name]["state"]) == set(entry["state"]), name
 
 
 def test_icons_belong_to_translated_states() -> None:
