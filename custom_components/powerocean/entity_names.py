@@ -6,7 +6,7 @@ The names are in strings.json and translations/*.json.
 """
 
 # (context, key) of each named datapoint; context "" applies where no
-# other context matches (see utils.name_context)
+# other context matches (see datapoints.name_context)
 NAMED: frozenset[tuple[str, str]] = frozenset(
     {
         ("", "batteryLimitReason"),

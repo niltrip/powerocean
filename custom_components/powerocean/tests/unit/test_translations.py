@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
+from custom_components.powerocean.datapoints import TRANSLATED_STATES
 from custom_components.powerocean.types import translation_key
-from custom_components.powerocean.utils import TRANSLATED_STATES
 
 COMPONENT_DIR = Path(__file__).parent.parent.parent
 ROOT = COMPONENT_DIR.parent.parent

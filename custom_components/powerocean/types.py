@@ -36,8 +36,7 @@ from homeassistant.const import (
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from .const import DOMAIN, PORTAL_URL
-from .entity_names import NAMED
-from .utils import (
+from .datapoints import (
     DIAGNOSTIC_KEYS,
     DIAGNOSTIC_PATTERNS,
     DISABLED_BY_DEFAULT,
@@ -46,6 +45,7 @@ from .utils import (
     name_context,
     translation_key,
 )
+from .entity_names import NAMED
 
 _DIAGNOSTIC_PATTERNS = [re.compile(pattern) for pattern in DIAGNOSTIC_PATTERNS]
 

@@ -3,7 +3,7 @@ parse.py: Parse an EcoFlow PowerOcean API response into datapoints.
 
 One pass over the response yields every datapoint with its device and
 value. `HANDLERS` sets which function reads which report; `REPORT_DATAPOINTS`
-and `BOX_SCHEMAS` (utils.py) set which keys are read.
+and `BOX_SCHEMAS` (datapoints.py) set which keys are read.
 
 The unique_id of a datapoint is `{device_sn}_{report}_{key}`, with the full
 report name as it appears in the response (e.g. `JTS1_EMS_HEARTBEAT`).
@@ -20,6 +20,13 @@ from typing import Any
 
 import orjson
 
+from .datapoints import (
+    BOX_SCHEMAS,
+    REPORT_DATAPOINTS,
+    UPDATE_TIME_KEYS,
+    BoxSchema,
+    ReportMode,
+)
 from .devices import (
     LOGGER,
     MODEL_NAME_MAP,
@@ -30,15 +37,6 @@ from .devices import (
 )
 from .errors import ActiveError, parse_error_report
 from .flows import energy_flows
-from .utils import (
-    BOX_SCHEMAS,
-    REPORT_DATAPOINTS,
-    UPDATE_TIME_KEYS,
-    BoxSchema,
-    ReportMode,
-    _join_id,
-    decode_version,
-)
 
 PRIMITIVE_TYPES = (int, float, str)
 
@@ -49,6 +47,34 @@ SERVER_TIMEZONE = timezone(timedelta(hours=8))
 
 # Power of PV string n in the energy stream report
 PV_STRING_POWER = re.compile(r"^pv(\d+)Pwr$")
+
+
+def _join_id(*parts: str) -> str:
+    return "_".join(p for p in parts if p)
+
+
+def decode_version(value: int) -> str:
+    """
+    Decode a 32-bit integer into a dotted version string.
+
+    The integer is interpreted as:
+        - bits 24-31: major
+        - bits 16-23: minor
+        - bits 8-15: patch
+        - bits 0-7: build
+
+    Args:
+        value: Encoded 32-bit version integer.
+
+    Returns:
+        Version string in the format "major.minor.patch.build".
+
+    """
+    major = (value >> 24) & 0xFF
+    minor = (value >> 16) & 0xFF
+    patch = (value >> 8) & 0xFF
+    build = value & 0xFF
+    return f"{major}.{minor}.{patch}.{build}"
 
 
 @dataclass(frozen=True)
