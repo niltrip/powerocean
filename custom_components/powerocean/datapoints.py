@@ -1,28 +1,17 @@
 """
-Utility module for PowerOcean integration.
+Datapoints of the PowerOcean API response.
 
-This module provides schema definitions, enumerations, and helper classes for
-device detection, sensor metadata management, and reporting modes in the
-PowerOcean Home Assistant integration.
+Which keys are read per report (REPORT_DATAPOINTS, BOX_SCHEMAS), how they
+are shown (diagnostic, disabled by default, translated states) and the
+report names (ReportMode).
 
-Classes:
-    BoxSchema: TypedDict for device schema definitions
-    ReportMode: Enumeration for different report modes
-    DeviceRole: Enumeration for device roles
-    SensorMetaHelper: Helper class for sensor metadata (units, descriptions, icons)
+This module does not depend on Home Assistant.
 """
 
 import re
 from collections.abc import Callable
-from enum import Enum, StrEnum
+from enum import Enum
 from typing import TypedDict
-
-DEVICE_SN_KEYS = (
-    "evSn",
-    "hrSn",
-    "bpSn",
-    "devSn",
-)
 
 
 class ReportMode(Enum):
@@ -486,7 +475,6 @@ class BoxSchema(TypedDict):
     """Schema for a detected device (box) in PowerOcean responses."""
 
     detect: Callable[[dict], bool]
-    mode: str  # "boxed" | "single"
     sn_path: list[str]
     model: str
     name_prefix: str
@@ -496,7 +484,6 @@ class BoxSchema(TypedDict):
 
 BOX_SCHEMAS: dict[str, BoxSchema] = {
     "battery": {
-        "mode": "boxed",
         "detect": lambda p: "bpSn" in p,
         "sn_path": ["bpSn"],
         "model": "PowerOcean Battery",
@@ -505,7 +492,6 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
         "sensors": REPORT_DATAPOINTS[ReportMode.BATTERY.value],
     },
     "wallbox": {
-        "mode": "boxed",
         "detect": lambda p: "pileChargingParamReport" in p,
         "sn_path": ["devInfo", "devSn"],
         "model": "PowerOcean PowerPulse",
@@ -536,7 +522,6 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
         "sensors": REPORT_DATAPOINTS[ReportMode.WALLBOX.value],
     },
     "charge": {
-        "mode": "single",
         "detect": lambda p: "evPlugAndPlay" in p,
         "sn_path": ["evSn"],
         "model": "PowerOcean PowerPulse",
@@ -545,7 +530,6 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
         "sensors": REPORT_DATAPOINTS[ReportMode.CHARGEBOX.value],
     },
     "heating_rod": {
-        "mode": "single",
         "detect": lambda p: "hrSn" in p,
         "sn_path": ["hrSn"],
         "model": "PowerOcean PowerGlow",
@@ -554,90 +538,3 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
         "sensors": REPORT_DATAPOINTS[ReportMode.HEATING_ROD.value],
     },
 }
-
-
-class DeviceRole(StrEnum):
-    """Enumeration for device roles in the PowerOcean integration."""
-
-    MASTER = "_master"
-    SLAVE = "_slave"
-    ALL = "_all"
-    EMPTY = ""  # Used when no specific role is assigned
-
-
-def _join_id(*parts: str) -> str:
-    return "_".join(p for p in parts if p)
-
-
-def clean_zero(v: float, eps: float = 0.05) -> float:
-    """
-    Setzt kleine Werte auf exakt 0, um Floating-Point Artefakte zu vermeiden.
-
-    Args:
-        v (float): Der zu prüfende Wert.
-        eps (float, optional): Die Schwelle unterhalb derer der Wert auf 0 gesetzt wird.
-
-    Returns:
-        float: 0.0, wenn abs(v) < eps, sonst der Originalwert v.
-
-    Beispiel:
-        >>> clean_zero(0.03)
-        0.0
-        >>> clean_zero(-0.02)
-        0.0
-        >>> clean_zero(0.1)
-        0.1
-
-    """
-    if abs(v) < eps:
-        return 0.0
-    return v
-
-
-def decode_version(value: int) -> str:
-    """
-    Decode a 32-bit integer into a dotted version string.
-
-    The integer is interpreted as:
-        - bits 24-31: major
-        - bits 16-23: minor
-        - bits 8-15: patch
-        - bits 0-7: build
-
-    Args:
-        value: Encoded 32-bit version integer.
-
-    Returns:
-        Version string in the format "major.minor.patch.build".
-
-    """
-    major = (value >> 24) & 0xFF
-    minor = (value >> 16) & 0xFF
-    patch = (value >> 8) & 0xFF
-    build = value & 0xFF
-    return f"{major}.{minor}.{patch}.{build}"
-
-
-def decode_product_info(value: int) -> dict[str, int]:
-    """
-    Decode a 16-bit product information value.
-
-    The integer is interpreted as:
-        - bits 8-15: product ID
-        - bits 0-7: hardware revision
-
-    Args:
-        value: Encoded product information integer.
-
-    Returns:
-        Dictionary containing:
-            - product_id
-            - hardware_revision
-
-    """
-    value = int(value)
-
-    return {
-        "product_id": (value >> 8) & 0xFF,
-        "hardware_revision": value & 0xFF,
-    }

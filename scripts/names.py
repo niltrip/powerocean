@@ -28,12 +28,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from custom_components.powerocean.parse import parse  # noqa: E402
-from custom_components.powerocean.utils import (  # noqa: E402
+from custom_components.powerocean.datapoints import (  # noqa: E402
     NAME_CONTEXTS,
     TRANSLATED_STATES,
     translation_key,
 )
+from custom_components.powerocean.parse import parse  # noqa: E402
 
 TABLE = ROOT / "scripts" / "entity_names.csv"
 COMPONENT = ROOT / "custom_components" / "powerocean"
@@ -161,7 +161,7 @@ def module_text(rows: list[dict[str, str]]) -> str:
         '"""\n'
         "\n"
         '# (context, key) of each named datapoint; context "" applies where no\n'
-        "# other context matches (see utils.name_context)\n"
+        "# other context matches (see datapoints.name_context)\n"
         "NAMED: frozenset[tuple[str, str]] = frozenset(\n"
         "    {\n"
         f"{entries}"
