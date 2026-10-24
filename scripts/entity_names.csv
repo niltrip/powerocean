@@ -2,13 +2,13 @@ group;key;context;en;de;note
 Übersicht;housePower;;House consumption;Hausverbrauch;berechnet
 Übersicht;gridPower;;Grid power;Netzleistung;berechnet, + Bezug / − Einspeisung
 Übersicht;mpptPv_pwrTotal;;Solar power;Solarleistung;berechnet
-Übersicht;gridToBattery;;Grid to battery;Netz zu Batterie;
-Übersicht;gridToHouse;;Grid to house;Netz zu Haus;
-Übersicht;batteryToHouse;;Battery to house;Batterie zu Haus;
-Übersicht;batteryToGrid;;Battery to grid;Batterie zu Netz;
-Übersicht;solarToBattery;;Solar to battery;Solar zu Batterie;
-Übersicht;solarToGrid;;Solar to grid;Solar zu Netz;
-Übersicht;solarToHouse;;Solar to house;Solar zu Haus;
+Übersicht;gridToBattery;;Grid to battery;Netz zur Batterie;
+Übersicht;gridToHouse;;Grid to house;Netz zum Haus;
+Übersicht;batteryToHouse;;Battery to house;Batterie zum Haus;
+Übersicht;batteryToGrid;;Battery to grid;Batterie zum Netz;
+Übersicht;solarToBattery;;Solar to battery;Solar zur Batterie;
+Übersicht;solarToGrid;;Solar to grid;Solar zum Netz;
+Übersicht;solarToHouse;;Solar to house;Solar zum Haus;
 Übersicht;sysLoadPwr;;House consumption (cloud);Hausverbrauch (Cloud);nur bei offener App aktuell, berechneter Wert bevorzugt
 Übersicht;sysGridPwr;;Grid power (cloud);Netzleistung (Cloud);nur bei offener App aktuell, berechneter Wert bevorzugt
 Übersicht;mpptPwr;;Solar power (cloud);Solarleistung (Cloud);nur bei offener App aktuell, berechneter Wert bevorzugt
