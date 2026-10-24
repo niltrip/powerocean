@@ -44,7 +44,8 @@ async def async_setup_entry(
     This function is called by Home Assistant when a config entry
     is set up. It creates sensor entities for each endpoint and
     registers them with Home Assistant. Endpoints that appear with a
-    later update (e.g. a battery that was offline) are added then.
+    later update (e.g. a battery that was offline) are added then, as are
+    the endpoints of a removed device that returns.
 
     Args:
         hass: The Home Assistant instance.
@@ -56,18 +57,20 @@ async def async_setup_entry(
 
     """
     coordinator = entry.runtime_data
-    added: set[str] = set()
+    # Endpoint each entity was added for. Removing a device drops its
+    # endpoints; if the device returns, the new endpoints are added again.
+    added: dict[str, PowerOceanEndPoint] = {}
 
     @callback
     def _add_new_entities() -> None:
         new = [
             endpoint
             for unique_id, endpoint in coordinator.endpoints.items()
-            if unique_id not in added
+            if added.get(unique_id) is not endpoint
         ]
         if not new:
             return
-        added.update(endpoint.internal_unique_id for endpoint in new)
+        added.update((endpoint.internal_unique_id, endpoint) for endpoint in new)
         async_add_entities(
             [PowerOceanSensor(coordinator, endpoint) for endpoint in new]
         )
@@ -120,6 +123,11 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
     def suggested_object_id(self) -> str | None:
         """Return the key, so entity IDs do not depend on the name."""
         return self._endpoint_friendly_name
+
+    @property
+    def available(self) -> bool:
+        """Return False while the response lacks the value (e.g. battery offline)."""
+        return super().available and self._endpoint_id in self.coordinator.data
 
     @property
     def native_value(self) -> Any:
