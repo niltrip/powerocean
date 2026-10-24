@@ -38,6 +38,9 @@
 - **Translated states** (English, German) for operating mode, inverter and
   battery states and on/off values. Unknown values are shown as they are.
 - **Link to the EcoFlow web portal** on every device page.
+- **Devices that are gone can be deleted**, e.g. a replaced battery pack:
+  *device page → ⋮ → Delete*. Only possible while the device sends no
+  values. If it returns, it is added again.
 
 ### Changed
 
@@ -53,3 +56,5 @@
 - Percentages are shown without decimals, insulation resistance with one.
   Stored values keep their full precision.
 - Battery state of charge shows the battery level icon.
+- Sensors without a current value, e.g. of a battery pack that is offline,
+  are shown as *unavailable* instead of *unknown*.
