@@ -96,6 +96,23 @@ async def test_authorize_server_error_is_connection_error(
         await api.async_authorize()
 
 
+@pytest.mark.parametrize(
+    ("status", "error"),
+    [(401, AuthenticationError), (403, AuthenticationError), (400, EcoflowApiError)],
+)
+async def test_authorize_http_error(
+    api: EcoflowApi,
+    aioclient_mock: AiohttpClientMocker,
+    status: int,
+    error: type[Exception],
+) -> None:
+    aioclient_mock.post(LOGIN_URL, status=status)
+
+    with pytest.raises(EcoflowApiError) as err:
+        await api.async_authorize()
+    assert type(err.value) is error
+
+
 async def test_region_detection_unreachable_is_connection_error(
     api: EcoflowApi, aioclient_mock: AiohttpClientMocker
 ) -> None:
@@ -138,6 +155,29 @@ async def test_fetch_raw_rejected_token(
 
     with pytest.raises(AuthenticationError):
         await api.fetch_raw()
+
+
+@pytest.mark.parametrize(
+    ("status", "error"),
+    [
+        (500, EcoflowConnectionError),
+        (503, EcoflowConnectionError),
+        (404, EcoflowApiError),
+    ],
+)
+async def test_fetch_raw_http_error(
+    api: EcoflowApi,
+    aioclient_mock: AiohttpClientMocker,
+    status: int,
+    error: type[Exception],
+) -> None:
+    api.token = "token123"
+    api.api_host = "api-e.ecoflow.com"
+    aioclient_mock.get(EU_URL, status=status)
+
+    with pytest.raises(EcoflowApiError) as err:
+        await api.fetch_raw()
+    assert type(err.value) is error
 
 
 async def test_fetch_raw_error_payload(

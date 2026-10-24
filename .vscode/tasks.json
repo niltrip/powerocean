@@ -33,6 +33,12 @@
             "type": "shell",
             "command": "if pkill -f '[h]ass --config'; then echo 'Home Assistant wird beendet ...'; while pgrep -f '[h]ass --config' > /dev/null; do sleep 0.5; done; fi; scripts/develop",
             "problemMatcher": []
+        },
+        {
+            "label": "Entity-Namen aus Tabelle übernehmen",
+            "type": "shell",
+            "command": "scripts/names",
+            "problemMatcher": []
         }
     ],
     "inputs": [

@@ -30,6 +30,7 @@ from .const import LOGGER
 
 HTTP_OK = 200
 API_CODE_OK = "0"
+LOGIN_URL = "https://api.ecoflow.com/auth/login"
 
 
 class EcoflowApiError(Exception):
@@ -46,6 +47,18 @@ class AuthenticationError(EcoflowApiError):
 
 class RegionDetectionError(EcoflowApiError):
     """Raised when automatic API region detection fails."""
+
+
+def _http_error(
+    err: aiohttp.ClientResponseError, action: str, rejected: str
+) -> EcoflowApiError:
+    """Classify an HTTP error: rejected credentials, server or request error."""
+    if err.status in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
+        return AuthenticationError(rejected)
+    msg = f"{action} failed with HTTP {err.status}"
+    if err.status >= HTTPStatus.INTERNAL_SERVER_ERROR:
+        return EcoflowConnectionError(msg)
+    return EcoflowApiError(msg)
 
 
 def validate_response(response: Any) -> dict[str, Any]:
@@ -129,17 +142,27 @@ class EcoflowApi:
 
         self.token: str | None = None
         self.api_host: str | None = None
-        self.url_authorize = "https://api.ecoflow.com/auth/login"
 
         self._external_session = session
         self._session: aiohttp.ClientSession | None = session
 
-    async def _get_session(self) -> aiohttp.ClientSession:
+    def _get_session(self) -> aiohttp.ClientSession:
         """Return an existing session or create a new aiohttp session."""
         if self._session:
             return self._session
         self._session = aiohttp.ClientSession()
         return self._session
+
+    def _detail_url(self, host: str) -> str:
+        """Return the URL of the device detail response on the given host."""
+        return f"https://{host}/provider-service/user/device/detail?sn={self.sn}"
+
+    def _auth_headers(self) -> dict[str, str]:
+        """Return the headers of an authorized request."""
+        return {
+            "authorization": f"Bearer {self.token}",
+            "product-type": self.variant,
+        }
 
     async def close(self) -> None:
         """Close internally created aiohttp session."""
@@ -148,7 +171,7 @@ class EcoflowApi:
 
     async def async_authorize(self) -> None:
         """Authorize user and retrieve authentication token."""
-        session = await self._get_session()
+        session = self._get_session()
 
         headers = {"lang": "en_US", "content-type": "application/json"}
         data = {
@@ -160,19 +183,11 @@ class EcoflowApi:
 
         try:
             async with asyncio.timeout(10):
-                async with session.post(
-                    self.url_authorize, json=data, headers=headers
-                ) as resp:
+                async with session.post(LOGIN_URL, json=data, headers=headers) as resp:
                     resp.raise_for_status()
                     response_data = await resp.json()
         except aiohttp.ClientResponseError as e:
-            if e.status in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
-                msg = "Login rejected"
-                raise AuthenticationError(msg) from e
-            msg = f"Login failed with HTTP {e.status}"
-            if e.status >= HTTPStatus.INTERNAL_SERVER_ERROR:
-                raise EcoflowConnectionError(msg) from e
-            raise EcoflowApiError(msg) from e
+            raise _http_error(e, "Login", "Login rejected") from e
         except (TimeoutError, aiohttp.ClientError) as e:
             msg = "Login failed: EcoFlow cloud not reachable"
             raise EcoflowConnectionError(msg) from e
@@ -189,20 +204,15 @@ class EcoflowApi:
 
     async def _detect_region(self) -> None:
         """Detect API region (EU or US) by probing known endpoints."""
-        session = await self._get_session()
+        session = self._get_session()
         any_host_reached = False
 
         for host in self.REGION_HOSTS.values():
-            url = f"https://{host}/provider-service/user/device/detail?sn={self.sn}"
-
-            headers = {
-                "authorization": f"Bearer {self.token}",
-                "product-type": self.variant,
-            }
-
             try:
                 async with asyncio.timeout(10):
-                    async with session.get(url, headers=headers) as resp:
+                    async with session.get(
+                        self._detail_url(host), headers=self._auth_headers()
+                    ) as resp:
                         any_host_reached = True
                         if resp.status == HTTP_OK:
                             self.api_host = host
@@ -232,30 +242,17 @@ class EcoflowApi:
             msg = "Region not detected"
             raise EcoflowApiError(msg)
 
-        session = await self._get_session()
-
-        url = (
-            f"https://{self.api_host}/provider-service/user/device/detail?sn={self.sn}"
-        )
-
-        headers = {
-            "authorization": f"Bearer {self.token}",
-            "product-type": self.variant,
-        }
+        session = self._get_session()
 
         try:
             async with asyncio.timeout(30):
-                async with session.get(url, headers=headers) as resp:
+                async with session.get(
+                    self._detail_url(self.api_host), headers=self._auth_headers()
+                ) as resp:
                     resp.raise_for_status()
                     response = await resp.json()
         except aiohttp.ClientResponseError as e:
-            if e.status in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
-                msg = "Token rejected"
-                raise AuthenticationError(msg) from e
-            msg = f"Fetching data failed with HTTP {e.status}"
-            if e.status >= HTTPStatus.INTERNAL_SERVER_ERROR:
-                raise EcoflowConnectionError(msg) from e
-            raise EcoflowApiError(msg) from e
+            raise _http_error(e, "Fetching data", "Token rejected") from e
         except (TimeoutError, aiohttp.ClientError) as e:
             msg = "Fetching data failed: EcoFlow cloud not reachable"
             raise EcoflowConnectionError(msg) from e

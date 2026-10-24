@@ -327,7 +327,7 @@
     "sensors": {
       "description": "Ladezustand der Batterie",
       "friendly_name": "bpSoc",
-      "icon": "mdi:battery",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpSoc",
       "name": "SN_INVERTERBOX01_bpSoc",
       "serial": "SN_INVERTERBOX01",
@@ -1421,7 +1421,7 @@
     "sensors": {
       "description": "Online",
       "friendly_name": "online",
-      "icon": "mdi:cloud-check",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_online",
       "name": "SN_INVERTERBOX01_online",
       "serial": "SN_INVERTERBOX01",

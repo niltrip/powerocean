@@ -12,7 +12,7 @@
     "sensors": {
       "description": "bmsChgDsgSta",
       "friendly_name": "bmsChgDsgSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsChgDsgSta",
       "name": "SN_BATTERIEPACK01_bmsChgDsgSta",
       "serial": "SN_BATTERIEPACK01",
@@ -32,7 +32,7 @@
     "sensors": {
       "description": "bmsRunSta",
       "friendly_name": "bmsRunSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bmsRunSta",
       "name": "SN_BATTERIEPACK01_bmsRunSta",
       "serial": "SN_BATTERIEPACK01",
@@ -376,7 +376,7 @@
     "sensors": {
       "description": "bpRealSoc",
       "friendly_name": "bpRealSoc",
-      "icon": "mdi:battery",
+      "icon": null,
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpRealSoc",
       "name": "SN_BATTERIEPACK01_bpRealSoc",
       "serial": "SN_BATTERIEPACK01",
@@ -468,7 +468,7 @@
     "sensors": {
       "description": "Ladezustand der Batterie",
       "friendly_name": "bpSoc",
-      "icon": "mdi:battery",
+      "icon": null,
       "internal_unique_id": "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoc",
       "name": "SN_BATTERIEPACK01_bpSoc",
       "serial": "SN_BATTERIEPACK01",
@@ -624,7 +624,7 @@
     "sensors": {
       "description": "bmsChgDsgSta",
       "friendly_name": "bmsChgDsgSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsChgDsgSta",
       "name": "SN_BATTERIEPACK02_bmsChgDsgSta",
       "serial": "SN_BATTERIEPACK02",
@@ -644,7 +644,7 @@
     "sensors": {
       "description": "bmsRunSta",
       "friendly_name": "bmsRunSta",
-      "icon": "mdi:chip",
+      "icon": null,
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsRunSta",
       "name": "SN_BATTERIEPACK02_bmsRunSta",
       "serial": "SN_BATTERIEPACK02",
@@ -988,7 +988,7 @@
     "sensors": {
       "description": "bpRealSoc",
       "friendly_name": "bpRealSoc",
-      "icon": "mdi:battery",
+      "icon": null,
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpRealSoc",
       "name": "SN_BATTERIEPACK02_bpRealSoc",
       "serial": "SN_BATTERIEPACK02",
@@ -1080,7 +1080,7 @@
     "sensors": {
       "description": "Ladezustand der Batterie",
       "friendly_name": "bpSoc",
-      "icon": "mdi:battery",
+      "icon": null,
       "internal_unique_id": "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoc",
       "name": "SN_BATTERIEPACK02_bpSoc",
       "serial": "SN_BATTERIEPACK02",
@@ -1233,7 +1233,7 @@
     "sensors": {
       "description": "batteryLimitReason",
       "friendly_name": "batteryLimitReason",
-      "icon": null,
+      "icon": "mdi:speedometer-slow",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_batteryLimitReason",
       "name": "SN_INVERTERBOX01_batteryLimitReason",
       "serial": "SN_INVERTERBOX01",
@@ -1267,7 +1267,7 @@
     "sensors": {
       "description": "Ladezustand der Batterie",
       "friendly_name": "bpSoc",
-      "icon": "mdi:battery",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_bpSoc",
       "name": "SN_INVERTERBOX01_bpSoc",
       "serial": "SN_INVERTERBOX01",
@@ -1368,7 +1368,7 @@
     "sensors": {
       "description": "emsFeedMode",
       "friendly_name": "emsFeedMode",
-      "icon": null,
+      "icon": "mdi:transmission-tower-export",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_emsFeedMode",
       "name": "SN_INVERTERBOX01_emsFeedMode",
       "serial": "SN_INVERTERBOX01",
@@ -1385,7 +1385,7 @@
     "sensors": {
       "description": "emsFeedPwr",
       "friendly_name": "emsFeedPwr",
-      "icon": null,
+      "icon": "mdi:transmission-tower-export",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_emsFeedPwr",
       "name": "SN_INVERTERBOX01_emsFeedPwr",
       "serial": "SN_INVERTERBOX01",
@@ -1406,7 +1406,7 @@
     "sensors": {
       "description": "emsFeedRatio",
       "friendly_name": "emsFeedRatio",
-      "icon": null,
+      "icon": "mdi:transmission-tower-export",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_emsFeedRatio",
       "name": "SN_INVERTERBOX01_emsFeedRatio",
       "serial": "SN_INVERTERBOX01",
@@ -1427,7 +1427,7 @@
     "sensors": {
       "description": "emsKeepSoc",
       "friendly_name": "emsKeepSoc",
-      "icon": "mdi:battery",
+      "icon": "mdi:battery-lock",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_emsKeepSoc",
       "name": "SN_INVERTERBOX01_emsKeepSoc",
       "serial": "SN_INVERTERBOX01",
@@ -1448,7 +1448,7 @@
     "sensors": {
       "description": "emsSgReadyEn",
       "friendly_name": "emsSgReadyEn",
-      "icon": null,
+      "icon": "mdi:heat-pump",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_emsSgReadyEn",
       "name": "SN_INVERTERBOX01_emsSgReadyEn",
       "serial": "SN_INVERTERBOX01",
@@ -1465,7 +1465,7 @@
     "sensors": {
       "description": "emsSgRunStat",
       "friendly_name": "emsSgRunStat",
-      "icon": "mdi:information-outline",
+      "icon": "mdi:heat-pump",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_emsSgRunStat",
       "name": "SN_INVERTERBOX01_emsSgRunStat",
       "serial": "SN_INVERTERBOX01",
@@ -1482,7 +1482,7 @@
     "sensors": {
       "description": "emsWordMode",
       "friendly_name": "emsWordMode",
-      "icon": null,
+      "icon": "mdi:cog-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_emsWordMode",
       "name": "SN_INVERTERBOX01_emsWordMode",
       "serial": "SN_INVERTERBOX01",
@@ -1499,7 +1499,7 @@
     "sensors": {
       "description": "ethWanStat",
       "friendly_name": "ethWanStat",
-      "icon": null,
+      "icon": "mdi:ethernet",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_ethWanStat",
       "name": "SN_INVERTERBOX01_ethWanStat",
       "serial": "SN_INVERTERBOX01",
@@ -1516,7 +1516,7 @@
     "sensors": {
       "description": "iot4gSta",
       "friendly_name": "iot4gSta",
-      "icon": null,
+      "icon": "mdi:signal",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_iot4gSta",
       "name": "SN_INVERTERBOX01_iot4gSta",
       "serial": "SN_INVERTERBOX01",
@@ -1531,7 +1531,7 @@
       "via_device": null
     },
     "sensors": {
-      "description": "mppt1FaultCode",
+      "description": "Fehlercode PV-String 1 (Bedeutung nicht ver\u00f6ffentlicht; nachts meist 2)",
       "friendly_name": "mppt1FaultCode",
       "icon": "mdi:alert-circle-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_mppt1FaultCode",
@@ -1565,7 +1565,7 @@
       "via_device": null
     },
     "sensors": {
-      "description": "mppt2FaultCode",
+      "description": "Fehlercode PV-String 2 (Bedeutung nicht ver\u00f6ffentlicht; nachts meist 2)",
       "friendly_name": "mppt2FaultCode",
       "icon": "mdi:alert-circle-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_mppt2FaultCode",
@@ -1635,7 +1635,7 @@
     "sensors": {
       "description": "pcsAvgOvpProtectCnt",
       "friendly_name": "pcsAvgOvpProtectCnt",
-      "icon": null,
+      "icon": "mdi:shield-alert-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_pcsAvgOvpProtectCnt",
       "name": "SN_INVERTERBOX01_pcsAvgOvpProtectCnt",
       "serial": "SN_INVERTERBOX01",
@@ -1673,7 +1673,7 @@
     "sensors": {
       "description": "pcsOfpProtectCnt",
       "friendly_name": "pcsOfpProtectCnt",
-      "icon": null,
+      "icon": "mdi:shield-alert-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_pcsOfpProtectCnt",
       "name": "SN_INVERTERBOX01_pcsOfpProtectCnt",
       "serial": "SN_INVERTERBOX01",
@@ -1694,7 +1694,7 @@
     "sensors": {
       "description": "pcsOvpProtectCnt",
       "friendly_name": "pcsOvpProtectCnt",
-      "icon": null,
+      "icon": "mdi:shield-alert-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_pcsOvpProtectCnt",
       "name": "SN_INVERTERBOX01_pcsOvpProtectCnt",
       "serial": "SN_INVERTERBOX01",
@@ -1715,7 +1715,7 @@
     "sensors": {
       "description": "pcsPowerDeratingFlag",
       "friendly_name": "pcsPowerDeratingFlag",
-      "icon": null,
+      "icon": "mdi:speedometer-slow",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_pcsPowerDeratingFlag",
       "name": "SN_INVERTERBOX01_pcsPowerDeratingFlag",
       "serial": "SN_INVERTERBOX01",
@@ -1732,7 +1732,7 @@
     "sensors": {
       "description": "pcsPowerDeratingSet",
       "friendly_name": "pcsPowerDeratingSet",
-      "icon": null,
+      "icon": "mdi:speedometer-slow",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_pcsPowerDeratingSet",
       "name": "SN_INVERTERBOX01_pcsPowerDeratingSet",
       "serial": "SN_INVERTERBOX01",
@@ -1749,7 +1749,7 @@
     "sensors": {
       "description": "pcsRunSta",
       "friendly_name": "pcsRunSta",
-      "icon": "mdi:information-outline",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_pcsRunSta",
       "name": "SN_INVERTERBOX01_pcsRunSta",
       "serial": "SN_INVERTERBOX01",
@@ -1766,7 +1766,7 @@
     "sensors": {
       "description": "pcsUfpProtectCnt",
       "friendly_name": "pcsUfpProtectCnt",
-      "icon": null,
+      "icon": "mdi:shield-alert-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_pcsUfpProtectCnt",
       "name": "SN_INVERTERBOX01_pcsUfpProtectCnt",
       "serial": "SN_INVERTERBOX01",
@@ -1787,7 +1787,7 @@
     "sensors": {
       "description": "pcsUvp1ProtectCnt",
       "friendly_name": "pcsUvp1ProtectCnt",
-      "icon": null,
+      "icon": "mdi:shield-alert-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_pcsUvp1ProtectCnt",
       "name": "SN_INVERTERBOX01_pcsUvp1ProtectCnt",
       "serial": "SN_INVERTERBOX01",
@@ -1808,7 +1808,7 @@
     "sensors": {
       "description": "pcsUvp2ProtectCnt",
       "friendly_name": "pcsUvp2ProtectCnt",
-      "icon": null,
+      "icon": "mdi:shield-alert-outline",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_pcsUvp2ProtectCnt",
       "name": "SN_INVERTERBOX01_pcsUvp2ProtectCnt",
       "serial": "SN_INVERTERBOX01",
@@ -1829,7 +1829,7 @@
     "sensors": {
       "description": "relay14a",
       "friendly_name": "relay14a",
-      "icon": null,
+      "icon": "mdi:transmission-tower-off",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_relay14a",
       "name": "SN_INVERTERBOX01_relay14a",
       "serial": "SN_INVERTERBOX01",
@@ -1846,7 +1846,7 @@
     "sensors": {
       "description": "sys14aEnable",
       "friendly_name": "sys14aEnable",
-      "icon": null,
+      "icon": "mdi:transmission-tower-off",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_sys14aEnable",
       "name": "SN_INVERTERBOX01_sys14aEnable",
       "serial": "SN_INVERTERBOX01",
@@ -1863,7 +1863,7 @@
     "sensors": {
       "description": "sys14aType",
       "friendly_name": "sys14aType",
-      "icon": null,
+      "icon": "mdi:transmission-tower-off",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_sys14aType",
       "name": "SN_INVERTERBOX01_sys14aType",
       "serial": "SN_INVERTERBOX01",
@@ -1880,7 +1880,7 @@
     "sensors": {
       "description": "sysBatBackupRatio",
       "friendly_name": "sysBatBackupRatio",
-      "icon": null,
+      "icon": "mdi:battery-lock",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_sysBatBackupRatio",
       "name": "SN_INVERTERBOX01_sysBatBackupRatio",
       "serial": "SN_INVERTERBOX01",
@@ -1901,7 +1901,7 @@
     "sensors": {
       "description": "wifiStaStat",
       "friendly_name": "wifiStaStat",
-      "icon": null,
+      "icon": "mdi:wifi",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_wifiStaStat",
       "name": "SN_INVERTERBOX01_wifiStaStat",
       "serial": "SN_INVERTERBOX01",
@@ -2566,7 +2566,7 @@
     "sensors": {
       "description": "pcsAcFreq",
       "friendly_name": "pcsAcFreq",
-      "icon": null,
+      "icon": "mdi:sine-wave",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsAcFreq",
       "name": "SN_INVERTERBOX01_pcsAcFreq",
       "serial": "SN_INVERTERBOX01",
@@ -2608,7 +2608,7 @@
     "sensors": {
       "description": "pcsActivePowerLimitDn",
       "friendly_name": "pcsActivePowerLimitDn",
-      "icon": null,
+      "icon": "mdi:speedometer",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsActivePowerLimitDn",
       "name": "SN_INVERTERBOX01_pcsActivePowerLimitDn",
       "serial": "SN_INVERTERBOX01",
@@ -2629,7 +2629,7 @@
     "sensors": {
       "description": "pcsActivePowerLimitUp",
       "friendly_name": "pcsActivePowerLimitUp",
-      "icon": null,
+      "icon": "mdi:speedometer",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsActivePowerLimitUp",
       "name": "SN_INVERTERBOX01_pcsActivePowerLimitUp",
       "serial": "SN_INVERTERBOX01",
@@ -2881,7 +2881,7 @@
     "sensors": {
       "description": "breakerCapacityMax",
       "friendly_name": "breakerCapacityMax",
-      "icon": null,
+      "icon": "mdi:fuse",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_PARAM_CHANGE_REPORT_breakerCapacityMax",
       "name": "SN_INVERTERBOX01_breakerCapacityMax",
       "serial": "SN_INVERTERBOX01",
@@ -2898,7 +2898,7 @@
     "sensors": {
       "description": "breakerEnableState",
       "friendly_name": "breakerEnableState",
-      "icon": null,
+      "icon": "mdi:fuse",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_PARAM_CHANGE_REPORT_breakerEnableState",
       "name": "SN_INVERTERBOX01_breakerEnableState",
       "serial": "SN_INVERTERBOX01",
@@ -3082,7 +3082,7 @@
     "sensors": {
       "description": "meterL1Pwr",
       "friendly_name": "meterL1Pwr",
-      "icon": null,
+      "icon": "mdi:meter-electric",
       "internal_unique_id": "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterL1Pwr",
       "name": "SN_INVERTERBOX01_meter106_meterL1Pwr",
       "serial": "SN_INVERTERBOX01_meter106",
@@ -3106,7 +3106,7 @@
     "sensors": {
       "description": "meterL2Pwr",
       "friendly_name": "meterL2Pwr",
-      "icon": null,
+      "icon": "mdi:meter-electric",
       "internal_unique_id": "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterL2Pwr",
       "name": "SN_INVERTERBOX01_meter106_meterL2Pwr",
       "serial": "SN_INVERTERBOX01_meter106",
@@ -3130,7 +3130,7 @@
     "sensors": {
       "description": "meterL3Pwr",
       "friendly_name": "meterL3Pwr",
-      "icon": null,
+      "icon": "mdi:meter-electric",
       "internal_unique_id": "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterL3Pwr",
       "name": "SN_INVERTERBOX01_meter106_meterL3Pwr",
       "serial": "SN_INVERTERBOX01_meter106",
@@ -3154,7 +3154,7 @@
     "sensors": {
       "description": "meterTotalPwr",
       "friendly_name": "meterTotalPwr",
-      "icon": null,
+      "icon": "mdi:meter-electric",
       "internal_unique_id": "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterTotalPwr",
       "name": "SN_INVERTERBOX01_meter106_meterTotalPwr",
       "serial": "SN_INVERTERBOX01_meter106",
@@ -3217,7 +3217,7 @@
     "sensors": {
       "description": "Online",
       "friendly_name": "online",
-      "icon": "mdi:cloud-check",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_online",
       "name": "SN_INVERTERBOX01_online",
       "serial": "SN_INVERTERBOX01",
@@ -3234,7 +3234,7 @@
     "sensors": {
       "description": "sysBatChgUpLimit",
       "friendly_name": "sysBatChgUpLimit",
-      "icon": null,
+      "icon": "mdi:battery-arrow-up",
       "internal_unique_id": "SN_INVERTERBOX01_sysBatChgUpLimit",
       "name": "SN_INVERTERBOX01_sysBatChgUpLimit",
       "serial": "SN_INVERTERBOX01",
@@ -3255,7 +3255,7 @@
     "sensors": {
       "description": "sysBatDsgDownLimit",
       "friendly_name": "sysBatDsgDownLimit",
-      "icon": null,
+      "icon": "mdi:battery-arrow-down",
       "internal_unique_id": "SN_INVERTERBOX01_sysBatDsgDownLimit",
       "name": "SN_INVERTERBOX01_sysBatDsgDownLimit",
       "serial": "SN_INVERTERBOX01",
@@ -3297,7 +3297,7 @@
     "sensors": {
       "description": "sysGridSta",
       "friendly_name": "sysGridSta",
-      "icon": null,
+      "icon": "mdi:transmission-tower",
       "internal_unique_id": "SN_INVERTERBOX01_sysGridSta",
       "name": "SN_INVERTERBOX01_sysGridSta",
       "serial": "SN_INVERTERBOX01",
