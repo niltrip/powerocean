@@ -36,12 +36,15 @@ from homeassistant.const import (
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from .const import DOMAIN, PORTAL_URL
+from .entity_names import NAMED
 from .utils import (
     DIAGNOSTIC_KEYS,
     DIAGNOSTIC_PATTERNS,
     DISABLED_BY_DEFAULT,
     TRANSLATED_STATES,
     ReportMode,
+    name_context,
+    translation_key,
 )
 
 _DIAGNOSTIC_PATTERNS = [re.compile(pattern) for pattern in DIAGNOSTIC_PATTERNS]
@@ -93,11 +96,16 @@ class PowerOceanEndPoint:
     enabled_default: bool = True
     diagnostic: bool = False
     translation_key: str | None = None
+    # The name comes from the translations (else the key is the name)
+    named: bool = False
+    translated_states: bool = False
 
     @classmethod
     def from_datapoint(cls, datapoint: "Datapoint") -> "PowerOceanEndPoint":
         """Return the endpoint of a parsed datapoint, with metadata from its key."""
         key = datapoint.key
+        name_key = _name_translation_key(datapoint)
+        states = key in TRANSLATED_STATES
         return cls(
             internal_unique_id=datapoint.unique_id,
             serial=datapoint.device.sn,
@@ -110,13 +118,21 @@ class PowerOceanEndPoint:
             device_info=device_info(datapoint.device),
             enabled_default=datapoint.in_use and key not in DISABLED_BY_DEFAULT,
             diagnostic=_is_diagnostic(datapoint),
-            translation_key=translation_key(key) if key in TRANSLATED_STATES else None,
+            translation_key=name_key or (translation_key(key) if states else None),
+            named=name_key is not None,
+            translated_states=states,
         )
 
 
-def translation_key(key: str) -> str:
-    """Return the translation key of a datapoint key: emsWordMode -> ems_word_mode."""
-    return re.sub(r"(?<!^)(?=[A-Z])", "_", key).lower()
+def _name_translation_key(datapoint: "Datapoint") -> str | None:
+    """Return the translation key of the datapoint's name, None without a name."""
+    key = datapoint.key
+    context = name_context(datapoint.unique_id)
+    if context and (context, key) in NAMED:
+        return f"{translation_key(key)}_{context}"
+    if ("", key) in NAMED:
+        return translation_key(key)
+    return None
 
 
 def _is_diagnostic(datapoint: "Datapoint") -> bool:

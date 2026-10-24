@@ -38,6 +38,10 @@
 - **Translated states** (English, German) for operating mode, inverter and
   battery states and on/off values. Unknown values are shown as they are.
 - **Link to the EcoFlow web portal** on every device page.
+- **Readable entity names** in English and German, e.g. "State of charge"
+  instead of `bpSoc`. Entity IDs stay the same, also for new installations,
+  and names you set yourself are kept. Values whose meaning is unknown keep
+  their key as name.
 
 ### Changed
 

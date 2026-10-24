@@ -12,6 +12,7 @@ Classes:
     SensorMetaHelper: Helper class for sensor metadata (units, descriptions, icons)
 """
 
+import re
 from collections.abc import Callable
 from enum import Enum, StrEnum
 from typing import TypedDict
@@ -391,6 +392,30 @@ TRANSLATED_STATES: set[str] = {
     # Online/Offline (state stays "1"/"0")
     "online",
 }
+
+# Context of a datapoint whose name depends on where it appears: the values
+# of a battery pack, or of one inverter in a dual system (see
+# scripts/entity_names.csv, column "context")
+NAME_CONTEXTS: dict[str, str] = {
+    ReportMode.BATTERY.value: "pack",
+    ReportMode.PARALLEL.value: "inverter",
+}
+
+
+def name_context(unique_id: str) -> str:
+    """Return the name context of a datapoint, "" if none applies."""
+    for report, context in NAME_CONTEXTS.items():
+        if report in unique_id:
+            return context
+    return ""
+
+
+def translation_key(key: str) -> str:
+    """Return the translation key of a datapoint key: emsWordMode -> ems_word_mode."""
+    snake = re.sub(r"(?<!^)(?=[A-Z])", "_", key).lower()
+    # mpptPv1_vol -> mppt_pv1_vol (hassfest rejects "__")
+    return re.sub(r"_+", "_", snake)
+
 
 # Entities of these keys are created disabled; users can enable them.
 # Applies to new entities only: existing ones keep their state.

@@ -1,0 +1,261 @@
+group;key;context;en;de;note
+Übersicht;housePower;;House consumption;Hausverbrauch;berechnet
+Übersicht;gridPower;;Grid power;Netzleistung;berechnet, + Bezug / − Einspeisung
+Übersicht;mpptPv_pwrTotal;;Solar power;Solarleistung;berechnet
+Übersicht;gridToBattery;;Grid to battery;Netz zu Batterie;
+Übersicht;gridToHouse;;Grid to house;Netz zu Haus;
+Übersicht;batteryToHouse;;Battery to house;Batterie zu Haus;
+Übersicht;batteryToGrid;;Battery to grid;Batterie zu Netz;
+Übersicht;solarToBattery;;Solar to battery;Solar zu Batterie;
+Übersicht;solarToGrid;;Solar to grid;Solar zu Netz;
+Übersicht;solarToHouse;;Solar to house;Solar zu Haus;
+Übersicht;sysLoadPwr;;House consumption (summary);Hausverbrauch (Übersicht);Cloud-Übersicht
+Übersicht;sysGridPwr;;Grid power (summary);Netzleistung (Übersicht);Cloud-Übersicht
+Übersicht;mpptPwr;;Solar power (summary);Solarleistung (Übersicht);Cloud-Übersicht
+Übersicht;bpPwr;;Battery power (summary);Batterieleistung (Übersicht);Cloud-Übersicht
+Übersicht;bpSoc;;Battery state of charge;Batterie-Ladezustand;
+Übersicht;bpRemainWatth;;Battery remaining energy;Batterie-Restenergie;
+Übersicht;bpTotalChgEnergy;;Battery charged energy;Batterie geladen gesamt;
+Übersicht;bpTotalDsgEnergy;;Battery discharged energy;Batterie entladen gesamt;
+Übersicht;todayElectricityGeneration;;Solar energy today;Solarertrag heute;
+Übersicht;monthElectricityGeneration;;Solar energy this month;Solarertrag Monat;
+Übersicht;yearElectricityGeneration;;Solar energy this year;Solarertrag Jahr;
+Übersicht;totalElectricityGeneration;;Solar energy total;Solarertrag gesamt;
+Übersicht;online;;Online;Online;
+Übersicht;systemName;;System name;Anlagenname;
+Übersicht;errorCount;;Active errors;Aktive Fehler;
+Übersicht;heartbeatUpdateTime;;Last update;Letzte Aktualisierung;
+Übersicht;energyStreamUpdateTime;;Last update energy flow;Letzte Aktualisierung Energiefluss;
+Übersicht;emsChangeUpdateTime;;Last update status;Letzte Aktualisierung Status;
+Übersicht;dcdcPwr;;DC-DC power;DC-DC-Leistung;Bedeutung geraten
+Dual: je Wechselrichter;sysLoadPwr;inverter;House consumption;Hausverbrauch;Energiefluss je Wechselrichter, ohne berechnetes Gegenstück
+Dual: je Wechselrichter;sysGridPwr;inverter;Grid power;Netzleistung;Energiefluss je Wechselrichter, ohne berechnetes Gegenstück
+Dual: je Wechselrichter;mpptPwr;inverter;Solar power;Solarleistung;Energiefluss je Wechselrichter, ohne berechnetes Gegenstück
+Dual: je Wechselrichter;bpPwr;inverter;Battery power;Batterieleistung;Energiefluss je Wechselrichter, ohne berechnetes Gegenstück
+Energiefluss-Report;pv1Pwr;;PV 1 power (energy flow);PV 1 Leistung (Energiefluss);
+Energiefluss-Report;pv2Pwr;;PV 2 power (energy flow);PV 2 Leistung (Energiefluss);
+Energiefluss-Report;pv3Pwr;;PV 3 power (energy flow);PV 3 Leistung (Energiefluss);
+Energiefluss-Report;pvInvPwr;;Second PV inverter power;Leistung zweiter PV-Wechselrichter;
+Energiefluss-Report;otherPvPwr;;Other PV power;Sonstige PV-Leistung;
+Energiefluss-Report;gridPwr;;Grid power (energy flow);Netzleistung (Energiefluss);
+Energiefluss-Report;loadPwr;;House consumption (energy flow);Hausverbrauch (Energiefluss);
+Heartbeat;pcsActPwr;;Inverter power;Wechselrichterleistung;
+Heartbeat;pcsMeterPower;;Grid power (meter);Netzleistung (Zähler);
+Heartbeat;emsBpPower;;Battery power;Batterieleistung;
+Heartbeat;pcsAcFreq;;Grid frequency;Netzfrequenz;
+Heartbeat;emsNtcTempMax;;Inverter temperature;Wechselrichtertemperatur;
+Heartbeat;pcsActivePowerLimitUp;;Power limit charge;Leistungsgrenze Laden;Bedeutung geraten
+Heartbeat;pcsActivePowerLimitDn;;Power limit discharge;Leistungsgrenze Entladen;Bedeutung geraten
+Heartbeat;pcsAPhase_vol;;L1 voltage;L1 Spannung;
+Heartbeat;pcsAPhase_amp;;L1 current;L1 Strom;
+Heartbeat;pcsAPhase_actPwr;;L1 power;L1 Leistung;
+Heartbeat;pcsAPhase_reactPwr;;L1 reactive power;L1 Blindleistung;
+Heartbeat;pcsAPhase_apparentPwr;;L1 apparent power;L1 Scheinleistung;
+Heartbeat;pcsBPhase_vol;;L2 voltage;L2 Spannung;
+Heartbeat;pcsBPhase_amp;;L2 current;L2 Strom;
+Heartbeat;pcsBPhase_actPwr;;L2 power;L2 Leistung;
+Heartbeat;pcsBPhase_reactPwr;;L2 reactive power;L2 Blindleistung;
+Heartbeat;pcsBPhase_apparentPwr;;L2 apparent power;L2 Scheinleistung;
+Heartbeat;pcsCPhase_vol;;L3 voltage;L3 Spannung;
+Heartbeat;pcsCPhase_amp;;L3 current;L3 Strom;
+Heartbeat;pcsCPhase_actPwr;;L3 power;L3 Leistung;
+Heartbeat;pcsCPhase_reactPwr;;L3 reactive power;L3 Blindleistung;
+Heartbeat;pcsCPhase_apparentPwr;;L3 apparent power;L3 Scheinleistung;
+Heartbeat;mpptPv1_pwr;;PV 1 power;PV 1 Leistung;
+Heartbeat;mpptPv1_vol;;PV 1 voltage;PV 1 Spannung;
+Heartbeat;mpptPv1_amp;;PV 1 current;PV 1 Strom;
+Heartbeat;mpptPv1_lightSta;;PV 1 light detected;PV 1 Licht erkannt;
+Heartbeat;mpptPv2_pwr;;PV 2 power;PV 2 Leistung;
+Heartbeat;mpptPv2_vol;;PV 2 voltage;PV 2 Spannung;
+Heartbeat;mpptPv2_amp;;PV 2 current;PV 2 Strom;
+Heartbeat;mpptPv2_lightSta;;PV 2 light detected;PV 2 Licht erkannt;
+Heartbeat;mpptPv3_pwr;;PV 3 power;PV 3 Leistung;
+Heartbeat;mpptPv3_vol;;PV 3 voltage;PV 3 Spannung;
+Heartbeat;mpptPv3_amp;;PV 3 current;PV 3 Strom;
+Heartbeat;mpptPv3_lightSta;;PV 3 light detected;PV 3 Licht erkannt;
+Heartbeat;mpptPv4_pwr;;PV 4 power;PV 4 Leistung;
+Heartbeat;mpptPv4_vol;;PV 4 voltage;PV 4 Spannung;
+Heartbeat;mpptPv4_amp;;PV 4 current;PV 4 Strom;
+Heartbeat;mpptPv4_lightSta;;PV 4 light detected;PV 4 Licht erkannt;
+Heartbeat;mpptInsResist;;Insulation resistance;Isolationswiderstand;
+Heartbeat;emsBpAliveNum;;Batteries active;Aktive Batterien;
+Heartbeat;bpOnlineSum;;Batteries online;Batterien online;
+Heartbeat;emsMpptRunState;;MPPT state;MPPT-Zustand;
+Heartbeat;emsMpptSelfcheckState;;MPPT self-test;MPPT-Selbsttest;
+Heartbeat;emsBpSelfcheckState;;Battery self-test;Batterie-Selbsttest;
+Status und Einstellungen;emsWordMode;;Operating mode;Betriebsmodus;
+Status und Einstellungen;pcsRunSta;;Inverter state;Wechselrichterstatus;
+Status und Einstellungen;sysGridSta;;Grid state;Netzstatus;Bedeutung geraten
+Status und Einstellungen;emsFeedPwr;;Feed-in limit;Einspeisegrenze;
+Status und Einstellungen;emsFeedRatio;;Feed-in limit (percent);Einspeisegrenze (Prozent);
+Status und Einstellungen;emsFeedMode;;Feed-in mode;Einspeisemodus;
+Status und Einstellungen;sysBatBackupRatio;;Backup reserve;Notstromreserve;
+Status und Einstellungen;emsKeepSoc;;Reserved state of charge;Reservierter Ladezustand;Bedeutung geraten
+Status und Einstellungen;sysBatChgUpLimit;;Charge limit;Ladegrenze;
+Status und Einstellungen;sysBatDsgDownLimit;;Discharge limit;Entladegrenze;
+Status und Einstellungen;batteryLimitReason;;Battery limit reason;Grund der Batteriebegrenzung;
+Status und Einstellungen;pcsPowerDeratingFlag;;Power derating;Leistungsreduzierung;
+Status und Einstellungen;pcsPowerDeratingSet;;Power derating setting;Leistungsreduzierung (Einstellung);
+Status und Einstellungen;sys14aEnable;;§14a enabled;§14a aktiv;
+Status und Einstellungen;sys14aType;;§14a type;§14a-Typ;
+Status und Einstellungen;relay14a;;§14a relay;§14a-Relais;
+Status und Einstellungen;emsSgReadyEn;;SG Ready enabled;SG Ready aktiv;
+Status und Einstellungen;emsSgRunStat;;SG Ready state;SG-Ready-Zustand;
+Status und Einstellungen;breakerEnableState;;Load management;Lastmanagement;
+Status und Einstellungen;breakerCapacityMax;;House connection limit;Hausanschluss-Grenze;
+Status und Einstellungen;wifiStaStat;;Wi-Fi state;WLAN-Status;
+Status und Einstellungen;ethWanStat;;Ethernet state;LAN-Status;
+Status und Einstellungen;iot4gSta;;4G state;4G-Status;
+Status und Einstellungen;emsCtrlLedBright;;LED brightness;LED-Helligkeit;
+Status und Einstellungen;pcsAcErrCode;;AC error code;AC-Fehlercode;
+Status und Einstellungen;pcsDcErrCode;;DC error code;DC-Fehlercode;
+Status und Einstellungen;pcsAcWarningCode;;AC warning code;AC-Warncode;
+Status und Einstellungen;mppt1FaultCode;;PV 1 fault code;PV 1 Fehlercode;
+Status und Einstellungen;mppt1WarningCode;;PV 1 warning code;PV 1 Warncode;
+Status und Einstellungen;mppt2FaultCode;;PV 2 fault code;PV 2 Fehlercode;
+Status und Einstellungen;mppt2WarningCode;;PV 2 warning code;PV 2 Warncode;
+Status und Einstellungen;mppt3FaultCode;;PV 3 fault code;PV 3 Fehlercode;
+Status und Einstellungen;mppt3WarningCode;;PV 3 warning code;PV 3 Warncode;
+Status und Einstellungen;mppt4FaultCode;;PV 4 fault code;PV 4 Fehlercode;
+Status und Einstellungen;mppt4WarningCode;;PV 4 warning code;PV 4 Warncode;
+Status und Einstellungen;pcsOvpProtectCnt;;Overvoltage trips;Auslösungen Überspannung;
+Status und Einstellungen;pcsAvgOvpProtectCnt;;Average overvoltage trips;Auslösungen Überspannung (Mittelwert);
+Status und Einstellungen;pcsUvp1ProtectCnt;;Undervoltage trips level 1;Auslösungen Unterspannung Stufe 1;
+Status und Einstellungen;pcsUvp2ProtectCnt;;Undervoltage trips level 2;Auslösungen Unterspannung Stufe 2;
+Status und Einstellungen;pcsOfpProtectCnt;;Overfrequency trips;Auslösungen Überfrequenz;
+Status und Einstellungen;pcsUfpProtectCnt;;Underfrequency trips;Auslösungen Unterfrequenz;
+Batterie;bpSoc;pack;State of charge;Ladezustand;am Batterie-Gerät
+Batterie;bpPwr;pack;Power;Leistung;am Batterie-Gerät
+Batterie;bpRemainWatth;pack;Remaining energy;Restenergie;am Batterie-Gerät
+Batterie;bpAccuChgEnergy;;Charged energy;Geladene Energie;
+Batterie;bpAccuDsgEnergy;;Discharged energy;Entladene Energie;
+Batterie;bpTimestamp;;Last update;Letzte Aktualisierung;
+Batterie;bpVol;;Voltage;Spannung;
+Batterie;bpAmp;;Current;Strom;
+Batterie;bpSoh;;State of health;Gesundheitszustand;
+Batterie;bpRealSoh;;Real state of health;Tatsächlicher Gesundheitszustand;
+Batterie;bpRealSoc;;Real state of charge;Tatsächlicher Ladezustand;
+Batterie;bpCycles;;Charge cycles;Ladezyklen;
+Batterie;bpCellMaxVol;;Highest cell voltage;Höchste Zellspannung;
+Batterie;bpCellMinVol;;Lowest cell voltage;Niedrigste Zellspannung;
+Batterie;bpMaxCellTemp;;Highest cell temperature;Höchste Zelltemperatur;
+Batterie;bpMinCellTemp;;Lowest cell temperature;Niedrigste Zelltemperatur;
+Batterie;bpEnvTemp;;Ambient temperature;Umgebungstemperatur;
+Batterie;bpMaxMosTemp;;Highest MOSFET temperature;Höchste MOSFET-Temperatur;
+Batterie;bpMinMosTemp;;Lowest MOSFET temperature;Niedrigste MOSFET-Temperatur;
+Batterie;bmsRunSta;;BMS state;BMS-Status;
+Batterie;bmsChgDsgSta;;Charge state;Lade-/Entladezustand;
+Batterie;bpSysState;;System state;Systemzustand;
+Batterie;dabModSta;;DAB module state;DAB-Modulstatus;
+Batterie;bpBalanceState;;Cell balancing;Zellausgleich;Bedeutung geraten
+Batterie;bpErrCode;;Error code;Fehlercode;
+Batterie;bpSn;;Serial number;Seriennummer;
+Batterie;moduleAplSwVer;;Firmware version;Firmware-Version;
+Smart Meter;meterL1Pwr;;L1 power;L1 Leistung;
+Smart Meter;meterL2Pwr;;L2 power;L2 Leistung;
+Smart Meter;meterL3Pwr;;L3 power;L3 Leistung;
+Smart Meter;meterTotalPwr;;Power;Leistung;
+DC Fit;pvInDayEnergy;;Solar energy today;Solarertrag heute;
+DC Fit;gridInDayEnergy;;Grid import today;Netzbezug heute;
+DC Fit;gridOutDayEnergy;;Grid export today;Einspeisung heute;
+DC Fit;bpInDayEnergy;;Battery charged today;Batterie geladen heute;
+DC Fit;bpOutDayEnergy;;Battery discharged today;Batterie entladen heute;
+DC Fit;loadDayEnergy;;House consumption today;Hausverbrauch heute;
+DC Fit;meterTotalPower;;Meter power;Zählerleistung;
+DC Fit;mpptRatePower;;Rated PV power;PV-Nennleistung;Bedeutung geraten
+DC Fit;mpptWithstandVoltage;;PV maximum input voltage;PV-Maximalspannung;Bedeutung geraten
+DC Fit;startDischargePower;;Discharge start power;Entladen ab Leistung;Bedeutung geraten
+DC Fit;manualSetStartChargePower;;Charge start power;Laden ab Leistung;Bedeutung geraten
+DC Fit;currentNetif;;Network connection;Netzwerkverbindung;
+DC Fit;meterAVoltage;;Meter L1 voltage;Zähler L1 Spannung;
+DC Fit;meterACurrent;;Meter L1 current;Zähler L1 Strom;
+DC Fit;meterBVoltage;;Meter L2 voltage;Zähler L2 Spannung;
+DC Fit;meterBCurrent;;Meter L2 current;Zähler L2 Strom;
+DC Fit;meterCVoltage;;Meter L3 voltage;Zähler L3 Spannung;
+DC Fit;meterCCurrent;;Meter L3 current;Zähler L3 Strom;
+Ohne Namen: PowerOcean DC fit;heatingPower;;;;
+Ohne Namen: PowerOcean DC fit;emsSystemState;;;;
+Ohne Namen: PowerOcean DC fit;meterPowerFactor;;;;
+Ohne Namen: PowerOcean DC fit;isPvToInvDirectly;;;;
+Ohne Namen: PowerOcean DC fit;bp1SocCoefficient;;;;
+Ohne Namen: PowerOcean DC fit;sysRunMeterFeedPower;;;;
+Ohne Namen: PowerOcean DC fit;inverterBand;;;;
+Ohne Namen: PowerOcean DC fit;bpDichargeAbilityAdjustValueLv2;;;;
+Ohne Namen: PowerOcean DC fit;bpDichargeAbilityAdjustValueLv1;;;;
+Ohne Namen: PowerOcean DC fit;meterAddress;;;;
+Ohne Namen: PowerOcean DC fit;gridFeedRate;;;;
+Ohne Namen: PowerOcean DC fit;batterySocLowerLimit;;;;
+Ohne Namen: PowerOcean DC fit;bpChgDsgSta;;;;
+Ohne Namen: PowerOcean DC fit;autoDetectStartPowerEn;;;;
+Ohne Namen: PowerOcean DC fit;meterPhasePower;;;;
+Ohne Namen: PowerOcean DC fit;sysErrCode;;;;
+Ohne Namen: PowerOcean DC fit;bpBusVoltageBaseCoefficient;;;;
+Ohne Namen: PowerOcean DC fit;bpSaveSocStopDelay;;;;
+Ohne Namen: PowerOcean DC fit;bpBusVoltCoefficient;;;;
+Ohne Namen: PowerOcean DC fit;pvInvWiringMode;;;;
+Ohne Namen: PowerOcean DC fit;underVoltageProtectPoint;;;;
+Ohne Namen: PowerOcean DC fit;batterySocUpperLimit;;;;
+Ohne Namen: PowerOcean DC fit;bpRunDelay;;;;
+Ohne Namen: PowerOcean DC fit;bpStopDelay;;;;
+Ohne Namen: PowerOcean DC fit;errCode;;;;
+Ohne Namen: PowerOcean DC fit;sysRunMeterTakePower;;;;
+Ohne Namen: PowerOcean DC fit;bp3SocCoefficient;;;;
+Ohne Namen: PowerOcean DC fit;bpErrorCodeMask;;;;
+Ohne Namen: PowerOcean DC fit;workingMode;;;;
+Ohne Namen: PowerOcean DC fit;appCtrlState;;;;
+Ohne Namen: PowerOcean DC fit;bpSocBaseCoefficient;;;;
+Ohne Namen: PowerOcean DC fit;emsErrorCodeMask;;;;
+Ohne Namen: PowerOcean DC fit;meterRatio;;;;
+Ohne Namen: PowerOcean DC fit;sysWorkSta;;;;
+Ohne Namen: PowerOcean DC fit;pv2ErrorCodeMask;;;;
+Ohne Namen: PowerOcean DC fit;pv1ErrorCodeMask;;;;
+Ohne Namen: PowerOcean DC fit;pvWiringType;;;;
+Ohne Namen: PowerOcean DC fit;emsErrCode;;;;
+Ohne Namen: PowerOcean DC fit;bp2SocCoefficient;;;;
+Ohne Namen: PowerOcean DC fit;pvaErrorCodeMask;;;;
+Ohne Namen: PowerOcean DC fit;invWiringType;;;;
+Ohne Namen: PowerOcean DC fit;disOrChargeAbilityStepValue;;;;
+Ohne Namen: PowerOcean DC fit;reportCycleTime;;;;
+Ohne Namen: PowerOcean DC fit;meterType;;;;
+Ohne Namen: PowerOcean DC fit;mpptVoltageMinimum;;;;
+Ohne Namen: PowerOcean DC fit;mpptVoltageMaximum;;;;
+Ohne Namen: PowerOcean DC fit;gridFeedPowerMinimum;;;;
+Ohne Namen: PowerOcean DC fit;epoSwitchState;;;;
+Ohne Namen: PowerOcean Inverter;devSn;;;;
+Ohne Namen: PowerOcean Charger;evSn;;;;
+Ohne Namen: PowerOcean Charger;workMode;;;;
+Ohne Namen: PowerOcean Charger;useGridFirst;;;;
+Ohne Namen: PowerOcean Charger;evOnoffSet;;;;
+Ohne Namen: PowerOcean Charger;orderStartTimestamp;;;;
+Ohne Namen: PowerOcean Charger;onlineBits;;;;
+Ohne Namen: PowerOcean Charger;errorCode;;;;
+Ohne Namen: PowerOcean Charger;evUserManual;;;;
+Ohne Namen: PowerOcean Charger;evChargingEnergy;;;;
+Ohne Namen: PowerOcean Charger;evCurrSet;;;;
+Ohne Namen: PowerOcean Charger;chargeVehicleId;;;;
+Ohne Namen: PowerOcean Charger;chargingStatus;;;;
+Ohne Namen: PowerOcean Charger;evPwr;;;;
+Ohne Namen: PowerOcean PowerPulse;warnCode;;;;
+Ohne Namen: PowerOcean PowerPulse;socCur;;;;
+Ohne Namen: PowerOcean PowerPulse;startState;;;;
+Ohne Namen: PowerOcean PowerPulse;pclPwrBase;;;;
+Ohne Namen: PowerOcean PowerPulse;realPowerLock;;;;
+Ohne Namen: PowerOcean PowerPulse;feedPwrCap;;;;
+Ohne Namen: PowerOcean PowerPulse;allocatedPower;;;;
+Ohne Namen: PowerOcean PowerPulse;refPower;;;;
+Ohne Namen: PowerOcean PowerPulse;timeToUseCar;;;;
+Ohne Namen: PowerOcean PowerPulse;chargeTarget;;;;
+Ohne Namen: PowerOcean PowerPulse;chargingPwr;;;;
+Ohne Namen: PowerOcean Heating Rod;hrSn;;;;
+Ohne Namen: PowerOcean Heating Rod;selfcheckPercent;;;;
+Ohne Namen: PowerOcean Heating Rod;temp;;;;
+Ohne Namen: PowerOcean Heating Rod;targetTemp;;;;
+Ohne Namen: PowerOcean Heating Rod;runFlag;;;;
+Ohne Namen: PowerOcean Heating Rod;mode;;;;
+Ohne Namen: PowerOcean Heating Rod;waterTankVolume;;;;
+Ohne Namen: PowerOcean Heating Rod;runStat;;;;
+Ohne Namen: PowerOcean Heating Rod;targetPower;;;;
+Ohne Namen: PowerOcean PowerGlow;hrPwr;;;;
+Ohne Namen: PowerOcean PowerGlow;fromPv;;;;
+Ohne Namen: PowerOcean PowerGlow;fromBat;;;;
+Ohne Namen: PowerOcean PowerGlow;fromGrid;;;;
