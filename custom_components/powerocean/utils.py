@@ -8,21 +8,13 @@ PowerOcean Home Assistant integration.
 Classes:
     BoxSchema: TypedDict for device schema definitions
     ReportMode: Enumeration for different report modes
-    DeviceRole: Enumeration for device roles
     SensorMetaHelper: Helper class for sensor metadata (units, descriptions, icons)
 """
 
 import re
 from collections.abc import Callable
-from enum import Enum, StrEnum
+from enum import Enum
 from typing import TypedDict
-
-DEVICE_SN_KEYS = (
-    "evSn",
-    "hrSn",
-    "bpSn",
-    "devSn",
-)
 
 
 class ReportMode(Enum):
@@ -486,7 +478,6 @@ class BoxSchema(TypedDict):
     """Schema for a detected device (box) in PowerOcean responses."""
 
     detect: Callable[[dict], bool]
-    mode: str  # "boxed" | "single"
     sn_path: list[str]
     model: str
     name_prefix: str
@@ -496,7 +487,6 @@ class BoxSchema(TypedDict):
 
 BOX_SCHEMAS: dict[str, BoxSchema] = {
     "battery": {
-        "mode": "boxed",
         "detect": lambda p: "bpSn" in p,
         "sn_path": ["bpSn"],
         "model": "PowerOcean Battery",
@@ -505,7 +495,6 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
         "sensors": REPORT_DATAPOINTS[ReportMode.BATTERY.value],
     },
     "wallbox": {
-        "mode": "boxed",
         "detect": lambda p: "pileChargingParamReport" in p,
         "sn_path": ["devInfo", "devSn"],
         "model": "PowerOcean PowerPulse",
@@ -536,7 +525,6 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
         "sensors": REPORT_DATAPOINTS[ReportMode.WALLBOX.value],
     },
     "charge": {
-        "mode": "single",
         "detect": lambda p: "evPlugAndPlay" in p,
         "sn_path": ["evSn"],
         "model": "PowerOcean PowerPulse",
@@ -545,7 +533,6 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
         "sensors": REPORT_DATAPOINTS[ReportMode.CHARGEBOX.value],
     },
     "heating_rod": {
-        "mode": "single",
         "detect": lambda p: "hrSn" in p,
         "sn_path": ["hrSn"],
         "model": "PowerOcean PowerGlow",
@@ -554,15 +541,6 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
         "sensors": REPORT_DATAPOINTS[ReportMode.HEATING_ROD.value],
     },
 }
-
-
-class DeviceRole(StrEnum):
-    """Enumeration for device roles in the PowerOcean integration."""
-
-    MASTER = "_master"
-    SLAVE = "_slave"
-    ALL = "_all"
-    EMPTY = ""  # Used when no specific role is assigned
 
 
 def _join_id(*parts: str) -> str:
@@ -616,28 +594,3 @@ def decode_version(value: int) -> str:
     patch = (value >> 8) & 0xFF
     build = value & 0xFF
     return f"{major}.{minor}.{patch}.{build}"
-
-
-def decode_product_info(value: int) -> dict[str, int]:
-    """
-    Decode a 16-bit product information value.
-
-    The integer is interpreted as:
-        - bits 8-15: product ID
-        - bits 0-7: hardware revision
-
-    Args:
-        value: Encoded product information integer.
-
-    Returns:
-        Dictionary containing:
-            - product_id
-            - hardware_revision
-
-    """
-    value = int(value)
-
-    return {
-        "product_id": (value >> 8) & 0xFF,
-        "hardware_revision": value & 0xFF,
-    }

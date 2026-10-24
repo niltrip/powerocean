@@ -76,7 +76,6 @@ class PowerOceanEndPoint:
         serial (str): Serial number of the device.
         name (str): Name of the endpoint.
         friendly_name (str): Human-readable name.
-        value (str | int | float | None): Value of the endpoint.
         cls: (SensorClassTuple | None): Unit of measurement.
         description (str): Description of the endpoint.
         icon (str | None): Icon representing the endpoint.
@@ -88,7 +87,6 @@ class PowerOceanEndPoint:
     serial: str
     name: str
     friendly_name: str
-    value: str | int | float | None
     cls: SensorClassTuple | None
     description: str
     icon: str | None
@@ -111,7 +109,6 @@ class PowerOceanEndPoint:
             serial=datapoint.device.sn,
             name=f"{datapoint.device.sn}_{key}",
             friendly_name=key,
-            value=None,
             cls=SensorMetaHelper.get_class(key),
             description=SensorMetaHelper.get_description(key),
             icon=SensorMetaHelper.get_special_icon(key),

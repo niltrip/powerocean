@@ -89,7 +89,6 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
         super().__init__(coordinator)
         self.endpoint = endpoint
         self._endpoint_id = endpoint.internal_unique_id
-        self._endpoint_name = endpoint.name
         self._endpoint_friendly_name = endpoint.friendly_name
         self._endpoint_icon = endpoint.icon
         self._endpoint_description = endpoint.description
