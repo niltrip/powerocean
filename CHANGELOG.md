@@ -42,6 +42,9 @@
   instead of `bpSoc`. Entity IDs stay the same, also for new installations,
   and names you set yourself are kept. Values whose meaning is unknown keep
   their key as name.
+- **Devices that are gone can be deleted**, e.g. a replaced battery pack:
+  *device page → ⋮ → Delete*. Only possible while the device sends no
+  values. If it returns, it is added again.
 
 ### Changed
 
@@ -57,3 +60,5 @@
 - Percentages are shown without decimals, insulation resistance with one.
   Stored values keep their full precision.
 - Battery state of charge shows the battery level icon.
+- Sensors without a current value, e.g. of a battery pack that is offline,
+  are shown as *unavailable* instead of *unknown*.
