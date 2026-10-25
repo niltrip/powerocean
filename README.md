@@ -54,7 +54,7 @@ The integration then additionally connects to the EcoFlow cloud the way the EcoF
 - **Smart meter:** its firmware.
 - The other modules (inverter power stage, Wi-Fi) are listed in the diagnostics.
 
-All values still come from the regular polling. Nothing is changed on the system. If the connection fails, the integration keeps working and logs a warning.
+All values still come from the regular polling. Nothing is changed on the system. If the connection fails, the integration keeps working and logs a warning. When you switch the option off, the firmware of the inverter and the smart meter is removed from their device pages again.
 
 
 

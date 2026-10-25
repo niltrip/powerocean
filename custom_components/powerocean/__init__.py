@@ -96,6 +96,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: PowerOceanConfigEntry) -
     if entry.options.get(CONF_MQTT, False):
         entry.async_on_unload(coordinator.async_stop_mqtt)
         await coordinator.async_start_mqtt()
+    else:
+        # Switched off: no outdated firmware on the device pages
+        coordinator.clear_mqtt_firmware()
 
     return True
 

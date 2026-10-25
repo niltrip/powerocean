@@ -222,11 +222,28 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             # Message arrived while the connection was being closed
             return
         self.modules = modules
+        inverter, meter_device = self._mqtt_firmware_devices
         firmware: dict[str, str] = {}
         if ems := modules.get(MODULE_EMS):
-            firmware[self.api.sn] = ems.firmware
+            firmware[inverter] = ems.firmware
         if meter := modules.get(MODULE_METER):
-            # Device of the smart meter, see parse._read_meters
-            firmware[f"{self.api.sn}_meter{MODULE_METER}"] = meter.firmware
+            firmware[meter_device] = meter.firmware
         self._mqtt_firmware = firmware
         self._update_firmware(self._http_firmware)
+
+    @property
+    def _mqtt_firmware_devices(self) -> tuple[str, str]:
+        """Devices whose firmware only comes from MQTT: inverter, smart meter."""
+        # Device of the smart meter, see parse._read_meters
+        return self.api.sn, f"{self.api.sn}_meter{MODULE_METER}"
+
+    @callback
+    def clear_mqtt_firmware(self) -> None:
+        """Remove the firmware a former MQTT connection showed (option off)."""
+        device_registry = dr.async_get(self.hass)
+        for sn in self._mqtt_firmware_devices:
+            if sn in self.firmware:
+                continue
+            device = device_registry.async_get_device(identifiers={(DOMAIN, sn)})
+            if device and device.sw_version:
+                device_registry.async_update_device(device.id, sw_version=None)

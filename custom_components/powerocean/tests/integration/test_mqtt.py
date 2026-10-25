@@ -193,6 +193,33 @@ async def test_module_firmware_on_the_devices(
     assert client.stopped
 
 
+async def test_switched_off_removes_the_firmware(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    entry = await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+    await hass.async_add_executor_job(client.on_modules, MODULES)
+    await hass.async_block_till_done()
+    battery_firmware = dict(entry.runtime_data.firmware)
+    del battery_firmware[SN], battery_firmware[METER]
+
+    # As the options flow does: save, then reload
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, "mqtt": False}
+    )
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert client.stopped
+    assert len(FakeMqtt.instances) == 1
+    assert _sw_version(hass, SN) is None
+    assert _sw_version(hass, METER) is None
+    # The battery firmware comes from HTTP and stays
+    assert battery_firmware
+    for sn, version in battery_firmware.items():
+        assert _sw_version(hass, sn) == version
+
+
 async def test_full_state_requested_again(
     hass: HomeAssistant, cloud: AsyncMock, freezer: FrozenDateTimeFactory
 ) -> None:
