@@ -197,6 +197,13 @@ class SensorClassHelper:
             ),
             (SensorDeviceClass.TIMESTAMP, None, None),
         ),
+        # Remaining energy of the battery is a fill level, not a meter: it
+        # rises and falls like the state of charge
+        "bpRemainWatth": (
+            SensorDeviceClass.ENERGY_STORAGE,
+            UnitOfEnergy.WATT_HOUR,
+            SensorStateClass.MEASUREMENT,
+        ),
         "emsNtcTempMax": (
             SensorDeviceClass.TEMPERATURE,
             UnitOfTemperature.CELSIUS,

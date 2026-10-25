@@ -277,9 +277,9 @@
       "name": "SN_INVERTERBOX01_bpRemainWatth",
       "serial": "SN_INVERTERBOX01",
       "unit": [
-        "energy",
+        "energy_storage",
         "Wh",
-        "total"
+        "measurement"
       ]
     }
   },

@@ -13,6 +13,12 @@
 - **Wallbox `orderStartTimestamp` is a timestamp.** It was shown as a current
   in A by mistake. Home Assistant reports under *Settings → Repairs* that
   the stored statistics no longer match and offers to delete them.
+- **Battery `bpRemainWatth` ("Remaining energy") is a stored energy.** It
+  is a fill level that rises and falls like the state of charge, not an
+  energy meter. Its long-term statistics now keep mean, minimum and maximum
+  instead of a sum, and the energy dashboard no longer offers it. Home
+  Assistant reports under *Developer tools → Statistics* that the state
+  class changed and offers to fix the old statistics.
 - **Some sensors moved to the "Diagnostic" section** of their device page:
   values per phase, voltage and current of the PV strings, battery voltage,
   current and temperatures, and values that are also shown as calculated

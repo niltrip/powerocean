@@ -429,9 +429,9 @@
       "name": "SN_BATTERIEPACK01_bpRemainWatth",
       "serial": "SN_BATTERIEPACK01",
       "unit": [
-        "energy",
+        "energy_storage",
         "Wh",
-        "total"
+        "measurement"
       ]
     }
   },
@@ -1041,9 +1041,9 @@
       "name": "SN_BATTERIEPACK02_bpRemainWatth",
       "serial": "SN_BATTERIEPACK02",
       "unit": [
-        "energy",
+        "energy_storage",
         "Wh",
-        "total"
+        "measurement"
       ]
     }
   },
@@ -2263,9 +2263,9 @@
       "name": "SN_INVERTERBOX01_bpRemainWatth",
       "serial": "SN_INVERTERBOX01",
       "unit": [
-        "energy",
+        "energy_storage",
         "Wh",
-        "total"
+        "measurement"
       ]
     }
   },

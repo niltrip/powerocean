@@ -429,9 +429,9 @@
       "name": "SN_BP01_bpRemainWatth",
       "serial": "SN_BP01",
       "unit": [
-        "energy",
+        "energy_storage",
         "Wh",
-        "total"
+        "measurement"
       ]
     }
   },
@@ -1041,9 +1041,9 @@
       "name": "SN_BP02_bpRemainWatth",
       "serial": "SN_BP02",
       "unit": [
-        "energy",
+        "energy_storage",
         "Wh",
-        "total"
+        "measurement"
       ]
     }
   },
@@ -1923,9 +1923,9 @@
       "name": "SN_INVERTERBOX01_bpRemainWatth",
       "serial": "SN_INVERTERBOX01",
       "unit": [
-        "energy",
+        "energy_storage",
         "Wh",
-        "total"
+        "measurement"
       ]
     }
   },
