@@ -49,7 +49,9 @@
 - **Readable entity names** in English and German, e.g. "State of charge"
   instead of `bpSoc`. Entity IDs stay the same, also for new installations,
   and names you set yourself are kept. Values whose meaning is unknown keep
-  their key as name.
+  their key as name. This includes the PowerGlow heating rod and the
+  PowerPulse wallbox; heating rod values from its energy stream report end
+  in "(cloud)", as they are probably only refreshed while the app is open.
   Values the cloud only refreshes while the EcoFlow app is open end in
   "(cloud)"; use the calculated values without suffix instead. In dual
   systems, the values per inverter from the parallel report end in

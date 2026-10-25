@@ -216,6 +216,18 @@
                     "false": "Aus"
                 }
             },
+            "charge_target": {
+                "name": "Ladeziel"
+            },
+            "charge_vehicle_id": {
+                "name": "Fahrzeug-ID"
+            },
+            "charging_pwr": {
+                "name": "Ladeleistung"
+            },
+            "charging_status": {
+                "name": "Ladestatus"
+            },
             "current_netif": {
                 "name": "Netzwerkverbindung"
             },
@@ -229,6 +241,9 @@
             },
             "dcdc_pwr": {
                 "name": "DC-DC-Leistung"
+            },
+            "dev_sn": {
+                "name": "Seriennummer"
             },
             "ems_bp_alive_num": {
                 "name": "Aktive Batterien"
@@ -292,11 +307,38 @@
             "energy_stream_update_time": {
                 "name": "Letzte Aktualisierung Energiefluss"
             },
+            "error_code": {
+                "name": "Fehlercode"
+            },
             "error_count": {
                 "name": "Aktive Fehler"
             },
             "eth_wan_stat": {
                 "name": "LAN-Status"
+            },
+            "ev_charging_energy": {
+                "name": "Gelieferte Energie"
+            },
+            "ev_curr_set": {
+                "name": "Ladestrom"
+            },
+            "ev_onoff_set": {
+                "name": "Laden ein/aus"
+            },
+            "ev_pwr": {
+                "name": "Ladeleistung"
+            },
+            "ev_sn": {
+                "name": "Seriennummer"
+            },
+            "from_bat": {
+                "name": "Heizen mit Batterie (Cloud)"
+            },
+            "from_grid": {
+                "name": "Heizen mit Netz (Cloud)"
+            },
+            "from_pv": {
+                "name": "Heizen mit Solar (Cloud)"
             },
             "grid_in_day_energy": {
                 "name": "Netzbezug heute"
@@ -319,8 +361,17 @@
             "heartbeat_update_time": {
                 "name": "Letzte Aktualisierung"
             },
+            "heating_power": {
+                "name": "Heizleistung"
+            },
             "house_power": {
                 "name": "Hausverbrauch"
+            },
+            "hr_pwr": {
+                "name": "Heizleistung (Cloud)"
+            },
+            "hr_sn": {
+                "name": "Seriennummer"
             },
             "iot4g_sta": {
                 "name": "4G-Status"
@@ -366,6 +417,9 @@
             },
             "meter_total_pwr": {
                 "name": "Leistung"
+            },
+            "mode": {
+                "name": "Betriebsart"
             },
             "module_apl_sw_ver": {
                 "name": "Firmware-Version"
@@ -469,6 +523,9 @@
                     "1": "Online",
                     "0": "Offline"
                 }
+            },
+            "order_start_timestamp": {
+                "name": "Ladestartzeit"
             },
             "other_pv_pwr": {
                 "name": "Sonstige PV-Leistung (Cloud)"
@@ -604,6 +661,12 @@
             "relay14a": {
                 "name": "§14a-Eingang"
             },
+            "run_stat": {
+                "name": "Status"
+            },
+            "selfcheck_percent": {
+                "name": "Selbsttest"
+            },
             "solar_to_battery": {
                 "name": "Solar zur Batterie"
             },
@@ -657,14 +720,35 @@
             "system_name": {
                 "name": "Anlagenname"
             },
+            "target_power": {
+                "name": "Sollleistung"
+            },
+            "target_temp": {
+                "name": "Eingestellte Temperatur"
+            },
+            "temp": {
+                "name": "Wassertemperatur"
+            },
+            "time_to_use_car": {
+                "name": "Geplante Fahrzeugnutzung"
+            },
             "today_electricity_generation": {
                 "name": "Solarertrag heute"
             },
             "total_electricity_generation": {
                 "name": "Solarertrag gesamt"
             },
+            "warn_code": {
+                "name": "Warncode"
+            },
+            "water_tank_volume": {
+                "name": "Speichergröße"
+            },
             "wifi_sta_stat": {
                 "name": "WLAN-Status"
+            },
+            "work_mode": {
+                "name": "Lademodus"
             },
             "year_electricity_generation": {
                 "name": "Solarertrag Jahr"

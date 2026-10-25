@@ -216,6 +216,18 @@
           "false": "Off"
         }
       },
+      "charge_target": {
+        "name": "Charge target"
+      },
+      "charge_vehicle_id": {
+        "name": "Vehicle ID"
+      },
+      "charging_pwr": {
+        "name": "Charging power"
+      },
+      "charging_status": {
+        "name": "Charging status"
+      },
       "current_netif": {
         "name": "Network connection"
       },
@@ -229,6 +241,9 @@
       },
       "dcdc_pwr": {
         "name": "DC-DC power"
+      },
+      "dev_sn": {
+        "name": "Serial number"
       },
       "ems_bp_alive_num": {
         "name": "Batteries active"
@@ -292,11 +307,38 @@
       "energy_stream_update_time": {
         "name": "Last update energy flow"
       },
+      "error_code": {
+        "name": "Error code"
+      },
       "error_count": {
         "name": "Active errors"
       },
       "eth_wan_stat": {
         "name": "Ethernet state"
+      },
+      "ev_charging_energy": {
+        "name": "Energy delivered"
+      },
+      "ev_curr_set": {
+        "name": "Charging current"
+      },
+      "ev_onoff_set": {
+        "name": "Charging on/off"
+      },
+      "ev_pwr": {
+        "name": "Charging power"
+      },
+      "ev_sn": {
+        "name": "Serial number"
+      },
+      "from_bat": {
+        "name": "Heating from battery (cloud)"
+      },
+      "from_grid": {
+        "name": "Heating from grid (cloud)"
+      },
+      "from_pv": {
+        "name": "Heating from solar (cloud)"
       },
       "grid_in_day_energy": {
         "name": "Grid import today"
@@ -319,8 +361,17 @@
       "heartbeat_update_time": {
         "name": "Last update"
       },
+      "heating_power": {
+        "name": "Heating power"
+      },
       "house_power": {
         "name": "House consumption"
+      },
+      "hr_pwr": {
+        "name": "Heating power (cloud)"
+      },
+      "hr_sn": {
+        "name": "Serial number"
       },
       "iot4g_sta": {
         "name": "4G state"
@@ -366,6 +417,9 @@
       },
       "meter_total_pwr": {
         "name": "Power"
+      },
+      "mode": {
+        "name": "Operating mode"
       },
       "module_apl_sw_ver": {
         "name": "Firmware version"
@@ -469,6 +523,9 @@
           "1": "Online",
           "0": "Offline"
         }
+      },
+      "order_start_timestamp": {
+        "name": "Charging start time"
       },
       "other_pv_pwr": {
         "name": "Other PV power (cloud)"
@@ -604,6 +661,12 @@
       "relay14a": {
         "name": "§14a input"
       },
+      "run_stat": {
+        "name": "State"
+      },
+      "selfcheck_percent": {
+        "name": "Self-check"
+      },
       "solar_to_battery": {
         "name": "Solar to battery"
       },
@@ -657,14 +720,35 @@
       "system_name": {
         "name": "System name"
       },
+      "target_power": {
+        "name": "Target power"
+      },
+      "target_temp": {
+        "name": "Set temperature"
+      },
+      "temp": {
+        "name": "Water temperature"
+      },
+      "time_to_use_car": {
+        "name": "Planned vehicle usage time"
+      },
       "today_electricity_generation": {
         "name": "Solar energy today"
       },
       "total_electricity_generation": {
         "name": "Solar energy total"
       },
+      "warn_code": {
+        "name": "Warning code"
+      },
+      "water_tank_volume": {
+        "name": "Tank volume"
+      },
       "wifi_sta_stat": {
         "name": "Wi-Fi state"
+      },
+      "work_mode": {
+        "name": "Charging mode"
       },
       "year_electricity_generation": {
         "name": "Solar energy this year"
