@@ -860,7 +860,7 @@
       "original_name": "Charging status",
       "product_description": "chargingStatus",
       "product_serial": "SN_EV_CHARGER_01",
-      "state": "EV_CHG_STS_AVAILABLE",
+      "state": "ev_chg_sts_available",
       "state_class": null,
       "unit_of_measurement": null
     },

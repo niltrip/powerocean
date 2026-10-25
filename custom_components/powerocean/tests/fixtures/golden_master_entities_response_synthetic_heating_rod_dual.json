@@ -205,7 +205,7 @@
       "entity_category": null,
       "entity_id": "sensor.powerglow_sn_heatrod01_targetpower",
       "icon": null,
-      "original_name": "Target power",
+      "original_name": "Set power",
       "product_description": "targetPower",
       "product_serial": "SN_HEATROD01",
       "state": "1500.0",
