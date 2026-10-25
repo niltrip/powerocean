@@ -52,7 +52,11 @@
         "description": "[%key:common::config_flow::options::description%]",
         "data": {
           "friendly_name": "[%key:common::config_flow::data::custom_device_name%]",
-          "scan_interval": "[%key:common::config_flow::data::polling_interval%]"
+          "scan_interval": "[%key:common::config_flow::data::polling_interval%]",
+          "mqtt": "Extended connection (MQTT)"
+        },
+        "data_description": {
+          "mqtt": "Additionally connects to the EcoFlow cloud like the EcoFlow app (MQTT) and reads the firmware of the modules. The values still come from the regular polling."
         }
       }
     }

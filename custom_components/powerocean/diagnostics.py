@@ -45,6 +45,16 @@ async def async_get_config_entry_diagnostics(
             else None,
             "api_host": coordinator.api.api_host,
             "variant": coordinator.api.variant,
+            "mqtt": coordinator.mqtt is not None,
+        },
+        # Firmware of the modules from MQTT, by address (without serials)
+        "modules": {
+            address: {
+                "type": module.module_type,
+                "firmware": module.firmware,
+                "loader": module.loader,
+            }
+            for address, module in sorted(coordinator.modules.items())
         },
         **anonymized,
     }

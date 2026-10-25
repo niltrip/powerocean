@@ -17,26 +17,34 @@ Usage:
   await coordinator.async_config_entry_first_refresh()
 """
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_SCAN_INTERVAL
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import AuthenticationError, EcoflowApiError, EcoflowConnectionError
 from .const import DEFAULT_SCAN_INTERVAL, DOMAIN, LOGGER
 from .ecoflow import HAEcoflowApi
+from .mqtt import MODULE_EMS, MODULE_METER, ModuleVersion, PowerOceanMqtt
 from .parse import parse
 from .types import PowerOceanEndPoint
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from .errors import ActiveError
 
 type PowerOceanConfigEntry = ConfigEntry[PowerOceanCoordinator]
+
+# How often the module firmware is asked for again (it also comes after
+# every reconnect, e.g. after a firmware update)
+MQTT_REFRESH_INTERVAL = timedelta(hours=6)
 
 # Parser errors caused by unexpected API payloads
 PARSE_ERRORS = (KeyError, IndexError, TypeError, ValueError, AttributeError)
@@ -74,6 +82,12 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self.active_errors: dict[str, list[ActiveError]] = {}
         # Firmware version, by serial number of the device
         self.firmware: dict[str, str] = {}
+        self._http_firmware: dict[str, str] = {}
+        # Optional MQTT connection (option "mqtt"): firmware of the modules
+        self.mqtt: PowerOceanMqtt | None = None
+        self.modules: dict[int, ModuleVersion] = {}
+        self._mqtt_firmware: dict[str, str] = {}
+        self._mqtt_refresh_unsub: Callable[[], None] | None = None
 
     async def _async_setup(self) -> None:
         """Log in once before the first refresh."""
@@ -105,10 +119,11 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
 
     def _update_firmware(self, firmware: dict[str, str]) -> None:
         """Show a changed firmware version on the device page."""
-        self.firmware = firmware
+        self._http_firmware = firmware
+        self.firmware = {**firmware, **self._mqtt_firmware}
         # Devices not registered yet get the version from their entities
         device_registry = dr.async_get(self.hass)
-        for sn, version in firmware.items():
+        for sn, version in self.firmware.items():
             device = device_registry.async_get_device(identifiers={(DOMAIN, sn)})
             if device and device.sw_version != version:
                 device_registry.async_update_device(device.id, sw_version=version)
@@ -155,3 +170,63 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
                 translation_key="cannot_connect",
                 translation_placeholders={"error": str(err)},
             ) from err
+
+    # -----------------------------
+    # Optional MQTT connection
+    # -----------------------------
+
+    async def async_start_mqtt(self) -> None:
+        """Connect via MQTT to read the module firmware; failures only log."""
+        if getattr(self.api, "mock_response", None) is not None:
+            LOGGER.debug("Mocked response: no MQTT connection")
+            return
+        if not self.api.user_id:
+            LOGGER.warning("MQTT: no user ID from the login, not connecting")
+            return
+        try:
+            credentials = await self.api.async_mqtt_credentials()
+            client = PowerOceanMqtt(
+                credentials, self.api.sn, self.api.user_id, self._modules_from_mqtt
+            )
+            await self.hass.async_add_executor_job(client.start)
+        except (EcoflowApiError, OSError, ValueError, KeyError) as err:
+            LOGGER.warning("MQTT not started, no module firmware: %s", err)
+            return
+        self.mqtt = client
+        self._mqtt_refresh_unsub = async_track_time_interval(
+            self.hass, self._async_request_full_state, MQTT_REFRESH_INTERVAL
+        )
+
+    async def async_stop_mqtt(self) -> None:
+        """Close the MQTT connection, if any."""
+        if self._mqtt_refresh_unsub:
+            self._mqtt_refresh_unsub()
+            self._mqtt_refresh_unsub = None
+        if self.mqtt:
+            client, self.mqtt = self.mqtt, None
+            await self.hass.async_add_executor_job(client.stop)
+
+    async def _async_request_full_state(self, _now: datetime) -> None:
+        """Ask the system for its full state again (module firmware)."""
+        if self.mqtt:
+            await self.hass.async_add_executor_job(self.mqtt.request_full_state)
+
+    def _modules_from_mqtt(self, modules: dict[int, ModuleVersion]) -> None:
+        """Hand the module versions over from paho's thread."""
+        self.hass.loop.call_soon_threadsafe(self._apply_modules, modules)
+
+    @callback
+    def _apply_modules(self, modules: dict[int, ModuleVersion]) -> None:
+        """Show the firmware of the EMS and the smart meter on their devices."""
+        if not self.mqtt:
+            # Message arrived while the connection was being closed
+            return
+        self.modules = modules
+        firmware: dict[str, str] = {}
+        if ems := modules.get(MODULE_EMS):
+            firmware[self.api.sn] = ems.firmware
+        if meter := modules.get(MODULE_METER):
+            # Device of the smart meter, see parse._read_meters
+            firmware[f"{self.api.sn}_meter{MODULE_METER}"] = meter.firmware
+        self._mqtt_firmware = firmware
+        self._update_firmware(self._http_firmware)

@@ -33,6 +33,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
 from .const import (
+    CONF_MQTT,
     DEFAULT_NAME,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
@@ -89,6 +90,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: PowerOceanConfigEntry) -
         model_id=model_id,
         configuration_url=PORTAL_URL,
     )
+
+    # Optional: firmware of the modules via MQTT. Failures do not stop the
+    # setup, the values come from HTTP.
+    if entry.options.get(CONF_MQTT, False):
+        entry.async_on_unload(coordinator.async_stop_mqtt)
+        await coordinator.async_start_mqtt()
 
     return True
 
