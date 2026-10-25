@@ -68,7 +68,7 @@
       ],
       "manufacturer": "EcoFlow",
       "model": "PowerOcean Smart Meter",
-      "model_id": null,
+      "model_id": "11",
       "name": "Smart Meter",
       "via_device": "SN_INVERTERBOX01"
     }

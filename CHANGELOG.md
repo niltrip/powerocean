@@ -45,7 +45,7 @@
   grid protection trips, load management of the house connection, and per
   battery pack the highest and lowest cell voltage.
 - **Smart meter** as its own device with the power of each phase and the
-  total.
+  total (three-phase meters of type 11 and 14).
 - **PowerPulse 2 wallbox:** charging current settings (custom, maximum,
   solar minimum) in A, energy and duration of the last charging session,
   phase setting. These values were in the response but not read before.

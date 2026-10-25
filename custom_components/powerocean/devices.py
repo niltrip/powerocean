@@ -44,6 +44,8 @@ class Device:
     name: str
     model: str
     via_sn: str | None = None
+    # Shown next to the model on the device page, e.g. the smart meter type
+    model_id: str | None = None
 
 
 def make_device(sn: str, prefix: str, model: str, via_sn: str | None = None) -> Device:

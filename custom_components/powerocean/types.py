@@ -159,6 +159,8 @@ def device_info(device: "Device", sw_version: str | None = None) -> DeviceInfo:
     )
     if device.via_sn:
         info["via_device"] = (DOMAIN, device.via_sn)
+    if device.model_id:
+        info["model_id"] = device.model_id
     if sw_version:
         info["sw_version"] = sw_version
     return info
