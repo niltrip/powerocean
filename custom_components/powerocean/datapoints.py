@@ -341,6 +341,8 @@ DIAGNOSTIC_KEYS: set[str] = {
     "bpCellMinVol",
     # Self-check progress of the heating rod (has a unit since it is in %)
     "selfcheckPercent",
+    # Energy management per device: a power without known meaning
+    "refPower",
     # Grid frequency and inverter temperature
     "pcsAcFreq",
     "emsNtcTempMax",
@@ -505,6 +507,8 @@ DISABLED_BY_DEFAULT: set[str] = {
     # Wallbox PowerPulse 2: bit fields and values without known meaning
     "switchBits",
     "gridPhaseInput",
+    # Energy management per device: meaning unclear
+    "refPower",
     # Energy management of the system (EDEV_SYS_REPORT): meaning unclear,
     # socCur repeats the battery state of charge
     *EDEV_SYSTEM_KEYS,

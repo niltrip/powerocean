@@ -54,6 +54,16 @@ _DIAGNOSTIC_PATTERNS = [re.compile(pattern) for pattern in DIAGNOSTIC_PATTERNS]
 DISPLAY_PRECISION: dict[str, int] = {
     PERCENTAGE: 0,
     "Ω": 1,
+    UnitOfElectricCurrent.AMPERE: 1,
+    UnitOfVolume.LITERS: 0,
+    # Durations are shown in a larger unit (SUGGESTED_UNITS), whole numbers
+    UnitOfTime.SECONDS: 0,
+}
+
+# Unit Home Assistant shows instead of the one the API sends, by key
+SUGGESTED_UNITS: dict[str, str] = {
+    # Wallbox: duration of the last charging session (API: seconds)
+    "orderTime": UnitOfTime.MINUTES,
 }
 
 if TYPE_CHECKING:

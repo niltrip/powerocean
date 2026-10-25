@@ -93,8 +93,9 @@
   - **If you update:** sensors you already have stay as they are, nothing
     disappears. Sensors added with this version arrive disabled.
   - **New installations:** all of these sensors start disabled.
-- Percentages are shown without decimals, insulation resistance with one.
-  Stored values keep their full precision.
+- Percentages and litres are shown without decimals, currents and
+  insulation resistance with one; the duration of the last charging session
+  of the PowerPulse in minutes. Stored values keep their full precision.
 - **Heating rod and wallbox have one name each:** "PowerGlow" and
   "PowerPulse". Before, depending on which report arrived first, they were
   also called "Heating Rod" or "Charger". Device pages may show the new

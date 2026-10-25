@@ -521,7 +521,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterACurrent": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_meteracurrent",
       "icon": null,
@@ -562,7 +562,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterBCurrent": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_meterbcurrent",
       "icon": null,
@@ -590,7 +590,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_meterCCurrent": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_meterccurrent",
       "icon": null,
