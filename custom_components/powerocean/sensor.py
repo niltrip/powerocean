@@ -23,7 +23,7 @@ from homeassistant.helpers.update_coordinator import (
 
 from .const import PORTAL_URL
 from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
-from .types import DISPLAY_PRECISION, PowerOceanEndPoint
+from .types import DISPLAY_PRECISION, SUGGESTED_UNITS, PowerOceanEndPoint
 
 # Updates are fetched centrally by the coordinator
 PARALLEL_UPDATES = 0
@@ -107,6 +107,8 @@ class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
         self._attr_suggested_display_precision = DISPLAY_PRECISION.get(
             self._attr_native_unit_of_measurement
         )
+        if suggested_unit := SUGGESTED_UNITS.get(endpoint.friendly_name):
+            self._attr_suggested_unit_of_measurement = suggested_unit
         if self._attr_native_unit_of_measurement is None or endpoint.diagnostic:
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
 

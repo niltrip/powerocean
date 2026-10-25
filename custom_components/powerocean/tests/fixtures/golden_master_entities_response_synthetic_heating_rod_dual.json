@@ -243,7 +243,7 @@
     "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_waterTankVolume": {
       "device": "PowerGlow SN_HEATROD01",
       "device_class": "volume",
-      "display_precision": 2,
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerglow_sn_heatrod01_watertankvolume",
       "icon": "mdi:water-boiler",
@@ -869,7 +869,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv1_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptpv1_amp",
       "icon": "mdi:current-dc",
@@ -925,7 +925,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv2_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptpv2_amp",
       "icon": "mdi:current-dc",
@@ -1051,7 +1051,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsAPhase_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsaphase_amp",
       "icon": "mdi:current-ac",
@@ -1177,7 +1177,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsBPhase_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsbphase_amp",
       "icon": "mdi:current-ac",
@@ -1247,7 +1247,7 @@
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_pcsCPhase_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcscphase_amp",
       "icon": "mdi:current-ac",
@@ -2361,7 +2361,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv1_amp": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_mpptpv1_amp",
       "icon": "mdi:current-dc",
@@ -2417,7 +2417,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv2_amp": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_mpptpv2_amp",
       "icon": "mdi:current-dc",
@@ -2543,7 +2543,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsAPhase_amp": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsaphase_amp",
       "icon": "mdi:current-ac",
@@ -2669,7 +2669,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsBPhase_amp": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcsbphase_amp",
       "icon": "mdi:current-ac",
@@ -2739,7 +2739,7 @@
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_pcsCPhase_amp": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox02_pcscphase_amp",
       "icon": "mdi:current-ac",
@@ -3002,7 +3002,7 @@
     "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAmp": {
       "device": "Battery SN_M_BATTERIEPACK01",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_m_batteriepack01_bpamp",
       "icon": null,
@@ -3344,7 +3344,7 @@
     "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAmp": {
       "device": "Battery SN_M_BATTERIEPACK02",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_m_batteriepack02_bpamp",
       "icon": null,
@@ -3686,7 +3686,7 @@
     "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpAmp": {
       "device": "Battery SN_S_BATTERIEPACK01",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_s_batteriepack01_bpamp",
       "icon": null,
@@ -4028,7 +4028,7 @@
     "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpAmp": {
       "device": "Battery SN_S_BATTERIEPACK02",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_s_batteriepack02_bpamp",
       "icon": null,

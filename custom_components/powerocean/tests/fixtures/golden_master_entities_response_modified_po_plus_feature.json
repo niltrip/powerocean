@@ -132,7 +132,7 @@
     "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpAmp": {
       "device": "Battery SN_BATTERIEPACK01",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_batteriepack01_bpamp",
       "icon": null,
@@ -474,7 +474,7 @@
     "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpAmp": {
       "device": "Battery SN_BATTERIEPACK02",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_batteriepack02_bpamp",
       "icon": null,
@@ -816,7 +816,7 @@
     "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpAmp": {
       "device": "Battery SN_BATTERIEPACK03",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.battery_sn_batteriepack03_bpamp",
       "icon": null,
@@ -1158,7 +1158,7 @@
     "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_currentOuputMax": {
       "device": "PowerPulse SN_E_DEVICEBOX01",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": null,
       "entity_id": "sensor.powerpulse_sn_e_devicebox01_currentouputmax",
       "icon": null,
@@ -1213,16 +1213,16 @@
     "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_orderTime": {
       "device": "PowerPulse SN_E_DEVICEBOX01",
       "device_class": "duration",
-      "display_precision": 2,
+      "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerpulse_sn_e_devicebox01_ordertime",
       "icon": "mdi:timer-outline",
       "original_name": "Duration last session",
       "product_description": "orderTime",
       "product_serial": "SN_E_DEVICEBOX01",
-      "state": "148238",
+      "state": "2470.63333333333",
       "state_class": null,
-      "unit_of_measurement": "s"
+      "unit_of_measurement": "min"
     },
     "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_phaseSpecified": {
       "device": "PowerPulse SN_E_DEVICEBOX01",
@@ -1240,7 +1240,7 @@
     "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_solarCurrentMin": {
       "device": "PowerPulse SN_E_DEVICEBOX01",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": null,
       "entity_id": "sensor.powerpulse_sn_e_devicebox01_solarcurrentmin",
       "icon": null,
@@ -1281,7 +1281,7 @@
     "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_userCurrentSet": {
       "device": "PowerPulse SN_E_DEVICEBOX01",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": null,
       "entity_id": "sensor.powerpulse_sn_e_devicebox01_usercurrentset",
       "icon": null,
@@ -1361,15 +1361,15 @@
     "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_refPower": {
       "device": "PowerPulse SN_E_DEVICEBOX01",
       "device_class": "power",
-      "display_precision": 0,
-      "entity_category": null,
+      "disabled_by": "integration",
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerpulse_sn_e_devicebox01_refpower",
       "icon": null,
       "original_name": "refPower",
-      "product_description": "refPower",
-      "product_serial": "SN_E_DEVICEBOX01",
-      "state": "0.0",
-      "state_class": "measurement",
+      "product_description": null,
+      "product_serial": null,
+      "state": null,
+      "state_class": null,
       "unit_of_measurement": "W"
     },
     "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_targetMax": {
@@ -2084,7 +2084,7 @@
     "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_mpptHeartBeat_mpptPv1_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptpv1_amp",
       "icon": "mdi:current-dc",
@@ -2140,7 +2140,7 @@
     "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_mpptHeartBeat_mpptPv2_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptpv2_amp",
       "icon": "mdi:current-dc",
@@ -2196,7 +2196,7 @@
     "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_mpptHeartBeat_mpptPv3_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_mpptpv3_amp",
       "icon": "mdi:current-dc",
@@ -2322,7 +2322,7 @@
     "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_pcsAPhase_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsaphase_amp",
       "icon": "mdi:current-ac",
@@ -2448,7 +2448,7 @@
     "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_pcsBPhase_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcsbphase_amp",
       "icon": "mdi:current-ac",
@@ -2518,7 +2518,7 @@
     "SN_INVERTERBOX01_RE307_EMS_HEARTBEAT_pcsCPhase_amp": {
       "device": "PowerOcean",
       "device_class": "current",
-      "display_precision": 2,
+      "display_precision": 1,
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_pcscphase_amp",
       "icon": "mdi:current-ac",
