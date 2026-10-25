@@ -756,9 +756,9 @@
       "name": "SN_INVERTERBOX01_bpRemainWatth",
       "serial": "SN_INVERTERBOX01",
       "unit": [
-        "energy",
+        "energy_storage",
         "Wh",
-        "total"
+        "measurement"
       ]
     }
   },
@@ -2888,9 +2888,9 @@
       "name": "SN_INVERTERBOX02_bpRemainWatth",
       "serial": "SN_INVERTERBOX02",
       "unit": [
-        "energy",
+        "energy_storage",
         "Wh",
-        "total"
+        "measurement"
       ]
     }
   },
@@ -4491,9 +4491,9 @@
       "name": "SN_M_BATTERIEPACK01_bpRemainWatth",
       "serial": "SN_M_BATTERIEPACK01",
       "unit": [
-        "energy",
+        "energy_storage",
         "Wh",
-        "total"
+        "measurement"
       ]
     }
   },
@@ -5103,9 +5103,9 @@
       "name": "SN_M_BATTERIEPACK02_bpRemainWatth",
       "serial": "SN_M_BATTERIEPACK02",
       "unit": [
-        "energy",
+        "energy_storage",
         "Wh",
-        "total"
+        "measurement"
       ]
     }
   },
@@ -5715,9 +5715,9 @@
       "name": "SN_S_BATTERIEPACK01_bpRemainWatth",
       "serial": "SN_S_BATTERIEPACK01",
       "unit": [
-        "energy",
+        "energy_storage",
         "Wh",
-        "total"
+        "measurement"
       ]
     }
   },
@@ -6327,9 +6327,9 @@
       "name": "SN_S_BATTERIEPACK02_bpRemainWatth",
       "serial": "SN_S_BATTERIEPACK02",
       "unit": [
-        "energy",
+        "energy_storage",
         "Wh",
-        "total"
+        "measurement"
       ]
     }
   },

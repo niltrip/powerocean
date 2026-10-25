@@ -626,7 +626,7 @@
     },
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpRemainWatth": {
       "device": "PowerOcean",
-      "device_class": "energy",
+      "device_class": "energy_storage",
       "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_bpremainwatth",
@@ -635,7 +635,7 @@
       "product_description": "bpRemainWatth",
       "product_serial": "SN_INVERTERBOX01",
       "state": "8368.0",
-      "state_class": "total",
+      "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
     "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_emsBpAliveNum": {
@@ -2088,7 +2088,7 @@
     },
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_bpRemainWatth": {
       "device": "PowerOcean SN_INVERTERBOX02",
-      "device_class": "energy",
+      "device_class": "energy_storage",
       "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox02_bpremainwatth",
@@ -2097,7 +2097,7 @@
       "product_description": "bpRemainWatth",
       "product_serial": "SN_INVERTERBOX02",
       "state": "8411.0",
-      "state_class": "total",
+      "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
     "SN_INVERTERBOX02_JTS1_EMS_HEARTBEAT_emsBpAliveNum": {
@@ -3130,7 +3130,7 @@
     },
     "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpRemainWatth": {
       "device": "Battery SN_M_BATTERIEPACK01",
-      "device_class": "energy",
+      "device_class": "energy_storage",
       "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.battery_sn_m_batteriepack01_bpremainwatth",
@@ -3139,7 +3139,7 @@
       "product_description": "bpRemainWatth",
       "product_serial": "SN_M_BATTERIEPACK01",
       "state": "3993.6",
-      "state_class": "total",
+      "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
     "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSn": {
@@ -3498,7 +3498,7 @@
     },
     "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpRemainWatth": {
       "device": "Battery SN_M_BATTERIEPACK02",
-      "device_class": "energy",
+      "device_class": "energy_storage",
       "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.battery_sn_m_batteriepack02_bpremainwatth",
@@ -3507,7 +3507,7 @@
       "product_description": "bpRemainWatth",
       "product_serial": "SN_M_BATTERIEPACK02",
       "state": "3993.6",
-      "state_class": "total",
+      "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
     "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSn": {
@@ -3866,7 +3866,7 @@
     },
     "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpRemainWatth": {
       "device": "Battery SN_S_BATTERIEPACK01",
-      "device_class": "energy",
+      "device_class": "energy_storage",
       "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.battery_sn_s_batteriepack01_bpremainwatth",
@@ -3875,7 +3875,7 @@
       "product_description": "bpRemainWatth",
       "product_serial": "SN_S_BATTERIEPACK01",
       "state": "4044.8",
-      "state_class": "total",
+      "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
     "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSn": {
@@ -4234,7 +4234,7 @@
     },
     "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpRemainWatth": {
       "device": "Battery SN_S_BATTERIEPACK02",
-      "device_class": "energy",
+      "device_class": "energy_storage",
       "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.battery_sn_s_batteriepack02_bpremainwatth",
@@ -4243,7 +4243,7 @@
       "product_description": "bpRemainWatth",
       "product_serial": "SN_S_BATTERIEPACK02",
       "state": "3993.6",
-      "state_class": "total",
+      "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
     "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSn": {
