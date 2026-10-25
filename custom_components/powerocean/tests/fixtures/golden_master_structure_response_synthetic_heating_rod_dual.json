@@ -2,7 +2,7 @@
   "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_errorCode": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Heating Rod",
+      "model": "PowerOcean PowerGlow",
       "sn": "SN_HEATROD01",
       "via_device": [
         "powerocean",
@@ -22,7 +22,7 @@
   "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_heatingPower": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Heating Rod",
+      "model": "PowerOcean PowerGlow",
       "sn": "SN_HEATROD01",
       "via_device": [
         "powerocean",
@@ -46,7 +46,7 @@
   "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_hrSn": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Heating Rod",
+      "model": "PowerOcean PowerGlow",
       "sn": "SN_HEATROD01",
       "via_device": [
         "powerocean",
@@ -66,7 +66,7 @@
   "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_mode": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Heating Rod",
+      "model": "PowerOcean PowerGlow",
       "sn": "SN_HEATROD01",
       "via_device": [
         "powerocean",
@@ -86,7 +86,7 @@
   "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_runFlag": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Heating Rod",
+      "model": "PowerOcean PowerGlow",
       "sn": "SN_HEATROD01",
       "via_device": [
         "powerocean",
@@ -106,7 +106,7 @@
   "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_runStat": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Heating Rod",
+      "model": "PowerOcean PowerGlow",
       "sn": "SN_HEATROD01",
       "via_device": [
         "powerocean",
@@ -126,7 +126,7 @@
   "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_selfcheckPercent": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Heating Rod",
+      "model": "PowerOcean PowerGlow",
       "sn": "SN_HEATROD01",
       "via_device": [
         "powerocean",
@@ -150,7 +150,7 @@
   "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_targetPower": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Heating Rod",
+      "model": "PowerOcean PowerGlow",
       "sn": "SN_HEATROD01",
       "via_device": [
         "powerocean",
@@ -174,7 +174,7 @@
   "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_targetTemp": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Heating Rod",
+      "model": "PowerOcean PowerGlow",
       "sn": "SN_HEATROD01",
       "via_device": [
         "powerocean",
@@ -198,7 +198,7 @@
   "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_temp": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Heating Rod",
+      "model": "PowerOcean PowerGlow",
       "sn": "SN_HEATROD01",
       "via_device": [
         "powerocean",
@@ -222,7 +222,7 @@
   "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_waterTankVolume": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Heating Rod",
+      "model": "PowerOcean PowerGlow",
       "sn": "SN_HEATROD01",
       "via_device": [
         "powerocean",
