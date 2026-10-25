@@ -77,6 +77,12 @@
 - **EMS work state** (diagnostic, disabled by default): what the system is
   doing right now – idle, starting (battery, solar, grid), running, stopped,
   maintenance.
+- **Firmware of the inverter and the smart meter (optional, MQTT).** The new
+  option *Extended connection (MQTT)*, off by default, connects like the
+  EcoFlow app and shows the firmware of the energy management on the
+  inverter and the firmware of the smart meter on their device pages. It
+  updates after a firmware update. All other modules are in the
+  diagnostics. The values still come from the regular polling.
 - **Link to the EcoFlow web portal** on every device page.
 - **Readable entity names** in English and German, e.g. "State of charge"
   instead of `bpSoc`. Entity IDs stay the same, also for new installations,

@@ -58,6 +58,7 @@ from homeassistant.helpers.selector import (
 
 from .api import AuthenticationError, EcoflowApiError
 from .const import (
+    CONF_MQTT,
     DEFAULT_NAME,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
@@ -343,6 +344,7 @@ class PowerOceanOptionsFlow(OptionsFlowWithReload):
     This flow allows the user to update:
       - Friendly name of the device.
       - Scan interval for periodic updates.
+      - Additional MQTT connection (firmware of the modules).
 
     The entry is reloaded automatically after the options were saved.
     """
@@ -367,6 +369,8 @@ class PowerOceanOptionsFlow(OptionsFlowWithReload):
             data_schema=device_options_schema(
                 friendly_name=options.get(CONF_FRIENDLY_NAME, DEFAULT_NAME),
                 scan_interval=options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+            ).extend(
+                {vol.Required(CONF_MQTT, default=options.get(CONF_MQTT, False)): bool}
             ),
         )
 

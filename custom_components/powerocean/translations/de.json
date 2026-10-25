@@ -52,7 +52,11 @@
                 "description": "Einstellungen der PowerOcean-Integration anpassen.",
                 "data": {
                     "friendly_name": "Gerätename",
-                    "scan_interval": "Aktualisierungsintervall (in Sekunden)"
+                    "scan_interval": "Aktualisierungsintervall (in Sekunden)",
+                    "mqtt": "Erweiterte Verbindung (MQTT)"
+                },
+                "data_description": {
+                    "mqtt": "Verbindet sich zusätzlich wie die EcoFlow-App mit der EcoFlow-Cloud (MQTT) und liest die Firmware der Module. Die Werte kommen weiterhin aus der regelmäßigen Abfrage."
                 }
             }
         }
