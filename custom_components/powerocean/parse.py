@@ -417,10 +417,11 @@ def _read_ems_heartbeat(
     _read_meters(ctx, f"{name}_meterHeartBeat", payload, selected)
 
 
-# Three-phase smart meter: meterData is [L1, L2, L3, total] in W. The other
-# types seen (1, 13, 15) report zeros or the total only; they are skipped
-# until their meaning is known.
-METER_TYPE_THREE_PHASE = 11
+# Three-phase smart meters: meterData is [L1, L2, L3, total] in W, the phases
+# add up to the total (type 14 from discussion #132). The other types seen
+# (1, 13, 15) report zeros or the total only; they are skipped until their
+# meaning is known.
+METER_TYPES_THREE_PHASE = {11, 14}
 METER_KEYS = ("meterL1Pwr", "meterL2Pwr", "meterL3Pwr", "meterTotalPwr")
 
 
@@ -437,7 +438,7 @@ def _read_meters(
         address = meter.get("meterAddr")
         data = meter.get("meterData")
         if (
-            meter.get("meterType") != METER_TYPE_THREE_PHASE
+            meter.get("meterType") not in METER_TYPES_THREE_PHASE
             or not isinstance(address, int)
             or not isinstance(data, list)
         ):

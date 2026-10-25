@@ -71,6 +71,20 @@
       "model_id": "83",
       "name": "PowerOcean",
       "via_device": null
+    },
+    "SN_INVERTERBOX01_meter106": {
+      "configuration_url": "https://user-portal.ecoflow.com/",
+      "identifiers": [
+        [
+          "powerocean",
+          "SN_INVERTERBOX01_meter106"
+        ]
+      ],
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Smart Meter",
+      "model_id": null,
+      "name": "Smart Meter",
+      "via_device": "SN_INVERTERBOX01"
     }
   },
   "entities": {
@@ -2692,6 +2706,62 @@
       "product_description": "Batterieleistung",
       "product_serial": "SN_INVERTERBOX01",
       "state": "532.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "W"
+    },
+    "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterL1Pwr": {
+      "device": "Smart Meter",
+      "device_class": "power",
+      "display_precision": 0,
+      "entity_category": null,
+      "entity_id": "sensor.smart_meter_meterl1pwr",
+      "icon": "mdi:meter-electric",
+      "original_name": "L1 power",
+      "product_description": "meterL1Pwr",
+      "product_serial": "SN_INVERTERBOX01_meter106",
+      "state": "28.40841",
+      "state_class": "measurement",
+      "unit_of_measurement": "W"
+    },
+    "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterL2Pwr": {
+      "device": "Smart Meter",
+      "device_class": "power",
+      "display_precision": 0,
+      "entity_category": null,
+      "entity_id": "sensor.smart_meter_meterl2pwr",
+      "icon": "mdi:meter-electric",
+      "original_name": "L2 power",
+      "product_description": "meterL2Pwr",
+      "product_serial": "SN_INVERTERBOX01_meter106",
+      "state": "-80.98507",
+      "state_class": "measurement",
+      "unit_of_measurement": "W"
+    },
+    "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterL3Pwr": {
+      "device": "Smart Meter",
+      "device_class": "power",
+      "display_precision": 0,
+      "entity_category": null,
+      "entity_id": "sensor.smart_meter_meterl3pwr",
+      "icon": "mdi:meter-electric",
+      "original_name": "L3 power",
+      "product_description": "meterL3Pwr",
+      "product_serial": "SN_INVERTERBOX01_meter106",
+      "state": "49.037933",
+      "state_class": "measurement",
+      "unit_of_measurement": "W"
+    },
+    "SN_INVERTERBOX01_meter106_JTS1_EMS_HEARTBEAT_meterHeartBeat_meterTotalPwr": {
+      "device": "Smart Meter",
+      "device_class": "power",
+      "display_precision": 0,
+      "entity_category": null,
+      "entity_id": "sensor.smart_meter_metertotalpwr",
+      "icon": "mdi:meter-electric",
+      "original_name": "Power",
+      "product_description": "meterTotalPwr",
+      "product_serial": "SN_INVERTERBOX01_meter106",
+      "state": "-3.5387268",
       "state_class": "measurement",
       "unit_of_measurement": "W"
     },
