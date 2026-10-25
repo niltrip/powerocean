@@ -178,7 +178,7 @@ DC Fit;meterBVoltage;;Meter L2 voltage;Zähler L2 Spannung;
 DC Fit;meterBCurrent;;Meter L2 current;Zähler L2 Strom;
 DC Fit;meterCVoltage;;Meter L3 voltage;Zähler L3 Spannung;
 DC Fit;meterCCurrent;;Meter L3 current;Zähler L3 Strom;
-Ohne Namen: PowerOcean DC fit;heatingPower;;;;
+PowerGlow;heatingPower;;Heating power;Heizleistung;Portal, auch DC Fit
 Ohne Namen: PowerOcean DC fit;emsSystemState;;;;
 Ohne Namen: PowerOcean DC fit;meterPowerFactor;;;;
 Ohne Namen: PowerOcean DC fit;isPvToInvDirectly;;;;
@@ -226,21 +226,21 @@ Ohne Namen: PowerOcean DC fit;mpptVoltageMinimum;;;;
 Ohne Namen: PowerOcean DC fit;mpptVoltageMaximum;;;;
 Ohne Namen: PowerOcean DC fit;gridFeedPowerMinimum;;;;
 Ohne Namen: PowerOcean DC fit;epoSwitchState;;;;
-Ohne Namen: PowerOcean Inverter;devSn;;;;
-Ohne Namen: PowerOcean Charger;evSn;;;;
-Ohne Namen: PowerOcean Charger;workMode;;;;
+PowerPulse;devSn;;Serial number;Seriennummer;auch Dual-Gesamtwechselrichter
+PowerPulse;evSn;;Serial number;Seriennummer;
+PowerPulse;workMode;;Charging mode;Lademodus;Portal, Werte laut #90: 1 Schnell, 2 Solar, 4 Smart, unbestätigt
 Ohne Namen: PowerOcean Charger;useGridFirst;;;;
-Ohne Namen: PowerOcean Charger;evOnoffSet;;;;
-Ohne Namen: PowerOcean Charger;orderStartTimestamp;;;;
+PowerPulse;evOnoffSet;;Charging on/off;Laden ein/aus;
+PowerPulse;orderStartTimestamp;;Charging start time;Ladestartzeit;Portal
 Ohne Namen: PowerOcean Charger;onlineBits;;;;
-Ohne Namen: PowerOcean Charger;errorCode;;;;
+PowerPulse;errorCode;;Error code;Fehlercode;auch PowerGlow
 Ohne Namen: PowerOcean Charger;evUserManual;;;;
-Ohne Namen: PowerOcean Charger;evChargingEnergy;;;;
-Ohne Namen: PowerOcean Charger;evCurrSet;;;;
-Ohne Namen: PowerOcean Charger;chargeVehicleId;;;;
-Ohne Namen: PowerOcean Charger;chargingStatus;;;;
-Ohne Namen: PowerOcean Charger;evPwr;;;;
-Ohne Namen: PowerOcean PowerPulse;warnCode;;;;
+PowerPulse;evChargingEnergy;;Energy delivered;Gelieferte Energie;Portal
+PowerPulse;evCurrSet;;Charging current;Ladestrom;Portal
+PowerPulse;chargeVehicleId;;Vehicle ID;Fahrzeug-ID;Portal
+PowerPulse;chargingStatus;;Charging status;Ladestatus;
+PowerPulse;evPwr;;Charging power;Ladeleistung;Portal, PowerPulse (1. Generation)
+PowerPulse;warnCode;;Warning code;Warncode;
 Ohne Namen: PowerOcean PowerPulse;socCur;;;;
 Ohne Namen: PowerOcean PowerPulse;startState;;;;
 Ohne Namen: PowerOcean PowerPulse;pclPwrBase;;;;
@@ -248,19 +248,19 @@ Ohne Namen: PowerOcean PowerPulse;realPowerLock;;;;
 Ohne Namen: PowerOcean PowerPulse;feedPwrCap;;;;
 Ohne Namen: PowerOcean PowerPulse;allocatedPower;;;;
 Ohne Namen: PowerOcean PowerPulse;refPower;;;;
-Ohne Namen: PowerOcean PowerPulse;timeToUseCar;;;;
-Ohne Namen: PowerOcean PowerPulse;chargeTarget;;;;
-Ohne Namen: PowerOcean PowerPulse;chargingPwr;;;;
-Ohne Namen: PowerOcean Heating Rod;hrSn;;;;
-Ohne Namen: PowerOcean Heating Rod;selfcheckPercent;;;;
-Ohne Namen: PowerOcean Heating Rod;temp;;;;
-Ohne Namen: PowerOcean Heating Rod;targetTemp;;;;
-Ohne Namen: PowerOcean Heating Rod;runFlag;;;;
-Ohne Namen: PowerOcean Heating Rod;mode;;;;
-Ohne Namen: PowerOcean Heating Rod;waterTankVolume;;;;
-Ohne Namen: PowerOcean Heating Rod;runStat;;;;
-Ohne Namen: PowerOcean Heating Rod;targetPower;;;;
-Ohne Namen: PowerOcean PowerGlow;hrPwr;;;;
-Ohne Namen: PowerOcean PowerGlow;fromPv;;;;
-Ohne Namen: PowerOcean PowerGlow;fromBat;;;;
-Ohne Namen: PowerOcean PowerGlow;fromGrid;;;;
+PowerPulse;timeToUseCar;;Planned vehicle usage time;Geplante Fahrzeugnutzung;Portal
+PowerPulse;chargeTarget;;Charge target;Ladeziel;
+PowerPulse;chargingPwr;;Charging power;Ladeleistung;Portal, PowerPulse 2
+PowerGlow;hrSn;;Serial number;Seriennummer;
+PowerGlow;selfcheckPercent;;Self-check;Selbsttest;Portal
+PowerGlow;temp;;Water temperature;Wassertemperatur;
+PowerGlow;targetTemp;;Set temperature;Eingestellte Temperatur;Portal
+PowerGlow;runFlag;;;;Bedeutung offen
+PowerGlow;mode;;Operating mode;Betriebsart;Portal, Werte: Manuell/Smart/Solar, Zuordnung offen
+PowerGlow;waterTankVolume;;Tank volume;Speichergröße;Einheit offen (1500 = 150 l?)
+PowerGlow;runStat;;State;Status;Portal: Standby/Heizung/Selbsttest/Sterilisation, Zuordnung offen
+PowerGlow;targetPower;;Target power;Sollleistung;
+PowerGlow;hrPwr;;Heating power (cloud);Heizleistung (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
+PowerGlow;fromPv;;Heating from solar (cloud);Heizen mit Solar (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
+PowerGlow;fromBat;;Heating from battery (cloud);Heizen mit Batterie (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
+PowerGlow;fromGrid;;Heating from grid (cloud);Heizen mit Netz (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert

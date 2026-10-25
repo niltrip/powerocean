@@ -971,7 +971,7 @@
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_heatingpower",
       "icon": null,
-      "original_name": "heatingPower",
+      "original_name": "Heating power",
       "product_description": "heatingPower",
       "product_serial": "SN_INVERTERBOX01",
       "state": "0.0",
