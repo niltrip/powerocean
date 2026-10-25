@@ -281,6 +281,11 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "solarCurrentMin",
         "phaseSpecified",
         "chargingStatus",
+        # Last charging session (Wh, seconds; start again with each session)
+        "orderChargingEnergy",
+        "orderTime",
+        "gridPhaseInput",
+        "onlineBits",
     },
     # Calculated from the error codes of all modules, see errors.py
     ReportMode.ERROR.value: {
@@ -315,6 +320,10 @@ VALUE_SCALE: dict[str, float] = {
     # Wallbox charging current: checked for the PowerPulse 2 (discussion
     # #132); the PowerPulse 1 sends the same 60, which cannot mean 60 A
     "evCurrSet": 0.1,
+    # Wallbox PowerPulse 2: custom, maximum and solar minimum current
+    "userCurrentSet": 0.1,
+    "currentOuputMax": 0.1,
+    "solarCurrentMin": 0.1,
 }
 
 # Entities of these keys are shown under "Diagnostic", although they have
@@ -483,6 +492,9 @@ DISABLED_BY_DEFAULT: set[str] = {
     "bpMaxMosTemp",
     "bpMinMosTemp",
     "bpRealSoc",
+    # Wallbox PowerPulse 2: bit fields and values without known meaning
+    "switchBits",
+    "gridPhaseInput",
 }
 
 
@@ -526,13 +538,34 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
                 "smartMode",
                 "chargeTarget",
             ],
-            "chargingStatus": ["pileChargingParamReport", "chargingStatus"],
-            "chargingPwr": ["pileChargingParamReport", "chargingPwr"],
-            "currentVehicleComsumption": ["vehicleInfo", "currentVehicleComsumption"],
-            "orderChargingEnergy": [
-                "orderRealStatus",
-                "orderChargingEnergy",
+            **{
+                key: ["pileChargingParamReport", "paramSet", key]
+                for key in (
+                    "switchBits",
+                    "currentOuputMax",
+                    "userCurrentSet",
+                    "solarCurrentMin",
+                    "phaseSpecified",
+                )
+            },
+            **{
+                key: ["pileChargingParamReport", key]
+                for key in (
+                    "chargingStatus",
+                    "chargingPwr",
+                    "gridPhaseInput",
+                    "onlineBits",
+                )
+            },
+            "chargeVehicleId": [
+                "pileChargingParamReport",
+                "vehicleInfo",
+                "chargeVehicleId",
             ],
+            **{
+                key: ["pileChargingParamReport", "orderRealStatus", key]
+                for key in ("orderChargingEnergy", "orderTime")
+            },
         },
         "sensors": REPORT_DATAPOINTS[ReportMode.WALLBOX.value],
     },

@@ -231,6 +231,9 @@
       "current_netif": {
         "name": "Network connection"
       },
+      "current_ouput_max": {
+        "name": "Maximum charging current"
+      },
       "dab_mod_sta": {
         "name": "DC-DC converter state",
         "state": {
@@ -525,8 +528,14 @@
           "0": "Offline"
         }
       },
+      "order_charging_energy": {
+        "name": "Energy last session"
+      },
       "order_start_timestamp": {
         "name": "Charging start time"
+      },
+      "order_time": {
+        "name": "Duration last session"
       },
       "other_pv_pwr": {
         "name": "Other PV power (cloud)"
@@ -632,6 +641,9 @@
       "pcs_uvp2_protect_cnt": {
         "name": "Undervoltage trips level 2"
       },
+      "phase_specified": {
+        "name": "Phase setting"
+      },
       "pv1_pwr": {
         "name": "PV 1 power (cloud)"
       },
@@ -671,6 +683,9 @@
       },
       "selfcheck_percent": {
         "name": "Self-check"
+      },
+      "solar_current_min": {
+        "name": "Solar minimum current"
       },
       "solar_to_battery": {
         "name": "Solar to battery"
@@ -742,6 +757,9 @@
       },
       "total_electricity_generation": {
         "name": "Solar energy total"
+      },
+      "user_current_set": {
+        "name": "Custom charging current"
       },
       "warn_code": {
         "name": "Warning code"

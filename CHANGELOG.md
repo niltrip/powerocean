@@ -40,6 +40,9 @@
   battery pack the highest and lowest cell voltage.
 - **Smart meter** as its own device with the power of each phase and the
   total.
+- **PowerPulse 2 wallbox:** charging current settings (custom, maximum,
+  solar minimum) in A, energy and duration of the last charging session,
+  phase setting. These values were in the response but not read before.
 - **Time of the last values** per battery pack and per report of the
   inverter (diagnostic). Shows when the data from the EcoFlow cloud is out
   of date.
