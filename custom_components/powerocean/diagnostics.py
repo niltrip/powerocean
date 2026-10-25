@@ -62,6 +62,7 @@ def _devices(coordinator: PowerOceanCoordinator) -> dict[str, Any]:
             {
                 "name": info.get("name"),
                 "model": info.get("model"),
+                "model_id": info.get("model_id"),
                 "sw_version": coordinator.firmware.get(endpoint.serial),
                 "via_device": via_device[1] if via_device else None,
                 "datapoints": {},

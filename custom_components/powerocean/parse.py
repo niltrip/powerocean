@@ -449,6 +449,8 @@ def _read_meters(
             name="Smart Meter",
             model="PowerOcean Smart Meter",
             via_sn=ctx.inverter_sn,
+            # Meaning of the type unknown; shown for questions about a meter
+            model_id=str(meter["meterType"]),
         )
         for key, value in zip(METER_KEYS, data, strict=False):
             if key not in selected or isinstance(value, bool):
