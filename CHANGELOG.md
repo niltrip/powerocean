@@ -49,6 +49,11 @@
 - **PowerPulse 2 wallbox:** charging current settings (custom, maximum,
   solar minimum) in A, energy and duration of the last charging session,
   phase setting. These values were in the response but not read before.
+  Value mappings and units from the diagnostics and the
+  [PowerGlow](https://github.com/Xygen/EcoFlow-PowerGlow-for-Home-Assistant)
+  and
+  [PowerPulse 2](https://github.com/Xygen/EcoFlow-PowerPulse-2-for-Home-Assistant)
+  integrations by Xygen (discussion #132) – thanks!
 - **Energy management per device:** wallbox and heating rod each show their
   maximum power, priority and allocated power, and their error and warning
   code of the energy management ("(energy management)"). Before, only the
