@@ -321,19 +321,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
-    "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_BATTERIEPACK01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_batteriepack01_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_BATTERIEPACK01",
-      "state": "SN_BATTERIEPACK01",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_BATTERIEPACK01",
       "device_class": "battery",
@@ -675,19 +662,6 @@
       "state": "512.0",
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
-    },
-    "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_BATTERIEPACK02",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_batteriepack02_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_BATTERIEPACK02",
-      "state": "SN_BATTERIEPACK02",
-      "state_class": null,
-      "unit_of_measurement": null
     },
     "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_BATTERIEPACK02",

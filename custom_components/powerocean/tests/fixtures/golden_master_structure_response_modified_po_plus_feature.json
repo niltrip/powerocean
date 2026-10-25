@@ -435,26 +435,6 @@
       ]
     }
   },
-  "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSn": {
-    "device": {
-      "manufacturer": "EcoFlow",
-      "model": "PowerOcean Battery",
-      "sn": "SN_BATTERIEPACK01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
-    },
-    "sensors": {
-      "description": "bpSn",
-      "friendly_name": "bpSn",
-      "icon": "mdi:barcode",
-      "internal_unique_id": "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSn",
-      "name": "SN_BATTERIEPACK01_bpSn",
-      "serial": "SN_BATTERIEPACK01",
-      "unit": null
-    }
-  },
   "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSoc": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -1025,26 +1005,6 @@
         "Wh",
         "measurement"
       ]
-    }
-  },
-  "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSn": {
-    "device": {
-      "manufacturer": "EcoFlow",
-      "model": "PowerOcean Battery",
-      "sn": "SN_BATTERIEPACK02",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
-    },
-    "sensors": {
-      "description": "bpSn",
-      "friendly_name": "bpSn",
-      "icon": "mdi:barcode",
-      "internal_unique_id": "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSn",
-      "name": "SN_BATTERIEPACK02_bpSn",
-      "serial": "SN_BATTERIEPACK02",
-      "unit": null
     }
   },
   "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSoc": {
@@ -1619,26 +1579,6 @@
       ]
     }
   },
-  "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpSn": {
-    "device": {
-      "manufacturer": "EcoFlow",
-      "model": "PowerOcean Battery",
-      "sn": "SN_BATTERIEPACK03",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
-    },
-    "sensors": {
-      "description": "bpSn",
-      "friendly_name": "bpSn",
-      "icon": "mdi:barcode",
-      "internal_unique_id": "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpSn",
-      "name": "SN_BATTERIEPACK03_bpSn",
-      "serial": "SN_BATTERIEPACK03",
-      "unit": null
-    }
-  },
   "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpSoc": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -1885,26 +1825,6 @@
         "A",
         "measurement"
       ]
-    }
-  },
-  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_devSn": {
-    "device": {
-      "manufacturer": "EcoFlow",
-      "model": "PowerOcean PowerPulse",
-      "sn": "SN_E_DEVICEBOX01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
-    },
-    "sensors": {
-      "description": "devSn",
-      "friendly_name": "devSn",
-      "icon": "mdi:barcode",
-      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_devSn",
-      "name": "SN_E_DEVICEBOX01_devSn",
-      "serial": "SN_E_DEVICEBOX01",
-      "unit": null
     }
   },
   "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_gridPhaseInput": {

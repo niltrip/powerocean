@@ -172,9 +172,6 @@
             "bp_remain_watth_pack": {
                 "name": "Remaining energy"
             },
-            "bp_sn": {
-                "name": "Serial number"
-            },
             "bp_soc": {
                 "name": "Battery state of charge"
             },
@@ -250,9 +247,6 @@
             },
             "dcdc_pwr": {
                 "name": "DC-DC power"
-            },
-            "dev_sn": {
-                "name": "Serial number"
             },
             "ems_bp_alive_num": {
                 "name": "Batteries active"
@@ -340,9 +334,6 @@
             "ev_pwr": {
                 "name": "Charging power"
             },
-            "ev_sn": {
-                "name": "Serial number"
-            },
             "from_bat": {
                 "name": "Heating from battery (cloud)"
             },
@@ -381,9 +372,6 @@
             },
             "hr_pwr": {
                 "name": "Heating power (cloud)"
-            },
-            "hr_sn": {
-                "name": "Serial number"
             },
             "iot4g_sta": {
                 "name": "4G state"

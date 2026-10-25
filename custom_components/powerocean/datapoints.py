@@ -33,6 +33,9 @@ class ReportMode(Enum):
     ERROR = "ERROR_CHANGE_REPORT"
 
 
+# Serial numbers of the devices: shown in the device info, not as sensors
+SN_KEYS: set[str] = {"bpSn", "evSn", "hrSn", "devSn"}
+
 # Values of EDEV_SYS_REPORT that belong to the system, not to one device
 EDEV_SYSTEM_KEYS: set[str] = {"feedPwrCap", "startState", "socCur", "pclPwrBase"}
 
@@ -120,7 +123,6 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "breakerEnableState",
     },
     ReportMode.BATTERY.value: {
-        "bpSn",
         "bpPwr",
         "bpSoc",
         "bpSoh",
@@ -237,7 +239,6 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "emsNtcTempMax",
     },
     ReportMode.CHARGEBOX.value: {
-        "evSn",
         "workMode",
         "useGridFirst",
         "evOnoffSet",
@@ -252,7 +253,6 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "evPwr",
     },
     ReportMode.HEATING_ROD.value: {
-        "hrSn",
         "selfcheckPercent",
         "temp",
         "targetTemp",
@@ -272,7 +272,6 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "fromGrid",
     },
     ReportMode.WALLBOX.value: {
-        "devSn",
         "workMode",
         "chargeTarget",
         "switchBits",
@@ -535,7 +534,6 @@ BOX_SCHEMAS: dict[str, BoxSchema] = {
         "model": "PowerOcean PowerPulse",
         "name_prefix": "PowerPulse",
         "paths": {
-            "devSn": ["devInfo", "devSn"],
             "workMode": ["pileChargingParamReport", "paramSet", "workMode"],
             "timeToUseCar": [
                 "pileChargingParamReport",

@@ -460,7 +460,7 @@ async def test_migrate_v1_entry(
     await _setup(hass, entry)
 
     assert entry.state is ConfigEntryState.LOADED
-    assert (entry.version, entry.minor_version) == (2, 4)
+    assert (entry.version, entry.minor_version) == (2, 5)
     assert dict(entry.data) == DATA
     assert dict(entry.options) == {"friendly_name": "Garage", "scan_interval": 30}
     assert entry.runtime_data.update_interval.total_seconds() == 30
@@ -506,7 +506,7 @@ async def test_migrate_v2_1_backfills_missing_options(
     )
     await _setup(hass, entry)
 
-    assert (entry.version, entry.minor_version) == (2, 4)
+    assert (entry.version, entry.minor_version) == (2, 5)
     assert dict(entry.options) == {"friendly_name": "Garage", "scan_interval": 30}
     assert entry.runtime_data.update_interval.total_seconds() == 30
 
@@ -519,7 +519,7 @@ async def test_migrate_v2_1_keeps_existing_options(
     )
     await _setup(hass, entry)
 
-    assert (entry.version, entry.minor_version) == (2, 4)
+    assert (entry.version, entry.minor_version) == (2, 5)
     assert dict(entry.options) == {"friendly_name": "Keller", "scan_interval": 20}
     assert dict(entry.data) == DATA
 
@@ -546,7 +546,7 @@ async def test_migrate_v2_2_removes_battery_firmware_sensor(
     await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
 
-    assert (entry.version, entry.minor_version) == (2, 4)
+    assert (entry.version, entry.minor_version) == (2, 5)
     assert entity_registry.async_get(old.entity_id) is None
     assert entity_registry.async_get(kept.entity_id)
 
@@ -573,10 +573,42 @@ async def test_migrate_v2_3_moves_system_values_off_the_wallbox(
     await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
 
-    assert (entry.version, entry.minor_version) == (2, 4)
+    assert (entry.version, entry.minor_version) == (2, 5)
     assert entity_registry.async_get(old.entity_id) is None
     assert entity_registry.async_get(device_value.entity_id)
     assert entity_registry.async_get(inverter_value.entity_id)
+
+
+async def test_migrate_v2_4_removes_serial_number_sensors(
+    hass: HomeAssistant, mock_authorize: AsyncMock, mock_fetch: AsyncMock
+) -> None:
+    """The serial number is in the device info, no longer a sensor."""
+    entry = _entry(minor_version=4)
+    entry.add_to_hass(hass)
+    entity_registry = er.async_get(hass)
+    old = [
+        entity_registry.async_get_or_create(
+            "sensor", DOMAIN, unique_id, config_entry=entry
+        )
+        for unique_id in (
+            "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSn",
+            "SN_DEV01_JTS1_EDEV_PARAM_REPORT_devSn",
+            "SN_HR01_JTS1_HEATING_ROD_PARAM_REPORT_hrSn",
+            "SN_EV01_RE307_EVCHARGING_REPORT_evSn",
+        )
+    ]
+    kept = entity_registry.async_get_or_create(
+        "sensor",
+        DOMAIN,
+        "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoc",
+        config_entry=entry,
+    )
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert (entry.version, entry.minor_version) == (2, 5)
+    assert all(entity_registry.async_get(e.entity_id) is None for e in old)
+    assert entity_registry.async_get(kept.entity_id)
 
 
 async def test_migrate_from_future_version_fails(

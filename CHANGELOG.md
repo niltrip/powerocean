@@ -8,6 +8,10 @@
   its firmware version under *Firmware* on its device page, updated after a
   firmware update without a restart. The diagnostic sensor "Firmware
   version" (`moduleAplSwVer`) is removed automatically.
+- **No serial number sensors.** The serial number of each battery pack,
+  heating rod, wallbox and inverter is shown in its device info. The
+  sensors `bpSn`, `hrSn`, `evSn` and `devSn` repeated it and are removed
+  automatically.
 - **Battery states are now lowercase.** The states of `bmsChgDsgSta`,
   `bmsRunSta` and `bpSysState` change, for example from `PB_CHG_STATE` to
   `pb_chg_state`, so Home Assistant can show them translated ("Charging",

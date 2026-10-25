@@ -145,19 +145,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "W"
     },
-    "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_hrSn": {
-      "device": "PowerGlow SN_HEATROD01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.powerglow_sn_heatrod01_hrsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "hrSn",
-      "product_serial": "SN_HEATROD01",
-      "state": "U05fSEVBVFJPRDAx",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_mode": {
       "device": "PowerGlow SN_HEATROD01",
       "device_class": null,
@@ -1382,19 +1369,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "%"
     },
-    "SN_INVERTERBOX01_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_devSn": {
-      "device": "PowerOcean",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.inverter_sn_inverterbox01_devsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "devSn",
-      "product_serial": "SN_INVERTERBOX01",
-      "state": "SN_INVERTERBOX01",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_INVERTERBOX01_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_mpptPwr": {
       "device": "PowerOcean",
       "device_class": "power",
@@ -1506,19 +1480,6 @@
       "state": "87",
       "state_class": "measurement",
       "unit_of_measurement": "%"
-    },
-    "SN_INVERTERBOX01_all_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_devSn": {
-      "device": "Inverter SN_INVERTERBOX01_all",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.inverter_sn_inverterbox01_all_devsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "devSn",
-      "product_serial": "SN_INVERTERBOX01_all",
-      "state": "",
-      "state_class": null,
-      "unit_of_measurement": null
     },
     "SN_INVERTERBOX01_all_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_mpptPwr": {
       "device": "Inverter SN_INVERTERBOX01_all",
@@ -2900,19 +2861,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "%"
     },
-    "SN_INVERTERBOX02_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_devSn": {
-      "device": "PowerOcean SN_INVERTERBOX02",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.inverter_sn_inverterbox02_devsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "devSn",
-      "product_serial": "SN_INVERTERBOX02",
-      "state": "SN_INVERTERBOX02",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_INVERTERBOX02_JTS1_PARALLEL_ENERGY_STREAM_REPORT_paraEnergyStream_mpptPwr": {
       "device": "PowerOcean SN_INVERTERBOX02",
       "device_class": "power",
@@ -3258,19 +3206,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
-    "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_M_BATTERIEPACK01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_m_batteriepack01_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_M_BATTERIEPACK01",
-      "state": "SN_M_BATTERIEPACK01",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_M_BATTERIEPACK01",
       "device_class": "battery",
@@ -3612,19 +3547,6 @@
       "state": "3993.6",
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
-    },
-    "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_M_BATTERIEPACK02",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_m_batteriepack02_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_M_BATTERIEPACK02",
-      "state": "SN_M_BATTERIEPACK02",
-      "state_class": null,
-      "unit_of_measurement": null
     },
     "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_M_BATTERIEPACK02",
@@ -3968,19 +3890,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
-    "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_S_BATTERIEPACK01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_s_batteriepack01_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_S_BATTERIEPACK01",
-      "state": "SN_S_BATTERIEPACK01",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_S_BATTERIEPACK01",
       "device_class": "battery",
@@ -4322,19 +4231,6 @@
       "state": "3993.6",
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
-    },
-    "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_S_BATTERIEPACK02",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_s_batteriepack02_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_S_BATTERIEPACK02",
-      "state": "SN_S_BATTERIEPACK02",
-      "state_class": null,
-      "unit_of_measurement": null
     },
     "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_S_BATTERIEPACK02",

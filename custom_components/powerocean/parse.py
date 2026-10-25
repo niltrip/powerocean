@@ -24,6 +24,7 @@ from .datapoints import (
     BOX_SCHEMAS,
     EDEV_SYSTEM_KEYS,
     REPORT_DATAPOINTS,
+    SN_KEYS,
     UPDATE_TIME_KEYS,
     VALUE_SCALE,
     BoxSchema,
@@ -134,6 +135,8 @@ class _Context:
         return make_device(self.inverter_sn, "PowerOcean", self.model)
 
     def add(self, device: Device, report: str, key: str, value: Any) -> None:
+        if key in SN_KEYS:
+            return
         scale = VALUE_SCALE.get(key)
         if scale and isinstance(value, (int, float)) and not isinstance(value, bool):
             value = round(value * scale, 1)

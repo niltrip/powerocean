@@ -16,6 +16,8 @@ Functions:
 - async_unload_entry: Unload a config entry and clean up resources.
 """
 
+from typing import TYPE_CHECKING
+
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import (
     CONF_DEVICE_ID,
@@ -41,8 +43,11 @@ from .const import (
     PowerOceanModel,
 )
 from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
-from .datapoints import EDEV_SYSTEM_KEYS
+from .datapoints import EDEV_SYSTEM_KEYS, SN_KEYS
 from .ecoflow import HAEcoflowApi
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: PowerOceanConfigEntry) -> bool:
@@ -130,27 +135,28 @@ async def async_migrate_entry(
             options[CONF_FRIENDLY_NAME] = legacy_name
         options.setdefault(CONF_FRIENDLY_NAME, DEFAULT_NAME)
 
-    if entry.version < 2 or entry.minor_version < 3:
-        # Bis 2.2: Die Batterie-Firmware war ein Sensor, jetzt steht sie auf
-        # der Geräteseite. Den nicht mehr gelieferten Sensor entfernen.
+    # Entities that are no longer provided, by the version that dropped them
+    inverter = data.get(CONF_DEVICE_ID) or ""
+    obsolete: list[tuple[int, Callable[[str], bool]]] = [
+        # 2.3: Die Batterie-Firmware steht jetzt auf der Geräteseite
+        (3, lambda unique_id: unique_id.endswith("_moduleAplSwVer")),
+        # 2.4: Die Anlagenwerte aus EDEV_SYS_REPORT hingen an der Wallbox,
+        # jetzt am Wechselrichter (neue unique_id)
+        (4, lambda unique_id: _is_edev_system_value_of_device(unique_id, inverter)),
+        # 2.5: Die Seriennummern stehen schon in der Geräteinfo
+        (5, lambda unique_id: unique_id.rpartition("_")[2] in SN_KEYS),
+    ]
+    removed = [
+        is_obsolete
+        for minor, is_obsolete in obsolete
+        if entry.version < 2 or entry.minor_version < minor
+    ]
+    if removed:
         entity_registry = er.async_get(hass)
         for entity in er.async_entries_for_config_entry(
             entity_registry, entry.entry_id
         ):
-            if entity.unique_id.endswith("_moduleAplSwVer"):
-                entity_registry.async_remove(entity.entity_id)
-
-    if entry.version < 2 or entry.minor_version < 4:
-        # Bis 2.3: Die Anlagenwerte aus EDEV_SYS_REPORT hingen an der Wallbox,
-        # jetzt am Wechselrichter (neue unique_id). Die alten entfernen.
-        entity_registry = er.async_get(hass)
-        inverter = data.get(CONF_DEVICE_ID) or ""
-        for entity in er.async_entries_for_config_entry(
-            entity_registry, entry.entry_id
-        ):
-            # unique_id = <Seriennummer>_<Präfix>_EDEV_SYS_REPORT_<Schlüssel>
-            head, found, key = entity.unique_id.rpartition("_EDEV_SYS_REPORT_")
-            if found and key in EDEV_SYSTEM_KEYS and not head.startswith(inverter):
+            if any(is_obsolete(entity.unique_id) for is_obsolete in removed):
                 entity_registry.async_remove(entity.entity_id)
 
     hass.config_entries.async_update_entry(
@@ -158,12 +164,19 @@ async def async_migrate_entry(
         data=data,
         options=options,
         version=2,
-        minor_version=4,
+        minor_version=5,
     )
     LOGGER.debug(
         "Migrated %s to version %s.%s", entry.title, entry.version, entry.minor_version
     )
     return True
+
+
+def _is_edev_system_value_of_device(unique_id: str, inverter: str) -> bool:
+    """Return True for a system value of EDEV_SYS_REPORT on another device."""
+    # unique_id = <Seriennummer>_<Präfix>_EDEV_SYS_REPORT_<Schlüssel>
+    head, found, key = unique_id.rpartition("_EDEV_SYS_REPORT_")
+    return bool(found) and key in EDEV_SYSTEM_KEYS and not head.startswith(inverter)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: PowerOceanConfigEntry) -> bool:
