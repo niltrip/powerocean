@@ -1142,8 +1142,9 @@
     },
     "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargeTarget": {
       "device": "PowerPulse SN_E_DEVICEBOX01",
-      "device_class": null,
-      "entity_category": "diagnostic",
+      "device_class": "energy",
+      "display_precision": 0,
+      "entity_category": null,
       "entity_id": "sensor.powerpulse_sn_e_devicebox01_chargetarget",
       "icon": null,
       "original_name": "Charge target",
@@ -1151,7 +1152,7 @@
       "product_serial": "SN_E_DEVICEBOX01",
       "state": "0",
       "state_class": null,
-      "unit_of_measurement": null
+      "unit_of_measurement": "Wh"
     },
     "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargingPwr": {
       "device": "PowerPulse SN_E_DEVICEBOX01",
@@ -1195,14 +1196,14 @@
     },
     "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_timeToUseCar": {
       "device": "PowerPulse SN_E_DEVICEBOX01",
-      "device_class": null,
+      "device_class": "timestamp",
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerpulse_sn_e_devicebox01_timetousecar",
       "icon": null,
       "original_name": "Planned vehicle usage time",
       "product_description": "timeToUseCar",
       "product_serial": "SN_E_DEVICEBOX01",
-      "state": "0",
+      "state": "unknown",
       "state_class": null,
       "unit_of_measurement": null
     },

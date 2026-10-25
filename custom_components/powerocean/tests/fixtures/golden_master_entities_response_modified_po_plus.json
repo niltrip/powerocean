@@ -944,16 +944,17 @@
     },
     "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evCurrSet": {
       "device": "PowerPulse SN_EV_CHARGER_01",
-      "device_class": null,
-      "entity_category": "diagnostic",
+      "device_class": "current",
+      "display_precision": 2,
+      "entity_category": null,
       "entity_id": "sensor.powerpulse_sn_ev_charger_01_evcurrset",
       "icon": null,
       "original_name": "Charging current",
       "product_description": "evCurrSet",
       "product_serial": "SN_EV_CHARGER_01",
-      "state": "60",
-      "state_class": null,
-      "unit_of_measurement": null
+      "state": "6.0",
+      "state_class": "measurement",
+      "unit_of_measurement": "A"
     },
     "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evOnoffSet": {
       "device": "PowerPulse SN_EV_CHARGER_01",

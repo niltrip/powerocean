@@ -1792,7 +1792,11 @@
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargeTarget",
       "name": "SN_E_DEVICEBOX01_chargeTarget",
       "serial": "SN_E_DEVICEBOX01",
-      "unit": null
+      "unit": [
+        "energy",
+        "Wh",
+        null
+      ]
     }
   },
   "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargingPwr": {
@@ -1876,7 +1880,11 @@
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_timeToUseCar",
       "name": "SN_E_DEVICEBOX01_timeToUseCar",
       "serial": "SN_E_DEVICEBOX01",
-      "unit": null
+      "unit": [
+        "timestamp",
+        null,
+        null
+      ]
     }
   },
   "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_workMode": {

@@ -141,7 +141,7 @@
       "name": "SN_HEATROD01_selfcheckPercent",
       "serial": "SN_HEATROD01",
       "unit": [
-        "battery",
+        null,
         "%",
         "measurement"
       ]

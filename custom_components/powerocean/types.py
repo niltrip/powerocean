@@ -195,6 +195,8 @@ class SensorClassHelper:
                 # Wallbox: start of the charging order (ends in "amp", which
                 # made it a current in A before)
                 "orderStartTimestamp",
+                # Wallbox: planned departure in smart mode (0 = none)
+                "timeToUseCar",
                 "heartbeatUpdateTime",
                 "energyStreamUpdateTime",
                 "emsChangeUpdateTime",
@@ -208,6 +210,16 @@ class SensorClassHelper:
             UnitOfEnergy.WATT_HOUR,
             SensorStateClass.MEASUREMENT,
         ),
+        # Wallbox: energy target of smart mode
+        "chargeTarget": (SensorDeviceClass.ENERGY, UnitOfEnergy.WATT_HOUR, None),
+        # Wallbox: charging current setting (scaled from 0.1 A, VALUE_SCALE)
+        "evCurrSet": (
+            SensorDeviceClass.CURRENT,
+            UnitOfElectricCurrent.AMPERE,
+            SensorStateClass.MEASUREMENT,
+        ),
+        # Heating rod: progress of its self-check, not a battery level
+        "selfcheckPercent": (None, PERCENTAGE, SensorStateClass.MEASUREMENT),
         "emsNtcTempMax": (
             SensorDeviceClass.TEMPERATURE,
             UnitOfTemperature.CELSIUS,
