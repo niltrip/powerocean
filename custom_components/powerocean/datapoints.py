@@ -33,6 +33,9 @@ class ReportMode(Enum):
     ERROR = "ERROR_CHANGE_REPORT"
 
 
+# Values of EDEV_SYS_REPORT that belong to the system, not to one device
+EDEV_SYSTEM_KEYS: set[str] = {"feedPwrCap", "startState", "socCur", "pclPwrBase"}
+
 REPORT_DATAPOINTS: dict[str, set[str]] = {
     ReportMode.DEFAULT.value: {
         "sysLoadPwr",
@@ -291,17 +294,19 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
     ReportMode.ERROR.value: {
         "errorCount",
     },
+    # Energy management of the external devices (wallbox, heating rod); read
+    # last, so the devices of the other reports are known. Values of the
+    # system go to the inverter, those of each device to that device.
     ReportMode.WALLBOX_SYS.value: {
-        "devSn",
+        *EDEV_SYSTEM_KEYS,
         "allocatedPower",
         "realPowerLock",
         "refPower",
-        "feedPwrCap",
-        "startState",
         "errorCode",
         "warnCode",
-        "socCur",
-        "pclPwrBase",
+        # Maximum power of the device in W and its priority
+        "targetMax",
+        "currentPrio",
     },
 }
 
@@ -412,6 +417,9 @@ TRANSLATED_STATES: set[str] = {
 NAME_CONTEXTS: dict[str, str] = {
     ReportMode.BATTERY.value: "pack",
     ReportMode.PARALLEL.value: "inverter",
+    # Energy management of the external devices: their error and warning
+    # codes, next to those of the device's own report
+    ReportMode.WALLBOX_SYS.value: "edev",
 }
 
 
@@ -495,6 +503,9 @@ DISABLED_BY_DEFAULT: set[str] = {
     # Wallbox PowerPulse 2: bit fields and values without known meaning
     "switchBits",
     "gridPhaseInput",
+    # Energy management of the system (EDEV_SYS_REPORT): meaning unclear,
+    # socCur repeats the battery state of charge
+    *EDEV_SYSTEM_KEYS,
 }
 
 

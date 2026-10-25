@@ -43,6 +43,13 @@
 - **PowerPulse 2 wallbox:** charging current settings (custom, maximum,
   solar minimum) in A, energy and duration of the last charging session,
   phase setting. These values were in the response but not read before.
+- **Energy management per device:** wallbox and heating rod each show their
+  maximum power, priority and allocated power, and their error and warning
+  code of the energy management ("(energy management)"). Before, only the
+  first device got these values. The values of the whole system from the
+  same report (`socCur`, `feedPwrCap`, `pclPwrBase`, `startState`) moved
+  from the wallbox to the inverter, disabled by default; the old wallbox
+  entities are removed automatically.
 - **Time of the last values** per battery pack and per report of the
   inverter (diagnostic). Shows when the data from the EcoFlow cloud is out
   of date.

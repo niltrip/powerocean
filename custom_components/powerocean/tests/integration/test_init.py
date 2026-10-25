@@ -460,7 +460,7 @@ async def test_migrate_v1_entry(
     await _setup(hass, entry)
 
     assert entry.state is ConfigEntryState.LOADED
-    assert (entry.version, entry.minor_version) == (2, 3)
+    assert (entry.version, entry.minor_version) == (2, 4)
     assert dict(entry.data) == DATA
     assert dict(entry.options) == {"friendly_name": "Garage", "scan_interval": 30}
     assert entry.runtime_data.update_interval.total_seconds() == 30
@@ -506,7 +506,7 @@ async def test_migrate_v2_1_backfills_missing_options(
     )
     await _setup(hass, entry)
 
-    assert (entry.version, entry.minor_version) == (2, 3)
+    assert (entry.version, entry.minor_version) == (2, 4)
     assert dict(entry.options) == {"friendly_name": "Garage", "scan_interval": 30}
     assert entry.runtime_data.update_interval.total_seconds() == 30
 
@@ -519,7 +519,7 @@ async def test_migrate_v2_1_keeps_existing_options(
     )
     await _setup(hass, entry)
 
-    assert (entry.version, entry.minor_version) == (2, 3)
+    assert (entry.version, entry.minor_version) == (2, 4)
     assert dict(entry.options) == {"friendly_name": "Keller", "scan_interval": 20}
     assert dict(entry.data) == DATA
 
@@ -546,9 +546,37 @@ async def test_migrate_v2_2_removes_battery_firmware_sensor(
     await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
 
-    assert (entry.version, entry.minor_version) == (2, 3)
+    assert (entry.version, entry.minor_version) == (2, 4)
     assert entity_registry.async_get(old.entity_id) is None
     assert entity_registry.async_get(kept.entity_id)
+
+
+async def test_migrate_v2_3_moves_system_values_off_the_wallbox(
+    hass: HomeAssistant, mock_authorize: AsyncMock, mock_fetch: AsyncMock
+) -> None:
+    """System values of EDEV_SYS_REPORT moved from the wallbox to the inverter."""
+    entry = _entry(minor_version=3)
+    entry.add_to_hass(hass)
+    entity_registry = er.async_get(hass)
+    old = entity_registry.async_get_or_create(
+        "sensor", DOMAIN, "SN_DEV01_JT303_EDEV_SYS_REPORT_socCur", config_entry=entry
+    )
+    device_value = entity_registry.async_get_or_create(
+        "sensor",
+        DOMAIN,
+        "SN_DEV01_JT303_EDEV_SYS_REPORT_allocatedPower",
+        config_entry=entry,
+    )
+    inverter_value = entity_registry.async_get_or_create(
+        "sensor", DOMAIN, f"{SN}_JT303_EDEV_SYS_REPORT_socCur", config_entry=entry
+    )
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert (entry.version, entry.minor_version) == (2, 4)
+    assert entity_registry.async_get(old.entity_id) is None
+    assert entity_registry.async_get(device_value.entity_id)
+    assert entity_registry.async_get(inverter_value.entity_id)
 
 
 async def test_migrate_from_future_version_fails(

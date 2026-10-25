@@ -9,6 +9,7 @@ The names are in strings.json and translations/*.json.
 # other context matches (see datapoints.name_context)
 NAMED: frozenset[tuple[str, str]] = frozenset(
     {
+        ("", "allocatedPower"),
         ("", "batteryLimitReason"),
         ("", "batteryToGrid"),
         ("", "batteryToHouse"),
@@ -50,6 +51,7 @@ NAMED: frozenset[tuple[str, str]] = frozenset(
         ("", "chargingStatus"),
         ("", "currentNetif"),
         ("", "currentOuputMax"),
+        ("", "currentPrio"),
         ("", "dabModSta"),
         ("", "dcdcPwr"),
         ("", "devSn"),
@@ -197,6 +199,7 @@ NAMED: frozenset[tuple[str, str]] = frozenset(
         ("", "sysGridSta"),
         ("", "sysLoadPwr"),
         ("", "systemName"),
+        ("", "targetMax"),
         ("", "targetPower"),
         ("", "targetTemp"),
         ("", "temp"),
@@ -209,6 +212,8 @@ NAMED: frozenset[tuple[str, str]] = frozenset(
         ("", "wifiStaStat"),
         ("", "workMode"),
         ("", "yearElectricityGeneration"),
+        ("edev", "errorCode"),
+        ("edev", "warnCode"),
         ("inverter", "bpPwr"),
         ("inverter", "bpSoc"),
         ("inverter", "mpptPwr"),

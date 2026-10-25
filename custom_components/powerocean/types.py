@@ -230,6 +230,12 @@ class SensorClassHelper:
             SensorStateClass.TOTAL_INCREASING,
         ),
         "orderTime": (SensorDeviceClass.DURATION, UnitOfTime.SECONDS, None),
+        # Wallbox, heating rod: maximum power the system may give the device
+        "targetMax": (
+            SensorDeviceClass.POWER,
+            UnitOfPower.WATT,
+            SensorStateClass.MEASUREMENT,
+        ),
         # Heating rod: progress of its self-check, not a battery level
         "selfcheckPercent": (None, PERCENTAGE, SensorStateClass.MEASUREMENT),
         "emsNtcTempMax": (
