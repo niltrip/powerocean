@@ -1388,7 +1388,11 @@
       "internal_unique_id": "SN_DEV01_JTS1_EDEV_PARAM_REPORT_chargeTarget",
       "name": "SN_DEV01_chargeTarget",
       "serial": "SN_DEV01",
-      "unit": null
+      "unit": [
+        "energy",
+        "Wh",
+        null
+      ]
     }
   },
   "SN_DEV01_JTS1_EDEV_PARAM_REPORT_chargingPwr": {
@@ -1472,7 +1476,11 @@
       "internal_unique_id": "SN_DEV01_JTS1_EDEV_PARAM_REPORT_timeToUseCar",
       "name": "SN_DEV01_timeToUseCar",
       "serial": "SN_DEV01",
-      "unit": null
+      "unit": [
+        "timestamp",
+        null,
+        null
+      ]
     }
   },
   "SN_DEV01_JTS1_EDEV_PARAM_REPORT_workMode": {
@@ -1733,7 +1741,7 @@
       "name": "SN_HR01_selfcheckPercent",
       "serial": "SN_HR01",
       "unit": [
-        "battery",
+        null,
         "%",
         "measurement"
       ]

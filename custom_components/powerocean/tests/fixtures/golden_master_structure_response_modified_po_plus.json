@@ -1472,7 +1472,11 @@
       "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evCurrSet",
       "name": "SN_EV_CHARGER_01_evCurrSet",
       "serial": "SN_EV_CHARGER_01",
-      "unit": null
+      "unit": [
+        "current",
+        "A",
+        "measurement"
+      ]
     }
   },
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evOnoffSet": {

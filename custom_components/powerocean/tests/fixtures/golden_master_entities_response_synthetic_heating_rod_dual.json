@@ -199,9 +199,9 @@
     },
     "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_selfcheckPercent": {
       "device": "PowerGlow SN_HEATROD01",
-      "device_class": "battery",
+      "device_class": null,
       "display_precision": 0,
-      "entity_category": null,
+      "entity_category": "diagnostic",
       "entity_id": "sensor.powerglow_sn_heatrod01_selfcheckpercent",
       "icon": "mdi:information-outline",
       "original_name": "Self-check",

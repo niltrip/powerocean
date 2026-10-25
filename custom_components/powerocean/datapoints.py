@@ -310,6 +310,13 @@ UPDATE_TIME_KEYS: dict[str, str] = {
     ReportMode.EMS_CHANGE.value: "emsChangeUpdateTime",
 }
 
+# Values the API sends in tenths of their unit, e.g. 60 for 6.0 A
+VALUE_SCALE: dict[str, float] = {
+    # Wallbox charging current: checked for the PowerPulse 2 (discussion
+    # #132); the PowerPulse 1 sends the same 60, which cannot mean 60 A
+    "evCurrSet": 0.1,
+}
+
 # Entities of these keys are shown under "Diagnostic", although they have
 # a unit (entities without a unit always are)
 DIAGNOSTIC_KEYS: set[str] = {
@@ -319,6 +326,8 @@ DIAGNOSTIC_KEYS: set[str] = {
     # Cell voltages of the battery packs
     "bpCellMaxVol",
     "bpCellMinVol",
+    # Self-check progress of the heating rod (has a unit since it is in %)
+    "selfcheckPercent",
     # Grid frequency and inverter temperature
     "pcsAcFreq",
     "emsNtcTempMax",

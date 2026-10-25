@@ -83,6 +83,10 @@
   "PowerPulse". Before, depending on which report arrived first, they were
   also called "Heating Rod" or "Charger". Device pages may show the new
   name; entity IDs you already have stay as they are.
+- **Units for heating rod and wallbox:** the charging current setting of the
+  PowerPulse is shown in A (6.0 A instead of 60), the energy target of smart
+  charging in Wh, the planned departure as a time (unknown if none is set).
+  The self-check of the PowerGlow no longer shows a battery icon.
 - Battery state of charge shows the battery level icon.
 - Sensors without a current value, e.g. of a battery pack that is offline,
   are shown as *unavailable* instead of *unknown*.

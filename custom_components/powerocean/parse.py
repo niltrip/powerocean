@@ -24,6 +24,7 @@ from .datapoints import (
     BOX_SCHEMAS,
     REPORT_DATAPOINTS,
     UPDATE_TIME_KEYS,
+    VALUE_SCALE,
     BoxSchema,
     ReportMode,
 )
@@ -132,6 +133,9 @@ class _Context:
         return make_device(self.inverter_sn, "PowerOcean", self.model)
 
     def add(self, device: Device, report: str, key: str, value: Any) -> None:
+        scale = VALUE_SCALE.get(key)
+        if scale and isinstance(value, (int, float)) and not isinstance(value, bool):
+            value = round(value * scale, 1)
         self.result.datapoints.append(
             Datapoint(
                 unique_id=_join_id(device.sn, report, key),
