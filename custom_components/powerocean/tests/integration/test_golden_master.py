@@ -7,11 +7,14 @@ from pathlib import Path
 import pytest
 
 from custom_components.powerocean.const import LOGGER
-from custom_components.powerocean.parser import EcoflowParser
 from custom_components.powerocean.tests.serialize_structure import (
     serialize_structure,
 )
-from custom_components.powerocean.tests.utils import normalize
+from custom_components.powerocean.tests.utils import (
+    normalize,
+    parse_structure,
+    parse_values,
+)
 
 # List of (API response file, variant) pairs
 API_FIXTURES = [
@@ -21,6 +24,9 @@ API_FIXTURES = [
     ("response_modified_po_plus.json", "87"),
     ("response_modified_po_plus_feature.json", "87"),
     ("response_modified_error_521.json", "83"),
+    # Synthetic: heating rod (no real response available yet)
+    ("response_synthetic_heating_rod.json", "83"),
+    ("response_synthetic_heating_rod_dual.json", "83"),
 ]
 
 
@@ -35,13 +41,7 @@ def test_golden_master_parse_values(fixture_file_name, variant) -> None:
 
     api_response = json.loads(fixture_file.read_text(encoding="utf-8"))
 
-    parser = EcoflowParser(
-        variant=variant,
-        sn="SN_INVERTERBOX01",
-    )
-
-    # 🔑 DAS ist jetzt die getestete API
-    values = parser.parse_values(api_response)
+    values = parse_values(api_response, variant)
 
     # deterministische Reihenfolge
     values = dict(sorted(values.items()))
@@ -67,12 +67,7 @@ def test_golden_master_structure(fixture_file_name, variant) -> None:
 
     api_response = json.loads(fixture_file.read_text(encoding="utf-8"))
 
-    parser = EcoflowParser(
-        variant=variant,
-        sn="SN_INVERTERBOX01",
-    )
-
-    structure = parser.parse_structure(api_response)
+    structure = parse_structure(api_response, variant)
     serialized = serialize_structure(structure)
 
     if not master_file.exists():

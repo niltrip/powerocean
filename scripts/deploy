@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Kopiert custom_components/powerocean auf eine Home-Assistant-Instanz.
+# Neustart danach selbst über die Oberfläche auslösen.
+#
+# Voraussetzung: Add-on "Terminal & SSH" oder "Advanced SSH & Web Terminal"
+# ist in Home Assistant installiert und gestartet.
+#
+# Aufruf: scripts/deploy [adresse]   (ohne Adresse wird nachgefragt)
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+HA_HOST="$1"
+HA_PORT="22"
+
+if [[ -z "${HA_HOST}" ]]; then
+    read -r -p "Adresse der Home-Assistant-Instanz: " HA_HOST
+fi
+if [[ -z "${HA_HOST}" ]]; then
+    echo "Keine Adresse angegeben."
+    exit 1
+fi
+
+read -r -p "Benutzer für ${HA_HOST}: " HA_USER
+if [[ -z "${HA_USER}" ]]; then
+    echo "Kein Benutzer angegeben."
+    exit 1
+fi
+
+echo "Branch: $(git branch --show-current) ($(git rev-parse --short HEAD))"
+if [[ -n "$(git status --porcelain custom_components)" ]]; then
+    echo "Hinweis: nicht committete Änderungen werden mitkopiert."
+fi
+
+echo "Kopiere nach ${HA_USER}@${HA_HOST} ..."
+# ssh fragt das Passwort ab.
+# Alte Version nach /config/powerocean.bak sichern, dann neue entpacken.
+tar -C custom_components --exclude=__pycache__ -cf - powerocean \
+    | ssh -p "${HA_PORT}" -o StrictHostKeyChecking=accept-new "${HA_USER}@${HA_HOST}" '
+        set -e
+        # Die Ordner gehören root; andere Benutzer brauchen sudo ohne Passwort.
+        # Funktion statt Variable, weil zsh "$SUDO" nicht in Wörter aufteilt.
+        run() {
+            if [ "$(id -u)" -eq 0 ]; then "$@"; else sudo -n "$@"; fi
+        }
+        if [ "$(id -u)" -ne 0 ] && ! sudo -n true 2>/dev/null; then
+            echo "sudo ohne Passwort nicht möglich - im SSH-Add-on Benutzer root eintragen."
+            exit 1
+        fi
+        run mkdir -p /config/custom_components
+        run rm -rf /config/powerocean.bak
+        if [ -d /config/custom_components/powerocean ]; then
+            run mv /config/custom_components/powerocean /config/powerocean.bak
+        fi
+        run tar -xf - -C /config/custom_components
+    '
+
+echo "Fertig. Jetzt Home Assistant neu starten:"
+echo "Einstellungen -> System -> oben rechts Neustart"

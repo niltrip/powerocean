@@ -1,5 +1,6 @@
 """test_init: setup, error handling, re-login and migration of config entries."""
 
+import copy
 import json
 from collections.abc import Generator
 from pathlib import Path
@@ -11,7 +12,9 @@ from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 
 from custom_components.powerocean.api import (
     AuthenticationError,
@@ -167,7 +170,7 @@ async def test_setup_retries_on_unparsable_response(
 ) -> None:
     entry = _entry()
     with patch(
-        "custom_components.powerocean.coordinator.EcoflowParser.parse_values",
+        "custom_components.powerocean.coordinator.parse",
         side_effect=KeyError("mpptPv"),
     ):
         await _setup(hass, entry)
@@ -269,6 +272,133 @@ async def test_scan_interval_from_options(
     await _setup(hass, entry)
 
     assert entry.runtime_data.update_interval.total_seconds() == 42
+
+
+def _without_battery(sn: str) -> dict:
+    """Return the response as if the battery pack `sn` was offline."""
+    response = copy.deepcopy(RESPONSE)
+    del response["data"]["quota"]["JTS1_BP_STA_REPORT"][sn]
+    return response
+
+
+def _entity_ids(hass: HomeAssistant, entry: MockConfigEntry) -> dict[str, str]:
+    return {
+        entity.unique_id: entity.entity_id
+        for entity in er.async_entries_for_config_entry(
+            er.async_get(hass), entry.entry_id
+        )
+    }
+
+
+async def test_battery_offline_at_startup_is_added_later(
+    hass: HomeAssistant, mock_authorize: AsyncMock, mock_fetch: AsyncMock
+) -> None:
+    """Datapoints missing at startup get their entities with a later update."""
+    battery = "SN_BATTERIEPACK02"
+    soc = f"{battery}_JTS1_BP_STA_REPORT_bpSoc"
+    mock_fetch.return_value = _without_battery(battery)
+    entry = _entry()
+    await _setup(hass, entry)
+    coordinator = entry.runtime_data
+    before = _entity_ids(hass, entry)
+    assert soc not in before
+    assert not dr.async_get(hass).async_get_device(identifiers={(DOMAIN, battery)})
+
+    # The battery is back
+    mock_fetch.return_value = RESPONSE
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+
+    after = _entity_ids(hass, entry)
+    added = set(after) - set(before)
+    assert soc in added
+    assert all(unique_id.startswith(f"{battery}_") for unique_id in added)
+    # Existing entities are unchanged
+    assert {uid: after[uid] for uid in before} == before
+    assert hass.states.get(after[soc]).state == "10"
+    device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, battery)})
+    assert device
+    assert device.via_device_id
+
+    # Offline again: the entities stay, unavailable
+    mock_fetch.return_value = _without_battery(battery)
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+
+    assert _entity_ids(hass, entry) == after
+    assert hass.states.get(after[soc]).state == STATE_UNAVAILABLE
+
+
+# -----------------------------
+# removing devices
+# -----------------------------
+
+
+async def _remove_device(
+    hass: HomeAssistant,
+    hass_ws_client: WebSocketGenerator,
+    entry: MockConfigEntry,
+    sn: str,
+) -> bool:
+    """Remove the device `sn` as the device page does, return True on success."""
+    assert await async_setup_component(hass, "config", {})
+    device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, sn)})
+    assert device
+    client = await hass_ws_client(hass)
+    response = await client.remove_device(device.id, entry.entry_id)
+    return response["success"]
+
+
+@pytest.mark.parametrize("sn", [SN, "SN_BATTERIEPACK02"])
+async def test_device_with_values_cannot_be_removed(
+    hass: HomeAssistant,
+    hass_ws_client: WebSocketGenerator,
+    mock_authorize: AsyncMock,
+    mock_fetch: AsyncMock,
+    sn: str,
+) -> None:
+    entry = _entry()
+    await _setup(hass, entry)
+
+    assert not await _remove_device(hass, hass_ws_client, entry, sn)
+    assert dr.async_get(hass).async_get_device(identifiers={(DOMAIN, sn)})
+
+
+async def test_device_without_values_can_be_removed_and_returns(
+    hass: HomeAssistant,
+    hass_ws_client: WebSocketGenerator,
+    mock_authorize: AsyncMock,
+    mock_fetch: AsyncMock,
+) -> None:
+    """A device missing in the response can be removed, and comes back with it."""
+    battery = "SN_BATTERIEPACK02"
+    soc = f"{battery}_JTS1_BP_STA_REPORT_bpSoc"
+    entry = _entry()
+    await _setup(hass, entry)
+    coordinator = entry.runtime_data
+    before = _entity_ids(hass, entry)
+
+    # The battery is gone (e.g. replaced) and is removed by the user
+    mock_fetch.return_value = _without_battery(battery)
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+    assert await _remove_device(hass, hass_ws_client, entry, battery)
+    await hass.async_block_till_done()
+
+    assert not dr.async_get(hass).async_get_device(identifiers={(DOMAIN, battery)})
+    remaining = _entity_ids(hass, entry)
+    assert soc not in remaining
+    assert all(not unique_id.startswith(f"{battery}_") for unique_id in remaining)
+    assert dr.async_get(hass).async_get_device(identifiers={(DOMAIN, SN)})
+
+    # It is back: device and entities are added again
+    mock_fetch.return_value = RESPONSE
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+
+    assert dr.async_get(hass).async_get_device(identifiers={(DOMAIN, battery)})
+    assert _entity_ids(hass, entry).keys() == before.keys()
+    assert hass.states.get(_entity_ids(hass, entry)[soc]).state == "10"
 
 
 # -----------------------------

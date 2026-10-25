@@ -70,5 +70,594 @@
         "missing_configuration": {
             "message": "Die Konfiguration ist unvollständig (Seriennummer oder Modell fehlt). Bitte das Gerät entfernen und neu hinzufügen."
         }
+    },
+    "entity": {
+        "sensor": {
+            "battery_limit_reason": {
+                "name": "Grund der Batteriebegrenzung"
+            },
+            "battery_to_grid": {
+                "name": "Batterie zum Netz"
+            },
+            "battery_to_house": {
+                "name": "Batterie zum Haus"
+            },
+            "bms_chg_dsg_sta": {
+                "name": "Lade-/Entladezustand",
+                "state": {
+                    "pb_chg_state": "Laden",
+                    "pb_dsg_state": "Entladen",
+                    "pb_standby_state": "Standby"
+                }
+            },
+            "bms_run_sta": {
+                "name": "BMS-Status",
+                "state": {
+                    "pb_bms_state_chargeable": "Ladebereit",
+                    "pb_bms_state_normal": "Normal",
+                    "pb_bms_state_dischargeable": "Entladebereit",
+                    "pb_bms_state_shutdown": "Abgeschaltet",
+                    "pb_bms_state_fault": "Fehler"
+                }
+            },
+            "bp_accu_chg_energy": {
+                "name": "Geladene Energie"
+            },
+            "bp_accu_dsg_energy": {
+                "name": "Entladene Energie"
+            },
+            "bp_amp": {
+                "name": "Strom"
+            },
+            "bp_balance_state": {
+                "name": "Zellausgleich"
+            },
+            "bp_cell_max_vol": {
+                "name": "Höchste Zellspannung"
+            },
+            "bp_cell_min_vol": {
+                "name": "Niedrigste Zellspannung"
+            },
+            "bp_cycles": {
+                "name": "Ladezyklen"
+            },
+            "bp_env_temp": {
+                "name": "Umgebungstemperatur"
+            },
+            "bp_err_code": {
+                "name": "Fehlercode"
+            },
+            "bp_in_day_energy": {
+                "name": "Batterie geladen heute"
+            },
+            "bp_max_cell_temp": {
+                "name": "Höchste Zelltemperatur"
+            },
+            "bp_max_mos_temp": {
+                "name": "Höchste MOSFET-Temperatur"
+            },
+            "bp_min_cell_temp": {
+                "name": "Niedrigste Zelltemperatur"
+            },
+            "bp_min_mos_temp": {
+                "name": "Niedrigste MOSFET-Temperatur"
+            },
+            "bp_online_sum": {
+                "name": "Batterien online"
+            },
+            "bp_out_day_energy": {
+                "name": "Batterie entladen heute"
+            },
+            "bp_pwr": {
+                "name": "Batterieleistung (Cloud)"
+            },
+            "bp_pwr_inverter": {
+                "name": "Batterieleistung (Energiefluss)"
+            },
+            "bp_pwr_pack": {
+                "name": "Leistung"
+            },
+            "bp_real_soc": {
+                "name": "Tatsächlicher Ladezustand"
+            },
+            "bp_real_soh": {
+                "name": "Tatsächlicher Gesundheitszustand"
+            },
+            "bp_remain_watth": {
+                "name": "Batterie-Restenergie"
+            },
+            "bp_remain_watth_pack": {
+                "name": "Restenergie"
+            },
+            "bp_sn": {
+                "name": "Seriennummer"
+            },
+            "bp_soc": {
+                "name": "Batterie-Ladezustand"
+            },
+            "bp_soc_inverter": {
+                "name": "Batterie-Ladezustand (Energiefluss)"
+            },
+            "bp_soc_pack": {
+                "name": "Ladezustand"
+            },
+            "bp_soh": {
+                "name": "Gesundheitszustand"
+            },
+            "bp_sys_state": {
+                "name": "Systemzustand",
+                "state": {
+                    "normal_state": "Normal",
+                    "pre_power_on_state": "Startet",
+                    "cfm_power_on_state": "Eingeschaltet",
+                    "power_off_state": "Ausgeschaltet",
+                    "sleep_state": "Ruhezustand"
+                }
+            },
+            "bp_timestamp": {
+                "name": "Letzte Aktualisierung"
+            },
+            "bp_total_chg_energy": {
+                "name": "Batterie geladen gesamt"
+            },
+            "bp_total_dsg_energy": {
+                "name": "Batterie entladen gesamt"
+            },
+            "bp_vol": {
+                "name": "Spannung"
+            },
+            "breaker_capacity_max": {
+                "name": "Hausanschluss-Grenze"
+            },
+            "breaker_enable_state": {
+                "name": "Lastmanagement",
+                "state": {
+                    "true": "An",
+                    "false": "Aus"
+                }
+            },
+            "current_netif": {
+                "name": "Netzwerkverbindung"
+            },
+            "dab_mod_sta": {
+                "name": "DC-DC-Wandler-Status",
+                "state": {
+                    "pb_mod_sta_normal": "Normal",
+                    "pb_mod_sta_warnning": "Warnung",
+                    "pb_mod_sta_fault": "Fehler"
+                }
+            },
+            "dcdc_pwr": {
+                "name": "DC-DC-Leistung"
+            },
+            "ems_bp_alive_num": {
+                "name": "Aktive Batterien"
+            },
+            "ems_bp_power": {
+                "name": "Batterieleistung"
+            },
+            "ems_bp_selfcheck_state": {
+                "name": "Batterie-Selbsttest"
+            },
+            "ems_change_update_time": {
+                "name": "Letzte Aktualisierung Status"
+            },
+            "ems_ctrl_led_bright": {
+                "name": "LED-Helligkeit"
+            },
+            "ems_feed_mode": {
+                "name": "Einspeisemodus"
+            },
+            "ems_feed_pwr": {
+                "name": "Einspeisegrenze"
+            },
+            "ems_feed_ratio": {
+                "name": "Einspeisegrenze (Prozent)"
+            },
+            "ems_keep_soc": {
+                "name": "Reservierter Ladezustand"
+            },
+            "ems_mppt_run_state": {
+                "name": "MPPT-Zustand"
+            },
+            "ems_mppt_selfcheck_state": {
+                "name": "MPPT-Selbsttest"
+            },
+            "ems_ntc_temp_max": {
+                "name": "Höchste Wechselrichtertemperatur"
+            },
+            "ems_sg_ready_en": {
+                "name": "SG Ready aktiv",
+                "state": {
+                    "true": "An",
+                    "false": "Aus"
+                }
+            },
+            "ems_sg_run_stat": {
+                "name": "SG-Ready-Zustand"
+            },
+            "ems_word_mode": {
+                "name": "Betriebsmodus",
+                "state": {
+                    "workmode_selfuse": "Eigenstromversorgung"
+                }
+            },
+            "energy_stream_update_time": {
+                "name": "Letzte Aktualisierung Energiefluss"
+            },
+            "error_count": {
+                "name": "Aktive Fehler"
+            },
+            "eth_wan_stat": {
+                "name": "LAN-Status"
+            },
+            "grid_in_day_energy": {
+                "name": "Netzbezug heute"
+            },
+            "grid_out_day_energy": {
+                "name": "Einspeisung heute"
+            },
+            "grid_power": {
+                "name": "Netzleistung"
+            },
+            "grid_pwr": {
+                "name": "Netzleistung (Cloud-Energiefluss)"
+            },
+            "grid_to_battery": {
+                "name": "Netz zur Batterie"
+            },
+            "grid_to_house": {
+                "name": "Netz zum Haus"
+            },
+            "heartbeat_update_time": {
+                "name": "Letzte Aktualisierung"
+            },
+            "house_power": {
+                "name": "Hausverbrauch"
+            },
+            "iot4g_sta": {
+                "name": "4G-Status"
+            },
+            "load_day_energy": {
+                "name": "Hausverbrauch heute"
+            },
+            "load_pwr": {
+                "name": "Hausverbrauch (Cloud-Energiefluss)"
+            },
+            "manual_set_start_charge_power": {
+                "name": "Laden ab Leistung"
+            },
+            "meter_a_current": {
+                "name": "Zähler L1 Strom"
+            },
+            "meter_a_voltage": {
+                "name": "Zähler L1 Spannung"
+            },
+            "meter_b_current": {
+                "name": "Zähler L2 Strom"
+            },
+            "meter_b_voltage": {
+                "name": "Zähler L2 Spannung"
+            },
+            "meter_c_current": {
+                "name": "Zähler L3 Strom"
+            },
+            "meter_c_voltage": {
+                "name": "Zähler L3 Spannung"
+            },
+            "meter_l1_pwr": {
+                "name": "L1 Leistung"
+            },
+            "meter_l2_pwr": {
+                "name": "L2 Leistung"
+            },
+            "meter_l3_pwr": {
+                "name": "L3 Leistung"
+            },
+            "meter_total_power": {
+                "name": "Zählerleistung"
+            },
+            "meter_total_pwr": {
+                "name": "Leistung"
+            },
+            "module_apl_sw_ver": {
+                "name": "Firmware-Version"
+            },
+            "month_electricity_generation": {
+                "name": "Solarertrag Monat"
+            },
+            "mppt1_fault_code": {
+                "name": "PV 1 Fehlercode"
+            },
+            "mppt1_warning_code": {
+                "name": "PV 1 Warncode"
+            },
+            "mppt2_fault_code": {
+                "name": "PV 2 Fehlercode"
+            },
+            "mppt2_warning_code": {
+                "name": "PV 2 Warncode"
+            },
+            "mppt3_fault_code": {
+                "name": "PV 3 Fehlercode"
+            },
+            "mppt3_warning_code": {
+                "name": "PV 3 Warncode"
+            },
+            "mppt4_fault_code": {
+                "name": "PV 4 Fehlercode"
+            },
+            "mppt4_warning_code": {
+                "name": "PV 4 Warncode"
+            },
+            "mppt_ins_resist": {
+                "name": "Isolationswiderstand"
+            },
+            "mppt_pv1_amp": {
+                "name": "PV 1 Strom"
+            },
+            "mppt_pv1_light_sta": {
+                "name": "PV 1 Licht erkannt"
+            },
+            "mppt_pv1_pwr": {
+                "name": "PV 1 Leistung"
+            },
+            "mppt_pv1_vol": {
+                "name": "PV 1 Spannung"
+            },
+            "mppt_pv2_amp": {
+                "name": "PV 2 Strom"
+            },
+            "mppt_pv2_light_sta": {
+                "name": "PV 2 Licht erkannt"
+            },
+            "mppt_pv2_pwr": {
+                "name": "PV 2 Leistung"
+            },
+            "mppt_pv2_vol": {
+                "name": "PV 2 Spannung"
+            },
+            "mppt_pv3_amp": {
+                "name": "PV 3 Strom"
+            },
+            "mppt_pv3_light_sta": {
+                "name": "PV 3 Licht erkannt"
+            },
+            "mppt_pv3_pwr": {
+                "name": "PV 3 Leistung"
+            },
+            "mppt_pv3_vol": {
+                "name": "PV 3 Spannung"
+            },
+            "mppt_pv4_amp": {
+                "name": "PV 4 Strom"
+            },
+            "mppt_pv4_light_sta": {
+                "name": "PV 4 Licht erkannt"
+            },
+            "mppt_pv4_pwr": {
+                "name": "PV 4 Leistung"
+            },
+            "mppt_pv4_vol": {
+                "name": "PV 4 Spannung"
+            },
+            "mppt_pv_pwr_total": {
+                "name": "Solarleistung"
+            },
+            "mppt_pwr": {
+                "name": "Solarleistung (Cloud)"
+            },
+            "mppt_pwr_inverter": {
+                "name": "Solarleistung (Energiefluss)"
+            },
+            "mppt_rate_power": {
+                "name": "PV-Nennleistung"
+            },
+            "mppt_withstand_voltage": {
+                "name": "PV-Maximalspannung"
+            },
+            "online": {
+                "name": "Online",
+                "state": {
+                    "1": "Online",
+                    "0": "Offline"
+                }
+            },
+            "other_pv_pwr": {
+                "name": "Sonstige PV-Leistung (Cloud)"
+            },
+            "pcs_a_phase_act_pwr": {
+                "name": "L1 Leistung"
+            },
+            "pcs_a_phase_amp": {
+                "name": "L1 Strom"
+            },
+            "pcs_a_phase_apparent_pwr": {
+                "name": "L1 Scheinleistung"
+            },
+            "pcs_a_phase_react_pwr": {
+                "name": "L1 Blindleistung"
+            },
+            "pcs_a_phase_vol": {
+                "name": "L1 Spannung"
+            },
+            "pcs_ac_err_code": {
+                "name": "AC-Fehlercode"
+            },
+            "pcs_ac_freq": {
+                "name": "Netzfrequenz"
+            },
+            "pcs_ac_warning_code": {
+                "name": "AC-Warncode"
+            },
+            "pcs_act_pwr": {
+                "name": "Wechselrichterleistung"
+            },
+            "pcs_active_power_limit_dn": {
+                "name": "Leistungsgrenze Entladen"
+            },
+            "pcs_active_power_limit_up": {
+                "name": "Leistungsgrenze Laden"
+            },
+            "pcs_avg_ovp_protect_cnt": {
+                "name": "Auslösungen Überspannung (Mittelwert)"
+            },
+            "pcs_b_phase_act_pwr": {
+                "name": "L2 Leistung"
+            },
+            "pcs_b_phase_amp": {
+                "name": "L2 Strom"
+            },
+            "pcs_b_phase_apparent_pwr": {
+                "name": "L2 Scheinleistung"
+            },
+            "pcs_b_phase_react_pwr": {
+                "name": "L2 Blindleistung"
+            },
+            "pcs_b_phase_vol": {
+                "name": "L2 Spannung"
+            },
+            "pcs_c_phase_act_pwr": {
+                "name": "L3 Leistung"
+            },
+            "pcs_c_phase_amp": {
+                "name": "L3 Strom"
+            },
+            "pcs_c_phase_apparent_pwr": {
+                "name": "L3 Scheinleistung"
+            },
+            "pcs_c_phase_react_pwr": {
+                "name": "L3 Blindleistung"
+            },
+            "pcs_c_phase_vol": {
+                "name": "L3 Spannung"
+            },
+            "pcs_dc_err_code": {
+                "name": "DC-Fehlercode"
+            },
+            "pcs_meter_power": {
+                "name": "Netzleistung (Zähler)"
+            },
+            "pcs_ofp_protect_cnt": {
+                "name": "Auslösungen Überfrequenz"
+            },
+            "pcs_ovp_protect_cnt": {
+                "name": "Auslösungen Überspannung"
+            },
+            "pcs_power_derating_flag": {
+                "name": "Leistungsreduzierung"
+            },
+            "pcs_power_derating_set": {
+                "name": "Leistungsreduzierung (Einstellung)"
+            },
+            "pcs_run_sta": {
+                "name": "Wechselrichterstatus",
+                "state": {
+                    "runsta_run": "Läuft",
+                    "runsta_stop": "Gestoppt",
+                    "runsta_standby": "Standby"
+                }
+            },
+            "pcs_ufp_protect_cnt": {
+                "name": "Auslösungen Unterfrequenz"
+            },
+            "pcs_uvp1_protect_cnt": {
+                "name": "Auslösungen Unterspannung Stufe 1"
+            },
+            "pcs_uvp2_protect_cnt": {
+                "name": "Auslösungen Unterspannung Stufe 2"
+            },
+            "pv1_pwr": {
+                "name": "PV 1 Leistung (Cloud)"
+            },
+            "pv1_pwr_inverter": {
+                "name": "PV 1 Leistung (Energiefluss)"
+            },
+            "pv2_pwr": {
+                "name": "PV 2 Leistung (Cloud)"
+            },
+            "pv2_pwr_inverter": {
+                "name": "PV 2 Leistung (Energiefluss)"
+            },
+            "pv3_pwr": {
+                "name": "PV 3 Leistung (Cloud)"
+            },
+            "pv3_pwr_inverter": {
+                "name": "PV 3 Leistung (Energiefluss)"
+            },
+            "pv_in_day_energy": {
+                "name": "Solarertrag heute"
+            },
+            "pv_inv_pwr": {
+                "name": "Leistung zweiter PV-Wechselrichter (Cloud)"
+            },
+            "pv_inv_pwr_inverter": {
+                "name": "Leistung zweiter PV-Wechselrichter (Energiefluss)"
+            },
+            "relay14a": {
+                "name": "§14a-Eingang"
+            },
+            "solar_to_battery": {
+                "name": "Solar zur Batterie"
+            },
+            "solar_to_grid": {
+                "name": "Solar zum Netz"
+            },
+            "solar_to_house": {
+                "name": "Solar zum Haus"
+            },
+            "start_discharge_power": {
+                "name": "Entladen ab Leistung"
+            },
+            "sys14a_enable": {
+                "name": "§14a-Steuerung aktiv",
+                "state": {
+                    "true": "An",
+                    "false": "Aus"
+                }
+            },
+            "sys14a_type": {
+                "name": "§14a-Modus"
+            },
+            "sys_bat_backup_ratio": {
+                "name": "Notstromreserve"
+            },
+            "sys_bat_chg_up_limit": {
+                "name": "Ladegrenze"
+            },
+            "sys_bat_dsg_down_limit": {
+                "name": "Entladegrenze"
+            },
+            "sys_grid_pwr": {
+                "name": "Netzleistung (Cloud)"
+            },
+            "sys_grid_pwr_inverter": {
+                "name": "Netzleistung (Energiefluss)"
+            },
+            "sys_grid_sta": {
+                "name": "Netzstatus"
+            },
+            "sys_load_pwr": {
+                "name": "Hausverbrauch (Cloud)"
+            },
+            "sys_load_pwr_inverter": {
+                "name": "Hausverbrauch (Energiefluss)"
+            },
+            "system_name": {
+                "name": "Anlagenname"
+            },
+            "today_electricity_generation": {
+                "name": "Solarertrag heute"
+            },
+            "total_electricity_generation": {
+                "name": "Solarertrag gesamt"
+            },
+            "wifi_sta_stat": {
+                "name": "WLAN-Status"
+            },
+            "year_electricity_generation": {
+                "name": "Solarertrag Jahr"
+            }
+        }
     }
 }

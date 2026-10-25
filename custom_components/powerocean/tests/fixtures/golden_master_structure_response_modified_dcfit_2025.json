@@ -327,7 +327,7 @@
     "sensors": {
       "description": "Ladezustand der Batterie",
       "friendly_name": "bpSoc",
-      "icon": "mdi:battery",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_bpSoc",
       "name": "SN_INVERTERBOX01_bpSoc",
       "serial": "SN_INVERTERBOX01",
@@ -564,6 +564,27 @@
         "energy",
         "Wh",
         "total"
+      ]
+    }
+  },
+  "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_heartbeatUpdateTime": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean DC fit",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "heartbeatUpdateTime",
+      "friendly_name": "heartbeatUpdateTime",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_EMS_HEARTBEAT_heartbeatUpdateTime",
+      "name": "SN_INVERTERBOX01_heartbeatUpdateTime",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "timestamp",
+        null,
+        null
       ]
     }
   },
@@ -1247,6 +1268,27 @@
       ]
     }
   },
+  "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_energyStreamUpdateTime": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean DC fit",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "energyStreamUpdateTime",
+      "friendly_name": "energyStreamUpdateTime",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_energyStreamUpdateTime",
+      "name": "SN_INVERTERBOX01_energyStreamUpdateTime",
+      "serial": "SN_INVERTERBOX01",
+      "unit": [
+        "timestamp",
+        null,
+        null
+      ]
+    }
+  },
   "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_gridPwr": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -1379,7 +1421,7 @@
     "sensors": {
       "description": "Online",
       "friendly_name": "online",
-      "icon": "mdi:cloud-check",
+      "icon": null,
       "internal_unique_id": "SN_INVERTERBOX01_online",
       "name": "SN_INVERTERBOX01_online",
       "serial": "SN_INVERTERBOX01",

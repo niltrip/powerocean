@@ -70,5 +70,594 @@
     "missing_configuration": {
       "message": "The configuration is incomplete (serial number or model missing). Please remove and add the device again."
     }
+  },
+  "entity": {
+    "sensor": {
+      "battery_limit_reason": {
+        "name": "Battery limit reason"
+      },
+      "battery_to_grid": {
+        "name": "Battery to grid"
+      },
+      "battery_to_house": {
+        "name": "Battery to house"
+      },
+      "bms_chg_dsg_sta": {
+        "name": "Charge state",
+        "state": {
+          "pb_chg_state": "Charging",
+          "pb_dsg_state": "Discharging",
+          "pb_standby_state": "Standby"
+        }
+      },
+      "bms_run_sta": {
+        "name": "BMS state",
+        "state": {
+          "pb_bms_state_chargeable": "Ready to charge",
+          "pb_bms_state_normal": "Normal",
+          "pb_bms_state_dischargeable": "Ready to discharge",
+          "pb_bms_state_shutdown": "Shut down",
+          "pb_bms_state_fault": "Fault"
+        }
+      },
+      "bp_accu_chg_energy": {
+        "name": "Charged energy"
+      },
+      "bp_accu_dsg_energy": {
+        "name": "Discharged energy"
+      },
+      "bp_amp": {
+        "name": "Current"
+      },
+      "bp_balance_state": {
+        "name": "Cell balancing"
+      },
+      "bp_cell_max_vol": {
+        "name": "Highest cell voltage"
+      },
+      "bp_cell_min_vol": {
+        "name": "Lowest cell voltage"
+      },
+      "bp_cycles": {
+        "name": "Charge cycles"
+      },
+      "bp_env_temp": {
+        "name": "Ambient temperature"
+      },
+      "bp_err_code": {
+        "name": "Error code"
+      },
+      "bp_in_day_energy": {
+        "name": "Battery charged today"
+      },
+      "bp_max_cell_temp": {
+        "name": "Highest cell temperature"
+      },
+      "bp_max_mos_temp": {
+        "name": "Highest MOSFET temperature"
+      },
+      "bp_min_cell_temp": {
+        "name": "Lowest cell temperature"
+      },
+      "bp_min_mos_temp": {
+        "name": "Lowest MOSFET temperature"
+      },
+      "bp_online_sum": {
+        "name": "Batteries online"
+      },
+      "bp_out_day_energy": {
+        "name": "Battery discharged today"
+      },
+      "bp_pwr": {
+        "name": "Battery power (cloud)"
+      },
+      "bp_pwr_inverter": {
+        "name": "Battery power (energy flow)"
+      },
+      "bp_pwr_pack": {
+        "name": "Power"
+      },
+      "bp_real_soc": {
+        "name": "Real state of charge"
+      },
+      "bp_real_soh": {
+        "name": "Real state of health"
+      },
+      "bp_remain_watth": {
+        "name": "Battery remaining energy"
+      },
+      "bp_remain_watth_pack": {
+        "name": "Remaining energy"
+      },
+      "bp_sn": {
+        "name": "Serial number"
+      },
+      "bp_soc": {
+        "name": "Battery state of charge"
+      },
+      "bp_soc_inverter": {
+        "name": "Battery state of charge (energy flow)"
+      },
+      "bp_soc_pack": {
+        "name": "State of charge"
+      },
+      "bp_soh": {
+        "name": "State of health"
+      },
+      "bp_sys_state": {
+        "name": "System state",
+        "state": {
+          "normal_state": "Normal",
+          "pre_power_on_state": "Starting",
+          "cfm_power_on_state": "Switched on",
+          "power_off_state": "Switched off",
+          "sleep_state": "Sleep"
+        }
+      },
+      "bp_timestamp": {
+        "name": "Last update"
+      },
+      "bp_total_chg_energy": {
+        "name": "Battery charged energy"
+      },
+      "bp_total_dsg_energy": {
+        "name": "Battery discharged energy"
+      },
+      "bp_vol": {
+        "name": "Voltage"
+      },
+      "breaker_capacity_max": {
+        "name": "House connection limit"
+      },
+      "breaker_enable_state": {
+        "name": "Load management",
+        "state": {
+          "true": "On",
+          "false": "Off"
+        }
+      },
+      "current_netif": {
+        "name": "Network connection"
+      },
+      "dab_mod_sta": {
+        "name": "DC-DC converter state",
+        "state": {
+          "pb_mod_sta_normal": "Normal",
+          "pb_mod_sta_warnning": "Warning",
+          "pb_mod_sta_fault": "Fault"
+        }
+      },
+      "dcdc_pwr": {
+        "name": "DC-DC power"
+      },
+      "ems_bp_alive_num": {
+        "name": "Batteries active"
+      },
+      "ems_bp_power": {
+        "name": "Battery power"
+      },
+      "ems_bp_selfcheck_state": {
+        "name": "Battery self-test"
+      },
+      "ems_change_update_time": {
+        "name": "Last update status"
+      },
+      "ems_ctrl_led_bright": {
+        "name": "LED brightness"
+      },
+      "ems_feed_mode": {
+        "name": "Feed-in mode"
+      },
+      "ems_feed_pwr": {
+        "name": "Feed-in limit"
+      },
+      "ems_feed_ratio": {
+        "name": "Feed-in limit (percent)"
+      },
+      "ems_keep_soc": {
+        "name": "Reserved state of charge"
+      },
+      "ems_mppt_run_state": {
+        "name": "MPPT state"
+      },
+      "ems_mppt_selfcheck_state": {
+        "name": "MPPT self-test"
+      },
+      "ems_ntc_temp_max": {
+        "name": "Highest inverter temperature"
+      },
+      "ems_sg_ready_en": {
+        "name": "SG Ready enabled",
+        "state": {
+          "true": "On",
+          "false": "Off"
+        }
+      },
+      "ems_sg_run_stat": {
+        "name": "SG Ready state"
+      },
+      "ems_word_mode": {
+        "name": "Operating mode",
+        "state": {
+          "workmode_selfuse": "Self-powered"
+        }
+      },
+      "energy_stream_update_time": {
+        "name": "Last update energy flow"
+      },
+      "error_count": {
+        "name": "Active errors"
+      },
+      "eth_wan_stat": {
+        "name": "Ethernet state"
+      },
+      "grid_in_day_energy": {
+        "name": "Grid import today"
+      },
+      "grid_out_day_energy": {
+        "name": "Grid export today"
+      },
+      "grid_power": {
+        "name": "Grid power"
+      },
+      "grid_pwr": {
+        "name": "Grid power (cloud energy flow)"
+      },
+      "grid_to_battery": {
+        "name": "Grid to battery"
+      },
+      "grid_to_house": {
+        "name": "Grid to house"
+      },
+      "heartbeat_update_time": {
+        "name": "Last update"
+      },
+      "house_power": {
+        "name": "House consumption"
+      },
+      "iot4g_sta": {
+        "name": "4G state"
+      },
+      "load_day_energy": {
+        "name": "House consumption today"
+      },
+      "load_pwr": {
+        "name": "House consumption (cloud energy flow)"
+      },
+      "manual_set_start_charge_power": {
+        "name": "Charge start power"
+      },
+      "meter_a_current": {
+        "name": "Meter L1 current"
+      },
+      "meter_a_voltage": {
+        "name": "Meter L1 voltage"
+      },
+      "meter_b_current": {
+        "name": "Meter L2 current"
+      },
+      "meter_b_voltage": {
+        "name": "Meter L2 voltage"
+      },
+      "meter_c_current": {
+        "name": "Meter L3 current"
+      },
+      "meter_c_voltage": {
+        "name": "Meter L3 voltage"
+      },
+      "meter_l1_pwr": {
+        "name": "L1 power"
+      },
+      "meter_l2_pwr": {
+        "name": "L2 power"
+      },
+      "meter_l3_pwr": {
+        "name": "L3 power"
+      },
+      "meter_total_power": {
+        "name": "Meter power"
+      },
+      "meter_total_pwr": {
+        "name": "Power"
+      },
+      "module_apl_sw_ver": {
+        "name": "Firmware version"
+      },
+      "month_electricity_generation": {
+        "name": "Solar energy this month"
+      },
+      "mppt1_fault_code": {
+        "name": "PV 1 fault code"
+      },
+      "mppt1_warning_code": {
+        "name": "PV 1 warning code"
+      },
+      "mppt2_fault_code": {
+        "name": "PV 2 fault code"
+      },
+      "mppt2_warning_code": {
+        "name": "PV 2 warning code"
+      },
+      "mppt3_fault_code": {
+        "name": "PV 3 fault code"
+      },
+      "mppt3_warning_code": {
+        "name": "PV 3 warning code"
+      },
+      "mppt4_fault_code": {
+        "name": "PV 4 fault code"
+      },
+      "mppt4_warning_code": {
+        "name": "PV 4 warning code"
+      },
+      "mppt_ins_resist": {
+        "name": "Insulation resistance"
+      },
+      "mppt_pv1_amp": {
+        "name": "PV 1 current"
+      },
+      "mppt_pv1_light_sta": {
+        "name": "PV 1 light detected"
+      },
+      "mppt_pv1_pwr": {
+        "name": "PV 1 power"
+      },
+      "mppt_pv1_vol": {
+        "name": "PV 1 voltage"
+      },
+      "mppt_pv2_amp": {
+        "name": "PV 2 current"
+      },
+      "mppt_pv2_light_sta": {
+        "name": "PV 2 light detected"
+      },
+      "mppt_pv2_pwr": {
+        "name": "PV 2 power"
+      },
+      "mppt_pv2_vol": {
+        "name": "PV 2 voltage"
+      },
+      "mppt_pv3_amp": {
+        "name": "PV 3 current"
+      },
+      "mppt_pv3_light_sta": {
+        "name": "PV 3 light detected"
+      },
+      "mppt_pv3_pwr": {
+        "name": "PV 3 power"
+      },
+      "mppt_pv3_vol": {
+        "name": "PV 3 voltage"
+      },
+      "mppt_pv4_amp": {
+        "name": "PV 4 current"
+      },
+      "mppt_pv4_light_sta": {
+        "name": "PV 4 light detected"
+      },
+      "mppt_pv4_pwr": {
+        "name": "PV 4 power"
+      },
+      "mppt_pv4_vol": {
+        "name": "PV 4 voltage"
+      },
+      "mppt_pv_pwr_total": {
+        "name": "Solar power"
+      },
+      "mppt_pwr": {
+        "name": "Solar power (cloud)"
+      },
+      "mppt_pwr_inverter": {
+        "name": "Solar power (energy flow)"
+      },
+      "mppt_rate_power": {
+        "name": "Rated PV power"
+      },
+      "mppt_withstand_voltage": {
+        "name": "PV maximum input voltage"
+      },
+      "online": {
+        "name": "Online",
+        "state": {
+          "1": "Online",
+          "0": "Offline"
+        }
+      },
+      "other_pv_pwr": {
+        "name": "Other PV power (cloud)"
+      },
+      "pcs_a_phase_act_pwr": {
+        "name": "L1 power"
+      },
+      "pcs_a_phase_amp": {
+        "name": "L1 current"
+      },
+      "pcs_a_phase_apparent_pwr": {
+        "name": "L1 apparent power"
+      },
+      "pcs_a_phase_react_pwr": {
+        "name": "L1 reactive power"
+      },
+      "pcs_a_phase_vol": {
+        "name": "L1 voltage"
+      },
+      "pcs_ac_err_code": {
+        "name": "AC error code"
+      },
+      "pcs_ac_freq": {
+        "name": "Grid frequency"
+      },
+      "pcs_ac_warning_code": {
+        "name": "AC warning code"
+      },
+      "pcs_act_pwr": {
+        "name": "Inverter power"
+      },
+      "pcs_active_power_limit_dn": {
+        "name": "Power limit discharge"
+      },
+      "pcs_active_power_limit_up": {
+        "name": "Power limit charge"
+      },
+      "pcs_avg_ovp_protect_cnt": {
+        "name": "Average overvoltage trips"
+      },
+      "pcs_b_phase_act_pwr": {
+        "name": "L2 power"
+      },
+      "pcs_b_phase_amp": {
+        "name": "L2 current"
+      },
+      "pcs_b_phase_apparent_pwr": {
+        "name": "L2 apparent power"
+      },
+      "pcs_b_phase_react_pwr": {
+        "name": "L2 reactive power"
+      },
+      "pcs_b_phase_vol": {
+        "name": "L2 voltage"
+      },
+      "pcs_c_phase_act_pwr": {
+        "name": "L3 power"
+      },
+      "pcs_c_phase_amp": {
+        "name": "L3 current"
+      },
+      "pcs_c_phase_apparent_pwr": {
+        "name": "L3 apparent power"
+      },
+      "pcs_c_phase_react_pwr": {
+        "name": "L3 reactive power"
+      },
+      "pcs_c_phase_vol": {
+        "name": "L3 voltage"
+      },
+      "pcs_dc_err_code": {
+        "name": "DC error code"
+      },
+      "pcs_meter_power": {
+        "name": "Grid power (meter)"
+      },
+      "pcs_ofp_protect_cnt": {
+        "name": "Overfrequency trips"
+      },
+      "pcs_ovp_protect_cnt": {
+        "name": "Overvoltage trips"
+      },
+      "pcs_power_derating_flag": {
+        "name": "Power derating"
+      },
+      "pcs_power_derating_set": {
+        "name": "Power derating setting"
+      },
+      "pcs_run_sta": {
+        "name": "Inverter state",
+        "state": {
+          "runsta_run": "Running",
+          "runsta_stop": "Stopped",
+          "runsta_standby": "Standby"
+        }
+      },
+      "pcs_ufp_protect_cnt": {
+        "name": "Underfrequency trips"
+      },
+      "pcs_uvp1_protect_cnt": {
+        "name": "Undervoltage trips level 1"
+      },
+      "pcs_uvp2_protect_cnt": {
+        "name": "Undervoltage trips level 2"
+      },
+      "pv1_pwr": {
+        "name": "PV 1 power (cloud)"
+      },
+      "pv1_pwr_inverter": {
+        "name": "PV 1 power (energy flow)"
+      },
+      "pv2_pwr": {
+        "name": "PV 2 power (cloud)"
+      },
+      "pv2_pwr_inverter": {
+        "name": "PV 2 power (energy flow)"
+      },
+      "pv3_pwr": {
+        "name": "PV 3 power (cloud)"
+      },
+      "pv3_pwr_inverter": {
+        "name": "PV 3 power (energy flow)"
+      },
+      "pv_in_day_energy": {
+        "name": "Solar energy today"
+      },
+      "pv_inv_pwr": {
+        "name": "Second PV inverter power (cloud)"
+      },
+      "pv_inv_pwr_inverter": {
+        "name": "Second PV inverter power (energy flow)"
+      },
+      "relay14a": {
+        "name": "§14a input"
+      },
+      "solar_to_battery": {
+        "name": "Solar to battery"
+      },
+      "solar_to_grid": {
+        "name": "Solar to grid"
+      },
+      "solar_to_house": {
+        "name": "Solar to house"
+      },
+      "start_discharge_power": {
+        "name": "Discharge start power"
+      },
+      "sys14a_enable": {
+        "name": "§14a control enabled",
+        "state": {
+          "true": "On",
+          "false": "Off"
+        }
+      },
+      "sys14a_type": {
+        "name": "§14a mode"
+      },
+      "sys_bat_backup_ratio": {
+        "name": "Backup reserve"
+      },
+      "sys_bat_chg_up_limit": {
+        "name": "Charge limit"
+      },
+      "sys_bat_dsg_down_limit": {
+        "name": "Discharge limit"
+      },
+      "sys_grid_pwr": {
+        "name": "Grid power (cloud)"
+      },
+      "sys_grid_pwr_inverter": {
+        "name": "Grid power (energy flow)"
+      },
+      "sys_grid_sta": {
+        "name": "Grid state"
+      },
+      "sys_load_pwr": {
+        "name": "House consumption (cloud)"
+      },
+      "sys_load_pwr_inverter": {
+        "name": "House consumption (energy flow)"
+      },
+      "system_name": {
+        "name": "System name"
+      },
+      "today_electricity_generation": {
+        "name": "Solar energy today"
+      },
+      "total_electricity_generation": {
+        "name": "Solar energy total"
+      },
+      "wifi_sta_stat": {
+        "name": "Wi-Fi state"
+      },
+      "year_electricity_generation": {
+        "name": "Solar energy this year"
+      }
+    }
   }
 }
