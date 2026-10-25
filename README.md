@@ -107,10 +107,27 @@ For a dashboard, take the values from `EMS_HEARTBEAT`:
 The friendly names point the way: values from `data` and `ENERGY_STREAM_REPORT` end in "(cloud)", e.g. "House consumption (cloud)", the calculated values have no suffix, e.g. "House consumption".
 In dual systems (master and slave inverter), the values from `PARALLEL_ENERGY_STREAM_REPORT` end in "(energy flow)". According to [#23](https://github.com/niltrip/powerocean/issues/23) they are updated regularly, unlike those from `data`.
 
-### Devices by serial number
-![integration](documentation/integration.PNG)
-![powerpulse](documentation/powerpulse.png)
-![powerglow](documentation/powerglow.png)
+### Devices
+Each part of the system is a device of its own, named by its serial number and linked to the inverter. The serial number and, where the cloud reports it, the firmware are shown in the device info; the link "Visit" opens the EcoFlow web portal.
+
+![devices of the integration](documentation/integration.png)
+
+**PowerOcean (inverter):** live values, calculated energy flows and the state of the system. The model ID in brackets is the product type you chose at setup (83 = PowerOcean).
+
+![inverter](documentation/powerocean.png)
+
+**Battery packs:** state of charge, power, energy and state of health per pack; the firmware is shown in the device info.
+
+![battery pack](documentation/battery-pack.png)
+
+**Smart meter:** power of each phase and the total, for three-phase meters. The number in brackets is the meter type.
+
+![smart meter](documentation/smart-meter.png)
+
+**PowerGlow heating rod** and **PowerPulse wallbox**, if present: temperatures, heating power and mode; charging power, currents, mode and the last charging session. Values marked "(cloud)" are probably only refreshed while the app is open, like the other cloud values above.
+
+![PowerGlow heating rod](documentation/powerglow.png)
+![PowerPulse wallbox](documentation/powerpulse.png)
 
 
 ### Energy dashboard
