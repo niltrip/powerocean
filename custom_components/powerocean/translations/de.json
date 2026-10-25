@@ -421,9 +421,6 @@
             "mode": {
                 "name": "Betriebsart"
             },
-            "module_apl_sw_ver": {
-                "name": "Firmware-Version"
-            },
             "month_electricity_generation": {
                 "name": "Solarertrag Monat"
             },

@@ -24,6 +24,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import AuthenticationError, EcoflowApiError, EcoflowConnectionError
@@ -71,6 +72,8 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self.last_response: dict[str, Any] | None = None
         # Active errors, by unique_id of the error count sensor
         self.active_errors: dict[str, list[ActiveError]] = {}
+        # Firmware version, by serial number of the device
+        self.firmware: dict[str, str] = {}
 
     async def _async_setup(self) -> None:
         """Log in once before the first refresh."""
@@ -87,7 +90,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             for unique_id, datapoint in result.first().items():
                 if unique_id not in self.endpoints:
                     self.endpoints[unique_id] = PowerOceanEndPoint.from_datapoint(
-                        datapoint
+                        datapoint, result.firmware.get(datapoint.device.sn)
                     )
         except PARSE_ERRORS as err:
             raise UpdateFailed(
@@ -97,7 +100,18 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             ) from err
 
         self.active_errors = result.active_errors
+        self._update_firmware(result.firmware)
         return result.values()
+
+    def _update_firmware(self, firmware: dict[str, str]) -> None:
+        """Show a changed firmware version on the device page."""
+        self.firmware = firmware
+        # Devices not registered yet get the version from their entities
+        device_registry = dr.async_get(self.hass)
+        for sn, version in firmware.items():
+            device = device_registry.async_get_device(identifiers={(DOMAIN, sn)})
+            if device and device.sw_version != version:
+                device_registry.async_update_device(device.id, sw_version=version)
 
     async def _async_fetch(self) -> dict[str, Any]:
         """Fetch data, logging in again once if the request was rejected."""

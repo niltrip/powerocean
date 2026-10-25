@@ -155,7 +155,6 @@ Batterie;dabModSta;;DC-DC converter state;DC-DC-Wandler-Status;DAB = Dual Active
 Batterie;bpBalanceState;;Cell balancing;Zellausgleich;Bedeutung geraten
 Batterie;bpErrCode;;Error code;Fehlercode;
 Batterie;bpSn;;Serial number;Seriennummer;
-Batterie;moduleAplSwVer;;Firmware version;Firmware-Version;
 Smart Meter;meterL1Pwr;;L1 power;L1 Leistung;
 Smart Meter;meterL2Pwr;;L2 power;L2 Leistung;
 Smart Meter;meterL3Pwr;;L3 power;L3 Leistung;

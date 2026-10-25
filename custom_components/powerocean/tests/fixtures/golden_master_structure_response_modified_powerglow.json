@@ -591,26 +591,6 @@
       "unit": null
     }
   },
-  "SN_BP01_JTS1_BP_STA_REPORT_moduleAplSwVer": {
-    "device": {
-      "manufacturer": "EcoFlow",
-      "model": "PowerOcean Battery",
-      "sn": "SN_BP01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
-    },
-    "sensors": {
-      "description": "moduleAplSwVer",
-      "friendly_name": "moduleAplSwVer",
-      "icon": "mdi:cog",
-      "internal_unique_id": "SN_BP01_JTS1_BP_STA_REPORT_moduleAplSwVer",
-      "name": "SN_BP01_moduleAplSwVer",
-      "serial": "SN_BP01",
-      "unit": null
-    }
-  },
   "SN_BP02_JTS1_BP_STA_REPORT_bmsChgDsgSta": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -1199,26 +1179,6 @@
       "icon": null,
       "internal_unique_id": "SN_BP02_JTS1_BP_STA_REPORT_dabModSta",
       "name": "SN_BP02_dabModSta",
-      "serial": "SN_BP02",
-      "unit": null
-    }
-  },
-  "SN_BP02_JTS1_BP_STA_REPORT_moduleAplSwVer": {
-    "device": {
-      "manufacturer": "EcoFlow",
-      "model": "PowerOcean Battery",
-      "sn": "SN_BP02",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
-    },
-    "sensors": {
-      "description": "moduleAplSwVer",
-      "friendly_name": "moduleAplSwVer",
-      "icon": "mdi:cog",
-      "internal_unique_id": "SN_BP02_JTS1_BP_STA_REPORT_moduleAplSwVer",
-      "name": "SN_BP02_moduleAplSwVer",
       "serial": "SN_BP02",
       "unit": null
     }

@@ -54,6 +54,7 @@
       "model": "PowerOcean Battery",
       "model_id": null,
       "name": "Battery SN_M_BATTERIEPACK01",
+      "sw_version": "4.1.10.79",
       "via_device": "SN_INVERTERBOX01"
     },
     "SN_M_BATTERIEPACK02": {
@@ -68,6 +69,7 @@
       "model": "PowerOcean Battery",
       "model_id": null,
       "name": "Battery SN_M_BATTERIEPACK02",
+      "sw_version": "4.1.10.79",
       "via_device": "SN_INVERTERBOX01"
     },
     "SN_S_BATTERIEPACK01": {
@@ -82,6 +84,7 @@
       "model": "PowerOcean Battery",
       "model_id": null,
       "name": "Battery SN_S_BATTERIEPACK01",
+      "sw_version": "4.1.10.79",
       "via_device": "SN_INVERTERBOX02"
     },
     "SN_S_BATTERIEPACK02": {
@@ -96,6 +99,7 @@
       "model": "PowerOcean Battery",
       "model_id": null,
       "name": "Battery SN_S_BATTERIEPACK02",
+      "sw_version": "4.1.10.79",
       "via_device": "SN_INVERTERBOX02"
     }
   },
@@ -3073,19 +3077,6 @@
       "state_class": null,
       "unit_of_measurement": null
     },
-    "SN_M_BATTERIEPACK01_JTS1_BP_STA_REPORT_moduleAplSwVer": {
-      "device": "Battery SN_M_BATTERIEPACK01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_m_batteriepack01_moduleaplswver",
-      "icon": "mdi:cog",
-      "original_name": "Firmware version",
-      "product_description": "moduleAplSwVer",
-      "product_serial": "SN_M_BATTERIEPACK01",
-      "state": "4.1.10.79",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsChgDsgSta": {
       "device": "Battery SN_M_BATTERIEPACK02",
       "device_class": null,
@@ -3438,19 +3429,6 @@
       "product_description": "dabModSta",
       "product_serial": "SN_M_BATTERIEPACK02",
       "state": "pb_mod_sta_normal",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
-    "SN_M_BATTERIEPACK02_JTS1_BP_STA_REPORT_moduleAplSwVer": {
-      "device": "Battery SN_M_BATTERIEPACK02",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_m_batteriepack02_moduleaplswver",
-      "icon": "mdi:cog",
-      "original_name": "Firmware version",
-      "product_description": "moduleAplSwVer",
-      "product_serial": "SN_M_BATTERIEPACK02",
-      "state": "4.1.10.79",
       "state_class": null,
       "unit_of_measurement": null
     },
@@ -3809,19 +3787,6 @@
       "state_class": null,
       "unit_of_measurement": null
     },
-    "SN_S_BATTERIEPACK01_JTS1_BP_STA_REPORT_moduleAplSwVer": {
-      "device": "Battery SN_S_BATTERIEPACK01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_s_batteriepack01_moduleaplswver",
-      "icon": "mdi:cog",
-      "original_name": "Firmware version",
-      "product_description": "moduleAplSwVer",
-      "product_serial": "SN_S_BATTERIEPACK01",
-      "state": "4.1.10.79",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_bmsChgDsgSta": {
       "device": "Battery SN_S_BATTERIEPACK02",
       "device_class": null,
@@ -4174,19 +4139,6 @@
       "product_description": "dabModSta",
       "product_serial": "SN_S_BATTERIEPACK02",
       "state": "pb_mod_sta_normal",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
-    "SN_S_BATTERIEPACK02_JTS1_BP_STA_REPORT_moduleAplSwVer": {
-      "device": "Battery SN_S_BATTERIEPACK02",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_s_batteriepack02_moduleaplswver",
-      "icon": "mdi:cog",
-      "original_name": "Firmware version",
-      "product_description": "moduleAplSwVer",
-      "product_serial": "SN_S_BATTERIEPACK02",
-      "state": "4.1.10.79",
       "state_class": null,
       "unit_of_measurement": null
     }

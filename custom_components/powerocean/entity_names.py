@@ -106,7 +106,6 @@ NAMED: frozenset[tuple[str, str]] = frozenset(
         ("", "meterTotalPower"),
         ("", "meterTotalPwr"),
         ("", "mode"),
-        ("", "moduleAplSwVer"),
         ("", "monthElectricityGeneration"),
         ("", "mppt1FaultCode"),
         ("", "mppt1WarningCode"),
