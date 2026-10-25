@@ -224,6 +224,26 @@ async def test_relogin_when_token_rejected(
     assert _soc_state(hass) not in (STATE_UNAVAILABLE, "unknown")
 
 
+async def test_still_rejected_after_relogin_fails_update_without_reauth(
+    hass: HomeAssistant, mock_authorize: AsyncMock, mock_fetch: AsyncMock
+) -> None:
+    """Login works, but the cloud still rejects the request: retry later."""
+    entry = _entry()
+    await _setup(hass, entry)
+    coordinator = entry.runtime_data
+
+    mock_fetch.side_effect = EcoflowApiError("code 500: server error")
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+
+    assert not coordinator.last_update_success
+    # One login at setup, one after the rejected request, no endless loop
+    assert mock_authorize.await_count == 2
+    assert mock_fetch.await_count == 3
+    assert _soc_state(hass) == STATE_UNAVAILABLE
+    assert not _reauth_flows(hass)
+
+
 async def test_relogin_with_invalid_credentials_starts_reauth(
     hass: HomeAssistant, mock_authorize: AsyncMock, mock_fetch: AsyncMock
 ) -> None:

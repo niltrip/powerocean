@@ -91,6 +91,41 @@ def test_heartbeat_phase_not_a_dict() -> None:
     assert _value(values, "pcsBPhase_vol") == 230
 
 
+def test_data_not_a_dict() -> None:
+    assert parse_values({"data": None}, "83", SN) == {}
+
+
+def test_neither_quota_nor_parallel(caplog: pytest.LogCaptureFixture) -> None:
+    values = parse_values({"data": {"sysLoadPwr": 100}}, "83", SN)
+    assert values == {"SN_INVERTERBOX01_sysLoadPwr": 100}
+    assert "Neither 'quota' nor 'parallel'" in caplog.text
+
+
+def test_battery_box_invalid_json_or_without_serial_number() -> None:
+    values = _parse(
+        {
+            "JTS1_BP_STA_REPORT": {
+                # Broken JSON, then a pack without bpSn
+                "SN_BP01": "{broken",
+                "SN_BP02": '{"bpSn": "", "bpSoc": 50}',
+                "SN_BP03": '{"bpSn": "SN_BP03", "bpSoc": 70}',
+            }
+        }
+    )
+    assert values == {"SN_BP03_JTS1_BP_STA_REPORT_bpSoc": 70}
+
+
+def test_parallel_energy_stream_not_a_list() -> None:
+    response = {
+        "data": {
+            "parallel": {
+                SN: {"JTS1_PARALLEL_ENERGY_STREAM_REPORT": {"paraEnergyStream": {}}}
+            }
+        }
+    }
+    assert parse_values(response, "83", SN) == {}
+
+
 def test_parallel_energy_stream_invalid_entry() -> None:
     response = {
         "data": {
