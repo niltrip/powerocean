@@ -39,6 +39,15 @@
             "type": "shell",
             "command": "scripts/names",
             "problemMatcher": []
+        },
+        {
+            "label": "Abfrage-Intervall messen",
+            "type": "shell",
+            "command": "scripts/interval",
+            "problemMatcher": [],
+            "presentation": {
+                "focus": true
+            }
         }
     ],
     "inputs": [
