@@ -369,6 +369,9 @@ DIAGNOSTIC_PATTERNS: tuple[str, ...] = (
 # without a translation are shown as they are.
 TRANSLATED_STATES: set[str] = {
     "emsWordMode",
+    "emsFeedMode",
+    # 1 = off-grid, as the EcoFlow web portal shows it
+    "sysGridSta",
     "pcsRunSta",
     "dabModSta",
     "sys14aEnable",

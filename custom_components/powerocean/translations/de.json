@@ -246,7 +246,12 @@
                 "name": "LED-Helligkeit"
             },
             "ems_feed_mode": {
-                "name": "Einspeisemodus"
+                "name": "Einspeisemodus",
+                "state": {
+                    "1": "Unbegrenzt",
+                    "2": "Nulleinspeisung",
+                    "3": "Leistungsbegrenzung"
+                }
             },
             "ems_feed_pwr": {
                 "name": "Einspeisegrenze"
@@ -279,7 +284,9 @@
             "ems_word_mode": {
                 "name": "Betriebsmodus",
                 "state": {
-                    "workmode_selfuse": "Eigenstromversorgung"
+                    "workmode_selfuse": "Eigenstromversorgung",
+                    "workmode_tou": "Zeitabhängiger Tarif",
+                    "workmode_standby_mode": "Standby"
                 }
             },
             "energy_stream_update_time": {
@@ -635,7 +642,11 @@
                 "name": "Netzleistung (Energiefluss)"
             },
             "sys_grid_sta": {
-                "name": "Netzstatus"
+                "name": "Netzstatus",
+                "state": {
+                    "0": "Netzbetrieb",
+                    "1": "Netzunabhängig"
+                }
             },
             "sys_load_pwr": {
                 "name": "Hausverbrauch (Cloud)"
