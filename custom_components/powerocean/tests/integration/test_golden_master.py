@@ -24,6 +24,8 @@ API_FIXTURES = [
     ("response_modified_po_plus.json", "87"),
     ("response_modified_po_plus_feature.json", "87"),
     ("response_modified_error_521.json", "83"),
+    # Real: PowerGlow heating rod and PowerPulse wallbox (discussion #132)
+    ("response_modified_powerglow.json", "83"),
     # Synthetic: heating rod (no real response available yet)
     ("response_synthetic_heating_rod.json", "83"),
     ("response_synthetic_heating_rod_dual.json", "83"),
