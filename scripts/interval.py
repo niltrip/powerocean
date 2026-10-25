@@ -5,9 +5,11 @@ Measure how often the EcoFlow cloud updates the PowerOcean data.
 Fetches the device detail response every few seconds and records, per
 report, when its content and its updateTime change. The summary shows the
 typical time between changes, so the scan interval can be chosen to match.
+The default of 10 seconds is half the fastest report interval (about 20 s),
+so that one is still measured correctly.
 
-    scripts/interval                     15 minutes, every 5 seconds
-    scripts/interval --minutes 30 --every 3
+    scripts/interval                     15 minutes, every 10 seconds
+    scripts/interval --minutes 120
 
 Credentials are asked for and not stored. The CSV in measurements/ (not
 committed) contains report names and times only, no serial numbers.
@@ -207,7 +209,7 @@ def main() -> None:
     """Ask for credentials and run the measurement."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[1])
     parser.add_argument("--minutes", type=float, default=15, help="Dauer")
-    parser.add_argument("--every", type=float, default=5, help="Sekunden")
+    parser.add_argument("--every", type=float, default=10, help="Sekunden")
     args = parser.parse_args()
 
     serial = input("Seriennummer des Wechselrichters: ").strip()
