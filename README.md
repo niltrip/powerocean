@@ -115,8 +115,8 @@ In dual systems (master and slave inverter), the values from `PARALLEL_ENERGY_ST
 ### Energy dashboard
 The EcoFlow API reports energy counters only for some values. These can be used in the energy dashboard as they are:
 
-- solar production: `totalElectricityGeneration` (kWh, changes about once per hour)
-- battery: `bpTotalChgEnergy` (charged) and `bpTotalDsgEnergy` (discharged)
+- solar production: `totalElectricityGeneration`, shown as "Solar energy total" (kWh, changes about once per hour)
+- battery: `bpTotalChgEnergy` ("Battery charged energy") and `bpTotalDsgEnergy` ("Battery discharged energy")
 
 There is no counter for the single PV strings and none for the grid.
 
