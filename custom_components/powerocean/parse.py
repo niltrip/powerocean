@@ -379,10 +379,7 @@ def _box_sn(box: dict[str, Any], schema: BoxSchema) -> str | None:
 
 def _box_value(box: dict[str, Any], key: str, schema: BoxSchema) -> Any:
     paths = schema["paths"]
-    value = _nested_value(box, paths[key]) if paths and key in paths else box.get(key)
-    if key.endswith("Sn") and isinstance(value, str):
-        return decode_sn(value)
-    return value
+    return _nested_value(box, paths[key]) if paths and key in paths else box.get(key)
 
 
 def _nested_value(data: Any, path: list[str]) -> Any:
