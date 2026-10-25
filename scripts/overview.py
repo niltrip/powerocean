@@ -4,12 +4,15 @@ Show how an API response appears in Home Assistant: devices and entities.
 
 Parses the response with the integration's parser and writes a Markdown
 overview: the device tree, then per device its entities in the sections
-Home Assistant uses (sensors, diagnostic, disabled) with value and unit.
+Home Assistant uses (sensors, diagnostic, disabled) with name, key, value
+and unit. Names and states are translated as Home Assistant shows them
+(German by default, --language en for English).
 
 Usage (from the repository root):
     scripts/overview response_modified_po_dual.json
     scripts/overview path/to/diagnostics.json --variant 87 --sn SN_MAIN
     scripts/overview response_modified.json -o overview.md
+    scripts/overview response_modified.json --language en
 
 A bare file name is looked up in tests/fixtures. A diagnostics download
 works too: its anonymized API response is used, with the variant and the
@@ -25,7 +28,8 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
-FIXTURES = ROOT / "custom_components" / "powerocean" / "tests" / "fixtures"
+COMPONENT = ROOT / "custom_components" / "powerocean"
+FIXTURES = COMPONENT / "tests" / "fixtures"
 sys.path.insert(0, str(ROOT))
 
 from custom_components.powerocean.const import DEFAULT_NAME  # noqa: E402
@@ -46,12 +50,31 @@ def _load(name: str) -> tuple[dict[str, Any], str | None, str | None]:
     return data, None, None
 
 
-def _value(endpoint: PowerOceanEndPoint, value: Any) -> str:
+def _translations(language: str) -> dict[str, Any]:
+    """Return the sensor translations (name, state) by translation key."""
+    path = COMPONENT / "translations" / f"{language}.json"
+    return json.loads(path.read_text("utf-8"))["entity"]["sensor"]
+
+
+def _name(endpoint: PowerOceanEndPoint, translations: dict[str, Any]) -> str:
+    """Return the name Home Assistant shows: translated, else the key."""
+    if endpoint.named and endpoint.translation_key in translations:
+        return translations[endpoint.translation_key]["name"]
+    return endpoint.friendly_name
+
+
+def _value(
+    endpoint: PowerOceanEndPoint, value: Any, translations: dict[str, Any]
+) -> str:
     device_class = endpoint.cls[0] if endpoint.cls else None
     if device_class == "timestamp" and isinstance(value, (int, float)):
         return datetime.fromtimestamp(value, UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
     if value is None:
         return "-"
+    if endpoint.translated_states:
+        # Like sensor.py: translated states are lowercase
+        states = translations.get(endpoint.translation_key, {}).get("state", {})
+        return states.get(str(value).lower(), str(value).lower())
     return str(value)
 
 
@@ -71,8 +94,11 @@ def _section(endpoint: PowerOceanEndPoint) -> str:
     return "Sensoren"
 
 
-def overview(response: dict[str, Any], variant: str, sn: str, title: str) -> str:
+def overview(
+    response: dict[str, Any], variant: str, sn: str, title: str, language: str
+) -> str:
     """Return the Markdown overview of a response."""
+    translations = _translations(language)
     result = parse(response, sn, variant)
     values = result.values()
     endpoints = [PowerOceanEndPoint.from_datapoint(d) for d in result.first().values()]
@@ -138,14 +164,20 @@ def overview(response: dict[str, Any], variant: str, sn: str, title: str) -> str
                 "",
                 f"### {section} ({len(by_section[section])})",
                 "",
-                "| Name | Wert | Einheit | Report |",
-                "|---|---|---|---|",
+                "| Name | Key | Wert | Einheit | Report |",
+                "|---|---|---|---|---|",
             ]
-            for endpoint in sorted(by_section[section], key=lambda e: e.friendly_name):
+            rows = sorted(
+                (_name(endpoint, translations), endpoint)
+                for endpoint in by_section[section]
+            )
+            for name, endpoint in rows:
                 unit = (endpoint.cls[1] if endpoint.cls else None) or ""
-                value = _value(endpoint, values.get(endpoint.internal_unique_id))
+                value = _value(
+                    endpoint, values.get(endpoint.internal_unique_id), translations
+                )
                 lines.append(
-                    f"| {endpoint.friendly_name} | {value} | {unit} | "
+                    f"| {name} | {endpoint.friendly_name} | {value} | {unit} | "
                     f"{_report(endpoint)} |"
                 )
     return "\n".join(lines) + "\n"
@@ -159,6 +191,9 @@ def main() -> None:
     parser.add_argument(
         "--sn", help="serial number of the config entry (default SN_INVERTERBOX01)"
     )
+    parser.add_argument(
+        "--language", choices=("de", "en"), default="de", help="default de"
+    )
     parser.add_argument("-o", "--output", help="write to this file instead")
     args = parser.parse_args()
 
@@ -168,6 +203,7 @@ def main() -> None:
         args.variant or variant or "83",
         args.sn or sn or "SN_INVERTERBOX01",
         Path(args.response).name,
+        args.language,
     )
     if args.output:
         Path(args.output).write_text(text, "utf-8")
