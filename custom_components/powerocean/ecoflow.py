@@ -122,11 +122,7 @@ class HAEcoflowApi(EcoflowApi):
 
         """
         if self.mock_response is not None:
-            api_response = await self.hass.async_add_executor_job(
+            return await self.hass.async_add_executor_job(
                 _read_mock_response, self.mock_response
             )
-        else:
-            api_response = await super().fetch_raw()
-
-        LOGGER.debug("API response received: %s", api_response)
-        return api_response
+        return await super().fetch_raw()
