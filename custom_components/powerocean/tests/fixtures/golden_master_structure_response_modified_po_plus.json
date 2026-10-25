@@ -1414,7 +1414,7 @@
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_chargeVehicleId": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Charger",
+      "model": "PowerOcean PowerPulse",
       "sn": "SN_EV_CHARGER_01",
       "via_device": [
         "powerocean",
@@ -1434,7 +1434,7 @@
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_chargingStatus": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Charger",
+      "model": "PowerOcean PowerPulse",
       "sn": "SN_EV_CHARGER_01",
       "via_device": [
         "powerocean",
@@ -1454,7 +1454,7 @@
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_errorCode": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Charger",
+      "model": "PowerOcean PowerPulse",
       "sn": "SN_EV_CHARGER_01",
       "via_device": [
         "powerocean",
@@ -1474,7 +1474,7 @@
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evChargingEnergy": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Charger",
+      "model": "PowerOcean PowerPulse",
       "sn": "SN_EV_CHARGER_01",
       "via_device": [
         "powerocean",
@@ -1498,7 +1498,7 @@
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evCurrSet": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Charger",
+      "model": "PowerOcean PowerPulse",
       "sn": "SN_EV_CHARGER_01",
       "via_device": [
         "powerocean",
@@ -1518,7 +1518,7 @@
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evOnoffSet": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Charger",
+      "model": "PowerOcean PowerPulse",
       "sn": "SN_EV_CHARGER_01",
       "via_device": [
         "powerocean",
@@ -1538,7 +1538,7 @@
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evPwr": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Charger",
+      "model": "PowerOcean PowerPulse",
       "sn": "SN_EV_CHARGER_01",
       "via_device": [
         "powerocean",
@@ -1562,7 +1562,7 @@
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evSn": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Charger",
+      "model": "PowerOcean PowerPulse",
       "sn": "SN_EV_CHARGER_01",
       "via_device": [
         "powerocean",
@@ -1582,7 +1582,7 @@
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evUserManual": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Charger",
+      "model": "PowerOcean PowerPulse",
       "sn": "SN_EV_CHARGER_01",
       "via_device": [
         "powerocean",
@@ -1602,7 +1602,7 @@
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_onlineBits": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Charger",
+      "model": "PowerOcean PowerPulse",
       "sn": "SN_EV_CHARGER_01",
       "via_device": [
         "powerocean",
@@ -1622,7 +1622,7 @@
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_orderStartTimestamp": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Charger",
+      "model": "PowerOcean PowerPulse",
       "sn": "SN_EV_CHARGER_01",
       "via_device": [
         "powerocean",
@@ -1646,7 +1646,7 @@
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_useGridFirst": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Charger",
+      "model": "PowerOcean PowerPulse",
       "sn": "SN_EV_CHARGER_01",
       "via_device": [
         "powerocean",
@@ -1666,7 +1666,7 @@
   "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_workMode": {
     "device": {
       "manufacturer": "EcoFlow",
-      "model": "PowerOcean Charger",
+      "model": "PowerOcean PowerPulse",
       "sn": "SN_EV_CHARGER_01",
       "via_device": [
         "powerocean",

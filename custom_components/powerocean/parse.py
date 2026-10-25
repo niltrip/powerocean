@@ -297,7 +297,9 @@ def _read_standard(
 
 def _payload_device(ctx: _Context, payload: dict[str, Any]) -> Device:
     """Return the charger or heating rod a report belongs to, else the inverter."""
-    for sn_key, prefix in (("evSn", "Charger"), ("hrSn", "Heating Rod")):
+    # Same name as the other reports of these devices, so the device name and
+    # the entity IDs do not depend on which report comes first
+    for sn_key, prefix in (("evSn", "PowerPulse"), ("hrSn", "PowerGlow")):
         raw_sn = payload.get(sn_key)
         if isinstance(raw_sn, str) and (sn := decode_sn(raw_sn)):
             return make_device(sn, prefix, f"PowerOcean {prefix}", ctx.inverter_sn)

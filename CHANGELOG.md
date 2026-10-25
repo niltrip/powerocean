@@ -71,6 +71,10 @@
   - **New installations:** all of these sensors start disabled.
 - Percentages are shown without decimals, insulation resistance with one.
   Stored values keep their full precision.
+- **Heating rod and wallbox have one name each:** "PowerGlow" and
+  "PowerPulse". Before, depending on which report arrived first, they were
+  also called "Heating Rod" or "Charger". Device pages may show the new
+  name; entity IDs you already have stay as they are.
 - Battery state of charge shows the battery level icon.
 - Sensors without a current value, e.g. of a battery pack that is offline,
   are shown as *unavailable* instead of *unknown*.
