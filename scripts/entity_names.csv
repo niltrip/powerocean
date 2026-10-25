@@ -245,7 +245,7 @@ Ohne Namen: PowerOcean PowerPulse;startState;;;;
 Ohne Namen: PowerOcean PowerPulse;pclPwrBase;;;;
 Ohne Namen: PowerOcean PowerPulse;realPowerLock;;;;
 Ohne Namen: PowerOcean PowerPulse;feedPwrCap;;;;
-Ohne Namen: PowerOcean PowerPulse;allocatedPower;;;;
+PowerPulse;allocatedPower;;Allocated power;Zugeteilte Leistung;EDEV_SYS_REPORT, je Gerät
 Ohne Namen: PowerOcean PowerPulse;refPower;;;;
 PowerPulse;timeToUseCar;;Planned vehicle usage time;Geplante Fahrzeugnutzung;Portal
 PowerPulse;chargeTarget;;Charge target;Ladeziel;
@@ -271,3 +271,7 @@ PowerPulse;currentOuputMax;;Maximum charging current;Maximaler Ladestrom;0,1 A (
 PowerPulse;switchBits;;;;Bits: 0x01 Batterie-Entladung sperren, 0x02 Plug-and-Play, 0x10 Dauerladung (Xygen)
 PowerPulse;gridPhaseInput;;;;Bedeutung offen (3 bei dreiphasigem Anschluss?)
 PowerPulse;phaseSpecified;;Phase setting;Phaseneinstellung;Portal, 0 auto, 1 einphasig, 2 dreiphasig laut Xygen, teils widersprüchlich
+PowerPulse;currentPrio;;Priority;Priorität;EDEV_SYS_REPORT, je Gerät, 1 = zuerst
+PowerPulse;targetMax;;Maximum power;Maximale Leistung;EDEV_SYS_REPORT, je Gerät (Wallbox, Heizstab)
+Energiemanagement je Gerät;errorCode;edev;Error code (energy management);Fehlercode (Energiemanagement);EDEV_SYS_REPORT, neben dem Fehlercode des Geräts
+Energiemanagement je Gerät;warnCode;edev;Warning code (energy management);Warncode (Energiemanagement);EDEV_SYS_REPORT

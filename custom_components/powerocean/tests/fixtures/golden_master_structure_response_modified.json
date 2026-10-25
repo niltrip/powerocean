@@ -1183,6 +1183,74 @@
       "unit": null
     }
   },
+  "SN_INVERTERBOX01_JT303_EDEV_SYS_REPORT_feedPwrCap": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "feedPwrCap",
+      "friendly_name": "feedPwrCap",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_JT303_EDEV_SYS_REPORT_feedPwrCap",
+      "name": "SN_INVERTERBOX01_feedPwrCap",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_JT303_EDEV_SYS_REPORT_pclPwrBase": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "pclPwrBase",
+      "friendly_name": "pclPwrBase",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_JT303_EDEV_SYS_REPORT_pclPwrBase",
+      "name": "SN_INVERTERBOX01_pclPwrBase",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_JT303_EDEV_SYS_REPORT_socCur": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "socCur",
+      "friendly_name": "socCur",
+      "icon": "mdi:battery",
+      "internal_unique_id": "SN_INVERTERBOX01_JT303_EDEV_SYS_REPORT_socCur",
+      "name": "SN_INVERTERBOX01_socCur",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_JT303_EDEV_SYS_REPORT_startState": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "startState",
+      "friendly_name": "startState",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_JT303_EDEV_SYS_REPORT_startState",
+      "name": "SN_INVERTERBOX01_startState",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
   "SN_INVERTERBOX01_JTS1_EMS_CHANGE_REPORT_batteryLimitReason": {
     "device": {
       "manufacturer": "EcoFlow",

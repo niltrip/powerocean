@@ -1207,6 +1207,26 @@
       ]
     }
   },
+  "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_currentPrio": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_EV_CHARGER_01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "currentPrio",
+      "friendly_name": "currentPrio",
+      "icon": null,
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_currentPrio",
+      "name": "SN_EV_CHARGER_01_currentPrio",
+      "serial": "SN_EV_CHARGER_01",
+      "unit": null
+    }
+  },
   "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_errorCode": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -1223,46 +1243,6 @@
       "icon": "mdi:alert-circle-outline",
       "internal_unique_id": "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_errorCode",
       "name": "SN_EV_CHARGER_01_errorCode",
-      "serial": "SN_EV_CHARGER_01",
-      "unit": null
-    }
-  },
-  "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_feedPwrCap": {
-    "device": {
-      "manufacturer": "EcoFlow",
-      "model": "PowerOcean PowerPulse",
-      "sn": "SN_EV_CHARGER_01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
-    },
-    "sensors": {
-      "description": "feedPwrCap",
-      "friendly_name": "feedPwrCap",
-      "icon": null,
-      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_feedPwrCap",
-      "name": "SN_EV_CHARGER_01_feedPwrCap",
-      "serial": "SN_EV_CHARGER_01",
-      "unit": null
-    }
-  },
-  "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_pclPwrBase": {
-    "device": {
-      "manufacturer": "EcoFlow",
-      "model": "PowerOcean PowerPulse",
-      "sn": "SN_EV_CHARGER_01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
-    },
-    "sensors": {
-      "description": "pclPwrBase",
-      "friendly_name": "pclPwrBase",
-      "icon": null,
-      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_pclPwrBase",
-      "name": "SN_EV_CHARGER_01_pclPwrBase",
       "serial": "SN_EV_CHARGER_01",
       "unit": null
     }
@@ -1311,7 +1291,7 @@
       ]
     }
   },
-  "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_socCur": {
+  "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_targetMax": {
     "device": {
       "manufacturer": "EcoFlow",
       "model": "PowerOcean PowerPulse",
@@ -1322,33 +1302,17 @@
       ]
     },
     "sensors": {
-      "description": "socCur",
-      "friendly_name": "socCur",
-      "icon": "mdi:battery",
-      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_socCur",
-      "name": "SN_EV_CHARGER_01_socCur",
-      "serial": "SN_EV_CHARGER_01",
-      "unit": null
-    }
-  },
-  "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_startState": {
-    "device": {
-      "manufacturer": "EcoFlow",
-      "model": "PowerOcean PowerPulse",
-      "sn": "SN_EV_CHARGER_01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
-    },
-    "sensors": {
-      "description": "startState",
-      "friendly_name": "startState",
+      "description": "targetMax",
+      "friendly_name": "targetMax",
       "icon": null,
-      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_startState",
-      "name": "SN_EV_CHARGER_01_startState",
+      "internal_unique_id": "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_targetMax",
+      "name": "SN_EV_CHARGER_01_targetMax",
       "serial": "SN_EV_CHARGER_01",
-      "unit": null
+      "unit": [
+        "power",
+        "W",
+        "measurement"
+      ]
     }
   },
   "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_warnCode": {
@@ -1644,6 +1608,74 @@
       "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_workMode",
       "name": "SN_EV_CHARGER_01_workMode",
       "serial": "SN_EV_CHARGER_01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_RE307_EDEV_SYS_REPORT_feedPwrCap": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "feedPwrCap",
+      "friendly_name": "feedPwrCap",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EDEV_SYS_REPORT_feedPwrCap",
+      "name": "SN_INVERTERBOX01_feedPwrCap",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_RE307_EDEV_SYS_REPORT_pclPwrBase": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "pclPwrBase",
+      "friendly_name": "pclPwrBase",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EDEV_SYS_REPORT_pclPwrBase",
+      "name": "SN_INVERTERBOX01_pclPwrBase",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_RE307_EDEV_SYS_REPORT_socCur": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "socCur",
+      "friendly_name": "socCur",
+      "icon": "mdi:battery",
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EDEV_SYS_REPORT_socCur",
+      "name": "SN_INVERTERBOX01_socCur",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
+  "SN_INVERTERBOX01_RE307_EDEV_SYS_REPORT_startState": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "startState",
+      "friendly_name": "startState",
+      "icon": null,
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EDEV_SYS_REPORT_startState",
+      "name": "SN_INVERTERBOX01_startState",
+      "serial": "SN_INVERTERBOX01",
       "unit": null
     }
   },

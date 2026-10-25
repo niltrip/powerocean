@@ -22,6 +22,7 @@ import orjson
 
 from .datapoints import (
     BOX_SCHEMAS,
+    EDEV_SYSTEM_KEYS,
     REPORT_DATAPOINTS,
     UPDATE_TIME_KEYS,
     VALUE_SCALE,
@@ -531,36 +532,33 @@ def _read_errors(
 def _read_edev_system(
     ctx: _Context, name: str, payload: dict[str, Any], selected: Any
 ) -> None:
-    """Read the energy management values of the external device (wallbox)."""
-    # KNOWN LIMITATION: the report lists several devices, only the first is read
-    sn = _first_value(payload, "devSn")
-    if not sn:
-        return
-    device = make_device(sn, "PowerPulse", "PowerOcean PowerPulse", ctx.inverter_sn)
-    for key in selected:
-        if key == "devSn":
-            continue
-        value = _first_value(payload, key)
-        if value is None or isinstance(value, (dict, list)):
-            continue
-        ctx.add(device, name, key, value)
+    """Read the energy management of the system and of each external device."""
+    for key in sorted(EDEV_SYSTEM_KEYS & set(selected)):
+        value = payload.get(key)
+        if value is not None and not isinstance(value, (dict, list)):
+            ctx.add(ctx.inverter(), name, key, value)
 
-
-def _first_value(data: Any, target_key: str) -> Any:
-    """Return the first value of `target_key` in nested dicts and lists."""
-    if isinstance(data, dict):
-        for key, value in data.items():
-            if key == target_key:
-                return value
-            result = _first_value(value, target_key)
-            if result is not None:
-                return result
-    elif isinstance(data, list):
-        for item in data:
-            result = _first_value(item, target_key)
-            if result is not None:
-                return result
-    return None
+    # Each device is listed in both lists, by serial number and address; it
+    # gets its values only if another report made it known (name and model)
+    devices = {dp.device.sn: dp.device for dp in ctx.result.datapoints}
+    by_address: dict[Any, Device] = {}
+    for list_key, item_key in (
+        ("devInfoFix", "devSubInfoFix"),
+        ("devInfoVar", "devSubInfoVar"),
+    ):
+        items = (payload.get(list_key) or {}).get(item_key)
+        for item in items if isinstance(items, list) else []:
+            sn = decode_sn(_nested_value(item, ["devInfo", "devSn"]))
+            address = _nested_value(item, ["devInfo", "devAddr"])
+            device = devices.get(sn) if sn else None
+            device = device or by_address.get(address)
+            if device is None:
+                continue
+            by_address[address] = device
+            for key in sorted(set(selected) - EDEV_SYSTEM_KEYS):
+                value = item.get(key)
+                if value is not None and not isinstance(value, (dict, list)):
+                    ctx.add(device, name, key, value)
 
 
 def _read_parallel_energy_stream(

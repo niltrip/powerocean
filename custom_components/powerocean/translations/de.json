@@ -73,6 +73,9 @@
     },
     "entity": {
         "sensor": {
+            "allocated_power": {
+                "name": "Zugeteilte Leistung"
+            },
             "battery_limit_reason": {
                 "name": "Grund der Batteriebegrenzung"
             },
@@ -234,6 +237,9 @@
             "current_ouput_max": {
                 "name": "Maximaler Ladestrom"
             },
+            "current_prio": {
+                "name": "Priorität"
+            },
             "dab_mod_sta": {
                 "name": "DC-DC-Wandler-Status",
                 "state": {
@@ -312,6 +318,9 @@
             },
             "error_code": {
                 "name": "Fehlercode"
+            },
+            "error_code_edev": {
+                "name": "Fehlercode (Energiemanagement)"
             },
             "error_count": {
                 "name": "Aktive Fehler"
@@ -740,6 +749,9 @@
             "system_name": {
                 "name": "Anlagenname"
             },
+            "target_max": {
+                "name": "Maximale Leistung"
+            },
             "target_power": {
                 "name": "Sollleistung"
             },
@@ -763,6 +775,9 @@
             },
             "warn_code": {
                 "name": "Warncode"
+            },
+            "warn_code_edev": {
+                "name": "Warncode (Energiemanagement)"
             },
             "water_tank_volume": {
                 "name": "Speichergröße"

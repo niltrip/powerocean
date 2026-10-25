@@ -73,6 +73,9 @@
   },
   "entity": {
     "sensor": {
+      "allocated_power": {
+        "name": "Allocated power"
+      },
       "battery_limit_reason": {
         "name": "Battery limit reason"
       },
@@ -234,6 +237,9 @@
       "current_ouput_max": {
         "name": "Maximum charging current"
       },
+      "current_prio": {
+        "name": "Priority"
+      },
       "dab_mod_sta": {
         "name": "DC-DC converter state",
         "state": {
@@ -312,6 +318,9 @@
       },
       "error_code": {
         "name": "Error code"
+      },
+      "error_code_edev": {
+        "name": "Error code (energy management)"
       },
       "error_count": {
         "name": "Active errors"
@@ -740,6 +749,9 @@
       "system_name": {
         "name": "System name"
       },
+      "target_max": {
+        "name": "Maximum power"
+      },
       "target_power": {
         "name": "Target power"
       },
@@ -763,6 +775,9 @@
       },
       "warn_code": {
         "name": "Warning code"
+      },
+      "warn_code_edev": {
+        "name": "Warning code (energy management)"
       },
       "water_tank_volume": {
         "name": "Tank volume"

@@ -41,6 +41,7 @@ from .const import (
     PowerOceanModel,
 )
 from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
+from .datapoints import EDEV_SYSTEM_KEYS
 from .ecoflow import HAEcoflowApi
 
 
@@ -139,12 +140,25 @@ async def async_migrate_entry(
             if entity.unique_id.endswith("_moduleAplSwVer"):
                 entity_registry.async_remove(entity.entity_id)
 
+    if entry.version < 2 or entry.minor_version < 4:
+        # Bis 2.3: Die Anlagenwerte aus EDEV_SYS_REPORT hingen an der Wallbox,
+        # jetzt am Wechselrichter (neue unique_id). Die alten entfernen.
+        entity_registry = er.async_get(hass)
+        inverter = data.get(CONF_DEVICE_ID) or ""
+        for entity in er.async_entries_for_config_entry(
+            entity_registry, entry.entry_id
+        ):
+            # unique_id = <Seriennummer>_<Präfix>_EDEV_SYS_REPORT_<Schlüssel>
+            head, found, key = entity.unique_id.rpartition("_EDEV_SYS_REPORT_")
+            if found and key in EDEV_SYSTEM_KEYS and not head.startswith(inverter):
+                entity_registry.async_remove(entity.entity_id)
+
     hass.config_entries.async_update_entry(
         entry,
         data=data,
         options=options,
         version=2,
-        minor_version=3,
+        minor_version=4,
     )
     LOGGER.debug(
         "Migrated %s to version %s.%s", entry.title, entry.version, entry.minor_version
