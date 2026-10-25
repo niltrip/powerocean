@@ -970,7 +970,7 @@
       "display_precision": 0,
       "entity_category": null,
       "entity_id": "sensor.powerocean_sn_inverterbox01_heatingpower",
-      "icon": null,
+      "icon": "mdi:heating-coil",
       "original_name": "Heating power",
       "product_description": "heatingPower",
       "product_serial": "SN_INVERTERBOX01",

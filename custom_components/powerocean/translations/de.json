@@ -226,7 +226,25 @@
                 "name": "Ladeleistung"
             },
             "charging_status": {
-                "name": "Ladestatus"
+                "name": "Ladestatus",
+                "state": {
+                    "0": "Kein Status",
+                    "ev_chg_sts_none": "Kein Status",
+                    "1": "Verfügbar",
+                    "ev_chg_sts_available": "Verfügbar",
+                    "2": "Wird vorbereitet",
+                    "ev_chg_sts_preparing": "Wird vorbereitet",
+                    "3": "Lädt",
+                    "ev_chg_sts_charging": "Lädt",
+                    "4": "Pausiert (Wallbox)",
+                    "ev_chg_sts_suspended_evse": "Pausiert (Wallbox)",
+                    "5": "Pausiert (Fahrzeug)",
+                    "ev_chg_sts_suspended_ev": "Pausiert (Fahrzeug)",
+                    "6": "Beendet",
+                    "ev_chg_sts_finishing": "Beendet",
+                    "9": "Fehler",
+                    "ev_chg_sts_faulted": "Fehler"
+                }
             },
             "current_netif": {
                 "name": "Netzwerkverbindung"
@@ -335,13 +353,13 @@
                 "name": "Ladeleistung"
             },
             "from_bat": {
-                "name": "Heizen mit Batterie (Cloud)"
+                "name": "Heizleistung aus Batterie (Cloud)"
             },
             "from_grid": {
-                "name": "Heizen mit Netz (Cloud)"
+                "name": "Heizleistung aus Netz (Cloud)"
             },
             "from_pv": {
-                "name": "Heizen mit Solar (Cloud)"
+                "name": "Heizleistung aus Solar (Cloud)"
             },
             "grid_in_day_energy": {
                 "name": "Netzbezug heute"
@@ -741,7 +759,7 @@
                 "name": "Maximale Leistung"
             },
             "target_power": {
-                "name": "Sollleistung"
+                "name": "Eingestellte Leistung"
             },
             "target_temp": {
                 "name": "Eingestellte Temperatur"
@@ -750,7 +768,7 @@
                 "name": "Wassertemperatur"
             },
             "time_to_use_car": {
-                "name": "Geplante Fahrzeugnutzung"
+                "name": "Geplante Abfahrt"
             },
             "today_electricity_generation": {
                 "name": "Solarertrag heute"
@@ -759,7 +777,7 @@
                 "name": "Solarertrag gesamt"
             },
             "user_current_set": {
-                "name": "Ladestrom benutzerdefiniert"
+                "name": "Ladestrom (benutzerdefiniert)"
             },
             "warn_code": {
                 "name": "Warncode"

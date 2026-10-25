@@ -226,7 +226,25 @@
         "name": "Charging power"
       },
       "charging_status": {
-        "name": "Charging status"
+        "name": "Charging status",
+        "state": {
+          "0": "No status",
+          "ev_chg_sts_none": "No status",
+          "1": "Available",
+          "ev_chg_sts_available": "Available",
+          "2": "Preparing",
+          "ev_chg_sts_preparing": "Preparing",
+          "3": "Charging",
+          "ev_chg_sts_charging": "Charging",
+          "4": "Paused (wallbox)",
+          "ev_chg_sts_suspended_evse": "Paused (wallbox)",
+          "5": "Paused (vehicle)",
+          "ev_chg_sts_suspended_ev": "Paused (vehicle)",
+          "6": "Finished",
+          "ev_chg_sts_finishing": "Finished",
+          "9": "Fault",
+          "ev_chg_sts_faulted": "Fault"
+        }
       },
       "current_netif": {
         "name": "Network connection"
@@ -335,13 +353,13 @@
         "name": "Charging power"
       },
       "from_bat": {
-        "name": "Heating from battery (cloud)"
+        "name": "Heating power from battery (cloud)"
       },
       "from_grid": {
-        "name": "Heating from grid (cloud)"
+        "name": "Heating power from grid (cloud)"
       },
       "from_pv": {
-        "name": "Heating from solar (cloud)"
+        "name": "Heating power from solar (cloud)"
       },
       "grid_in_day_energy": {
         "name": "Grid import today"
@@ -741,7 +759,7 @@
         "name": "Maximum power"
       },
       "target_power": {
-        "name": "Target power"
+        "name": "Set power"
       },
       "target_temp": {
         "name": "Set temperature"
@@ -750,7 +768,7 @@
         "name": "Water temperature"
       },
       "time_to_use_car": {
-        "name": "Planned vehicle usage time"
+        "name": "Planned departure"
       },
       "today_electricity_generation": {
         "name": "Solar energy today"
@@ -759,7 +777,7 @@
         "name": "Solar energy total"
       },
       "user_current_set": {
-        "name": "Custom charging current"
+        "name": "Charging current (custom)"
       },
       "warn_code": {
         "name": "Warning code"

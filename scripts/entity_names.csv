@@ -234,7 +234,7 @@ Ohne Namen: PowerOcean Charger;evUserManual;;;;
 PowerPulse;evChargingEnergy;;Energy delivered;Gelieferte Energie;Portal
 PowerPulse;evCurrSet;;Charging current;Ladestrom;Portal
 PowerPulse;chargeVehicleId;;Vehicle ID;Fahrzeug-ID;Portal
-PowerPulse;chargingStatus;;Charging status;Ladestatus;
+PowerPulse;chargingStatus;;Charging status;Ladestatus;Portal-Protobuf EVChgSts: 1 verfügbar, 2 vorbereitend, 3 lädt, 4/5 pausiert, 6 beendet, 9 Fehler
 PowerPulse;evPwr;;Charging power;Ladeleistung;Portal, PowerPulse (1. Generation)
 PowerPulse;warnCode;;Warning code;Warncode;
 Ohne Namen: PowerOcean PowerPulse;socCur;;;;
@@ -244,7 +244,7 @@ Ohne Namen: PowerOcean PowerPulse;realPowerLock;;;;
 Ohne Namen: PowerOcean PowerPulse;feedPwrCap;;;;
 PowerPulse;allocatedPower;;Allocated power;Zugeteilte Leistung;EDEV_SYS_REPORT, je Gerät
 Ohne Namen: PowerOcean PowerPulse;refPower;;;;
-PowerPulse;timeToUseCar;;Planned vehicle usage time;Geplante Fahrzeugnutzung;Portal
+PowerPulse;timeToUseCar;;Planned departure;Geplante Abfahrt;Portal
 PowerPulse;chargeTarget;;Charge target;Ladeziel;
 PowerPulse;chargingPwr;;Charging power;Ladeleistung;Portal, PowerPulse 2
 PowerGlow;selfcheckPercent;;Self-check;Selbsttest;Portal
@@ -254,12 +254,12 @@ PowerGlow;runFlag;;;;Bedeutung offen
 PowerGlow;mode;;Operating mode;Betriebsart;Portal, 0 Solar, 1 Manuell (Xygen #132)
 PowerGlow;waterTankVolume;;Tank volume;Speichergröße;Einheit offen (1500 = 150 l?)
 PowerGlow;runStat;;State;Status;0 Aus, 1 Ein (Xygen #132)
-PowerGlow;targetPower;;Target power;Sollleistung;
+PowerGlow;targetPower;;Set power;Eingestellte Leistung;
 PowerGlow;hrPwr;;Heating power (cloud);Heizleistung (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
-PowerGlow;fromPv;;Heating from solar (cloud);Heizen mit Solar (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
-PowerGlow;fromBat;;Heating from battery (cloud);Heizen mit Batterie (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
-PowerGlow;fromGrid;;Heating from grid (cloud);Heizen mit Netz (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
-PowerPulse;userCurrentSet;;Custom charging current;Ladestrom benutzerdefiniert;0,1 A (Xygen #132)
+PowerGlow;fromPv;;Heating power from solar (cloud);Heizleistung aus Solar (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
+PowerGlow;fromBat;;Heating power from battery (cloud);Heizleistung aus Batterie (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
+PowerGlow;fromGrid;;Heating power from grid (cloud);Heizleistung aus Netz (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
+PowerPulse;userCurrentSet;;Charging current (custom);Ladestrom (benutzerdefiniert);0,1 A (Xygen #132)
 PowerPulse;orderChargingEnergy;;Energy last session;Energie letzter Ladevorgang;Portal, Wh, beginnt je Ladevorgang neu
 PowerPulse;solarCurrentMin;;Solar minimum current;Solar-Mindeststrom;0,1 A (Xygen #132)
 PowerPulse;orderTime;;Duration last session;Dauer letzter Ladevorgang;Portal, Sekunden

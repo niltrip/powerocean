@@ -1728,7 +1728,7 @@
     "sensors": {
       "description": "chargeTarget",
       "friendly_name": "chargeTarget",
-      "icon": null,
+      "icon": "mdi:target",
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargeTarget",
       "name": "SN_E_DEVICEBOX01_chargeTarget",
       "serial": "SN_E_DEVICEBOX01",
@@ -1752,7 +1752,7 @@
     "sensors": {
       "description": "chargeVehicleId",
       "friendly_name": "chargeVehicleId",
-      "icon": null,
+      "icon": "mdi:car-info",
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargeVehicleId",
       "name": "SN_E_DEVICEBOX01_chargeVehicleId",
       "serial": "SN_E_DEVICEBOX01",
@@ -1772,7 +1772,7 @@
     "sensors": {
       "description": "chargingPwr",
       "friendly_name": "chargingPwr",
-      "icon": null,
+      "icon": "mdi:ev-station",
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargingPwr",
       "name": "SN_E_DEVICEBOX01_chargingPwr",
       "serial": "SN_E_DEVICEBOX01",
@@ -1796,7 +1796,7 @@
     "sensors": {
       "description": "chargingStatus",
       "friendly_name": "chargingStatus",
-      "icon": null,
+      "icon": "mdi:ev-plug-type2",
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargingStatus",
       "name": "SN_E_DEVICEBOX01_chargingStatus",
       "serial": "SN_E_DEVICEBOX01",
@@ -1880,7 +1880,7 @@
     "sensors": {
       "description": "orderChargingEnergy",
       "friendly_name": "orderChargingEnergy",
-      "icon": null,
+      "icon": "mdi:car-battery",
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_orderChargingEnergy",
       "name": "SN_E_DEVICEBOX01_orderChargingEnergy",
       "serial": "SN_E_DEVICEBOX01",
@@ -1904,7 +1904,7 @@
     "sensors": {
       "description": "orderTime",
       "friendly_name": "orderTime",
-      "icon": null,
+      "icon": "mdi:timer-outline",
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_orderTime",
       "name": "SN_E_DEVICEBOX01_orderTime",
       "serial": "SN_E_DEVICEBOX01",
@@ -1928,7 +1928,7 @@
     "sensors": {
       "description": "phaseSpecified",
       "friendly_name": "phaseSpecified",
-      "icon": null,
+      "icon": "mdi:sine-wave",
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_phaseSpecified",
       "name": "SN_E_DEVICEBOX01_phaseSpecified",
       "serial": "SN_E_DEVICEBOX01",
@@ -1992,7 +1992,7 @@
     "sensors": {
       "description": "timeToUseCar",
       "friendly_name": "timeToUseCar",
-      "icon": null,
+      "icon": "mdi:car-clock",
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_timeToUseCar",
       "name": "SN_E_DEVICEBOX01_timeToUseCar",
       "serial": "SN_E_DEVICEBOX01",
@@ -2040,7 +2040,7 @@
     "sensors": {
       "description": "workMode",
       "friendly_name": "workMode",
-      "icon": null,
+      "icon": "mdi:cog-outline",
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_workMode",
       "name": "SN_E_DEVICEBOX01_workMode",
       "serial": "SN_E_DEVICEBOX01",
@@ -2084,7 +2084,7 @@
     "sensors": {
       "description": "currentPrio",
       "friendly_name": "currentPrio",
-      "icon": null,
+      "icon": "mdi:sort-numeric-ascending",
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_currentPrio",
       "name": "SN_E_DEVICEBOX01_currentPrio",
       "serial": "SN_E_DEVICEBOX01",
@@ -2168,7 +2168,7 @@
     "sensors": {
       "description": "targetMax",
       "friendly_name": "targetMax",
-      "icon": null,
+      "icon": "mdi:speedometer",
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_SYS_REPORT_targetMax",
       "name": "SN_E_DEVICEBOX01_targetMax",
       "serial": "SN_E_DEVICEBOX01",

@@ -12,11 +12,13 @@
   heating rod, wallbox and inverter is shown in its device info. The
   sensors `bpSn`, `hrSn`, `evSn` and `devSn` repeated it and are removed
   automatically.
-- **Battery states are now lowercase.** The states of `bmsChgDsgSta`,
-  `bmsRunSta` and `bpSysState` change, for example from `PB_CHG_STATE` to
-  `pb_chg_state`, so Home Assistant can show them translated ("Charging",
-  "Laden"). Update automations and templates that compare these states with
-  the old uppercase values. The history keeps the old values up to the
+- **Battery and wallbox states are now lowercase.** The states of
+  `bmsChgDsgSta`, `bmsRunSta` and `bpSysState` change, for example from
+  `PB_CHG_STATE` to `pb_chg_state`, and the charging status of the
+  PowerPulse from `EV_CHG_STS_AVAILABLE` to `ev_chg_sts_available`, so Home
+  Assistant can show them translated ("Charging", "Laden"; "Available",
+  "Verfügbar"). Update automations and templates that compare these states
+  with the old uppercase values. The history keeps the old values up to the
   update.
 - **Wallbox `orderStartTimestamp` is a timestamp.** It was shown as a current
   in A by mistake. Home Assistant reports under *Settings → Repairs* that
@@ -61,9 +63,9 @@
   pack that was offline when Home Assistant started.
 - **Translated states** (English, German) for operating mode, feed-in mode,
   grid state (on-grid/off-grid), inverter and battery states, on/off
-  values, mode and state of the PowerGlow heating rod and charging mode of
-  the PowerPulse wallbox, as far as possible with the texts of the EcoFlow
-  web portal.
+  values, mode and state of the PowerGlow heating rod, charging mode and
+  charging status of the PowerPulse wallbox, as far as possible with the
+  texts of the EcoFlow web portal.
   Unknown values are shown as they are.
 - **Link to the EcoFlow web portal** on every device page.
 - **Readable entity names** in English and German, e.g. "State of charge"

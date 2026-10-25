@@ -408,6 +408,9 @@ TRANSLATED_STATES: set[str] = {
     "runStat",
     "mode",
     "workMode",
+    # Wallbox: PowerPulse 2 sends a number, PowerPulse 1 the name (state
+    # becomes lowercase, e.g. ev_chg_sts_available)
+    "chargingStatus",
 }
 
 # Context of a datapoint whose name depends on where it appears: the values
