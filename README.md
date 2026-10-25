@@ -44,6 +44,18 @@ Follow the flow.
 ![step 2](documentation/setup_step_02.png)
 ![step 3](documentation/setup_step_03.png)
 
+### Extended connection (MQTT, optional)
+
+Off by default. Switch it on under *Settings → Devices & services → Ecoflow PowerOcean → ⚙ (Configure) → Extended connection (MQTT)*.
+
+The integration then additionally connects to the EcoFlow cloud the way the EcoFlow app does (MQTT, with the same account) and asks the system for its full state – after connecting, after each reconnect and every 6 hours. From the answer it reads the firmware of the modules:
+
+- **PowerOcean (inverter):** the firmware of the energy management (EMS), e.g. 5.1.38.5. The "system version" the app shows (e.g. 5.1.37.13) is the name of the whole update package and is not sent.
+- **Smart meter:** its firmware.
+- The other modules (inverter power stage, Wi-Fi) are listed in the diagnostics.
+
+All values still come from the regular polling. Nothing is changed on the system. If the connection fails, the integration keeps working and logs a warning.
+
 
 
 ### Sensors
@@ -168,6 +180,8 @@ logger:
 ## Credits
 
 Thanks to my colleague David for giving me a starting point.
+
+Thanks to [shuette42](https://github.com/shuette42) for [ecoflow-energy-ha](https://github.com/shuette42/ecoflow-energy-ha): its protobuf definitions made the MQTT messages readable.
 
 Thanks to [Xygen](https://github.com/Xygen) for the diagnostics of a PowerGlow and a PowerPulse 2 and for the verified value mappings in his [PowerGlow](https://github.com/Xygen/EcoFlow-PowerGlow-for-Home-Assistant) and [PowerPulse 2](https://github.com/Xygen/EcoFlow-PowerPulse-2-for-Home-Assistant) integrations ([#132](https://github.com/niltrip/powerocean/discussions/132)).
 
