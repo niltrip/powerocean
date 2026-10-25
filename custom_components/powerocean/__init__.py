@@ -12,9 +12,11 @@ This module sets up the PowerOcean integration, handling:
 Functions:
 - async_setup_entry: Set up a PowerOcean device from a config entry.
 - async_migrate_entry: Migrate older config entries to the latest version.
+- async_remove_config_entry_device: Allow removing devices that are gone.
 - async_unload_entry: Unload a config entry and clean up resources.
 """
 
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import (
     CONF_DEVICE_ID,
     CONF_EMAIL,
@@ -34,6 +36,7 @@ from .const import (
     LOGGER,
     MODEL_NAME_MAP,
     PLATFORMS,
+    PORTAL_URL,
     PowerOceanModel,
 )
 from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
@@ -77,7 +80,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: PowerOceanConfigEntry) -
         name=entry.options.get(CONF_FRIENDLY_NAME),
         model=model_name,
         model_id=model_id,
-        configuration_url="https://user-portal.ecoflow.com/",
+        configuration_url=PORTAL_URL,
     )
 
     return True
@@ -141,3 +144,32 @@ async def async_migrate_entry(
 async def async_unload_entry(hass: HomeAssistant, entry: PowerOceanConfigEntry) -> bool:
     """Unload a config entry and clean up resources."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+
+async def async_remove_config_entry_device(
+    hass: HomeAssistant,
+    entry: PowerOceanConfigEntry,
+    device_entry: dr.DeviceEntry,
+) -> bool:
+    """Allow removing a device that has no values in the last response."""
+    if entry.state is not ConfigEntryState.LOADED:
+        # Without a response it is unknown which devices are present
+        return False
+    coordinator = entry.runtime_data
+    present = {
+        coordinator.endpoints[unique_id].serial
+        for unique_id in coordinator.data
+        if unique_id in coordinator.endpoints
+    }
+    serials = {
+        identifier
+        for domain, identifier in device_entry.identifiers
+        if domain == DOMAIN
+    }
+    if serials & present:
+        return False
+    # Its entities are added again if the device returns
+    for unique_id, endpoint in list(coordinator.endpoints.items()):
+        if endpoint.serial in serials:
+            del coordinator.endpoints[unique_id]
+    return True

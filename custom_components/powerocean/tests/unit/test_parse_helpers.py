@@ -1,8 +1,8 @@
 """Helper functions of the parser: serial numbers, nested values, report names."""
 
+from custom_components.powerocean.datapoints import BOX_SCHEMAS, ReportMode
 from custom_components.powerocean.devices import decode_sn
 from custom_components.powerocean.parse import _box_sn, _matches, _nested_value
-from custom_components.powerocean.utils import BOX_SCHEMAS, ReportMode
 
 BATTERY_SCHEMA = next(s for s in BOX_SCHEMAS.values() if s["sn_path"] == ["bpSn"])
 

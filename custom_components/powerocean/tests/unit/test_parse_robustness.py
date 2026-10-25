@@ -9,6 +9,7 @@ from typing import Any
 
 import pytest
 
+from custom_components.powerocean.parse import parse
 from custom_components.powerocean.tests.utils import parse_values
 
 SN = "SN_INVERTERBOX01"
@@ -165,3 +166,19 @@ def test_smart_meter_invalid_entries() -> None:
     assert _meter(values, "meterL3Pwr") is None
     assert _meter(values, "meterTotalPwr") is None
     assert not [uid for uid in values if "_meter107_" in uid]
+
+
+def test_pv_string_power_without_string_is_not_in_use() -> None:
+    quota = {
+        "JTS1_ENERGY_STREAM_REPORT": {"pv1Pwr": 100.0, "pv2Pwr": 0.0, "pv3Pwr": 0.0},
+        HEARTBEAT: {"mpptHeartBeat": [{"mpptPv": [{"pwr": 100.0}, {"pwr": 0.0}]}]},
+    }
+    result = parse({"data": {"quota": quota}}, SN, "83")
+    in_use = {d.key: d.in_use for d in result.datapoints if d.key.startswith("pv")}
+    assert in_use == {"pv1Pwr": True, "pv2Pwr": True, "pv3Pwr": False}
+
+
+def test_pv_string_power_without_heartbeat_stays_in_use() -> None:
+    quota = {"JTS1_ENERGY_STREAM_REPORT": {"pv3Pwr": 0.0}}
+    result = parse({"data": {"quota": quota}}, SN, "83")
+    assert [d.in_use for d in result.datapoints if d.key == "pv3Pwr"] == [True]

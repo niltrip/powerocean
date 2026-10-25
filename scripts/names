@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Lesbare Entity-Namen aus scripts/entity_names.csv übernehmen.
+# Beispiel: scripts/names           Tabelle ergänzen, Übersetzungen schreiben
+#           scripts/names --check   nur prüfen
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+.venv/bin/python scripts/names.py "$@"

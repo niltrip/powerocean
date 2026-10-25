@@ -11,7 +11,30 @@ This module does not depend on Home Assistant.
 
 from typing import Any
 
-from .utils import clean_zero
+
+def clean_zero(v: float, eps: float = 0.05) -> float:
+    """
+    Setzt kleine Werte auf exakt 0, um Floating-Point Artefakte zu vermeiden.
+
+    Args:
+        v (float): Der zu prüfende Wert.
+        eps (float, optional): Die Schwelle unterhalb derer der Wert auf 0 gesetzt wird.
+
+    Returns:
+        float: 0.0, wenn abs(v) < eps, sonst der Originalwert v.
+
+    Beispiel:
+        >>> clean_zero(0.03)
+        0.0
+        >>> clean_zero(-0.02)
+        0.0
+        >>> clean_zero(0.1)
+        0.1
+
+    """
+    if abs(v) < eps:
+        return 0.0
+    return v
 
 
 def to_float(value: Any) -> float:

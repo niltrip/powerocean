@@ -35,8 +35,25 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.device_registry import DeviceInfo
 
-from .const import DOMAIN
-from .utils import DIAGNOSTIC_KEYS, DISABLED_BY_DEFAULT
+from .const import DOMAIN, PORTAL_URL
+from .datapoints import (
+    DIAGNOSTIC_KEYS,
+    DIAGNOSTIC_PATTERNS,
+    DISABLED_BY_DEFAULT,
+    TRANSLATED_STATES,
+    ReportMode,
+    name_context,
+    translation_key,
+)
+from .entity_names import NAMED
+
+_DIAGNOSTIC_PATTERNS = [re.compile(pattern) for pattern in DIAGNOSTIC_PATTERNS]
+
+# Decimal places Home Assistant shows, by unit; only the display changes
+DISPLAY_PRECISION: dict[str, int] = {
+    PERCENTAGE: 0,
+    "Ω": 1,
+}
 
 if TYPE_CHECKING:
     from .devices import Device
@@ -59,7 +76,6 @@ class PowerOceanEndPoint:
         serial (str): Serial number of the device.
         name (str): Name of the endpoint.
         friendly_name (str): Human-readable name.
-        value (str | int | float | None): Value of the endpoint.
         cls: (SensorClassTuple | None): Unit of measurement.
         description (str): Description of the endpoint.
         icon (str | None): Icon representing the endpoint.
@@ -71,31 +87,61 @@ class PowerOceanEndPoint:
     serial: str
     name: str
     friendly_name: str
-    value: str | int | float | None
     cls: SensorClassTuple | None
     description: str
     icon: str | None
     device_info: DeviceInfo | None = None
     enabled_default: bool = True
     diagnostic: bool = False
+    translation_key: str | None = None
+    # The name comes from the translations (else the key is the name)
+    named: bool = False
+    translated_states: bool = False
 
     @classmethod
     def from_datapoint(cls, datapoint: "Datapoint") -> "PowerOceanEndPoint":
         """Return the endpoint of a parsed datapoint, with metadata from its key."""
         key = datapoint.key
+        name_key = _name_translation_key(datapoint)
+        states = key in TRANSLATED_STATES
         return cls(
             internal_unique_id=datapoint.unique_id,
             serial=datapoint.device.sn,
             name=f"{datapoint.device.sn}_{key}",
             friendly_name=key,
-            value=None,
             cls=SensorMetaHelper.get_class(key),
             description=SensorMetaHelper.get_description(key),
             icon=SensorMetaHelper.get_special_icon(key),
             device_info=device_info(datapoint.device),
-            enabled_default=key not in DISABLED_BY_DEFAULT,
-            diagnostic=key in DIAGNOSTIC_KEYS,
+            enabled_default=datapoint.in_use and key not in DISABLED_BY_DEFAULT,
+            diagnostic=_is_diagnostic(datapoint),
+            translation_key=name_key or (translation_key(key) if states else None),
+            named=name_key is not None,
+            translated_states=states,
         )
+
+
+def _name_translation_key(datapoint: "Datapoint") -> str | None:
+    """Return the translation key of the datapoint's name, None without a name."""
+    key = datapoint.key
+    context = name_context(datapoint.unique_id)
+    if context and (context, key) in NAMED:
+        return f"{translation_key(key)}_{context}"
+    if ("", key) in NAMED:
+        return translation_key(key)
+    return None
+
+
+def _is_diagnostic(datapoint: "Datapoint") -> bool:
+    """Return True if the entity belongs under "Diagnostic" despite its unit."""
+    # The per-inverter energy streams of a dual system have no calculated
+    # counterpart, so their values stay sensors
+    if ReportMode.PARALLEL.value in datapoint.unique_id:
+        return False
+    key = datapoint.key
+    return key in DIAGNOSTIC_KEYS or any(
+        pattern.search(key) for pattern in _DIAGNOSTIC_PATTERNS
+    )
 
 
 def device_info(device: "Device") -> DeviceInfo:
@@ -106,6 +152,7 @@ def device_info(device: "Device") -> DeviceInfo:
         name=device.name,
         manufacturer="EcoFlow",
         model=device.model,
+        configuration_url=PORTAL_URL,
     )
     if device.via_sn:
         info["via_device"] = (DOMAIN, device.via_sn)
@@ -141,6 +188,9 @@ class SensorClassHelper:
         **dict.fromkeys(
             (
                 "bpTimestamp",
+                # Wallbox: start of the charging order (ends in "amp", which
+                # made it a current in A before)
+                "orderStartTimestamp",
                 "heartbeatUpdateTime",
                 "energyStreamUpdateTime",
                 "emsChangeUpdateTime",
@@ -309,14 +359,84 @@ class SensorMetaHelper:
             "bpCycles": "Ladezyklen",
             "bpTemp": "Temperatur der Batteriezellen",
             "errorCount": "Aktive Fehler",
+            # Meaning not published by EcoFlow; observed: 0 by day, 2 at night
+            **{
+                f"mppt{n}FaultCode": (
+                    f"Fehlercode PV-String {n} (Bedeutung nicht veröffentlicht; "
+                    "nachts meist 2)"
+                )
+                for n in range(1, 5)
+            },
         }
 
         # Use .get() to avoid KeyErrors and return default value
         return description_mapping.get(key, key)  # Default to key if not found
 
+    # Icons of single keys; checked first. None: the icon of the device class,
+    # e.g. the battery level icon that shows how full the battery is, or the
+    # icon by state from icons.json.
+    _KEY_ICONS: ClassVar[dict[str, str | None]] = {
+        "bpSoc": None,
+        "bpRealSoc": None,
+        "emsWordMode": "mdi:cog-outline",
+        # Icon by state from icons.json
+        **dict.fromkeys(
+            (
+                "pcsRunSta",
+                "dabModSta",
+                "bmsChgDsgSta",
+                "bmsRunSta",
+                "online",
+            ),
+            None,
+        ),
+        "sysGridSta": "mdi:transmission-tower",
+        "pcsAcFreq": "mdi:sine-wave",
+        "sysBatChgUpLimit": "mdi:battery-arrow-up",
+        "sysBatDsgDownLimit": "mdi:battery-arrow-down",
+        "emsKeepSoc": "mdi:battery-lock",
+        "sysBatBackupRatio": "mdi:battery-lock",
+        **dict.fromkeys(
+            ("pcsActivePowerLimitUp", "pcsActivePowerLimitDn"), "mdi:speedometer"
+        ),
+        **dict.fromkeys(
+            ("batteryLimitReason", "pcsPowerDeratingFlag", "pcsPowerDeratingSet"),
+            "mdi:speedometer-slow",
+        ),
+        **dict.fromkeys(
+            ("emsFeedMode", "emsFeedPwr", "emsFeedRatio"),
+            "mdi:transmission-tower-export",
+        ),
+        **dict.fromkeys(("breakerCapacityMax", "breakerEnableState"), "mdi:fuse"),
+        **dict.fromkeys(
+            ("sys14aEnable", "sys14aType", "relay14a"), "mdi:transmission-tower-off"
+        ),
+        **dict.fromkeys(("emsSgReadyEn", "emsSgRunStat"), "mdi:heat-pump"),
+        "wifiStaStat": "mdi:wifi",
+        "ethWanStat": "mdi:ethernet",
+        "iot4gSta": "mdi:signal",
+        **dict.fromkeys(
+            (
+                "pcsOvpProtectCnt",
+                "pcsAvgOvpProtectCnt",
+                "pcsUvp1ProtectCnt",
+                "pcsUvp2ProtectCnt",
+                "pcsOfpProtectCnt",
+                "pcsUfpProtectCnt",
+            ),
+            "mdi:shield-alert-outline",
+        ),
+        **dict.fromkeys(
+            ("meterL1Pwr", "meterL2Pwr", "meterL3Pwr", "meterTotalPwr"),
+            "mdi:meter-electric",
+        ),
+    }
+
     @staticmethod
     def get_special_icon(key: str) -> str | None:
         """Infer a Home Assistant icon from key semantics (generisch)."""
+        if key in SensorMetaHelper._KEY_ICONS:
+            return SensorMetaHelper._KEY_ICONS[key]
         k = key.lower()
         keyword_icons = [
             # Status / Diagnose
