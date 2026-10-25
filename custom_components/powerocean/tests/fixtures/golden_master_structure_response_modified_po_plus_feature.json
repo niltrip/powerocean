@@ -1799,6 +1799,26 @@
       ]
     }
   },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargeVehicleId": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "chargeVehicleId",
+      "friendly_name": "chargeVehicleId",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargeVehicleId",
+      "name": "SN_E_DEVICEBOX01_chargeVehicleId",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
   "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_chargingPwr": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -1843,6 +1863,30 @@
       "unit": null
     }
   },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_currentOuputMax": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "currentOuputMax",
+      "friendly_name": "currentOuputMax",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_currentOuputMax",
+      "name": "SN_E_DEVICEBOX01_currentOuputMax",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": [
+        "current",
+        "A",
+        "measurement"
+      ]
+    }
+  },
   "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_devSn": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -1859,6 +1903,158 @@
       "icon": "mdi:barcode",
       "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_devSn",
       "name": "SN_E_DEVICEBOX01_devSn",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_gridPhaseInput": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "gridPhaseInput",
+      "friendly_name": "gridPhaseInput",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_gridPhaseInput",
+      "name": "SN_E_DEVICEBOX01_gridPhaseInput",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_onlineBits": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "onlineBits",
+      "friendly_name": "onlineBits",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_onlineBits",
+      "name": "SN_E_DEVICEBOX01_onlineBits",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_orderChargingEnergy": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "orderChargingEnergy",
+      "friendly_name": "orderChargingEnergy",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_orderChargingEnergy",
+      "name": "SN_E_DEVICEBOX01_orderChargingEnergy",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": [
+        "energy",
+        "Wh",
+        "total_increasing"
+      ]
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_orderTime": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "orderTime",
+      "friendly_name": "orderTime",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_orderTime",
+      "name": "SN_E_DEVICEBOX01_orderTime",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": [
+        "duration",
+        "s",
+        null
+      ]
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_phaseSpecified": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "phaseSpecified",
+      "friendly_name": "phaseSpecified",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_phaseSpecified",
+      "name": "SN_E_DEVICEBOX01_phaseSpecified",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": null
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_solarCurrentMin": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "solarCurrentMin",
+      "friendly_name": "solarCurrentMin",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_solarCurrentMin",
+      "name": "SN_E_DEVICEBOX01_solarCurrentMin",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": [
+        "current",
+        "A",
+        "measurement"
+      ]
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_switchBits": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "switchBits",
+      "friendly_name": "switchBits",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_switchBits",
+      "name": "SN_E_DEVICEBOX01_switchBits",
       "serial": "SN_E_DEVICEBOX01",
       "unit": null
     }
@@ -1884,6 +2080,30 @@
         "timestamp",
         null,
         null
+      ]
+    }
+  },
+  "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_userCurrentSet": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean PowerPulse",
+      "sn": "SN_E_DEVICEBOX01",
+      "via_device": [
+        "powerocean",
+        "SN_INVERTERBOX01"
+      ]
+    },
+    "sensors": {
+      "description": "userCurrentSet",
+      "friendly_name": "userCurrentSet",
+      "icon": null,
+      "internal_unique_id": "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_userCurrentSet",
+      "name": "SN_E_DEVICEBOX01_userCurrentSet",
+      "serial": "SN_E_DEVICEBOX01",
+      "unit": [
+        "current",
+        "A",
+        "measurement"
       ]
     }
   },

@@ -31,6 +31,7 @@ from homeassistant.const import (
     UnitOfFrequency,
     UnitOfPower,
     UnitOfTemperature,
+    UnitOfTime,
     UnitOfVolume,
 )
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -212,12 +213,23 @@ class SensorClassHelper:
         ),
         # Wallbox: energy target of smart mode
         "chargeTarget": (SensorDeviceClass.ENERGY, UnitOfEnergy.WATT_HOUR, None),
-        # Wallbox: charging current setting (scaled from 0.1 A, VALUE_SCALE)
-        "evCurrSet": (
-            SensorDeviceClass.CURRENT,
-            UnitOfElectricCurrent.AMPERE,
-            SensorStateClass.MEASUREMENT,
+        # Wallbox: charging current settings (scaled from 0.1 A, VALUE_SCALE)
+        **dict.fromkeys(
+            ("evCurrSet", "userCurrentSet", "currentOuputMax", "solarCurrentMin"),
+            (
+                SensorDeviceClass.CURRENT,
+                UnitOfElectricCurrent.AMPERE,
+                SensorStateClass.MEASUREMENT,
+            ),
         ),
+        # Wallbox: energy and duration of the last charging session; both
+        # start again with a new session
+        "orderChargingEnergy": (
+            SensorDeviceClass.ENERGY,
+            UnitOfEnergy.WATT_HOUR,
+            SensorStateClass.TOTAL_INCREASING,
+        ),
+        "orderTime": (SensorDeviceClass.DURATION, UnitOfTime.SECONDS, None),
         # Heating rod: progress of its self-check, not a battery level
         "selfcheckPercent": (None, PERCENTAGE, SensorStateClass.MEASUREMENT),
         "emsNtcTempMax": (

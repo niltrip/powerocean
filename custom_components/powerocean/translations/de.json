@@ -231,6 +231,9 @@
             "current_netif": {
                 "name": "Netzwerkverbindung"
             },
+            "current_ouput_max": {
+                "name": "Maximaler Ladestrom"
+            },
             "dab_mod_sta": {
                 "name": "DC-DC-Wandler-Status",
                 "state": {
@@ -525,8 +528,14 @@
                     "0": "Offline"
                 }
             },
+            "order_charging_energy": {
+                "name": "Energie letzter Ladevorgang"
+            },
             "order_start_timestamp": {
                 "name": "Ladestartzeit"
+            },
+            "order_time": {
+                "name": "Dauer letzter Ladevorgang"
             },
             "other_pv_pwr": {
                 "name": "Sonstige PV-Leistung (Cloud)"
@@ -632,6 +641,9 @@
             "pcs_uvp2_protect_cnt": {
                 "name": "Auslösungen Unterspannung Stufe 2"
             },
+            "phase_specified": {
+                "name": "Phaseneinstellung"
+            },
             "pv1_pwr": {
                 "name": "PV 1 Leistung (Cloud)"
             },
@@ -671,6 +683,9 @@
             },
             "selfcheck_percent": {
                 "name": "Selbsttest"
+            },
+            "solar_current_min": {
+                "name": "Solar-Mindeststrom"
             },
             "solar_to_battery": {
                 "name": "Solar zur Batterie"
@@ -742,6 +757,9 @@
             },
             "total_electricity_generation": {
                 "name": "Solarertrag gesamt"
+            },
+            "user_current_set": {
+                "name": "Ladestrom benutzerdefiniert"
             },
             "warn_code": {
                 "name": "Warncode"

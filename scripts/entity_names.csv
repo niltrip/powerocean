@@ -263,3 +263,11 @@ PowerGlow;hrPwr;;Heating power (cloud);Heizleistung (Cloud);HEATING_ROD_ENERGY_S
 PowerGlow;fromPv;;Heating from solar (cloud);Heizen mit Solar (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
 PowerGlow;fromBat;;Heating from battery (cloud);Heizen mit Batterie (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
 PowerGlow;fromGrid;;Heating from grid (cloud);Heizen mit Netz (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
+PowerPulse;userCurrentSet;;Custom charging current;Ladestrom benutzerdefiniert;0,1 A (Xygen #132)
+PowerPulse;orderChargingEnergy;;Energy last session;Energie letzter Ladevorgang;Portal, Wh, beginnt je Ladevorgang neu
+PowerPulse;solarCurrentMin;;Solar minimum current;Solar-Mindeststrom;0,1 A (Xygen #132)
+PowerPulse;orderTime;;Duration last session;Dauer letzter Ladevorgang;Portal, Sekunden
+PowerPulse;currentOuputMax;;Maximum charging current;Maximaler Ladestrom;0,1 A (Xygen #132)
+PowerPulse;switchBits;;;;Bits: 0x01 Batterie-Entladung sperren, 0x02 Plug-and-Play, 0x10 Dauerladung (Xygen)
+PowerPulse;gridPhaseInput;;;;Bedeutung offen (3 bei dreiphasigem Anschluss?)
+PowerPulse;phaseSpecified;;Phase setting;Phaseneinstellung;Portal, 0 auto, 1 einphasig, 2 dreiphasig laut Xygen, teils widersprüchlich
