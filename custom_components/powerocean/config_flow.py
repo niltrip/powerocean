@@ -175,7 +175,7 @@ class PowerOceanConfigFlow(ConfigFlow, domain=DOMAIN):
     """
 
     VERSION = 2
-    MINOR_VERSION = 2
+    MINOR_VERSION = 3
 
     def __init__(self) -> None:
         """Instanzvariablen für den Flow-Verlauf."""

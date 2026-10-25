@@ -132,7 +132,6 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "bpEnvTemp",
         "bpMinCellTemp",
         "bpMaxCellTemp",
-        "moduleAplSwVer",
         "bpAccuChgEnergy",
         "bpAccuDsgEnergy",
         # Highest and lowest cell voltage in mV

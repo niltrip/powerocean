@@ -92,6 +92,9 @@ def _snapshot(hass: HomeAssistant, entry: MockConfigEntry) -> dict[str, Any]:
             "via_device": via.serial_number if via else None,
             "configuration_url": device.configuration_url,
         }
+        # Only where known, so the other entries stay unchanged
+        if device.sw_version:
+            devices[device.serial_number or device.id]["sw_version"] = device.sw_version
 
     return json.loads(
         json.dumps(

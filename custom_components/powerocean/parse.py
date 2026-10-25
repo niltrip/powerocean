@@ -97,6 +97,8 @@ class ParseResult:
     datapoints: list[Datapoint] = field(default_factory=list)
     # Active errors, by unique_id of the error count datapoint
     active_errors: dict[str, list[ActiveError]] = field(default_factory=dict)
+    # Firmware version, by serial number of the device
+    firmware: dict[str, str] = field(default_factory=dict)
 
     def first(self) -> dict[str, Datapoint]:
         """Return the first datapoint per unique_id, in the order found."""
@@ -334,9 +336,11 @@ def _read_boxed(
             value = _box_value(box, key, schema)
             if value is None:
                 continue
-            if key == "moduleAplSwVer" and isinstance(value, int):
-                value = decode_version(value)
             ctx.add(device, name, key, value)
+        # Shown as firmware on the device page, not as a sensor
+        version = _box_value(box, "moduleAplSwVer", schema)
+        if isinstance(version, int):
+            ctx.result.firmware[sn] = decode_version(version)
 
 
 def _load_box(raw: Any) -> dict[str, Any] | None:

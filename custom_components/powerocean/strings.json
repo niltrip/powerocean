@@ -421,9 +421,6 @@
       "mode": {
         "name": "Operating mode"
       },
-      "module_apl_sw_ver": {
-        "name": "Firmware version"
-      },
       "month_electricity_generation": {
         "name": "Solar energy this month"
       },

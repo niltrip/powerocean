@@ -99,7 +99,9 @@ class PowerOceanEndPoint:
     translated_states: bool = False
 
     @classmethod
-    def from_datapoint(cls, datapoint: "Datapoint") -> "PowerOceanEndPoint":
+    def from_datapoint(
+        cls, datapoint: "Datapoint", sw_version: str | None = None
+    ) -> "PowerOceanEndPoint":
         """Return the endpoint of a parsed datapoint, with metadata from its key."""
         key = datapoint.key
         name_key = _name_translation_key(datapoint)
@@ -112,7 +114,7 @@ class PowerOceanEndPoint:
             cls=SensorMetaHelper.get_class(key),
             description=SensorMetaHelper.get_description(key),
             icon=SensorMetaHelper.get_special_icon(key),
-            device_info=device_info(datapoint.device),
+            device_info=device_info(datapoint.device, sw_version),
             enabled_default=datapoint.in_use and key not in DISABLED_BY_DEFAULT,
             diagnostic=_is_diagnostic(datapoint),
             translation_key=name_key or (translation_key(key) if states else None),
@@ -144,7 +146,7 @@ def _is_diagnostic(datapoint: "Datapoint") -> bool:
     )
 
 
-def device_info(device: "Device") -> DeviceInfo:
+def device_info(device: "Device", sw_version: str | None = None) -> DeviceInfo:
     """Return the Home Assistant device info of a device."""
     info = DeviceInfo(
         identifiers={(DOMAIN, device.sn)},
@@ -156,6 +158,8 @@ def device_info(device: "Device") -> DeviceInfo:
     )
     if device.via_sn:
         info["via_device"] = (DOMAIN, device.via_sn)
+    if sw_version:
+        info["sw_version"] = sw_version
     return info
 
 
@@ -487,7 +491,6 @@ class SensorMetaHelper:
             (r"(temp|temperature)", "mdi:thermometer"),
             (r"cycles", "mdi:repeat"),
             (r"balancestate", "mdi:battery-sync"),
-            (r"swver$", "mdi:cog"),
             (r"(bponlinesum|emsbpalivenum)$", "mdi:package-check"),
         ]
 

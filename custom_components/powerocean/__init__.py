@@ -28,6 +28,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError
 from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 
 from .const import (
     DEFAULT_NAME,
@@ -128,12 +129,22 @@ async def async_migrate_entry(
             options[CONF_FRIENDLY_NAME] = legacy_name
         options.setdefault(CONF_FRIENDLY_NAME, DEFAULT_NAME)
 
+    if entry.version < 2 or entry.minor_version < 3:
+        # Bis 2.2: Die Batterie-Firmware war ein Sensor, jetzt steht sie auf
+        # der Geräteseite. Den nicht mehr gelieferten Sensor entfernen.
+        entity_registry = er.async_get(hass)
+        for entity in er.async_entries_for_config_entry(
+            entity_registry, entry.entry_id
+        ):
+            if entity.unique_id.endswith("_moduleAplSwVer"):
+                entity_registry.async_remove(entity.entity_id)
+
     hass.config_entries.async_update_entry(
         entry,
         data=data,
         options=options,
         version=2,
-        minor_version=2,
+        minor_version=3,
     )
     LOGGER.debug(
         "Migrated %s to version %s.%s", entry.title, entry.version, entry.minor_version

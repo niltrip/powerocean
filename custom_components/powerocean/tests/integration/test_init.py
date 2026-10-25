@@ -329,6 +329,40 @@ async def test_battery_offline_at_startup_is_added_later(
     assert hass.states.get(after[soc]).state == STATE_UNAVAILABLE
 
 
+def _with_battery_firmware(sn: str, version: int) -> dict:
+    """Return the response with another firmware of the battery pack `sn`."""
+    response = copy.deepcopy(RESPONSE)
+    reports = response["data"]["quota"]["JTS1_BP_STA_REPORT"]
+    pack = json.loads(reports[sn])
+    pack["moduleAplSwVer"] = version
+    reports[sn] = json.dumps(pack)
+    return response
+
+
+async def test_battery_firmware_update_shows_on_device(
+    hass: HomeAssistant, mock_authorize: AsyncMock, mock_fetch: AsyncMock
+) -> None:
+    """The device page shows the battery firmware, also after an update."""
+    battery = "SN_BATTERIEPACK02"
+    entry = _entry()
+    await _setup(hass, entry)
+    device_registry = dr.async_get(hass)
+    device = device_registry.async_get_device(identifiers={(DOMAIN, battery)})
+    assert device
+    assert device.sw_version == "4.1.12.2"
+    # A firmware sensor is no longer created
+    assert not any("moduleAplSwVer" in uid for uid in _entity_ids(hass, entry))
+
+    # Firmware update to 4.1.14.9 (0x04010E09)
+    mock_fetch.return_value = _with_battery_firmware(battery, 0x04010E09)
+    await entry.runtime_data.async_refresh()
+    await hass.async_block_till_done()
+
+    device = device_registry.async_get_device(identifiers={(DOMAIN, battery)})
+    assert device
+    assert device.sw_version == "4.1.14.9"
+
+
 # -----------------------------
 # removing devices
 # -----------------------------
@@ -426,7 +460,7 @@ async def test_migrate_v1_entry(
     await _setup(hass, entry)
 
     assert entry.state is ConfigEntryState.LOADED
-    assert (entry.version, entry.minor_version) == (2, 2)
+    assert (entry.version, entry.minor_version) == (2, 3)
     assert dict(entry.data) == DATA
     assert dict(entry.options) == {"friendly_name": "Garage", "scan_interval": 30}
     assert entry.runtime_data.update_interval.total_seconds() == 30
@@ -472,7 +506,7 @@ async def test_migrate_v2_1_backfills_missing_options(
     )
     await _setup(hass, entry)
 
-    assert (entry.version, entry.minor_version) == (2, 2)
+    assert (entry.version, entry.minor_version) == (2, 3)
     assert dict(entry.options) == {"friendly_name": "Garage", "scan_interval": 30}
     assert entry.runtime_data.update_interval.total_seconds() == 30
 
@@ -485,9 +519,36 @@ async def test_migrate_v2_1_keeps_existing_options(
     )
     await _setup(hass, entry)
 
-    assert (entry.version, entry.minor_version) == (2, 2)
+    assert (entry.version, entry.minor_version) == (2, 3)
     assert dict(entry.options) == {"friendly_name": "Keller", "scan_interval": 20}
     assert dict(entry.data) == DATA
+
+
+async def test_migrate_v2_2_removes_battery_firmware_sensor(
+    hass: HomeAssistant, mock_authorize: AsyncMock, mock_fetch: AsyncMock
+) -> None:
+    """The battery firmware moved from a sensor to the device page."""
+    entry = _entry(minor_version=2)
+    entry.add_to_hass(hass)
+    entity_registry = er.async_get(hass)
+    old = entity_registry.async_get_or_create(
+        "sensor",
+        DOMAIN,
+        "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_moduleAplSwVer",
+        config_entry=entry,
+    )
+    kept = entity_registry.async_get_or_create(
+        "sensor",
+        DOMAIN,
+        "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoc",
+        config_entry=entry,
+    )
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert (entry.version, entry.minor_version) == (2, 3)
+    assert entity_registry.async_get(old.entity_id) is None
+    assert entity_registry.async_get(kept.entity_id)
 
 
 async def test_migrate_from_future_version_fails(
