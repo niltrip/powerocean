@@ -432,6 +432,7 @@ class SensorMetaHelper:
         "bpSoc": None,
         "bpRealSoc": None,
         "emsWordMode": "mdi:cog-outline",
+        "emsWorkState": "mdi:state-machine",
         # Icon by state from icons.json
         **dict.fromkeys(
             (

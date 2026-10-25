@@ -286,7 +286,8 @@
         "state": {
           "1": "Unlimited",
           "2": "Zero power",
-          "3": "Power limiting"
+          "3": "Power limiting",
+          "0": "Off"
         }
       },
       "ems_feed_pwr": {
@@ -322,7 +323,27 @@
         "state": {
           "workmode_selfuse": "Self-powered",
           "workmode_tou": "Time-of-use",
-          "workmode_standby_mode": "Standby"
+          "workmode_standby_mode": "Standby",
+          "workmode_ai_schedule": "AI mode",
+          "workmode_backup": "Backup",
+          "workmode_timer_mode": "Schedule",
+          "workmode_soc_calib": "Battery calibration",
+          "workmode_ac_makeup": "Charging from grid"
+        }
+      },
+      "ems_work_state": {
+        "name": "EMS work state",
+        "state": {
+          "0": "None",
+          "1": "Initializing",
+          "2": "Idle",
+          "3": "Starting (external battery)",
+          "4": "Starting (battery)",
+          "5": "Starting (solar)",
+          "6": "Starting (grid)",
+          "7": "Running",
+          "8": "Stopped",
+          "9": "Maintenance"
         }
       },
       "energy_stream_update_time": {

@@ -93,7 +93,7 @@ Status und Einstellungen;pcsRunSta;;Inverter state;Wechselrichterstatus;
 Status und Einstellungen;sysGridSta;;Grid state;Netzstatus;Webportal: 1 = Off-grid (netzunabhängig)
 Status und Einstellungen;emsFeedPwr;;Feed-in limit;Einspeisegrenze;
 Status und Einstellungen;emsFeedRatio;;Feed-in limit (percent);Einspeisegrenze (Prozent);
-Status und Einstellungen;emsFeedMode;;Feed-in mode;Einspeisemodus;Webportal: 1 unbegrenzt, 2 Nulleinspeisung, 3 Leistungsbegrenzung
+Status und Einstellungen;emsFeedMode;;Feed-in mode;Einspeisemodus;Webportal: 1 unbegrenzt, 2 Nulleinspeisung, 3 Leistungsbegrenzung, 0 aus laut shuette42
 Status und Einstellungen;sysBatBackupRatio;;Backup reserve;Notstromreserve;
 Status und Einstellungen;emsKeepSoc;;Reserved state of charge;Reservierter Ladezustand;Bedeutung geraten
 Status und Einstellungen;sysBatChgUpLimit;;Charge limit;Ladegrenze;
@@ -271,3 +271,4 @@ PowerPulse;currentPrio;;Priority;Priorität;EDEV_SYS_REPORT, je Gerät, 1 = zuer
 PowerPulse;targetMax;;Maximum power;Maximale Leistung;EDEV_SYS_REPORT, je Gerät (Wallbox, Heizstab)
 Energiemanagement je Gerät;errorCode;edev;Error code (energy management);Fehlercode (Energiemanagement);EDEV_SYS_REPORT, neben dem Fehlercode des Geräts
 Energiemanagement je Gerät;warnCode;edev;Warning code (energy management);Warncode (Energiemanagement);EDEV_SYS_REPORT
+Status und Einstellungen;emsWorkState;;EMS work state;EMS-Arbeitszustand;Werte laut shuette42/ecoflow-energy-ha: 0 keiner, 1 Init, 2 Leerlauf, 3-6 Start, 7 läuft, 8 Stopp, 9 Wartung

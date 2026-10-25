@@ -69,6 +69,8 @@ REPORT_DATAPOINTS: dict[str, set[str]] = {
         "dcdcPwr",
     },
     ReportMode.EMS_CHANGE.value: {
+        # What the EMS is doing right now (init, idle, start-up, running, ...)
+        "emsWorkState",
         "bpTotalChgEnergy",
         "bpTotalDsgEnergy",
         "bpSoc",
@@ -406,6 +408,8 @@ TRANSLATED_STATES: set[str] = {
     "bpSysState",
     # Online/Offline (state stays "1"/"0")
     "online",
+    # Work state of the EMS (values as in shuette42/ecoflow-energy-ha)
+    "emsWorkState",
     # PowerGlow heating rod and PowerPulse wallbox (values from discussion #132)
     "runStat",
     "mode",
@@ -509,6 +513,9 @@ DISABLED_BY_DEFAULT: set[str] = {
     "gridPhaseInput",
     # Energy management per device: meaning unclear
     "refPower",
+    # Work state of the EMS: mostly "running", only of interest when searching
+    # for a fault
+    "emsWorkState",
     # Energy management of the system (EDEV_SYS_REPORT): meaning unclear,
     # socCur repeats the battery state of charge
     *EDEV_SYSTEM_KEYS,

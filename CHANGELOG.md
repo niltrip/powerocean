@@ -70,8 +70,13 @@
   grid state (on-grid/off-grid), inverter and battery states, on/off
   values, mode and state of the PowerGlow heating rod, charging mode and
   charging status of the PowerPulse wallbox, as far as possible with the
-  texts of the EcoFlow web portal.
+  texts of the EcoFlow web portal. The operating mode also knows AI mode,
+  backup, schedule, battery calibration and charging from grid, the feed-in
+  mode "off" (thanks to shuette42/ecoflow-energy-ha for the value lists).
   Unknown values are shown as they are.
+- **EMS work state** (diagnostic, disabled by default): what the system is
+  doing right now – idle, starting (battery, solar, grid), running, stopped,
+  maintenance.
 - **Link to the EcoFlow web portal** on every device page.
 - **Readable entity names** in English and German, e.g. "State of charge"
   instead of `bpSoc`. Entity IDs stay the same, also for new installations,

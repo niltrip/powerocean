@@ -286,7 +286,8 @@
                 "state": {
                     "1": "Unbegrenzt",
                     "2": "Nulleinspeisung",
-                    "3": "Leistungsbegrenzung"
+                    "3": "Leistungsbegrenzung",
+                    "0": "Aus"
                 }
             },
             "ems_feed_pwr": {
@@ -322,7 +323,27 @@
                 "state": {
                     "workmode_selfuse": "Eigenstromversorgung",
                     "workmode_tou": "Zeitabhängiger Tarif",
-                    "workmode_standby_mode": "Standby"
+                    "workmode_standby_mode": "Standby",
+                    "workmode_ai_schedule": "KI-Modus",
+                    "workmode_backup": "Notstrom",
+                    "workmode_timer_mode": "Zeitsteuerung",
+                    "workmode_soc_calib": "Batteriekalibrierung",
+                    "workmode_ac_makeup": "Nachladen aus dem Netz"
+                }
+            },
+            "ems_work_state": {
+                "name": "EMS-Arbeitszustand",
+                "state": {
+                    "0": "Keiner",
+                    "1": "Initialisierung",
+                    "2": "Leerlauf",
+                    "3": "Startet (externe Batterie)",
+                    "4": "Startet (Batterie)",
+                    "5": "Startet (Solar)",
+                    "6": "Startet (Netz)",
+                    "7": "Läuft",
+                    "8": "Gestoppt",
+                    "9": "Wartung"
                 }
             },
             "energy_stream_update_time": {
