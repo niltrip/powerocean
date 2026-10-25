@@ -102,6 +102,27 @@ For a dashboard, take the values from `EMS_HEARTBEAT`:
 The friendly names point the way: values from `data` and `ENERGY_STREAM_REPORT` end in "(cloud)", e.g. "House consumption (cloud)", the calculated values have no suffix, e.g. "House consumption".
 In dual systems (master and slave inverter), the values from `PARALLEL_ENERGY_STREAM_REPORT` end in "(energy flow)". According to [#23](https://github.com/niltrip/powerocean/issues/23) they are updated regularly, unlike those from `data`.
 
+#### How often each report changes
+
+Measured on 2026-10-25 with `scripts/interval` (one request every 10 s) on a three-phase PowerOcean with two batteries: two hours with the app closed and the PowerInsight display switched off, then seven minutes with the PowerInsight display on:
+
+| group | reports | changes in 2 h | interval between changes |
+|---|---|---|---|
+| live measurements: grid, solar, battery and phase power | `EMS_HEARTBEAT` | 118 | 40–80 s, typically 50 s |
+| state, settings and counters of the system | `EMS_CHANGE_REPORT` | 289 | 20–30 s |
+| power distribution to wallbox and heating rod | `EDEV_SYS_REPORT` | 98 | irregular, 20 s to 8.5 min, typically 40 s |
+| battery packs | `BP_STA_REPORT` | 28 | about 5 min |
+| cloud values | `data`, `ENERGY_STREAM_REPORT`, `EMS_PV_INV_ENERGY_STREAM_REPORT` | 7–9 | without app or PowerInsight: only once, for 2.5 minutes, every 25 s (cause unknown); otherwise unchanged. The two other changes of `data` came about one hour apart (energy totals). **With the PowerInsight display on: every 20–30 s** |
+| parameters and errors | `EMS_PARAM_CHANGE_REPORT`, `ERROR_CHANGE_REPORT`, `LOGY_DEV_REPORT` | 0 | content unchanged (no errors during the measurement); only `updateTime` is renewed every 15 min |
+| configuration: schedules, time-of-use tasks, device lists, priorities | `TOU_ALL_TASK_REPORT`, `*_TIMER_TASK_REPORT`, `*_BIND_LIST_REPORT`, `EDEV_PRIORITY_LIST_REPORT`, `ERROR_CODE_MASK_REPORT` | 0 | change only when a setting changes |
+
+What this means:
+
+- The values that matter for a dashboard (`EMS_HEARTBEAT`, `EMS_CHANGE_REPORT`) arrive every 20–80 s on their own. The default scan interval of 10 s catches each change; a shorter one brings no fresher data.
+- Battery pack values (cell voltages, temperatures, state of health) lag up to 5 minutes. For the battery state of charge and power, use the system values from `EMS_CHANGE_REPORT` and `EMS_HEARTBEAT`.
+- The "(cloud)" values stay old while nothing asks the cloud for them. An open app or a PowerInsight display that is switched on makes the cloud refresh them every 20–30 s. All other reports keep their rhythm either way.
+- `updateTime` in the reports is in UTC+8 (China time). The integration converts it for the "time of the last values" sensors.
+
 ### New sensor (calculated from the PV strings)
 
 ![sensor](documentation/mpptPv_pwrTotal.PNG)
