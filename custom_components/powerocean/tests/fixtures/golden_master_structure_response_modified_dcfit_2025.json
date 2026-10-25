@@ -1320,7 +1320,7 @@
     "sensors": {
       "description": "heatingPower",
       "friendly_name": "heatingPower",
-      "icon": null,
+      "icon": "mdi:heating-coil",
       "internal_unique_id": "SN_INVERTERBOX01_JTS1_ENERGY_STREAM_REPORT_heatingPower",
       "name": "SN_INVERTERBOX01_heatingPower",
       "serial": "SN_INVERTERBOX01",

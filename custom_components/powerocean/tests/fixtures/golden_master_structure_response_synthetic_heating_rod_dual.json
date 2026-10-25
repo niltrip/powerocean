@@ -32,7 +32,7 @@
     "sensors": {
       "description": "heatingPower",
       "friendly_name": "heatingPower",
-      "icon": null,
+      "icon": "mdi:heating-coil",
       "internal_unique_id": "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_heatingPower",
       "name": "SN_HEATROD01_heatingPower",
       "serial": "SN_HEATROD01",
@@ -56,7 +56,7 @@
     "sensors": {
       "description": "mode",
       "friendly_name": "mode",
-      "icon": null,
+      "icon": "mdi:cog-outline",
       "internal_unique_id": "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_mode",
       "name": "SN_HEATROD01_mode",
       "serial": "SN_HEATROD01",
@@ -96,7 +96,7 @@
     "sensors": {
       "description": "runStat",
       "friendly_name": "runStat",
-      "icon": "mdi:information-outline",
+      "icon": "mdi:power",
       "internal_unique_id": "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_runStat",
       "name": "SN_HEATROD01_runStat",
       "serial": "SN_HEATROD01",
@@ -116,7 +116,7 @@
     "sensors": {
       "description": "selfcheckPercent",
       "friendly_name": "selfcheckPercent",
-      "icon": "mdi:information-outline",
+      "icon": "mdi:check-circle-outline",
       "internal_unique_id": "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_selfcheckPercent",
       "name": "SN_HEATROD01_selfcheckPercent",
       "serial": "SN_HEATROD01",
@@ -140,7 +140,7 @@
     "sensors": {
       "description": "targetPower",
       "friendly_name": "targetPower",
-      "icon": null,
+      "icon": "mdi:tune-vertical",
       "internal_unique_id": "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_targetPower",
       "name": "SN_HEATROD01_targetPower",
       "serial": "SN_HEATROD01",
@@ -164,7 +164,7 @@
     "sensors": {
       "description": "targetTemp",
       "friendly_name": "targetTemp",
-      "icon": "mdi:thermometer",
+      "icon": "mdi:thermometer-check",
       "internal_unique_id": "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_targetTemp",
       "name": "SN_HEATROD01_targetTemp",
       "serial": "SN_HEATROD01",
@@ -188,7 +188,7 @@
     "sensors": {
       "description": "temp",
       "friendly_name": "temp",
-      "icon": "mdi:thermometer",
+      "icon": "mdi:water-thermometer",
       "internal_unique_id": "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_temp",
       "name": "SN_HEATROD01_temp",
       "serial": "SN_HEATROD01",
@@ -212,7 +212,7 @@
     "sensors": {
       "description": "waterTankVolume",
       "friendly_name": "waterTankVolume",
-      "icon": null,
+      "icon": "mdi:water-boiler",
       "internal_unique_id": "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_waterTankVolume",
       "name": "SN_HEATROD01_waterTankVolume",
       "serial": "SN_HEATROD01",

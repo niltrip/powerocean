@@ -471,6 +471,31 @@ class SensorMetaHelper:
             ("meterL1Pwr", "meterL2Pwr", "meterL3Pwr", "meterTotalPwr"),
             "mdi:meter-electric",
         ),
+        # PowerGlow heating rod
+        **dict.fromkeys(("heatingPower", "hrPwr"), "mdi:heating-coil"),
+        "fromPv": "mdi:solar-power",
+        "fromBat": "mdi:home-battery",
+        "fromGrid": "mdi:transmission-tower",
+        "temp": "mdi:water-thermometer",
+        "targetTemp": "mdi:thermometer-check",
+        "targetPower": "mdi:tune-vertical",
+        "waterTankVolume": "mdi:water-boiler",
+        "mode": "mdi:cog-outline",
+        "runStat": "mdi:power",
+        "selfcheckPercent": "mdi:check-circle-outline",
+        # PowerPulse wallbox
+        **dict.fromkeys(("chargingPwr", "evPwr"), "mdi:ev-station"),
+        "chargingStatus": "mdi:ev-plug-type2",
+        "workMode": "mdi:cog-outline",
+        **dict.fromkeys(("orderChargingEnergy", "evChargingEnergy"), "mdi:car-battery"),
+        "orderTime": "mdi:timer-outline",
+        "chargeTarget": "mdi:target",
+        "timeToUseCar": "mdi:car-clock",
+        "phaseSpecified": "mdi:sine-wave",
+        "chargeVehicleId": "mdi:car-info",
+        # Energy management of wallbox and heating rod
+        "targetMax": "mdi:speedometer",
+        "currentPrio": "mdi:sort-numeric-ascending",
     }
 
     @staticmethod

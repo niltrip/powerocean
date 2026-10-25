@@ -1180,7 +1180,7 @@
     "sensors": {
       "description": "currentPrio",
       "friendly_name": "currentPrio",
-      "icon": null,
+      "icon": "mdi:sort-numeric-ascending",
       "internal_unique_id": "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_currentPrio",
       "name": "SN_EV_CHARGER_01_currentPrio",
       "serial": "SN_EV_CHARGER_01",
@@ -1264,7 +1264,7 @@
     "sensors": {
       "description": "targetMax",
       "friendly_name": "targetMax",
-      "icon": null,
+      "icon": "mdi:speedometer",
       "internal_unique_id": "SN_EV_CHARGER_01_RE307_EDEV_SYS_REPORT_targetMax",
       "name": "SN_EV_CHARGER_01_targetMax",
       "serial": "SN_EV_CHARGER_01",
@@ -1308,7 +1308,7 @@
     "sensors": {
       "description": "chargeVehicleId",
       "friendly_name": "chargeVehicleId",
-      "icon": null,
+      "icon": "mdi:car-info",
       "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_chargeVehicleId",
       "name": "SN_EV_CHARGER_01_chargeVehicleId",
       "serial": "SN_EV_CHARGER_01",
@@ -1328,7 +1328,7 @@
     "sensors": {
       "description": "chargingStatus",
       "friendly_name": "chargingStatus",
-      "icon": null,
+      "icon": "mdi:ev-plug-type2",
       "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_chargingStatus",
       "name": "SN_EV_CHARGER_01_chargingStatus",
       "serial": "SN_EV_CHARGER_01",
@@ -1368,7 +1368,7 @@
     "sensors": {
       "description": "evChargingEnergy",
       "friendly_name": "evChargingEnergy",
-      "icon": null,
+      "icon": "mdi:car-battery",
       "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evChargingEnergy",
       "name": "SN_EV_CHARGER_01_evChargingEnergy",
       "serial": "SN_EV_CHARGER_01",
@@ -1436,7 +1436,7 @@
     "sensors": {
       "description": "evPwr",
       "friendly_name": "evPwr",
-      "icon": null,
+      "icon": "mdi:ev-station",
       "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evPwr",
       "name": "SN_EV_CHARGER_01_evPwr",
       "serial": "SN_EV_CHARGER_01",
@@ -1544,7 +1544,7 @@
     "sensors": {
       "description": "workMode",
       "friendly_name": "workMode",
-      "icon": null,
+      "icon": "mdi:cog-outline",
       "internal_unique_id": "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_workMode",
       "name": "SN_EV_CHARGER_01_workMode",
       "serial": "SN_EV_CHARGER_01",
