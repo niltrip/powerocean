@@ -129,6 +129,8 @@ Each part of the system is a device of its own, named by its serial number and l
 ![PowerGlow heating rod](documentation/powerglow.png)
 ![PowerPulse wallbox](documentation/powerpulse.png)
 
+This integration only reads values. To control the PowerGlow or the PowerPulse 2 (mode, target temperature, charging current, …), have a look at the integrations by [Xygen](https://github.com/Xygen): [EcoFlow PowerGlow for Home Assistant](https://github.com/Xygen/EcoFlow-PowerGlow-for-Home-Assistant) and [EcoFlow PowerPulse 2 for Home Assistant](https://github.com/Xygen/EcoFlow-PowerPulse-2-for-Home-Assistant).
+
 
 ### Energy dashboard
 The EcoFlow API reports energy counters only for some values. These can be used in the energy dashboard as they are:
@@ -166,5 +168,7 @@ logger:
 ## Credits
 
 Thanks to my colleague David for giving me a starting point.
+
+Thanks to [Xygen](https://github.com/Xygen) for the diagnostics of a PowerGlow and a PowerPulse 2 and for the verified value mappings in his [PowerGlow](https://github.com/Xygen/EcoFlow-PowerGlow-for-Home-Assistant) and [PowerPulse 2](https://github.com/Xygen/EcoFlow-PowerPulse-2-for-Home-Assistant) integrations ([#132](https://github.com/niltrip/powerocean/discussions/132)).
 
 And also thanks for the great work of the team from homeassistant and the great community.
