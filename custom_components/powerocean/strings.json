@@ -419,7 +419,11 @@
         "name": "Power"
       },
       "mode": {
-        "name": "Operating mode"
+        "name": "Operating mode",
+        "state": {
+          "0": "Solar mode",
+          "1": "Manual mode"
+        }
       },
       "month_electricity_generation": {
         "name": "Solar energy this month"
@@ -659,7 +663,11 @@
         "name": "§14a input"
       },
       "run_stat": {
-        "name": "State"
+        "name": "State",
+        "state": {
+          "0": "Off",
+          "1": "On"
+        }
       },
       "selfcheck_percent": {
         "name": "Self-check"
@@ -745,7 +753,13 @@
         "name": "Wi-Fi state"
       },
       "work_mode": {
-        "name": "Charging mode"
+        "name": "Charging mode",
+        "state": {
+          "1": "Fast charging",
+          "2": "Solar charging",
+          "3": "Custom",
+          "4": "Smart charging"
+        }
       },
       "year_electricity_generation": {
         "name": "Solar energy this year"

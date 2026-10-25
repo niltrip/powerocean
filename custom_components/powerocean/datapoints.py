@@ -382,6 +382,10 @@ TRANSLATED_STATES: set[str] = {
     "bpSysState",
     # Online/Offline (state stays "1"/"0")
     "online",
+    # PowerGlow heating rod and PowerPulse wallbox (values from discussion #132)
+    "runStat",
+    "mode",
+    "workMode",
 }
 
 # Context of a datapoint whose name depends on where it appears: the values

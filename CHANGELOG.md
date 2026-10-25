@@ -46,8 +46,10 @@
 - **New devices and datapoints appear without a restart**, e.g. a battery
   pack that was offline when Home Assistant started.
 - **Translated states** (English, German) for operating mode, feed-in mode,
-  grid state (on-grid/off-grid), inverter and battery states and on/off
-  values, as far as possible with the texts of the EcoFlow web portal.
+  grid state (on-grid/off-grid), inverter and battery states, on/off
+  values, mode and state of the PowerGlow heating rod and charging mode of
+  the PowerPulse wallbox, as far as possible with the texts of the EcoFlow
+  web portal.
   Unknown values are shown as they are.
 - **Link to the EcoFlow web portal** on every device page.
 - **Readable entity names** in English and German, e.g. "State of charge"

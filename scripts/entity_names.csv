@@ -227,7 +227,7 @@ Ohne Namen: PowerOcean DC fit;gridFeedPowerMinimum;;;;
 Ohne Namen: PowerOcean DC fit;epoSwitchState;;;;
 PowerPulse;devSn;;Serial number;Seriennummer;auch Dual-Gesamtwechselrichter
 PowerPulse;evSn;;Serial number;Seriennummer;
-PowerPulse;workMode;;Charging mode;Lademodus;Portal, Werte laut #90: 1 Schnell, 2 Solar, 4 Smart, unbestätigt
+PowerPulse;workMode;;Charging mode;Lademodus;Portal, 1 Schnell, 2 Solar, 3 Benutzerdefiniert, 4 Smart (Xygen #132, #90), PowerPulse 1 unbestätigt
 Ohne Namen: PowerOcean Charger;useGridFirst;;;;
 PowerPulse;evOnoffSet;;Charging on/off;Laden ein/aus;
 PowerPulse;orderStartTimestamp;;Charging start time;Ladestartzeit;Portal
@@ -255,9 +255,9 @@ PowerGlow;selfcheckPercent;;Self-check;Selbsttest;Portal
 PowerGlow;temp;;Water temperature;Wassertemperatur;
 PowerGlow;targetTemp;;Set temperature;Eingestellte Temperatur;Portal
 PowerGlow;runFlag;;;;Bedeutung offen
-PowerGlow;mode;;Operating mode;Betriebsart;Portal, Werte: Manuell/Smart/Solar, Zuordnung offen
+PowerGlow;mode;;Operating mode;Betriebsart;Portal, 0 Solar, 1 Manuell (Xygen #132)
 PowerGlow;waterTankVolume;;Tank volume;Speichergröße;Einheit offen (1500 = 150 l?)
-PowerGlow;runStat;;State;Status;Portal: Standby/Heizung/Selbsttest/Sterilisation, Zuordnung offen
+PowerGlow;runStat;;State;Status;0 Aus, 1 Ein (Xygen #132)
 PowerGlow;targetPower;;Target power;Sollleistung;
 PowerGlow;hrPwr;;Heating power (cloud);Heizleistung (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
 PowerGlow;fromPv;;Heating from solar (cloud);Heizen mit Solar (Cloud);HEATING_ROD_ENERGY_STREAM_REPORT, vermutlich nur bei offener App aktualisiert
