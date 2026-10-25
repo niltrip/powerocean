@@ -68,6 +68,7 @@ NAMED: frozenset[tuple[str, str]] = frozenset(
         ("", "emsSgReadyEn"),
         ("", "emsSgRunStat"),
         ("", "emsWordMode"),
+        ("", "emsWorkState"),
         ("", "energyStreamUpdateTime"),
         ("", "errorCode"),
         ("", "errorCount"),

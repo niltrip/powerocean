@@ -1881,6 +1881,23 @@
       "unit": null
     }
   },
+  "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_emsWorkState": {
+    "device": {
+      "manufacturer": "EcoFlow",
+      "model": "PowerOcean Plus",
+      "sn": "SN_INVERTERBOX01",
+      "via_device": null
+    },
+    "sensors": {
+      "description": "emsWorkState",
+      "friendly_name": "emsWorkState",
+      "icon": "mdi:state-machine",
+      "internal_unique_id": "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_emsWorkState",
+      "name": "SN_INVERTERBOX01_emsWorkState",
+      "serial": "SN_INVERTERBOX01",
+      "unit": null
+    }
+  },
   "SN_INVERTERBOX01_RE307_EMS_CHANGE_REPORT_ethWanStat": {
     "device": {
       "manufacturer": "EcoFlow",
