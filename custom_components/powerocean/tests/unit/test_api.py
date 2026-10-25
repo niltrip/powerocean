@@ -21,6 +21,7 @@ SN = "SN_INVERTERBOX01"
 LOGIN_URL = "https://api.ecoflow.com/auth/login"
 EU_URL = f"https://api-e.ecoflow.com/provider-service/user/device/detail?sn={SN}"
 US_URL = f"https://api-a.ecoflow.com/provider-service/user/device/detail?sn={SN}"
+MQTT_URL = "https://api.ecoflow.com/iot-auth/app/certification"
 
 LOGIN_OK = {"code": "0", "message": "Success", "data": {"token": "token123"}}
 DATA_OK = {"code": "0", "message": "Success", "data": {"quota": {}}}
@@ -50,6 +51,19 @@ async def test_authorize_success_detects_eu_region(
 
     assert api.token == "token123"
     assert api.api_host == "api-e.ecoflow.com"
+    assert api.user_id is None
+
+
+async def test_authorize_keeps_user_id(
+    api: EcoflowApi, aioclient_mock: AiohttpClientMocker
+) -> None:
+    login = {"code": "0", "data": {"token": "token123", "user": {"userId": 42}}}
+    aioclient_mock.post(LOGIN_URL, json=login)
+    aioclient_mock.get(EU_URL, json=DATA_OK)
+
+    await api.async_authorize()
+
+    assert api.user_id == "42"
 
 
 async def test_authorize_falls_back_to_us_region(
@@ -227,3 +241,54 @@ def test_validate_response_without_code_field() -> None:
     """Older responses without 'code' are still accepted."""
     response = {"data": {"quota": {}}}
     assert validate_response(response) == response
+
+
+# -----------------------------
+# MQTT credentials
+# -----------------------------
+
+MQTT_CREDENTIALS = {
+    "url": "mqtt.example.com",
+    "port": "8883",
+    "protocol": "mqtts",
+    "certificateAccount": "app-account",
+    "certificatePassword": "app-password",
+}
+
+
+async def test_mqtt_credentials(
+    api: EcoflowApi, aioclient_mock: AiohttpClientMocker
+) -> None:
+    api.token = "token123"
+    aioclient_mock.get(MQTT_URL, json={"code": "0", "data": MQTT_CREDENTIALS})
+
+    assert await api.async_mqtt_credentials() == MQTT_CREDENTIALS
+    assert aioclient_mock.mock_calls[0][3]["authorization"] == "Bearer token123"
+
+
+async def test_mqtt_credentials_incomplete(
+    api: EcoflowApi, aioclient_mock: AiohttpClientMocker
+) -> None:
+    api.token = "token123"
+    incomplete = {**MQTT_CREDENTIALS, "certificatePassword": ""}
+    aioclient_mock.get(MQTT_URL, json={"code": "0", "data": incomplete})
+
+    with pytest.raises(EcoflowApiError, match="incomplete"):
+        await api.async_mqtt_credentials()
+
+
+@pytest.mark.parametrize(
+    ("status", "error"),
+    [(401, AuthenticationError), (503, EcoflowConnectionError)],
+)
+async def test_mqtt_credentials_http_error(
+    api: EcoflowApi,
+    aioclient_mock: AiohttpClientMocker,
+    status: int,
+    error: type[Exception],
+) -> None:
+    api.token = "token123"
+    aioclient_mock.get(MQTT_URL, status=status)
+
+    with pytest.raises(error):
+        await api.async_mqtt_credentials()

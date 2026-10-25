@@ -31,6 +31,9 @@ from .const import LOGGER
 HTTP_OK = 200
 API_CODE_OK = "0"
 LOGIN_URL = "https://api.ecoflow.com/auth/login"
+# MQTT credentials of the account, as the EcoFlow app requests them
+MQTT_CERTIFICATION_URL = "https://api.ecoflow.com/iot-auth/app/certification"
+MQTT_CREDENTIAL_KEYS = ("url", "port", "certificateAccount", "certificatePassword")
 
 
 class EcoflowApiError(Exception):
@@ -141,6 +144,8 @@ class EcoflowApi:
         self.variant = variant
 
         self.token: str | None = None
+        # Needed for the MQTT topics of the account
+        self.user_id: str | None = None
         self.api_host: str | None = None
 
         self._external_session = session
@@ -194,12 +199,15 @@ class EcoflowApi:
 
         # Wrong credentials are answered with HTTP 200 and no token.
         response_body = response_data if isinstance(response_data, dict) else {}
-        token = (response_body.get("data") or {}).get("token")
+        data = response_body.get("data") or {}
+        token = data.get("token")
         if not token:
             msg = f"Login rejected: {response_body.get('message', 'no token')}"
             raise AuthenticationError(msg)
 
         self.token = token
+        user_id = (data.get("user") or {}).get("userId") or data.get("userId")
+        self.user_id = str(user_id) if user_id else None
         await self._detect_region()
 
     async def _detect_region(self) -> None:
@@ -258,3 +266,36 @@ class EcoflowApi:
             raise EcoflowConnectionError(msg) from e
 
         return validate_response(response)
+
+    async def async_mqtt_credentials(self) -> dict[str, Any]:
+        """
+        Return the MQTT broker and credentials of the account.
+
+        Same request as the EcoFlow app: url, port, protocol,
+        certificateAccount and certificatePassword.
+
+        Raises:
+            EcoflowConnectionError: On network errors, timeouts or HTTP 5xx.
+            AuthenticationError: If the token was rejected (HTTP 401/403).
+            EcoflowApiError: If the answer lacks the credentials.
+
+        """
+        session = self._get_session()
+        try:
+            async with asyncio.timeout(10):
+                async with session.get(
+                    MQTT_CERTIFICATION_URL, headers=self._auth_headers()
+                ) as resp:
+                    resp.raise_for_status()
+                    response = await resp.json()
+        except aiohttp.ClientResponseError as e:
+            raise _http_error(e, "MQTT credentials", "Token rejected") from e
+        except (TimeoutError, aiohttp.ClientError) as e:
+            msg = "MQTT credentials failed: EcoFlow cloud not reachable"
+            raise EcoflowConnectionError(msg) from e
+
+        data = validate_response(response)["data"]
+        if not all(data.get(key) for key in MQTT_CREDENTIAL_KEYS):
+            msg = "MQTT credentials incomplete"
+            raise EcoflowApiError(msg)
+        return data
