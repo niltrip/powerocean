@@ -154,7 +154,6 @@ Batterie;bpSysState;;System state;Systemzustand;
 Batterie;dabModSta;;DC-DC converter state;DC-DC-Wandler-Status;DAB = Dual Active Bridge, abgeleitet aus bpVol (~51 V) und bpBusVol (~770 V)
 Batterie;bpBalanceState;;Cell balancing;Zellausgleich;Bedeutung geraten
 Batterie;bpErrCode;;Error code;Fehlercode;
-Batterie;bpSn;;Serial number;Seriennummer;
 Smart Meter;meterL1Pwr;;L1 power;L1 Leistung;
 Smart Meter;meterL2Pwr;;L2 power;L2 Leistung;
 Smart Meter;meterL3Pwr;;L3 power;L3 Leistung;
@@ -225,8 +224,6 @@ Ohne Namen: PowerOcean DC fit;mpptVoltageMinimum;;;;
 Ohne Namen: PowerOcean DC fit;mpptVoltageMaximum;;;;
 Ohne Namen: PowerOcean DC fit;gridFeedPowerMinimum;;;;
 Ohne Namen: PowerOcean DC fit;epoSwitchState;;;;
-PowerPulse;devSn;;Serial number;Seriennummer;auch Dual-Gesamtwechselrichter
-PowerPulse;evSn;;Serial number;Seriennummer;
 PowerPulse;workMode;;Charging mode;Lademodus;Portal, 1 Schnell, 2 Solar, 3 Benutzerdefiniert, 4 Smart (Xygen #132, #90), PowerPulse 1 unbestätigt
 Ohne Namen: PowerOcean Charger;useGridFirst;;;;
 PowerPulse;evOnoffSet;;Charging on/off;Laden ein/aus;
@@ -250,7 +247,6 @@ Ohne Namen: PowerOcean PowerPulse;refPower;;;;
 PowerPulse;timeToUseCar;;Planned vehicle usage time;Geplante Fahrzeugnutzung;Portal
 PowerPulse;chargeTarget;;Charge target;Ladeziel;
 PowerPulse;chargingPwr;;Charging power;Ladeleistung;Portal, PowerPulse 2
-PowerGlow;hrSn;;Serial number;Seriennummer;
 PowerGlow;selfcheckPercent;;Self-check;Selbsttest;Portal
 PowerGlow;temp;;Water temperature;Wassertemperatur;
 PowerGlow;targetTemp;;Set temperature;Eingestellte Temperatur;Portal

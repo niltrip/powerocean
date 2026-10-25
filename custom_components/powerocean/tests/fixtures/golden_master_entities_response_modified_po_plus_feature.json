@@ -336,19 +336,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
-    "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_BATTERIEPACK01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_batteriepack01_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_BATTERIEPACK01",
-      "state": "SN_BATTERIEPACK01",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_BATTERIEPACK01",
       "device_class": "battery",
@@ -690,19 +677,6 @@
       "state": "1484.8",
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
-    },
-    "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_BATTERIEPACK02",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_batteriepack02_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_BATTERIEPACK02",
-      "state": "SN_BATTERIEPACK02",
-      "state_class": null,
-      "unit_of_measurement": null
     },
     "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_BATTERIEPACK02",
@@ -1046,19 +1020,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
-    "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_BATTERIEPACK03",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_batteriepack03_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_BATTERIEPACK03",
-      "state": "SN_BATTERIEPACK03",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_BATTERIEPACK03_RE307_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_BATTERIEPACK03",
       "device_class": "battery",
@@ -1207,19 +1168,6 @@
       "state": "16.0",
       "state_class": "measurement",
       "unit_of_measurement": "A"
-    },
-    "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_devSn": {
-      "device": "PowerPulse SN_E_DEVICEBOX01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.powerpulse_sn_e_devicebox01_devsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "devSn",
-      "product_serial": "SN_E_DEVICEBOX01",
-      "state": "SN_E_DEVICEBOX01",
-      "state_class": null,
-      "unit_of_measurement": null
     },
     "SN_E_DEVICEBOX01_RE307_EDEV_PARAM_REPORT_gridPhaseInput": {
       "device": "PowerPulse SN_E_DEVICEBOX01",

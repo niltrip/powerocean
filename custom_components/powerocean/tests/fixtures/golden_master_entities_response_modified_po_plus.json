@@ -321,19 +321,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
-    "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_BATTERIEPACK01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_batteriepack01_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_BATTERIEPACK01",
-      "state": "SN_BATTERIEPACK01",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_BATTERIEPACK01_RE307_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_BATTERIEPACK01",
       "device_class": "battery",
@@ -676,19 +663,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
-    "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_BATTERIEPACK02",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_batteriepack02_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_BATTERIEPACK02",
-      "state": "SN_BATTERIEPACK02",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_BATTERIEPACK02_RE307_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_BATTERIEPACK02",
       "device_class": "battery",
@@ -957,19 +931,6 @@
       "state": "0.0",
       "state_class": "measurement",
       "unit_of_measurement": "W"
-    },
-    "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evSn": {
-      "device": "PowerPulse SN_EV_CHARGER_01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.powerpulse_sn_ev_charger_01_evsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "evSn",
-      "product_serial": "SN_EV_CHARGER_01",
-      "state": "SN_EV_CHARGER_01",
-      "state_class": null,
-      "unit_of_measurement": null
     },
     "SN_EV_CHARGER_01_RE307_EVCHARGING_REPORT_evUserManual": {
       "device": "PowerPulse SN_EV_CHARGER_01",

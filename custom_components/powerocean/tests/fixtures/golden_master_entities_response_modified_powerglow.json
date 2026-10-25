@@ -335,19 +335,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
-    "SN_BP01_JTS1_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_BP01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_bp01_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_BP01",
-      "state": "SN_BP01",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_BP01_JTS1_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_BP01",
       "device_class": "battery",
@@ -690,19 +677,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
-    "SN_BP02_JTS1_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_BP02",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_bp02_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_BP02",
-      "state": "SN_BP02",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_BP02_JTS1_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_BP02",
       "device_class": "battery",
@@ -945,19 +919,6 @@
       "state": "16.0",
       "state_class": "measurement",
       "unit_of_measurement": "A"
-    },
-    "SN_DEV01_JTS1_EDEV_PARAM_REPORT_devSn": {
-      "device": "PowerPulse SN_DEV01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.powerpulse_sn_dev01_devsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "devSn",
-      "product_serial": "SN_DEV01",
-      "state": "SN_DEV01",
-      "state_class": null,
-      "unit_of_measurement": null
     },
     "SN_DEV01_JTS1_EDEV_PARAM_REPORT_gridPhaseInput": {
       "device": "PowerPulse SN_DEV01",
@@ -1271,19 +1232,6 @@
       "state": "0",
       "state_class": "measurement",
       "unit_of_measurement": "W"
-    },
-    "SN_HR01_JTS1_HEATING_ROD_PARAM_REPORT_hrSn": {
-      "device": "PowerGlow SN_HR01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.powerglow_sn_hr01_hrsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "hrSn",
-      "product_serial": "SN_HR01",
-      "state": "SN_HR01",
-      "state_class": null,
-      "unit_of_measurement": null
     },
     "SN_HR01_JTS1_HEATING_ROD_PARAM_REPORT_mode": {
       "device": "PowerGlow SN_HR01",

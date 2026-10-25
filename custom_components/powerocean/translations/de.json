@@ -172,9 +172,6 @@
             "bp_remain_watth_pack": {
                 "name": "Restenergie"
             },
-            "bp_sn": {
-                "name": "Seriennummer"
-            },
             "bp_soc": {
                 "name": "Batterie-Ladezustand"
             },
@@ -250,9 +247,6 @@
             },
             "dcdc_pwr": {
                 "name": "DC-DC-Leistung"
-            },
-            "dev_sn": {
-                "name": "Seriennummer"
             },
             "ems_bp_alive_num": {
                 "name": "Aktive Batterien"
@@ -340,9 +334,6 @@
             "ev_pwr": {
                 "name": "Ladeleistung"
             },
-            "ev_sn": {
-                "name": "Seriennummer"
-            },
             "from_bat": {
                 "name": "Heizen mit Batterie (Cloud)"
             },
@@ -381,9 +372,6 @@
             },
             "hr_pwr": {
                 "name": "Heizleistung (Cloud)"
-            },
-            "hr_sn": {
-                "name": "Seriennummer"
             },
             "iot4g_sta": {
                 "name": "4G-Status"

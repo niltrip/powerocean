@@ -435,26 +435,6 @@
       ]
     }
   },
-  "SN_BP01_JTS1_BP_STA_REPORT_bpSn": {
-    "device": {
-      "manufacturer": "EcoFlow",
-      "model": "PowerOcean Battery",
-      "sn": "SN_BP01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
-    },
-    "sensors": {
-      "description": "bpSn",
-      "friendly_name": "bpSn",
-      "icon": "mdi:barcode",
-      "internal_unique_id": "SN_BP01_JTS1_BP_STA_REPORT_bpSn",
-      "name": "SN_BP01_bpSn",
-      "serial": "SN_BP01",
-      "unit": null
-    }
-  },
   "SN_BP01_JTS1_BP_STA_REPORT_bpSoc": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -1027,26 +1007,6 @@
       ]
     }
   },
-  "SN_BP02_JTS1_BP_STA_REPORT_bpSn": {
-    "device": {
-      "manufacturer": "EcoFlow",
-      "model": "PowerOcean Battery",
-      "sn": "SN_BP02",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
-    },
-    "sensors": {
-      "description": "bpSn",
-      "friendly_name": "bpSn",
-      "icon": "mdi:barcode",
-      "internal_unique_id": "SN_BP02_JTS1_BP_STA_REPORT_bpSn",
-      "name": "SN_BP02_bpSn",
-      "serial": "SN_BP02",
-      "unit": null
-    }
-  },
   "SN_BP02_JTS1_BP_STA_REPORT_bpSoc": {
     "device": {
       "manufacturer": "EcoFlow",
@@ -1445,26 +1405,6 @@
         "A",
         "measurement"
       ]
-    }
-  },
-  "SN_DEV01_JTS1_EDEV_PARAM_REPORT_devSn": {
-    "device": {
-      "manufacturer": "EcoFlow",
-      "model": "PowerOcean PowerPulse",
-      "sn": "SN_DEV01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
-    },
-    "sensors": {
-      "description": "devSn",
-      "friendly_name": "devSn",
-      "icon": "mdi:barcode",
-      "internal_unique_id": "SN_DEV01_JTS1_EDEV_PARAM_REPORT_devSn",
-      "name": "SN_DEV01_devSn",
-      "serial": "SN_DEV01",
-      "unit": null
     }
   },
   "SN_DEV01_JTS1_EDEV_PARAM_REPORT_gridPhaseInput": {
@@ -1977,26 +1917,6 @@
         "W",
         "measurement"
       ]
-    }
-  },
-  "SN_HR01_JTS1_HEATING_ROD_PARAM_REPORT_hrSn": {
-    "device": {
-      "manufacturer": "EcoFlow",
-      "model": "PowerOcean PowerGlow",
-      "sn": "SN_HR01",
-      "via_device": [
-        "powerocean",
-        "SN_INVERTERBOX01"
-      ]
-    },
-    "sensors": {
-      "description": "hrSn",
-      "friendly_name": "hrSn",
-      "icon": "mdi:barcode",
-      "internal_unique_id": "SN_HR01_JTS1_HEATING_ROD_PARAM_REPORT_hrSn",
-      "name": "SN_HR01_hrSn",
-      "serial": "SN_HR01",
-      "unit": null
     }
   },
   "SN_HR01_JTS1_HEATING_ROD_PARAM_REPORT_mode": {

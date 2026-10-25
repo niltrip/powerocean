@@ -335,19 +335,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
-    "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_BATTERIEPACK01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_batteriepack01_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_BATTERIEPACK01",
-      "state": "SN_BATTERIEPACK01",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_BATTERIEPACK01_JTS1_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_BATTERIEPACK01",
       "device_class": "battery",
@@ -690,19 +677,6 @@
       "state_class": "measurement",
       "unit_of_measurement": "Wh"
     },
-    "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSn": {
-      "device": "Battery SN_BATTERIEPACK02",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.battery_sn_batteriepack02_bpsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "bpSn",
-      "product_serial": "SN_BATTERIEPACK02",
-      "state": "SN_BATTERIEPACK02",
-      "state_class": null,
-      "unit_of_measurement": null
-    },
     "SN_BATTERIEPACK02_JTS1_BP_STA_REPORT_bpSoc": {
       "device": "Battery SN_BATTERIEPACK02",
       "device_class": "battery",
@@ -866,19 +840,6 @@
       "state": "1500.0",
       "state_class": "measurement",
       "unit_of_measurement": "W"
-    },
-    "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_hrSn": {
-      "device": "PowerGlow SN_HEATROD01",
-      "device_class": null,
-      "entity_category": "diagnostic",
-      "entity_id": "sensor.powerglow_sn_heatrod01_hrsn",
-      "icon": "mdi:barcode",
-      "original_name": "Serial number",
-      "product_description": "hrSn",
-      "product_serial": "SN_HEATROD01",
-      "state": "U05fSEVBVFJPRDAx",
-      "state_class": null,
-      "unit_of_measurement": null
     },
     "SN_HEATROD01_JTS1_HEATING_ROD_PARAM_REPORT_mode": {
       "device": "PowerGlow SN_HEATROD01",
