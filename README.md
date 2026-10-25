@@ -70,7 +70,9 @@ errors:
 
 Cause and solution are only available in the [EcoFlow web portal](https://user-portal.ecoflow.com/); the attribute `error_details` points there. The link "Visit" on the device page opens the portal as well.
 
-<!-- Screenshot: documentation/error_sensor.png (sensor errorCount with its attributes; black out serial numbers) -->
+Since Home Assistant 2026.2 the dialog of a sensor no longer lists its attributes; open them via ⋮ → Details:
+
+![sensor errorCount with its attributes](documentation/error_sensor.png)
 
 ### Which values update, and which do not
 
@@ -111,6 +113,18 @@ In dual systems (master and slave inverter), the values from `PARALLEL_ENERGY_ST
 
 
 ### Energy dashboard
+The EcoFlow API reports energy counters only for some values. These can be used in the energy dashboard as they are:
+
+- solar production: `totalElectricityGeneration`, shown as "Solar energy total" (kWh, changes about once per hour)
+- battery: `bpTotalChgEnergy` ("Battery charged energy") and `bpTotalDsgEnergy` ("Battery discharged energy")
+
+There is no counter for the single PV strings and none for the grid.
+
+- **PV strings, or solar with finer steps:** turn the power into energy with an [integral sensor](https://www.home-assistant.io/integrations/integration/). It can be created in the UI (Settings → Devices & services → Helpers → Integral sensor) or in YAML. [config/configuration.yaml](config/configuration.yaml) contains an example for all strings together and for each string.
+- **Grid import and export:** read your electricity meter locally, e.g. with a Tasmota reading head or a Shelly. The values come straight from your network instead of through the EcoFlow cloud, and they match what the meter shows. On my system the grid values from the cloud do not match the readings on my meter, so I would not build an energy counter on them.
+
+The same file contains template sensors for the battery: remaining charge time, remaining discharge time and the time the battery will be empty. Set the capacity and the backup reserve of your system there, and replace `SN` in the entity IDs with the serial number of your inverter.
+
 ![dashboard](documentation/dashboard.PNG)
 
 
