@@ -78,32 +78,6 @@ Since Home Assistant 2026.2 the dialog of a sensor no longer lists its attribute
 
 The EcoFlow cloud does not refresh all values at the same rate. Some of them keep returning the same number for hours. The integration reports what the API hands it, so a flat line here is not a bug in this component.
 
-Measured on my own system over 72 hours (three-phase PowerOcean, one battery, release 2026.03.04):
-
-| sensor | report | distinct values in 72 h |
-|---|---|---|
-| `mpptPwr`, `bpPwr` | `data` | 1 (always 0 W) |
-| `pv1Pwr`, `pv2Pwr`, `pvInvPwr` | `ENERGY_STREAM_REPORT` | 1 (always 0 W) |
-| `sysGridPwr`, `sysLoadPwr` | `data` | 4 |
-| `todayElectricityGeneration` | `data` | about one per hour |
-| `pcsMeterPower`, `pcsActPwr`, `mpptPv_pwrTotal` | `EMS_HEARTBEAT` | more than 2100 |
-
-On 2026-08-21 at 13:16 `mpptPwr` read 0 W while `mpptPv_pwrTotal` read 4238 W. Both describe the same solar power, and both came out of the same response.
-
-Others report in [#34](https://github.com/niltrip/powerocean/issues/34) and [#28](https://github.com/niltrip/powerocean/issues/28) that these values start moving again while the app or the web portal is open. I cannot confirm that part myself.
-
-For a dashboard, take the values from `EMS_HEARTBEAT`:
-
-- grid: `pcsMeterPower` (positive = import, negative = export) rather than `sysGridPwr`
-- solar: `mpptPv_pwrTotal` rather than `mpptPwr`, `pv1Pwr` or `pvInvPwr`
-- battery: `emsBpPower` rather than `bpPwr`
-- house: `housePower`, which is calculated from the three values above
-
-The friendly names point the way: values from `data` and `ENERGY_STREAM_REPORT` end in "(cloud)", e.g. "House consumption (cloud)", the calculated values have no suffix, e.g. "House consumption".
-In dual systems (master and slave inverter), the values from `PARALLEL_ENERGY_STREAM_REPORT` end in "(energy flow)". According to [#23](https://github.com/niltrip/powerocean/issues/23) they are updated regularly, unlike those from `data`.
-
-#### How often each report changes
-
 Measured on 2026-10-25 with `scripts/interval` (one request every 10 s) on a three-phase PowerOcean with two batteries: two hours with the app closed and the PowerInsight display switched off, then seven minutes with the PowerInsight display on:
 
 | group | reports | changes in 2 h | interval between changes |
@@ -119,13 +93,19 @@ Measured on 2026-10-25 with `scripts/interval` (one request every 10 s) on a thr
 What this means:
 
 - The values that matter for a dashboard (`EMS_HEARTBEAT`, `EMS_CHANGE_REPORT`) arrive every 20–80 s on their own. The default scan interval of 10 s catches each change; a shorter one brings no fresher data.
+- The values from `data` and `ENERGY_STREAM_REPORT` stay old while nothing asks the cloud for them – an open app or a PowerInsight display that is switched on makes the cloud refresh them every 20–30 s. All other reports keep their rhythm either way. Over 72 hours, @Kantripal saw `mpptPwr` and `pv1Pwr` stuck at 0 W while `mpptPv_pwrTotal` from the heartbeat changed more than 2100 times; on 2026-08-21 at 13:16 the same response held 0 W and 4238 W for the same solar power.
 - Battery pack values (cell voltages, temperatures, state of health) lag up to 5 minutes. For the battery state of charge and power, use the system values from `EMS_CHANGE_REPORT` and `EMS_HEARTBEAT`.
-- The "(cloud)" values stay old while nothing asks the cloud for them. An open app or a PowerInsight display that is switched on makes the cloud refresh them every 20–30 s. All other reports keep their rhythm either way.
 - `updateTime` in the reports is in UTC+8 (China time). The integration converts it for the "time of the last values" sensors.
 
-### New sensor (calculated from the PV strings)
+For a dashboard, take the values from `EMS_HEARTBEAT`:
 
-![sensor](documentation/mpptPv_pwrTotal.PNG)
+- grid: `pcsMeterPower` (positive = import, negative = export) rather than `sysGridPwr`
+- solar: `mpptPv_pwrTotal` (sum of the PV strings) rather than `mpptPwr`, `pv1Pwr` or `pvInvPwr`
+- battery: `emsBpPower` rather than `bpPwr`
+- house: `housePower`, which is calculated from the three values above
+
+The friendly names point the way: values from `data` and `ENERGY_STREAM_REPORT` end in "(cloud)", e.g. "House consumption (cloud)", the calculated values have no suffix, e.g. "House consumption".
+In dual systems (master and slave inverter), the values from `PARALLEL_ENERGY_STREAM_REPORT` end in "(energy flow)". According to [#23](https://github.com/niltrip/powerocean/issues/23) they are updated regularly, unlike those from `data`.
 
 ### Devices by serial number
 ![integration](documentation/integration.PNG)
