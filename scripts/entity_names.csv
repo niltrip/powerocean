@@ -90,10 +90,10 @@ Heartbeat;emsMpptSelfcheckState;;MPPT self-test;MPPT-Selbsttest;
 Heartbeat;emsBpSelfcheckState;;Battery self-test;Batterie-Selbsttest;
 Status und Einstellungen;emsWordMode;;Operating mode;Betriebsmodus;
 Status und Einstellungen;pcsRunSta;;Inverter state;Wechselrichterstatus;
-Status und Einstellungen;sysGridSta;;Grid state;Netzstatus;Bedeutung geraten
+Status und Einstellungen;sysGridSta;;Grid state;Netzstatus;Webportal: 1 = Off-grid (netzunabhängig)
 Status und Einstellungen;emsFeedPwr;;Feed-in limit;Einspeisegrenze;
 Status und Einstellungen;emsFeedRatio;;Feed-in limit (percent);Einspeisegrenze (Prozent);
-Status und Einstellungen;emsFeedMode;;Feed-in mode;Einspeisemodus;
+Status und Einstellungen;emsFeedMode;;Feed-in mode;Einspeisemodus;Webportal: 1 unbegrenzt, 2 Nulleinspeisung, 3 Leistungsbegrenzung
 Status und Einstellungen;sysBatBackupRatio;;Backup reserve;Notstromreserve;
 Status und Einstellungen;emsKeepSoc;;Reserved state of charge;Reservierter Ladezustand;Bedeutung geraten
 Status und Einstellungen;sysBatChgUpLimit;;Charge limit;Ladegrenze;

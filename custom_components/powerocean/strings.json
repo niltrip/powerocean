@@ -246,7 +246,12 @@
         "name": "LED brightness"
       },
       "ems_feed_mode": {
-        "name": "Feed-in mode"
+        "name": "Feed-in mode",
+        "state": {
+          "1": "Unlimited",
+          "2": "Zero power",
+          "3": "Power limiting"
+        }
       },
       "ems_feed_pwr": {
         "name": "Feed-in limit"
@@ -279,7 +284,9 @@
       "ems_word_mode": {
         "name": "Operating mode",
         "state": {
-          "workmode_selfuse": "Self-powered"
+          "workmode_selfuse": "Self-powered",
+          "workmode_tou": "Time-of-use",
+          "workmode_standby_mode": "Standby"
         }
       },
       "energy_stream_update_time": {
@@ -635,7 +642,11 @@
         "name": "Grid power (energy flow)"
       },
       "sys_grid_sta": {
-        "name": "Grid state"
+        "name": "Grid state",
+        "state": {
+          "0": "On-grid",
+          "1": "Off-grid"
+        }
       },
       "sys_load_pwr": {
         "name": "House consumption (cloud)"
