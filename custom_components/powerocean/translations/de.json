@@ -77,10 +77,10 @@
                 "name": "Grund der Batteriebegrenzung"
             },
             "battery_to_grid": {
-                "name": "Batterie zu Netz"
+                "name": "Batterie zum Netz"
             },
             "battery_to_house": {
-                "name": "Batterie zu Haus"
+                "name": "Batterie zum Haus"
             },
             "bms_chg_dsg_sta": {
                 "name": "Lade-/Entladezustand",
@@ -149,10 +149,10 @@
                 "name": "Batterie entladen heute"
             },
             "bp_pwr": {
-                "name": "Batterieleistung (Übersicht)"
+                "name": "Batterieleistung (Cloud)"
             },
             "bp_pwr_inverter": {
-                "name": "Batterieleistung"
+                "name": "Batterieleistung (Energiefluss)"
             },
             "bp_pwr_pack": {
                 "name": "Leistung"
@@ -174,6 +174,9 @@
             },
             "bp_soc": {
                 "name": "Batterie-Ladezustand"
+            },
+            "bp_soc_inverter": {
+                "name": "Batterie-Ladezustand (Energiefluss)"
             },
             "bp_soc_pack": {
                 "name": "Ladezustand"
@@ -217,7 +220,7 @@
                 "name": "Netzwerkverbindung"
             },
             "dab_mod_sta": {
-                "name": "DAB-Modulstatus",
+                "name": "DC-DC-Wandler-Status",
                 "state": {
                     "pb_mod_sta_normal": "Normal",
                     "pb_mod_sta_warnning": "Warnung",
@@ -261,7 +264,7 @@
                 "name": "MPPT-Selbsttest"
             },
             "ems_ntc_temp_max": {
-                "name": "Wechselrichtertemperatur"
+                "name": "Höchste Wechselrichtertemperatur"
             },
             "ems_sg_ready_en": {
                 "name": "SG Ready aktiv",
@@ -298,13 +301,13 @@
                 "name": "Netzleistung"
             },
             "grid_pwr": {
-                "name": "Netzleistung (Energiefluss)"
+                "name": "Netzleistung (Cloud-Energiefluss)"
             },
             "grid_to_battery": {
-                "name": "Netz zu Batterie"
+                "name": "Netz zur Batterie"
             },
             "grid_to_house": {
-                "name": "Netz zu Haus"
+                "name": "Netz zum Haus"
             },
             "heartbeat_update_time": {
                 "name": "Letzte Aktualisierung"
@@ -319,7 +322,7 @@
                 "name": "Hausverbrauch heute"
             },
             "load_pwr": {
-                "name": "Hausverbrauch (Energiefluss)"
+                "name": "Hausverbrauch (Cloud-Energiefluss)"
             },
             "manual_set_start_charge_power": {
                 "name": "Laden ab Leistung"
@@ -442,10 +445,10 @@
                 "name": "Solarleistung"
             },
             "mppt_pwr": {
-                "name": "Solarleistung (Übersicht)"
+                "name": "Solarleistung (Cloud)"
             },
             "mppt_pwr_inverter": {
-                "name": "Solarleistung"
+                "name": "Solarleistung (Energiefluss)"
             },
             "mppt_rate_power": {
                 "name": "PV-Nennleistung"
@@ -461,7 +464,7 @@
                 }
             },
             "other_pv_pwr": {
-                "name": "Sonstige PV-Leistung"
+                "name": "Sonstige PV-Leistung (Cloud)"
             },
             "pcs_a_phase_act_pwr": {
                 "name": "L1 Leistung"
@@ -565,44 +568,56 @@
                 "name": "Auslösungen Unterspannung Stufe 2"
             },
             "pv1_pwr": {
+                "name": "PV 1 Leistung (Cloud)"
+            },
+            "pv1_pwr_inverter": {
                 "name": "PV 1 Leistung (Energiefluss)"
             },
             "pv2_pwr": {
+                "name": "PV 2 Leistung (Cloud)"
+            },
+            "pv2_pwr_inverter": {
                 "name": "PV 2 Leistung (Energiefluss)"
             },
             "pv3_pwr": {
+                "name": "PV 3 Leistung (Cloud)"
+            },
+            "pv3_pwr_inverter": {
                 "name": "PV 3 Leistung (Energiefluss)"
             },
             "pv_in_day_energy": {
                 "name": "Solarertrag heute"
             },
             "pv_inv_pwr": {
-                "name": "Leistung zweiter PV-Wechselrichter"
+                "name": "Leistung zweiter PV-Wechselrichter (Cloud)"
+            },
+            "pv_inv_pwr_inverter": {
+                "name": "Leistung zweiter PV-Wechselrichter (Energiefluss)"
             },
             "relay14a": {
-                "name": "§14a-Relais"
+                "name": "§14a-Eingang"
             },
             "solar_to_battery": {
-                "name": "Solar zu Batterie"
+                "name": "Solar zur Batterie"
             },
             "solar_to_grid": {
-                "name": "Solar zu Netz"
+                "name": "Solar zum Netz"
             },
             "solar_to_house": {
-                "name": "Solar zu Haus"
+                "name": "Solar zum Haus"
             },
             "start_discharge_power": {
                 "name": "Entladen ab Leistung"
             },
             "sys14a_enable": {
-                "name": "§14a aktiv",
+                "name": "§14a-Steuerung aktiv",
                 "state": {
                     "true": "An",
                     "false": "Aus"
                 }
             },
             "sys14a_type": {
-                "name": "§14a-Typ"
+                "name": "§14a-Modus"
             },
             "sys_bat_backup_ratio": {
                 "name": "Notstromreserve"
@@ -614,19 +629,19 @@
                 "name": "Entladegrenze"
             },
             "sys_grid_pwr": {
-                "name": "Netzleistung (Übersicht)"
+                "name": "Netzleistung (Cloud)"
             },
             "sys_grid_pwr_inverter": {
-                "name": "Netzleistung"
+                "name": "Netzleistung (Energiefluss)"
             },
             "sys_grid_sta": {
                 "name": "Netzstatus"
             },
             "sys_load_pwr": {
-                "name": "Hausverbrauch (Übersicht)"
+                "name": "Hausverbrauch (Cloud)"
             },
             "sys_load_pwr_inverter": {
-                "name": "Hausverbrauch"
+                "name": "Hausverbrauch (Energiefluss)"
             },
             "system_name": {
                 "name": "Anlagenname"

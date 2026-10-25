@@ -1,5 +1,10 @@
 changelog:
   categories:
+    # First, as a pull request appears in the first matching category only
+    - title: "⚠️ Breaking Changes"
+      labels:
+        - breaking
+
     - title: "🚀 New Features"
       labels:
         - feature
@@ -19,10 +24,6 @@ changelog:
         - chore
         - refactor
         - dependencies
-
-    - title: "⚠️ Breaking Changes"
-      labels:
-        - breaking
 
 change-template: "- ${{TITLE}} (#${{NUMBER}} by @${{AUTHOR}})"
 

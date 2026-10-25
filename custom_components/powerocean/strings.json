@@ -149,10 +149,10 @@
         "name": "Battery discharged today"
       },
       "bp_pwr": {
-        "name": "Battery power (summary)"
+        "name": "Battery power (cloud)"
       },
       "bp_pwr_inverter": {
-        "name": "Battery power"
+        "name": "Battery power (energy flow)"
       },
       "bp_pwr_pack": {
         "name": "Power"
@@ -174,6 +174,9 @@
       },
       "bp_soc": {
         "name": "Battery state of charge"
+      },
+      "bp_soc_inverter": {
+        "name": "Battery state of charge (energy flow)"
       },
       "bp_soc_pack": {
         "name": "State of charge"
@@ -217,7 +220,7 @@
         "name": "Network connection"
       },
       "dab_mod_sta": {
-        "name": "DAB module state",
+        "name": "DC-DC converter state",
         "state": {
           "pb_mod_sta_normal": "Normal",
           "pb_mod_sta_warnning": "Warning",
@@ -261,7 +264,7 @@
         "name": "MPPT self-test"
       },
       "ems_ntc_temp_max": {
-        "name": "Inverter temperature"
+        "name": "Highest inverter temperature"
       },
       "ems_sg_ready_en": {
         "name": "SG Ready enabled",
@@ -298,7 +301,7 @@
         "name": "Grid power"
       },
       "grid_pwr": {
-        "name": "Grid power (energy flow)"
+        "name": "Grid power (cloud energy flow)"
       },
       "grid_to_battery": {
         "name": "Grid to battery"
@@ -319,7 +322,7 @@
         "name": "House consumption today"
       },
       "load_pwr": {
-        "name": "House consumption (energy flow)"
+        "name": "House consumption (cloud energy flow)"
       },
       "manual_set_start_charge_power": {
         "name": "Charge start power"
@@ -442,10 +445,10 @@
         "name": "Solar power"
       },
       "mppt_pwr": {
-        "name": "Solar power (summary)"
+        "name": "Solar power (cloud)"
       },
       "mppt_pwr_inverter": {
-        "name": "Solar power"
+        "name": "Solar power (energy flow)"
       },
       "mppt_rate_power": {
         "name": "Rated PV power"
@@ -461,7 +464,7 @@
         }
       },
       "other_pv_pwr": {
-        "name": "Other PV power"
+        "name": "Other PV power (cloud)"
       },
       "pcs_a_phase_act_pwr": {
         "name": "L1 power"
@@ -565,22 +568,34 @@
         "name": "Undervoltage trips level 2"
       },
       "pv1_pwr": {
+        "name": "PV 1 power (cloud)"
+      },
+      "pv1_pwr_inverter": {
         "name": "PV 1 power (energy flow)"
       },
       "pv2_pwr": {
+        "name": "PV 2 power (cloud)"
+      },
+      "pv2_pwr_inverter": {
         "name": "PV 2 power (energy flow)"
       },
       "pv3_pwr": {
+        "name": "PV 3 power (cloud)"
+      },
+      "pv3_pwr_inverter": {
         "name": "PV 3 power (energy flow)"
       },
       "pv_in_day_energy": {
         "name": "Solar energy today"
       },
       "pv_inv_pwr": {
-        "name": "Second PV inverter power"
+        "name": "Second PV inverter power (cloud)"
+      },
+      "pv_inv_pwr_inverter": {
+        "name": "Second PV inverter power (energy flow)"
       },
       "relay14a": {
-        "name": "§14a relay"
+        "name": "§14a input"
       },
       "solar_to_battery": {
         "name": "Solar to battery"
@@ -595,14 +610,14 @@
         "name": "Discharge start power"
       },
       "sys14a_enable": {
-        "name": "§14a enabled",
+        "name": "§14a control enabled",
         "state": {
           "true": "On",
           "false": "Off"
         }
       },
       "sys14a_type": {
-        "name": "§14a type"
+        "name": "§14a mode"
       },
       "sys_bat_backup_ratio": {
         "name": "Backup reserve"
@@ -614,19 +629,19 @@
         "name": "Discharge limit"
       },
       "sys_grid_pwr": {
-        "name": "Grid power (summary)"
+        "name": "Grid power (cloud)"
       },
       "sys_grid_pwr_inverter": {
-        "name": "Grid power"
+        "name": "Grid power (energy flow)"
       },
       "sys_grid_sta": {
         "name": "Grid state"
       },
       "sys_load_pwr": {
-        "name": "House consumption (summary)"
+        "name": "House consumption (cloud)"
       },
       "sys_load_pwr_inverter": {
-        "name": "House consumption"
+        "name": "House consumption (energy flow)"
       },
       "system_name": {
         "name": "System name"

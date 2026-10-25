@@ -86,7 +86,7 @@ async def test_active_error(hass: HomeAssistant, mock_fetch: AsyncMock) -> None:
             "level": "Warning",
         }
     ]
-    assert "portal.ecoflow.com" in state.attributes["error_details"]
+    assert "user-portal.ecoflow.com" in state.attributes["error_details"]
 
 
 async def test_error_cleared(hass: HomeAssistant, mock_fetch: AsyncMock) -> None:
