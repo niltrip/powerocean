@@ -419,7 +419,11 @@
                 "name": "Leistung"
             },
             "mode": {
-                "name": "Betriebsart"
+                "name": "Betriebsart",
+                "state": {
+                    "0": "Solarmodus",
+                    "1": "Manueller Modus"
+                }
             },
             "month_electricity_generation": {
                 "name": "Solarertrag Monat"
@@ -659,7 +663,11 @@
                 "name": "§14a-Eingang"
             },
             "run_stat": {
-                "name": "Status"
+                "name": "Status",
+                "state": {
+                    "0": "Aus",
+                    "1": "Ein"
+                }
             },
             "selfcheck_percent": {
                 "name": "Selbsttest"
@@ -745,7 +753,13 @@
                 "name": "WLAN-Status"
             },
             "work_mode": {
-                "name": "Lademodus"
+                "name": "Lademodus",
+                "state": {
+                    "1": "Schnellladung",
+                    "2": "Solarladung",
+                    "3": "Benutzerdefiniert",
+                    "4": "Smartes Laden"
+                }
             },
             "year_electricity_generation": {
                 "name": "Solarertrag Jahr"
