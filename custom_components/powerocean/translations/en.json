@@ -73,6 +73,12 @@
         },
         "missing_configuration": {
             "message": "The configuration is incomplete (serial number or model missing). Please remove and add the device again."
+        },
+        "mqtt_not_connected": {
+            "message": "No MQTT connection to the EcoFlow cloud. Switch on the option \"Extended connection (MQTT)\"."
+        },
+        "not_acknowledged": {
+            "message": "The system did not confirm the setting. Please try again."
         }
     },
     "entity": {
@@ -827,6 +833,11 @@
             },
             "year_electricity_generation": {
                 "name": "Solar energy this year"
+            }
+        },
+        "number": {
+            "led_brightness": {
+                "name": "LED brightness"
             }
         }
     }

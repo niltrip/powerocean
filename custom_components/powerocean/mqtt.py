@@ -4,7 +4,7 @@ mqtt.py: MQTT connection to the EcoFlow cloud, as the EcoFlow app uses it.
 Optional next to the HTTP polling: the integration connects with the MQTT
 credentials of the account, asks the system for its full state (as the app
 does when it opens) and reads the firmware of its modules from the answer.
-Nothing else is sent.
+The only setting it sends is the brightness of the LED, as the app does.
 
 The messages are protobuf. This module encodes and splits them without
 .proto files; the layout was captured from the Android app and matches
@@ -35,6 +35,11 @@ VARINT, FIXED64, LENGTH, FIXED32 = 0, 1, 2, 5
 # Command sets and ids (cmd_func / cmd_id)
 IOT = 53
 MODULE_INFO = 113
+EMS = 96
+EMS_CHANGE_REPORT = 8
+LED_BRIGHTNESS = 119
+# Field of the EMS change report with the LED brightness (emsCtrlLedBright)
+LED_BRIGHTNESS_FIELD = 152
 # Source of the requests: the app
 APP = 32
 
@@ -108,7 +113,8 @@ def protobuf_fields(data: bytes) -> list[tuple[int, int | bytes]]:
     return fields
 
 
-def _seq() -> int:
+def new_seq() -> int:
+    """Return a sequence number as the app makes it (ms timestamp)."""
     return int(time.time() * 1000) & 0x7FFFFFFF
 
 
@@ -127,7 +133,7 @@ def get_all_request() -> bytes:
         (
             _field_varint(2, APP),  # src
             _field_varint(3, APP),  # dest
-            _field_varint(14, _seq()),  # seq
+            _field_varint(14, new_seq()),  # seq
             _field_bytes(23, b"Android"),  # from
             _field_bytes(26, b""),
             _field_bytes(27, b""),
@@ -147,7 +153,7 @@ def module_info_request(serial: str) -> bytes:
             _field_varint(8, IOT),  # cmd_func
             _field_varint(9, MODULE_INFO),  # cmd_id
             _field_varint(11, 1),  # need_ack
-            _field_varint(14, _seq()),  # seq
+            _field_varint(14, new_seq()),  # seq
             _field_varint(15, 1),  # product_id
             _field_varint(16, 19),  # version
             _field_varint(17, 1),  # payload_ver
@@ -158,20 +164,65 @@ def module_info_request(serial: str) -> bytes:
     return _field_bytes(1, header)
 
 
-def split_message(payload: bytes) -> list[tuple[int | None, int | None, bytes]]:
-    """Return command set, command id and content of each part of a message."""
-    parts: list[tuple[int | None, int | None, bytes]] = []
+def led_brightness_request(serial: str, percent: int, seq: int) -> bytes:
+    """
+    Return the command that sets the LED brightness (96/119), as the app sends it.
+
+    Content: field 1 = 1 (probably the LED type), field 2 = brightness in %.
+    The system acknowledges it on .../set_reply with the same seq and reports
+    the new value in an EMS change report (96/8, field 152).
+    """
+    content = _field_varint(1, 1) + _field_varint(2, percent)
+    header = b"".join(
+        (
+            _field_bytes(1, content),  # pdata
+            _field_varint(2, APP),  # src
+            _field_varint(3, EMS),  # dest
+            _field_varint(4, 1),  # d_src
+            _field_varint(5, 1),  # d_dest
+            _field_varint(8, EMS),  # cmd_func
+            _field_varint(9, LED_BRIGHTNESS),  # cmd_id
+            _field_varint(10, len(content)),  # data_len
+            _field_varint(11, 1),  # need_ack
+            _field_varint(14, seq),  # seq
+            _field_varint(15, 1),  # product_id
+            _field_varint(16, 19),  # version
+            _field_varint(17, 1),  # payload_ver
+            _field_bytes(23, b"android"),  # from
+            _field_bytes(25, serial.encode()),  # device_sn
+        )
+    )
+    return _field_bytes(1, header)
+
+
+@dataclass(frozen=True)
+class Part:
+    """One part of a message: command set and id, content, sequence number."""
+
+    cmd_func: int | None
+    cmd_id: int | None
+    content: bytes
+    seq: int | None
+
+
+def _int(value: int | bytes | None) -> int | None:
+    return value if isinstance(value, int) else None
+
+
+def split_message(payload: bytes) -> list[Part]:
+    """Return the parts of a message."""
+    parts: list[Part] = []
     for number, header in protobuf_fields(payload):
         if number != 1 or not isinstance(header, bytes):
             continue
         fields = dict(protobuf_fields(header))
         content = fields.get(1, b"")
-        cmd_func, cmd_id = fields.get(8), fields.get(9)
         parts.append(
-            (
-                cmd_func if isinstance(cmd_func, int) else None,
-                cmd_id if isinstance(cmd_id, int) else None,
-                content if isinstance(content, bytes) else b"",
+            Part(
+                cmd_func=_int(fields.get(8)),
+                cmd_id=_int(fields.get(9)),
+                content=content if isinstance(content, bytes) else b"",
+                seq=_int(fields.get(14)),
             )
         )
     return parts
@@ -217,12 +268,21 @@ def parse_module_info(content: bytes) -> dict[int, ModuleVersion]:
 def module_versions(payload: bytes) -> dict[int, ModuleVersion] | None:
     """Return the modules of the module info in a message, None without one."""
     try:
-        parts = split_message(payload)
-        for cmd_func, cmd_id, content in parts:
-            if (cmd_func, cmd_id) == (IOT, MODULE_INFO) and content:
-                return parse_module_info(content)
+        for part in split_message(payload):
+            if (part.cmd_func, part.cmd_id) == (IOT, MODULE_INFO) and part.content:
+                return parse_module_info(part.content)
     except ValueError:
         LOGGER.debug("MQTT message is no protobuf message")
+    return None
+
+
+def led_brightness(part: Part) -> int | None:
+    """Return the LED brightness of an EMS change report, None without it."""
+    if (part.cmd_func, part.cmd_id) != (EMS, EMS_CHANGE_REPORT):
+        return None
+    for number, value in protobuf_fields(part.content):
+        if number == LED_BRIGHTNESS_FIELD and isinstance(value, int):
+            return value
     return None
 
 
@@ -231,12 +291,25 @@ def module_versions(payload: bytes) -> dict[int, ModuleVersion] | None:
 # -----------------------------
 
 
+@dataclass(frozen=True)
+class MqttCallbacks:
+    """What the connection reports, called from paho's thread."""
+
+    # Module info: firmware of the modules, by address
+    on_modules: Callable[[dict[int, ModuleVersion]], None]
+    # The LED brightness changed (EMS change report)
+    on_led_brightness: Callable[[int], None]
+    # The system acknowledged a command, by its seq
+    on_ack: Callable[[int], None]
+
+
 class PowerOceanMqtt:
     """
-    MQTT connection of one system, reading its module versions.
+    MQTT connection of one system: module versions and LED brightness.
 
-    paho runs its own thread: `start`, `stop` and `request_full_state` block
-    and belong in an executor; `on_modules` is called from that thread.
+    paho runs its own thread: `start`, `stop`, `request_full_state` and
+    `set_led_brightness` block and belong in an executor; the callbacks are
+    called from that thread.
     """
 
     def __init__(
@@ -244,12 +317,12 @@ class PowerOceanMqtt:
         credentials: dict[str, Any],
         serial: str,
         user_id: str,
-        on_modules: Callable[[dict[int, ModuleVersion]], None],
+        callbacks: MqttCallbacks,
     ) -> None:
         """Prepare the connection with the MQTT credentials of the account."""
         self.serial = serial
         self.user_id = user_id
-        self.on_modules = on_modules
+        self.callbacks = callbacks
         self.host = str(credentials["url"])
         self.port = int(credentials["port"])
         # Client id in the format of the Android app
@@ -273,6 +346,7 @@ class PowerOceanMqtt:
         return [
             f"/app/device/property/{self.serial}",
             f"{self._property_topic}/get_reply",
+            f"{self._property_topic}/set_reply",
         ]
 
     def start(self) -> None:
@@ -294,6 +368,14 @@ class PowerOceanMqtt:
         """Ask the system for its full state, which holds the module info."""
         self.client.publish(f"{self._property_topic}/get", get_all_request(), qos=1)
 
+    def set_led_brightness(self, percent: int, seq: int) -> None:
+        """Send the LED brightness in % (acknowledged with `seq`)."""
+        self.client.publish(
+            f"{self._property_topic}/set",
+            led_brightness_request(self.serial, percent, seq),
+            qos=1,
+        )
+
     def _on_connect(
         self,
         client: mqtt.Client,
@@ -314,6 +396,16 @@ class PowerOceanMqtt:
     def _on_message(
         self, _client: mqtt.Client, _userdata: Any, message: mqtt.MQTTMessage
     ) -> None:
-        modules = module_versions(message.payload)
-        if modules:
-            self.on_modules(modules)
+        reply = message.topic.endswith("/set_reply")
+        try:
+            for part in split_message(message.payload):
+                command = (part.cmd_func, part.cmd_id)
+                if command == (IOT, MODULE_INFO) and part.content:
+                    self.callbacks.on_modules(parse_module_info(part.content))
+                elif reply and command == (EMS, LED_BRIGHTNESS):
+                    if part.seq is not None:
+                        self.callbacks.on_ack(part.seq)
+                elif (brightness := led_brightness(part)) is not None:
+                    self.callbacks.on_led_brightness(brightness)
+        except ValueError:
+            LOGGER.debug("MQTT message is no protobuf message")
