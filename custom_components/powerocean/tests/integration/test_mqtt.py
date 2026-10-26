@@ -1,5 +1,6 @@
 """test_mqtt: optional MQTT connection for the firmware of the modules."""
 
+import copy
 import json
 from collections.abc import Generator
 from datetime import timedelta
@@ -70,6 +71,7 @@ class FakeMqtt:
         self.started = self.stopped = False
         self.requests = 0
         self.led_commands: list[int] = []
+        self.soc_limit_commands: list[tuple[int, int, int]] = []
         FakeMqtt.instances.append(self)
 
     def start(self) -> None:
@@ -87,6 +89,14 @@ class FakeMqtt:
     def set_led_brightness(self, percent: int, seq: int) -> None:
         """Record the command; the system acknowledges it (paho's thread)."""
         self.led_commands.append(percent)
+        if FakeMqtt.acknowledge:
+            self.callbacks.on_ack(seq)
+
+    def set_soc_limits(
+        self, charge_limit: int, backup_reserve: int, dev_soc: int, seq: int
+    ) -> None:
+        """Record the command; the system acknowledges it (paho's thread)."""
+        self.soc_limit_commands.append((charge_limit, backup_reserve, dev_soc))
         if FakeMqtt.acknowledge:
             self.callbacks.on_ack(seq)
 
@@ -394,7 +404,9 @@ async def test_led_brightness_reported_by_the_system(
     (client,) = FakeMqtt.instances
 
     # Changed in the app: the system reports it (EMS change report)
-    await hass.async_add_executor_job(client.callbacks.on_led_brightness, 60)
+    await hass.async_add_executor_job(
+        client.callbacks.on_settings, {"emsCtrlLedBright": 60}
+    )
     await hass.async_block_till_done()
 
     assert _led_state(hass) == "60"
@@ -408,7 +420,9 @@ async def test_led_brightness_after_unload_is_ignored(
     (client,) = FakeMqtt.instances
     assert await hass.config_entries.async_unload(entry.entry_id)
 
-    await hass.async_add_executor_job(client.callbacks.on_led_brightness, 60)
+    await hass.async_add_executor_job(
+        client.callbacks.on_settings, {"emsCtrlLedBright": 60}
+    )
     await hass.async_block_till_done()
 
     assert coordinator.data[LED_SENSOR_UNIQUE_ID] == 10
@@ -438,3 +452,130 @@ async def test_led_brightness_unavailable_without_connection(
     await _setup(hass, mqtt=True)
 
     assert _led_state(hass) == STATE_UNAVAILABLE
+
+
+# -----------------------------
+# Backup reserve
+# -----------------------------
+
+BACKUP_NUMBER_UNIQUE_ID = f"{SN}_backup_reserve"
+# Sensor "Discharge limit": the backup reserve of the app
+DISCHARGE_LIMIT_UNIQUE_ID = f"{SN}_sysBatDsgDownLimit"
+
+
+def _backup_entity_id(hass: HomeAssistant) -> str | None:
+    return er.async_get(hass).async_get_entity_id(
+        "number", DOMAIN, BACKUP_NUMBER_UNIQUE_ID
+    )
+
+
+def _backup_state(hass: HomeAssistant) -> str:
+    entity_id = _backup_entity_id(hass)
+    assert entity_id
+    return hass.states.get(entity_id).state
+
+
+async def _set_backup(hass: HomeAssistant, value: float) -> None:
+    await hass.services.async_call(
+        "number",
+        "set_value",
+        {"entity_id": _backup_entity_id(hass), "value": value},
+        blocking=True,
+    )
+
+
+async def test_backup_reserve_only_with_mqtt(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    entry = await _setup(hass, mqtt=True)
+    assert _backup_entity_id(hass)
+
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, "mqtt": False}
+    )
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert _backup_entity_id(hass) is None
+
+
+async def test_backup_reserve_entity(hass: HomeAssistant, cloud: AsyncMock) -> None:
+    await _setup(hass, mqtt=True)
+
+    entity = er.async_get(hass).async_get(_backup_entity_id(hass))
+    assert entity.entity_category is EntityCategory.CONFIG
+    assert entity.translation_key == "backup_reserve"
+    state = hass.states.get(entity.entity_id)
+    # From the EMS change report, not from the 0 directly under "data"
+    assert state.state == "5"
+    assert state.attributes["min"] == 0
+    assert state.attributes["max"] == 100
+    assert state.attributes["step"] == 1
+    assert state.attributes["unit_of_measurement"] == "%"
+
+
+async def test_set_backup_reserve(hass: HomeAssistant, cloud: AsyncMock) -> None:
+    entry = await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    await _set_backup(hass, 16)
+
+    # Charge limit and devSoc are sent unchanged, as the app does
+    assert client.soc_limit_commands == [(100, 16, 100)]
+    assert _backup_state(hass) == "16"
+    assert entry.runtime_data.data[DISCHARGE_LIMIT_UNIQUE_ID] == 16
+
+
+async def test_backup_reserve_sends_the_reported_charge_limit(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    # Changed in the app: the system reports both values
+    await hass.async_add_executor_job(
+        client.callbacks.on_settings,
+        {"sysBatChgUpLimit": 90, "sysBatDsgDownLimit": 20},
+    )
+    await hass.async_block_till_done()
+    assert _backup_state(hass) == "20"
+
+    await _set_backup(hass, 10)
+
+    assert client.soc_limit_commands == [(90, 10, 100)]
+
+
+async def test_backup_reserve_not_sent_without_dev_soc(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    response = copy.deepcopy(RESPONSE)
+    del response["data"]["quota"]["JTS1_EMS_PARAM_CHANGE_REPORT"]["devSoc"]
+    with patch(
+        "custom_components.powerocean.ecoflow.HAEcoflowApi.fetch_raw",
+        return_value=response,
+    ):
+        entry = await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    assert _backup_state(hass) == STATE_UNAVAILABLE
+    with pytest.raises(HomeAssistantError) as error:
+        await entry.runtime_data.async_set_backup_reserve(16)
+
+    assert error.value.translation_key == "soc_limits_unknown"
+    assert client.soc_limit_commands == []
+
+
+async def test_set_backup_reserve_without_acknowledgement(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+    FakeMqtt.acknowledge = False
+
+    with (
+        patch("custom_components.powerocean.coordinator.COMMAND_TIMEOUT", 0.01),
+        pytest.raises(HomeAssistantError) as error,
+    ):
+        await _set_backup(hass, 16)
+
+    assert error.value.translation_key == "not_acknowledged"
+    assert _backup_state(hass) == "5"

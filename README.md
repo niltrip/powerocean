@@ -56,7 +56,9 @@ The integration then additionally connects to the EcoFlow cloud the way the EcoF
 
 **LED brightness:** With the option on, the inverter also gets a slider "LED brightness" (0–100 % in steps of 10, under *Configuration* on its device page). It sends the same command as the app and waits for the system to confirm it; if the system does not confirm it within 10 s, Home Assistant shows an error. A change in the app is shown right away as well.
 
-All other values still come from the regular polling. The LED brightness is the only setting the integration changes. If the connection fails, the integration keeps working and logs a warning; the slider is then unavailable. When you switch the option off, the slider and the firmware of the inverter and the smart meter are removed again.
+**Backup reserve:** A second slider "Backup reserve" (0–100 % in steps of 1) sets the backup reserve as in the app. The system keeps it as the lowest state of charge for discharging (`sysBatDsgDownLimit`, the sensor "Discharge limit"). The app's command also contains the charge limit and a value `devSoc`; the integration sends their current values unchanged, so it only changes the backup reserve. While it does not know them yet (e.g. right after the start), the slider is unavailable.
+
+All other values still come from the regular polling. The LED brightness and the backup reserve are the only settings the integration changes. If the connection fails, the integration keeps working and logs a warning; the sliders are then unavailable. When you switch the option off, the sliders and the firmware of the inverter and the smart meter are removed again.
 
 
 

@@ -79,6 +79,9 @@
     },
     "not_acknowledged": {
       "message": "The system did not confirm the setting. Please try again."
+    },
+    "soc_limits_unknown": {
+      "message": "The current charge limit or devSoc of the system is not known yet, so the backup reserve cannot be sent. Please try again in a minute."
     }
   },
   "entity": {
@@ -838,6 +841,9 @@
     "number": {
       "led_brightness": {
         "name": "LED brightness"
+      },
+      "backup_reserve": {
+        "name": "Backup reserve"
       }
     }
   }
