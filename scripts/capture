@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Schneidet die MQTT-Nachrichten der Anlage mit, während du die App bedienst.
+# Hört nur zu, sendet nichts. Fragt Seriennummer, E-Mail und Passwort ab
+# (werden nicht gespeichert). Ergebnis: maskierte Datei in measurements/.
+# Beispiel: scripts/capture
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+.venv/bin/python scripts/capture.py "$@"
