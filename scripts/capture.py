@@ -10,9 +10,10 @@ just did in the app (for example "LED 40 %"). "q" and Enter or Ctrl+C ends.
 
     scripts/capture
 
-Credentials are asked for and not stored; POWEROCEAN_SERIAL,
-POWEROCEAN_USERNAME, POWEROCEAN_PASSWORD and POWEROCEAN_VARIANT in the
-environment are used instead of asking. Every message is masked before it
+Credentials are asked for and not stored. Instead of asking, the script
+takes ECOFLOW_SN, ECOFLOW_EMAIL, ECOFLOW_PASSWORD and ECOFLOW_VARIANT from
+~/.config/powerocean/developer.env (one NAME=value per line, outside the
+repository) or from the environment. Every message is masked before it
 is written: serial numbers keep their length (the inverter keeps its first
 four characters), user id and account are removed from the topics. The file
 in measurements/ (not committed) can be attached to an issue or discussion.
@@ -46,6 +47,7 @@ from custom_components.powerocean.devices import MODEL_NAME_MAP  # noqa: E402
 from custom_components.powerocean.mqtt import protobuf_fields  # noqa: E402
 
 OUT_DIR = ROOT / "measurements"
+CREDENTIALS_FILE = Path.home() / ".config/powerocean/developer.env"
 SERIAL_LENGTH = 16
 # The inverter serial keeps its first characters: the model, not the device
 KEEP_PREFIX = 4
@@ -267,27 +269,36 @@ async def account(api: EcoflowApi) -> tuple[str, dict[str, Any]]:
     return api.user_id, credentials
 
 
+def saved_credentials() -> dict[str, str]:
+    """Return the credentials of the file and the environment (environment wins)."""
+    names = ("ECOFLOW_SN", "ECOFLOW_EMAIL", "ECOFLOW_PASSWORD", "ECOFLOW_VARIANT")
+    saved: dict[str, str] = {}
+    if CREDENTIALS_FILE.is_file():
+        if CREDENTIALS_FILE.stat().st_mode & 0o077:
+            print(f"Hinweis: chmod 600 {CREDENTIALS_FILE} (andere können sie lesen)")
+        for line in CREDENTIALS_FILE.read_text(encoding="utf-8").splitlines():
+            name, _, value = line.strip().partition("=")
+            if name.strip() in names and value.strip():
+                saved[name.strip()] = value.strip().strip("\"'")
+    saved.update({name: os.environ[name] for name in names if os.environ.get(name)})
+    if saved:
+        print(f"Aus Datei/Umgebung: {', '.join(sorted(saved))}")
+    return saved
+
+
 def main() -> None:
     """Ask for credentials, record until the user ends it."""
     if len(sys.argv) > 1:
         print(__doc__)
         return
 
-    serial = (
-        os.environ.get("POWEROCEAN_SERIAL")
-        or input("Seriennummer des Wechselrichters: ").strip()
-    )
-    username = (
-        os.environ.get("POWEROCEAN_USERNAME")
-        or input("E-Mail des EcoFlow-Kontos: ").strip()
-    )
-    password = os.environ.get("POWEROCEAN_PASSWORD") or getpass.getpass("Passwort: ")
+    saved = saved_credentials()
+    serial = saved.get("ECOFLOW_SN") or input("Seriennummer des Wechselrichters: ")
+    username = saved.get("ECOFLOW_EMAIL") or input("E-Mail des EcoFlow-Kontos: ")
+    password = saved.get("ECOFLOW_PASSWORD") or getpass.getpass("Passwort: ")
     models = ", ".join(f"{code} {name}" for code, name in MODEL_NAME_MAP.items())
-    variant = (
-        os.environ.get("POWEROCEAN_VARIANT")
-        or input(f"Modell ({models}) [83]: ").strip()
-        or "83"
-    )
+    variant = saved.get("ECOFLOW_VARIANT") or input(f"Modell ({models}) [83]: ") or "83"
+    serial, username, variant = serial.strip(), username.strip(), variant.strip()
 
     try:
         user_id, credentials = asyncio.run(
