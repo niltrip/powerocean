@@ -756,7 +756,7 @@
                 "name": "Ladegrenze"
             },
             "sys_bat_dsg_down_limit": {
-                "name": "Notstromreserve (Entladegrenze)"
+                "name": "Backup-Reserve (Entladegrenze)"
             },
             "sys_grid_pwr": {
                 "name": "Netzleistung (Cloud)"

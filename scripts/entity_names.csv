@@ -97,7 +97,7 @@ Status und Einstellungen;emsFeedMode;;Feed-in mode;Einspeisemodus;Webportal: 1 u
 Status und Einstellungen;sysBatBackupRatio;;Backup ratio (not in the app);Reserve-Anteil (nicht in der App);
 Status und Einstellungen;emsKeepSoc;;Reserved state of charge;Reservierter Ladezustand;Bedeutung geraten
 Status und Einstellungen;sysBatChgUpLimit;;Charge limit;Ladegrenze;
-Status und Einstellungen;sysBatDsgDownLimit;;Backup reserve (discharge limit);Notstromreserve (Entladegrenze);
+Status und Einstellungen;sysBatDsgDownLimit;;Backup reserve (discharge limit);Backup-Reserve (Entladegrenze);
 Status und Einstellungen;batteryLimitReason;;Battery limit reason;Grund der Batteriebegrenzung;
 Status und Einstellungen;pcsPowerDeratingFlag;;Power derating;Leistungsreduzierung;
 Status und Einstellungen;pcsPowerDeratingSet;;Power derating setting;Leistungsreduzierung (Einstellung);
