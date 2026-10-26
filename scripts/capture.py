@@ -48,6 +48,8 @@ from custom_components.powerocean.mqtt import protobuf_fields  # noqa: E402
 
 OUT_DIR = ROOT / "measurements"
 CREDENTIALS_FILE = Path.home() / ".config/powerocean/developer.env"
+# Input that ends the recording
+STOP = ("q", ":q", "quit", "exit", "ende")
 SERIAL_LENGTH = 16
 # The inverter serial keeps its first characters: the model, not the device
 KEEP_PREFIX = 4
@@ -194,8 +196,12 @@ class Recorder:
             "hex": masked.hex(),
         }
         self._write(record)
-        clock = datetime.now().astimezone().strftime("%H:%M:%S")
-        print(f"{clock}  {record['topic'].rsplit('/', 1)[-1]:<10} {record['cmds']}")
+        # Only the app's commands and the answers to them: the reports of the
+        # system come every second and would run through the note being typed
+        kind = record["topic"].rsplit("/", 1)[-1]
+        if kind in ("set", "set_reply", "get", "get_reply"):
+            clock = datetime.now().astimezone().strftime("%H:%M:%S")
+            print(f"{clock}  {kind:<10} {record['cmds']}")
 
     def note(self, text: str) -> None:
         """Write a note of the user."""
@@ -319,10 +325,11 @@ def main() -> None:
 
     print(
         "Notiz eintippen und Enter: markiert, was du gerade in der App machst.\n"
-        "q und Enter oder Strg+C: Ende.\n"
+        "q und Enter oder Strg+C: Ende. Angezeigt werden nur die Befehle der App\n"
+        "und die Antworten darauf; die Datei enthält alle Nachrichten.\n"
     )
     try:
-        while (text := input().strip()) != "q":
+        while (text := input().strip()).lower() not in STOP:
             if text:
                 recorder.note(text)
                 print(f"  Notiz: {text}")
