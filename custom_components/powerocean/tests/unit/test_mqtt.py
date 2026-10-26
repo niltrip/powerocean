@@ -133,6 +133,7 @@ def test_module_versions_from_get_reply() -> None:
         b"\x0a\x05\x08\x01",  # truncated
         get_all_request(),  # no module info
     ],
+    ids=["json", "truncated", "get_all_request"],  # seq changes on every call
 )
 def test_module_versions_without_module_info(payload: bytes) -> None:
     assert module_versions(payload) is None
