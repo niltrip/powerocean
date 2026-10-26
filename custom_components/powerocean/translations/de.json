@@ -81,7 +81,7 @@
             "message": "Die Anlage hat die Einstellung nicht bestätigt. Bitte erneut versuchen."
         },
         "soc_limits_unknown": {
-            "message": "Ladegrenze oder devSoc der Anlage sind noch nicht bekannt, daher kann die Notstromreserve nicht gesendet werden. Bitte in einer Minute erneut versuchen."
+            "message": "Ladegrenze oder devSoc der Anlage sind noch nicht bekannt, daher kann die Backup-Reserve nicht gesendet werden. Bitte in einer Minute erneut versuchen."
         }
     },
     "entity": {
@@ -843,7 +843,7 @@
                 "name": "LED-Helligkeit"
             },
             "backup_reserve": {
-                "name": "Notstromreserve"
+                "name": "Backup-Reserve"
             }
         }
     }
