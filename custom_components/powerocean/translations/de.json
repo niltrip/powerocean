@@ -750,13 +750,13 @@
                 "name": "§14a-Modus"
             },
             "sys_bat_backup_ratio": {
-                "name": "Notstromreserve"
+                "name": "Reserve-Anteil (nicht in der App)"
             },
             "sys_bat_chg_up_limit": {
                 "name": "Ladegrenze"
             },
             "sys_bat_dsg_down_limit": {
-                "name": "Entladegrenze"
+                "name": "Notstromreserve (Entladegrenze)"
             },
             "sys_grid_pwr": {
                 "name": "Netzleistung (Cloud)"

@@ -750,13 +750,13 @@
                 "name": "§14a mode"
             },
             "sys_bat_backup_ratio": {
-                "name": "Backup reserve"
+                "name": "Backup ratio (not in the app)"
             },
             "sys_bat_chg_up_limit": {
                 "name": "Charge limit"
             },
             "sys_bat_dsg_down_limit": {
-                "name": "Discharge limit"
+                "name": "Backup reserve (discharge limit)"
             },
             "sys_grid_pwr": {
                 "name": "Grid power (cloud)"
