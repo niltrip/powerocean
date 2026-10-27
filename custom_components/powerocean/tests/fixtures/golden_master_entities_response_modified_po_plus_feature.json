@@ -2758,7 +2758,7 @@
       "entity_category": "diagnostic",
       "entity_id": "sensor.powerocean_sn_inverterbox01_sysbatdsgdownlimit",
       "icon": "mdi:battery-arrow-down",
-      "original_name": "Discharge limit",
+      "original_name": "Backup reserve (discharge limit)",
       "product_description": "sysBatDsgDownLimit",
       "product_serial": "SN_INVERTERBOX01",
       "state": "0",
