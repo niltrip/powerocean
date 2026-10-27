@@ -128,3 +128,5 @@
 - Battery state of charge shows the battery level icon.
 - Sensors without a current value, e.g. of a battery pack that is offline,
   are shown as *unavailable* instead of *unknown*.
+- The debug log no longer contains the complete response of the EcoFlow
+  cloud. It is in the diagnostics, with serial numbers replaced.
