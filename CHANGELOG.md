@@ -12,6 +12,9 @@
   command also carries the charge limit and `devSoc`; the integration sends
   their current values unchanged and does not send at all while it does not
   know them.
+- **`scripts/capture`** records the MQTT messages of the system while you
+  use the EcoFlow app, masked and ready to attach to an issue, to help decode
+  further functions. It only listens and sends nothing to the system.
 
 ## 2026.10.28
 
@@ -52,9 +55,6 @@
 
 ### New
 
-- **`scripts/capture`** records the MQTT messages of the system while you
-  use the EcoFlow app, masked and ready to attach to an issue, to help decode
-  further functions. It only listens and sends nothing to the system.
 - **More datapoints:** operating mode, inverter state, grid frequency, current
   power limits, feed-in limit, backup reserve, charge and discharge limit,
   §14a EnWG, SG Ready, connection state, error and warning codes, counters of
