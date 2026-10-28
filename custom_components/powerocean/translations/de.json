@@ -73,6 +73,12 @@
         },
         "missing_configuration": {
             "message": "Die Konfiguration ist unvollständig (Seriennummer oder Modell fehlt). Bitte das Gerät entfernen und neu hinzufügen."
+        },
+        "mqtt_not_connected": {
+            "message": "Keine MQTT-Verbindung zur EcoFlow-Cloud. Bitte die Option „Erweiterte Verbindung (MQTT)“ einschalten."
+        },
+        "not_acknowledged": {
+            "message": "Die Anlage hat die Einstellung nicht bestätigt. Bitte erneut versuchen."
         }
     },
     "entity": {
@@ -827,6 +833,11 @@
             },
             "year_electricity_generation": {
                 "name": "Solarertrag Jahr"
+            }
+        },
+        "number": {
+            "led_brightness": {
+                "name": "LED-Helligkeit"
             }
         }
     }

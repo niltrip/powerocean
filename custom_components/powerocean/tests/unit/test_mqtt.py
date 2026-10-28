@@ -7,10 +7,12 @@ import pytest
 
 from custom_components.powerocean.mqtt import (
     ModuleVersion,
+    MqttCallbacks,
     PowerOceanMqtt,
     _field_bytes,
     _field_varint,
     get_all_request,
+    led_brightness_request,
     module_info_request,
     module_versions,
     parse_module_info,
@@ -77,6 +79,49 @@ def test_module_info_request_as_the_app_sends_it() -> None:
     ]
 
 
+def test_led_brightness_request_as_the_app_sends_it() -> None:
+    message = led_brightness_request(SN, 40, seq=1234)
+    ((_, header),) = protobuf_fields(message)
+    # Field by field as captured from the Android app (40 %)
+    assert protobuf_fields(header) == [
+        (1, bytes.fromhex("08011028")),  # field 1 = 1, field 2 = 40
+        (2, 32),
+        (3, 96),
+        (4, 1),
+        (5, 1),
+        (8, 96),
+        (9, 119),
+        (10, 4),
+        (11, 1),
+        (14, 1234),
+        (15, 1),
+        (16, 19),
+        (17, 1),
+        (23, b"android"),
+        (25, SN.encode()),
+    ]
+
+
+def _message(*fields: tuple[int, int | bytes]) -> bytes:
+    header = b"".join(
+        _field_bytes(number, value)
+        if isinstance(value, bytes)
+        else _field_varint(number, value)
+        for number, value in fields
+    )
+    return _field_bytes(1, header)
+
+
+# Answers of the system to the LED command, structure as captured: the
+# acknowledgement on set_reply and the EMS change report with field 152
+LED_ACK = _message((2, 96), (3, 32), (8, 96), (9, 119), (11, 1), (12, 1), (14, 1234))
+LED_REPORT = _message(
+    (1, _field_varint(152, 20)), (2, 96), (3, 32), (8, 96), (9, 8), (14, 99)
+)
+# Another EMS change report, without the LED brightness
+OTHER_REPORT = _message((1, _field_varint(1, 5)), (2, 96), (8, 96), (9, 8))
+
+
 def test_module_versions_from_get_reply() -> None:
     assert module_versions(GET_REPLY) == MODULES
 
@@ -88,6 +133,7 @@ def test_module_versions_from_get_reply() -> None:
         b"\x0a\x05\x08\x01",  # truncated
         get_all_request(),  # no module info
     ],
+    ids=["json", "truncated", "get_all_request"],  # seq changes on every call
 )
 def test_module_versions_without_module_info(payload: bytes) -> None:
     assert module_versions(payload) is None
@@ -106,16 +152,21 @@ def test_parse_module_info_skips_incomplete_entries() -> None:
     assert parse_module_info(content) == {96: ModuleVersion(96, 0, "1.0.0.0")}
 
 
+def _callbacks() -> MqttCallbacks:
+    return MqttCallbacks(
+        on_modules=MagicMock(), on_led_brightness=MagicMock(), on_ack=MagicMock()
+    )
+
+
 @pytest.fixture
-def connection() -> tuple[PowerOceanMqtt, MagicMock]:
-    on_modules = MagicMock()
-    mqtt = PowerOceanMqtt(CREDENTIALS, SN, USER_ID, on_modules)
+def connection() -> tuple[PowerOceanMqtt, MqttCallbacks]:
+    mqtt = PowerOceanMqtt(CREDENTIALS, SN, USER_ID, _callbacks())
     mqtt.client = MagicMock()
-    return mqtt, on_modules
+    return mqtt, mqtt.callbacks
 
 
 def test_connection_uses_the_app_credentials() -> None:
-    mqtt = PowerOceanMqtt(CREDENTIALS, SN, USER_ID, MagicMock())
+    mqtt = PowerOceanMqtt(CREDENTIALS, SN, USER_ID, _callbacks())
     assert (mqtt.host, mqtt.port) == ("mqtt.example.com", 8883)
     assert mqtt.client._client_id.decode().startswith("ANDROID_")
     assert mqtt.client._client_id.decode().endswith(f"_{USER_ID}")
@@ -123,7 +174,7 @@ def test_connection_uses_the_app_credentials() -> None:
 
 
 def test_on_connect_subscribes_and_requests_full_state(
-    connection: tuple[PowerOceanMqtt, MagicMock],
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
 ) -> None:
     mqtt, _ = connection
     reason = MagicMock(is_failure=False)
@@ -134,6 +185,7 @@ def test_on_connect_subscribes_and_requests_full_state(
     assert topics == [
         f"/app/device/property/{SN}",
         f"/app/{USER_ID}/{SN}/thing/property/get_reply",
+        f"/app/{USER_ID}/{SN}/thing/property/set_reply",
     ]
     topic, payload = mqtt.client.publish.call_args.args
     assert topic == f"/app/{USER_ID}/{SN}/thing/property/get"
@@ -141,7 +193,7 @@ def test_on_connect_subscribes_and_requests_full_state(
 
 
 def test_on_connect_refused_sends_nothing(
-    connection: tuple[PowerOceanMqtt, MagicMock],
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
 ) -> None:
     mqtt, _ = connection
 
@@ -151,13 +203,61 @@ def test_on_connect_refused_sends_nothing(
     mqtt.client.publish.assert_not_called()
 
 
+DEVICE_TOPIC = f"/app/device/property/{SN}"
+SET_REPLY_TOPIC = f"/app/{USER_ID}/{SN}/thing/property/set_reply"
+
+
+def _receive(mqtt: PowerOceanMqtt, topic: str, payload: bytes) -> None:
+    mqtt._on_message(mqtt.client, None, MagicMock(topic=topic, payload=payload))
+
+
 def test_on_message_hands_over_module_info(
-    connection: tuple[PowerOceanMqtt, MagicMock],
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
 ) -> None:
-    mqtt, on_modules = connection
+    mqtt, callbacks = connection
 
-    mqtt._on_message(mqtt.client, None, MagicMock(payload=b"not protobuf"))
-    on_modules.assert_not_called()
+    _receive(mqtt, DEVICE_TOPIC, b"not protobuf")
+    callbacks.on_modules.assert_not_called()
 
-    mqtt._on_message(mqtt.client, None, MagicMock(payload=GET_REPLY))
-    on_modules.assert_called_once_with(MODULES)
+    _receive(mqtt, f"/app/{USER_ID}/{SN}/thing/property/get_reply", GET_REPLY)
+    callbacks.on_modules.assert_called_once_with(MODULES)
+
+
+def test_set_led_brightness_publishes_the_command(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, _ = connection
+
+    mqtt.set_led_brightness(40, seq=1234)
+
+    mqtt.client.publish.assert_called_once_with(
+        f"/app/{USER_ID}/{SN}/thing/property/set",
+        led_brightness_request(SN, 40, 1234),
+        qos=1,
+    )
+
+
+def test_on_message_hands_over_ack_and_led_brightness(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, callbacks = connection
+
+    _receive(mqtt, SET_REPLY_TOPIC, LED_ACK)
+    callbacks.on_ack.assert_called_once_with(1234)
+
+    _receive(mqtt, DEVICE_TOPIC, OTHER_REPORT)
+    callbacks.on_led_brightness.assert_not_called()
+
+    _receive(mqtt, DEVICE_TOPIC, LED_REPORT)
+    callbacks.on_led_brightness.assert_called_once_with(20)
+
+
+def test_ack_only_from_set_reply(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, callbacks = connection
+
+    # The same message on the device topic is no acknowledgement
+    _receive(mqtt, DEVICE_TOPIC, LED_ACK)
+
+    callbacks.on_ack.assert_not_called()

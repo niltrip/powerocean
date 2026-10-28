@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### New
+
+- **LED brightness of the inverter (with the MQTT option):** a slider from
+  0 to 100 % in steps of 10, as in the EcoFlow app. The system confirms
+  each change; without confirmation Home Assistant shows an error.
+
 ## 2026.10.28
 
 ### Breaking changes

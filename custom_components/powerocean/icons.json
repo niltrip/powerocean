@@ -42,6 +42,11 @@
           "0": "mdi:cloud-off-outline"
         }
       }
+    },
+    "number": {
+      "led_brightness": {
+        "default": "mdi:brightness-percent"
+      }
     }
   }
 }

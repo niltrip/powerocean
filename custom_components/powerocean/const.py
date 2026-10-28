@@ -14,4 +14,4 @@ DEFAULT_NAME = "PowerOcean"
 CONF_MQTT = "mqtt"
 # EcoFlow web portal for owners (portal.ecoflow.com is the installer portal)
 PORTAL_URL = "https://user-portal.ecoflow.com/"
-PLATFORMS: list[Platform] = [Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.NUMBER, Platform.SENSOR]

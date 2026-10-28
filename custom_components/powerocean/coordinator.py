@@ -17,13 +17,15 @@ Usage:
   await coordinator.async_config_entry_first_refresh()
 """
 
+import asyncio
+from collections.abc import Callable
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -31,13 +33,18 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .api import AuthenticationError, EcoflowApiError, EcoflowConnectionError
 from .const import DEFAULT_SCAN_INTERVAL, DOMAIN, LOGGER
 from .ecoflow import HAEcoflowApi
-from .mqtt import MODULE_EMS, MODULE_METER, ModuleVersion, PowerOceanMqtt
+from .mqtt import (
+    MODULE_EMS,
+    MODULE_METER,
+    ModuleVersion,
+    MqttCallbacks,
+    PowerOceanMqtt,
+    new_seq,
+)
 from .parse import parse
 from .types import PowerOceanEndPoint
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     from .errors import ActiveError
 
 type PowerOceanConfigEntry = ConfigEntry[PowerOceanCoordinator]
@@ -45,6 +52,10 @@ type PowerOceanConfigEntry = ConfigEntry[PowerOceanCoordinator]
 # How often the module firmware is asked for again (it also comes after
 # every reconnect, e.g. after a firmware update)
 MQTT_REFRESH_INTERVAL = timedelta(hours=6)
+# How long a command may wait for the acknowledgement of the system
+COMMAND_TIMEOUT = 10
+# Datapoint with the LED brightness (sensor emsCtrlLedBright of the inverter)
+LED_BRIGHTNESS_SUFFIX = "_EMS_CHANGE_REPORT_emsCtrlLedBright"
 
 # Parser errors caused by unexpected API payloads
 PARSE_ERRORS = (KeyError, IndexError, TypeError, ValueError, AttributeError)
@@ -88,6 +99,8 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self.modules: dict[int, ModuleVersion] = {}
         self._mqtt_firmware: dict[str, str] = {}
         self._mqtt_refresh_unsub: Callable[[], None] | None = None
+        # Commands waiting for their acknowledgement, by seq
+        self._pending_acks: dict[int, asyncio.Future[None]] = {}
 
     async def _async_setup(self) -> None:
         """Log in once before the first refresh."""
@@ -185,8 +198,13 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             return
         try:
             credentials = await self.api.async_mqtt_credentials()
+            callbacks = MqttCallbacks(
+                on_modules=self._from_mqtt_thread(self._apply_modules),
+                on_led_brightness=self._from_mqtt_thread(self._apply_led_brightness),
+                on_ack=self._from_mqtt_thread(self._apply_ack),
+            )
             client = PowerOceanMqtt(
-                credentials, self.api.sn, self.api.user_id, self._modules_from_mqtt
+                credentials, self.api.sn, self.api.user_id, callbacks
             )
             await self.hass.async_add_executor_job(client.start)
         except (EcoflowApiError, OSError, ValueError, KeyError) as err:
@@ -196,6 +214,8 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self._mqtt_refresh_unsub = async_track_time_interval(
             self.hass, self._async_request_full_state, MQTT_REFRESH_INTERVAL
         )
+        # Settings (LED brightness) become available
+        self.async_update_listeners()
 
     async def async_stop_mqtt(self) -> None:
         """Close the MQTT connection, if any."""
@@ -211,9 +231,9 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         if self.mqtt:
             await self.hass.async_add_executor_job(self.mqtt.request_full_state)
 
-    def _modules_from_mqtt(self, modules: dict[int, ModuleVersion]) -> None:
-        """Hand the module versions over from paho's thread."""
-        self.hass.loop.call_soon_threadsafe(self._apply_modules, modules)
+    def _from_mqtt_thread[T](self, apply: Callable[[T], None]) -> Callable[[T], None]:
+        """Return a callback that hands a value over from paho's thread."""
+        return lambda value: self.hass.loop.call_soon_threadsafe(apply, value)
 
     @callback
     def _apply_modules(self, modules: dict[int, ModuleVersion]) -> None:
@@ -247,3 +267,68 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             device = device_registry.async_get_device(identifiers={(DOMAIN, sn)})
             if device and device.sw_version:
                 device_registry.async_update_device(device.id, sw_version=None)
+
+    # -----------------------------
+    # LED brightness
+    # -----------------------------
+
+    @property
+    def led_brightness_key(self) -> str | None:
+        """Return the datapoint with the LED brightness of the inverter."""
+        prefix = f"{self.api.sn}_"
+        return next(
+            (
+                unique_id
+                for unique_id in self.data or {}
+                if unique_id.startswith(prefix)
+                and unique_id.endswith(LED_BRIGHTNESS_SUFFIX)
+            ),
+            None,
+        )
+
+    async def async_set_led_brightness(self, percent: int) -> None:
+        """
+        Set the LED brightness via MQTT and wait for the acknowledgement.
+
+        Raises:
+            HomeAssistantError: Without MQTT connection, or if the system does
+                not acknowledge the command in time.
+
+        """
+        if not self.mqtt:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN, translation_key="mqtt_not_connected"
+            )
+        seq = new_seq()
+        acknowledged = self.hass.loop.create_future()
+        self._pending_acks[seq] = acknowledged
+        try:
+            await self.hass.async_add_executor_job(
+                self.mqtt.set_led_brightness, percent, seq
+            )
+            async with asyncio.timeout(COMMAND_TIMEOUT):
+                await acknowledged
+        except TimeoutError as err:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN, translation_key="not_acknowledged"
+            ) from err
+        finally:
+            self._pending_acks.pop(seq, None)
+        # Acknowledged: show the value before the system reports it
+        self._apply_led_brightness(percent)
+
+    @callback
+    def _apply_ack(self, seq: int) -> None:
+        """Complete the command the system acknowledged."""
+        acknowledged = self._pending_acks.get(seq)
+        if acknowledged and not acknowledged.done():
+            acknowledged.set_result(None)
+
+    @callback
+    def _apply_led_brightness(self, percent: int) -> None:
+        """Show a new LED brightness (sensor and number) without polling."""
+        key = self.led_brightness_key
+        if not self.mqtt or key is None or self.data.get(key) == percent:
+            return
+        self.data = {**self.data, key: percent}
+        self.async_update_listeners()

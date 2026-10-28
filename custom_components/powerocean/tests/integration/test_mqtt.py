@@ -1,7 +1,7 @@
 """test_mqtt: optional MQTT connection for the firmware of the modules."""
 
 import json
-from collections.abc import Callable, Generator
+from collections.abc import Generator
 from datetime import timedelta
 from pathlib import Path
 from typing import Any, ClassVar
@@ -10,8 +10,11 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.config_entries import ConfigEntryState
+from homeassistant.const import STATE_UNAVAILABLE, EntityCategory
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
     async_fire_time_changed,
@@ -23,7 +26,7 @@ from custom_components.powerocean.diagnostics import (
     async_get_config_entry_diagnostics,
 )
 from custom_components.powerocean.ecoflow import MOCK_RESPONSE_ENV
-from custom_components.powerocean.mqtt import ModuleVersion, module_versions
+from custom_components.powerocean.mqtt import MqttCallbacks, module_versions
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 RESPONSE = json.loads((FIXTURES_DIR / "response_modified.json").read_text("utf-8"))
@@ -48,20 +51,25 @@ class FakeMqtt:
 
     instances: ClassVar[list["FakeMqtt"]] = []
 
+    # Acknowledge commands like the system (False: no answer)
+    acknowledge = True
+
     def __init__(
         self,
         credentials: dict[str, Any],
         serial: str,
         user_id: str,
-        on_modules: Callable[[dict[int, ModuleVersion]], None],
+        callbacks: MqttCallbacks,
     ) -> None:
         """Record the arguments, as PowerOceanMqtt gets them."""
         self.credentials = credentials
         self.serial = serial
         self.user_id = user_id
-        self.on_modules = on_modules
+        self.callbacks = callbacks
+        self.on_modules = callbacks.on_modules
         self.started = self.stopped = False
         self.requests = 0
+        self.led_commands: list[int] = []
         FakeMqtt.instances.append(self)
 
     def start(self) -> None:
@@ -75,6 +83,12 @@ class FakeMqtt:
     def request_full_state(self) -> None:
         """Count the requests."""
         self.requests += 1
+
+    def set_led_brightness(self, percent: int, seq: int) -> None:
+        """Record the command; the system acknowledges it (paho's thread)."""
+        self.led_commands.append(percent)
+        if FakeMqtt.acknowledge:
+            self.callbacks.on_ack(seq)
 
 
 @pytest.fixture(autouse=True)
@@ -91,6 +105,7 @@ def cloud() -> Generator[AsyncMock]:
         api.user_id = USER_ID
 
     FakeMqtt.instances.clear()
+    FakeMqtt.acknowledge = True
     with (
         patch(
             "custom_components.powerocean.ecoflow.HAEcoflowApi.async_authorize",
@@ -288,3 +303,138 @@ async def test_no_mqtt_with_mock_response(
     assert entry.state is ConfigEntryState.LOADED
     cloud.assert_not_called()
     assert not FakeMqtt.instances
+
+
+# -----------------------------
+# LED brightness
+# -----------------------------
+
+LED_NUMBER_UNIQUE_ID = f"{SN}_led_brightness"
+LED_SENSOR_UNIQUE_ID = f"{SN}_JTS1_EMS_CHANGE_REPORT_emsCtrlLedBright"
+
+
+def _led_entity_id(hass: HomeAssistant) -> str | None:
+    return er.async_get(hass).async_get_entity_id(
+        "number", DOMAIN, LED_NUMBER_UNIQUE_ID
+    )
+
+
+def _led_state(hass: HomeAssistant) -> str:
+    entity_id = _led_entity_id(hass)
+    assert entity_id
+    return hass.states.get(entity_id).state
+
+
+async def _set_led(hass: HomeAssistant, value: float) -> None:
+    await hass.services.async_call(
+        "number",
+        "set_value",
+        {"entity_id": _led_entity_id(hass), "value": value},
+        blocking=True,
+    )
+
+
+async def test_led_brightness_only_with_mqtt(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=False)
+
+    assert _led_entity_id(hass) is None
+
+
+async def test_led_brightness_removed_when_switched_off(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    entry = await _setup(hass, mqtt=True)
+    assert _led_entity_id(hass)
+
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, "mqtt": False}
+    )
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert _led_entity_id(hass) is None
+
+
+async def test_led_brightness_entity(hass: HomeAssistant, cloud: AsyncMock) -> None:
+    await _setup(hass, mqtt=True)
+
+    entity = er.async_get(hass).async_get(_led_entity_id(hass))
+    assert entity.entity_category is EntityCategory.CONFIG
+    assert entity.translation_key == "led_brightness"
+    assert entity.device_id == (
+        dr.async_get(hass).async_get_device(identifiers={(DOMAIN, SN)}).id
+    )
+    state = hass.states.get(entity.entity_id)
+    # Current value from the HTTP response
+    assert state.state == "10"
+    assert state.attributes["min"] == 0
+    assert state.attributes["max"] == 100
+    assert state.attributes["step"] == 10
+    assert state.attributes["unit_of_measurement"] == "%"
+
+
+async def test_set_led_brightness(hass: HomeAssistant, cloud: AsyncMock) -> None:
+    entry = await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    await _set_led(hass, 40)
+
+    assert client.led_commands == [40]
+    # Shown right after the acknowledgement, also in the sensor's value
+    assert _led_state(hass) == "40"
+    assert entry.runtime_data.data[LED_SENSOR_UNIQUE_ID] == 40
+
+
+async def test_led_brightness_reported_by_the_system(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    # Changed in the app: the system reports it (EMS change report)
+    await hass.async_add_executor_job(client.callbacks.on_led_brightness, 60)
+    await hass.async_block_till_done()
+
+    assert _led_state(hass) == "60"
+
+
+async def test_led_brightness_after_unload_is_ignored(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    entry = await _setup(hass, mqtt=True)
+    coordinator = entry.runtime_data
+    (client,) = FakeMqtt.instances
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+    await hass.async_add_executor_job(client.callbacks.on_led_brightness, 60)
+    await hass.async_block_till_done()
+
+    assert coordinator.data[LED_SENSOR_UNIQUE_ID] == 10
+
+
+async def test_set_led_brightness_without_acknowledgement(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+    FakeMqtt.acknowledge = False
+
+    with (
+        patch("custom_components.powerocean.coordinator.COMMAND_TIMEOUT", 0.01),
+        pytest.raises(HomeAssistantError) as error,
+    ):
+        await _set_led(hass, 40)
+
+    assert error.value.translation_key == "not_acknowledged"
+    assert _led_state(hass) == "10"
+
+
+async def test_led_brightness_unavailable_without_connection(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    cloud.side_effect = EcoflowConnectionError("offline")
+
+    await _setup(hass, mqtt=True)
+
+    assert _led_state(hass) == STATE_UNAVAILABLE
