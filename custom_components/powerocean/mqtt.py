@@ -4,7 +4,8 @@ mqtt.py: MQTT connection to the EcoFlow cloud, as the EcoFlow app uses it.
 Optional next to the HTTP polling: the integration connects with the MQTT
 credentials of the account, asks the system for its full state (as the app
 does when it opens) and reads the firmware of its modules from the answer.
-The only setting it sends is the brightness of the LED, as the app does.
+The only settings it sends are the brightness of the LED and the backup
+reserve, as the app does.
 
 The messages are protobuf. This module encodes and splits them without
 .proto files; the layout was captured from the Android app and matches
@@ -38,8 +39,15 @@ MODULE_INFO = 113
 EMS = 96
 EMS_CHANGE_REPORT = 8
 LED_BRIGHTNESS = 119
-# Field of the EMS change report with the LED brightness (emsCtrlLedBright)
-LED_BRIGHTNESS_FIELD = 152
+# Charge limit, backup reserve and devSoc in one command
+SOC_LIMITS = 112
+# Settings in the EMS change report: field number -> datapoint
+CHANGE_REPORT_SETTINGS = {
+    11: "sysBatChgUpLimit",
+    # The backup reserve of the app
+    12: "sysBatDsgDownLimit",
+    152: "emsCtrlLedBright",
+}
 # Source of the requests: the app
 APP = 32
 
@@ -173,6 +181,30 @@ def led_brightness_request(serial: str, percent: int, seq: int) -> bytes:
     the new value in an EMS change report (96/8, field 152).
     """
     content = _field_varint(1, 1) + _field_varint(2, percent)
+    return _ems_command(serial, LED_BRIGHTNESS, content, seq)
+
+
+def soc_limits_request(
+    serial: str, charge_limit: int, backup_reserve: int, dev_soc: int, seq: int
+) -> bytes:
+    """
+    Return the command that sets the backup reserve (96/112), as the app sends it.
+
+    Content: field 1 = charge limit, field 2 = backup reserve, field 4 = devSoc,
+    all in %. The app sends the current charge limit and devSoc along, so
+    they must be known. The system acknowledges it on .../set_reply and
+    reports the new value in an EMS change report (96/8, field 12).
+    """
+    content = (
+        _field_varint(1, charge_limit)
+        + _field_varint(2, backup_reserve)
+        + _field_varint(4, dev_soc)
+    )
+    return _ems_command(serial, SOC_LIMITS, content, seq)
+
+
+def _ems_command(serial: str, cmd_id: int, content: bytes, seq: int) -> bytes:
+    """Return a setting command of the app to the EMS."""
     header = b"".join(
         (
             _field_bytes(1, content),  # pdata
@@ -181,7 +213,7 @@ def led_brightness_request(serial: str, percent: int, seq: int) -> bytes:
             _field_varint(4, 1),  # d_src
             _field_varint(5, 1),  # d_dest
             _field_varint(8, EMS),  # cmd_func
-            _field_varint(9, LED_BRIGHTNESS),  # cmd_id
+            _field_varint(9, cmd_id),  # cmd_id
             _field_varint(10, len(content)),  # data_len
             _field_varint(11, 1),  # need_ack
             _field_varint(14, seq),  # seq
@@ -276,14 +308,15 @@ def module_versions(payload: bytes) -> dict[int, ModuleVersion] | None:
     return None
 
 
-def led_brightness(part: Part) -> int | None:
-    """Return the LED brightness of an EMS change report, None without it."""
+def change_report_settings(part: Part) -> dict[str, int]:
+    """Return the settings of an EMS change report by datapoint, {} without."""
     if (part.cmd_func, part.cmd_id) != (EMS, EMS_CHANGE_REPORT):
-        return None
-    for number, value in protobuf_fields(part.content):
-        if number == LED_BRIGHTNESS_FIELD and isinstance(value, int):
-            return value
-    return None
+        return {}
+    return {
+        CHANGE_REPORT_SETTINGS[number]: value
+        for number, value in protobuf_fields(part.content)
+        if number in CHANGE_REPORT_SETTINGS and isinstance(value, int)
+    }
 
 
 # -----------------------------
@@ -297,18 +330,18 @@ class MqttCallbacks:
 
     # Module info: firmware of the modules, by address
     on_modules: Callable[[dict[int, ModuleVersion]], None]
-    # The LED brightness changed (EMS change report)
-    on_led_brightness: Callable[[int], None]
+    # Settings changed (EMS change report), by datapoint
+    on_settings: Callable[[dict[str, int]], None]
     # The system acknowledged a command, by its seq
     on_ack: Callable[[int], None]
 
 
 class PowerOceanMqtt:
     """
-    MQTT connection of one system: module versions and LED brightness.
+    MQTT connection of one system: module versions and settings.
 
-    paho runs its own thread: `start`, `stop`, `request_full_state` and
-    `set_led_brightness` block and belong in an executor; the callbacks are
+    paho runs its own thread: `start`, `stop`, `request_full_state` and the
+    `set_...` commands block and belong in an executor; the callbacks are
     called from that thread.
     """
 
@@ -376,6 +409,16 @@ class PowerOceanMqtt:
             qos=1,
         )
 
+    def set_soc_limits(
+        self, charge_limit: int, backup_reserve: int, dev_soc: int, seq: int
+    ) -> None:
+        """Send charge limit, backup reserve and devSoc in % (ack with `seq`)."""
+        self.client.publish(
+            f"{self._property_topic}/set",
+            soc_limits_request(self.serial, charge_limit, backup_reserve, dev_soc, seq),
+            qos=1,
+        )
+
     def _on_connect(
         self,
         client: mqtt.Client,
@@ -402,10 +445,11 @@ class PowerOceanMqtt:
                 command = (part.cmd_func, part.cmd_id)
                 if command == (IOT, MODULE_INFO) and part.content:
                     self.callbacks.on_modules(parse_module_info(part.content))
-                elif reply and command == (EMS, LED_BRIGHTNESS):
+                elif reply:
+                    # By seq: only the integration's own commands wait for it
                     if part.seq is not None:
                         self.callbacks.on_ack(part.seq)
-                elif (brightness := led_brightness(part)) is not None:
-                    self.callbacks.on_led_brightness(brightness)
+                elif settings := change_report_settings(part):
+                    self.callbacks.on_settings(settings)
         except ValueError:
             LOGGER.debug("MQTT message is no protobuf message")

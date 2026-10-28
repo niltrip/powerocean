@@ -17,6 +17,7 @@ from custom_components.powerocean.mqtt import (
     module_versions,
     parse_module_info,
     protobuf_fields,
+    soc_limits_request,
 )
 
 SN = "SN_INVERTERBOX01"
@@ -102,6 +103,31 @@ def test_led_brightness_request_as_the_app_sends_it() -> None:
     ]
 
 
+def test_soc_limits_request_as_the_app_sends_it() -> None:
+    message = soc_limits_request(
+        SN, charge_limit=100, backup_reserve=11, dev_soc=100, seq=1234
+    )
+    ((_, header),) = protobuf_fields(message)
+    # Field by field as captured from the Android app (backup reserve 11 %)
+    assert protobuf_fields(header) == [
+        (1, bytes.fromhex("0864100b2064")),  # fields 1 = 100, 2 = 11, 4 = 100
+        (2, 32),
+        (3, 96),
+        (4, 1),
+        (5, 1),
+        (8, 96),
+        (9, 112),
+        (10, 6),
+        (11, 1),
+        (14, 1234),
+        (15, 1),
+        (16, 19),
+        (17, 1),
+        (23, b"android"),
+        (25, SN.encode()),
+    ]
+
+
 def _message(*fields: tuple[int, int | bytes]) -> bytes:
     header = b"".join(
         _field_bytes(number, value)
@@ -154,7 +180,7 @@ def test_parse_module_info_skips_incomplete_entries() -> None:
 
 def _callbacks() -> MqttCallbacks:
     return MqttCallbacks(
-        on_modules=MagicMock(), on_led_brightness=MagicMock(), on_ack=MagicMock()
+        on_modules=MagicMock(), on_settings=MagicMock(), on_ack=MagicMock()
     )
 
 
@@ -237,6 +263,20 @@ def test_set_led_brightness_publishes_the_command(
     )
 
 
+def test_set_soc_limits_publishes_the_command(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, _ = connection
+
+    mqtt.set_soc_limits(100, 11, 100, seq=1234)
+
+    mqtt.client.publish.assert_called_once_with(
+        f"/app/{USER_ID}/{SN}/thing/property/set",
+        soc_limits_request(SN, 100, 11, 100, 1234),
+        qos=1,
+    )
+
+
 def test_on_message_hands_over_ack_and_led_brightness(
     connection: tuple[PowerOceanMqtt, MqttCallbacks],
 ) -> None:
@@ -246,10 +286,31 @@ def test_on_message_hands_over_ack_and_led_brightness(
     callbacks.on_ack.assert_called_once_with(1234)
 
     _receive(mqtt, DEVICE_TOPIC, OTHER_REPORT)
-    callbacks.on_led_brightness.assert_not_called()
+    callbacks.on_settings.assert_not_called()
 
     _receive(mqtt, DEVICE_TOPIC, LED_REPORT)
-    callbacks.on_led_brightness.assert_called_once_with(20)
+    callbacks.on_settings.assert_called_once_with({"emsCtrlLedBright": 20})
+
+
+def test_on_message_hands_over_ack_and_soc_limits(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, callbacks = connection
+
+    # Acknowledgement of the backup reserve, as captured (96/112)
+    _receive(
+        mqtt,
+        SET_REPLY_TOPIC,
+        _message((2, 96), (3, 32), (8, 96), (9, 112), (11, 1), (12, 1), (14, 77)),
+    )
+    callbacks.on_ack.assert_called_once_with(77)
+
+    # Backup reserve (field 12) and charge limit (field 11) in a change report
+    report = _field_varint(11, 90) + _field_varint(12, 11) + _field_varint(1, 5)
+    _receive(mqtt, DEVICE_TOPIC, _message((1, report), (2, 96), (8, 96), (9, 8)))
+    callbacks.on_settings.assert_called_once_with(
+        {"sysBatChgUpLimit": 90, "sysBatDsgDownLimit": 11}
+    )
 
 
 def test_ack_only_from_set_reply(
