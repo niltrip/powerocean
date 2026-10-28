@@ -1,5 +1,7 @@
 # The contents of this file is based on https://github.com/home-assistant/core/blob/dev/pyproject.toml
 
+# Python 3.13: users with Home Assistant 2025.8 (hacs.json) still run it.
+# Tests and CI run on 3.14, the integration code must not need it.
 target-version = "py313"
 
 

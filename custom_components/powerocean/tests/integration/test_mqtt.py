@@ -14,7 +14,6 @@ from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import STATE_UNAVAILABLE, EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
@@ -28,6 +27,7 @@ from custom_components.powerocean.diagnostics import (
 )
 from custom_components.powerocean.ecoflow import MOCK_RESPONSE_ENV
 from custom_components.powerocean.mqtt import MqttCallbacks, module_versions
+from custom_components.powerocean.tests.utils import get_device
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 RESPONSE = json.loads((FIXTURES_DIR / "response_modified.json").read_text("utf-8"))
@@ -160,7 +160,7 @@ async def _setup(hass: HomeAssistant, *, mqtt: bool | None) -> MockConfigEntry:
 
 
 def _sw_version(hass: HomeAssistant, sn: str) -> str | None:
-    device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, sn)})
+    device = get_device(hass, sn)
     assert device
     return device.sw_version
 
@@ -373,9 +373,7 @@ async def test_led_brightness_entity(hass: HomeAssistant, cloud: AsyncMock) -> N
     entity = er.async_get(hass).async_get(_led_entity_id(hass))
     assert entity.entity_category is EntityCategory.CONFIG
     assert entity.translation_key == "led_brightness"
-    assert entity.device_id == (
-        dr.async_get(hass).async_get_device(identifiers={(DOMAIN, SN)}).id
-    )
+    assert entity.device_id == (get_device(hass, SN).id)
     state = hass.states.get(entity.entity_id)
     # Current value from the HTTP response
     assert state.state == "10"
