@@ -9,12 +9,12 @@ import pytest
 from homeassistant.config_entries import SOURCE_USER, ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
-from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.powerocean.const import DOMAIN
 from custom_components.powerocean.ecoflow import MOCK_RESPONSE_ENV, mock_response_path
+from custom_components.powerocean.tests.utils import get_device
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 DUAL = "response_modified_po_dual.json"
@@ -87,9 +87,7 @@ async def test_dual_system_without_cloud(
         (FIXTURES_DIR / f"golden_master_entities_{DUAL}").read_text("utf-8")
     )
     assert {e.unique_id for e in entities} == set(master["entities"])
-    assert dr.async_get(hass).async_get_device(
-        identifiers={(DOMAIN, "SN_INVERTERBOX02")}
-    )
+    assert get_device(hass, "SN_INVERTERBOX02")
 
 
 async def test_mock_from_diagnostics_download(

@@ -23,6 +23,7 @@ from custom_components.powerocean.api import (
 )
 from custom_components.powerocean.const import DOMAIN
 from custom_components.powerocean.coordinator import PowerOceanCoordinator
+from custom_components.powerocean.tests.utils import get_device
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 RESPONSE = json.loads((FIXTURES_DIR / "response_modified.json").read_text("utf-8"))
@@ -191,12 +192,11 @@ async def test_setup_fails_without_device_id(
 async def test_main_device_uses_friendly_name(
     hass: HomeAssistant, mock_authorize: AsyncMock, mock_fetch: AsyncMock
 ) -> None:
-    from homeassistant.helpers import device_registry as dr  # noqa: PLC0415
 
     entry = _entry(options={**OPTIONS, "friendly_name": "Keller"})
     await _setup(hass, entry)
 
-    device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, SN)})
+    device = get_device(hass, SN)
     assert device
     assert device.name == "Keller"
     assert device.model == "PowerOcean"
@@ -322,7 +322,7 @@ async def test_battery_offline_at_startup_is_added_later(
     coordinator = entry.runtime_data
     before = _entity_ids(hass, entry)
     assert soc not in before
-    assert not dr.async_get(hass).async_get_device(identifiers={(DOMAIN, battery)})
+    assert not get_device(hass, battery)
 
     # The battery is back
     mock_fetch.return_value = RESPONSE
@@ -336,7 +336,7 @@ async def test_battery_offline_at_startup_is_added_later(
     # Existing entities are unchanged
     assert {uid: after[uid] for uid in before} == before
     assert hass.states.get(after[soc]).state == "10"
-    device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, battery)})
+    device = get_device(hass, battery)
     assert device
     assert device.via_device_id
 
@@ -367,7 +367,7 @@ async def test_battery_firmware_update_shows_on_device(
     entry = _entry()
     await _setup(hass, entry)
     device_registry = dr.async_get(hass)
-    device = device_registry.async_get_device(identifiers={(DOMAIN, battery)})
+    device = get_device(hass, battery)
     assert device
     assert device.sw_version == "4.1.12.2"
     # A firmware sensor is no longer created
@@ -378,7 +378,7 @@ async def test_battery_firmware_update_shows_on_device(
     await entry.runtime_data.async_refresh()
     await hass.async_block_till_done()
 
-    device = device_registry.async_get_device(identifiers={(DOMAIN, battery)})
+    device = get_device(hass, battery)
     assert device
     assert device.sw_version == "4.1.14.9"
 
@@ -391,15 +391,14 @@ async def test_battery_firmware_update_shows_on_device(
 async def _remove_device(
     hass: HomeAssistant,
     hass_ws_client: WebSocketGenerator,
-    entry: MockConfigEntry,
     sn: str,
 ) -> bool:
     """Remove the device `sn` as the device page does, return True on success."""
     assert await async_setup_component(hass, "config", {})
-    device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, sn)})
+    device = get_device(hass, sn)
     assert device
     client = await hass_ws_client(hass)
-    response = await client.remove_device(device.id, entry.entry_id)
+    response = await client.remove_device(device.id)
     return response["success"]
 
 
@@ -414,8 +413,8 @@ async def test_device_with_values_cannot_be_removed(
     entry = _entry()
     await _setup(hass, entry)
 
-    assert not await _remove_device(hass, hass_ws_client, entry, sn)
-    assert dr.async_get(hass).async_get_device(identifiers={(DOMAIN, sn)})
+    assert not await _remove_device(hass, hass_ws_client, sn)
+    assert get_device(hass, sn)
 
 
 async def test_device_without_values_can_be_removed_and_returns(
@@ -436,21 +435,21 @@ async def test_device_without_values_can_be_removed_and_returns(
     mock_fetch.return_value = _without_battery(battery)
     await coordinator.async_refresh()
     await hass.async_block_till_done()
-    assert await _remove_device(hass, hass_ws_client, entry, battery)
+    assert await _remove_device(hass, hass_ws_client, battery)
     await hass.async_block_till_done()
 
-    assert not dr.async_get(hass).async_get_device(identifiers={(DOMAIN, battery)})
+    assert not get_device(hass, battery)
     remaining = _entity_ids(hass, entry)
     assert soc not in remaining
     assert all(not unique_id.startswith(f"{battery}_") for unique_id in remaining)
-    assert dr.async_get(hass).async_get_device(identifiers={(DOMAIN, SN)})
+    assert get_device(hass, SN)
 
     # It is back: device and entities are added again
     mock_fetch.return_value = RESPONSE
     await coordinator.async_refresh()
     await hass.async_block_till_done()
 
-    assert dr.async_get(hass).async_get_device(identifiers={(DOMAIN, battery)})
+    assert get_device(hass, battery)
     assert _entity_ids(hass, entry).keys() == before.keys()
     assert hass.states.get(_entity_ids(hass, entry)[soc]).state == "10"
 
@@ -484,7 +483,7 @@ async def test_migrate_v1_entry(
     assert dict(entry.data) == DATA
     assert dict(entry.options) == {"friendly_name": "Garage", "scan_interval": 30}
     assert entry.runtime_data.update_interval.total_seconds() == 30
-    device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, SN)})
+    device = get_device(hass, SN)
     assert device.name == "Garage"
 
 

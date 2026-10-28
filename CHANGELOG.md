@@ -16,6 +16,13 @@
   use the EcoFlow app, masked and ready to attach to an issue, to help decode
   further functions. It only listens and sends nothing to the system.
 
+### Changed
+
+- **Ready for Home Assistant 2027.8:** the integration no longer looks up
+  its devices in a way Home Assistant 2026.10 marks as deprecated and 2027.8
+  removes. Nothing changes for you; Home Assistant 2025.8 or newer is still
+  enough. The tests now run on Home Assistant 2026.10.
+
 ## 2026.10.28
 
 ### Breaking changes

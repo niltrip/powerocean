@@ -3,10 +3,25 @@
 from enum import Enum
 from typing import Any
 
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
+
+from custom_components.powerocean.const import DOMAIN
 from custom_components.powerocean.parse import parse
 from custom_components.powerocean.types import PowerOceanEndPoint
 
 SN = "SN_INVERTERBOX01"
+
+
+def get_device(hass: HomeAssistant, sn: str) -> dr.DeviceEntry | None:
+    """Return the device with the serial number `sn` of a PowerOcean entry."""
+    registry = dr.async_get(hass)
+    for entry in hass.config_entries.async_entries(DOMAIN):
+        if device := registry.async_get_device_by_identifier(
+            (DOMAIN, sn), entry.entry_id
+        ):
+            return device
+    return None
 
 
 def parse_structure(
