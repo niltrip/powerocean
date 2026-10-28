@@ -17,13 +17,15 @@ Usage:
   await coordinator.async_config_entry_first_refresh()
 """
 
+import asyncio
+from collections.abc import Callable
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -31,13 +33,18 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .api import AuthenticationError, EcoflowApiError, EcoflowConnectionError
 from .const import DEFAULT_SCAN_INTERVAL, DOMAIN, LOGGER
 from .ecoflow import HAEcoflowApi
-from .mqtt import MODULE_EMS, MODULE_METER, ModuleVersion, PowerOceanMqtt
+from .mqtt import (
+    MODULE_EMS,
+    MODULE_METER,
+    ModuleVersion,
+    MqttCallbacks,
+    PowerOceanMqtt,
+    new_seq,
+)
 from .parse import parse
 from .types import PowerOceanEndPoint
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     from .errors import ActiveError
 
 type PowerOceanConfigEntry = ConfigEntry[PowerOceanCoordinator]
@@ -45,6 +52,16 @@ type PowerOceanConfigEntry = ConfigEntry[PowerOceanCoordinator]
 # How often the module firmware is asked for again (it also comes after
 # every reconnect, e.g. after a firmware update)
 MQTT_REFRESH_INTERVAL = timedelta(hours=6)
+# How long a command may wait for the acknowledgement of the system
+COMMAND_TIMEOUT = 10
+# Sent together with the backup reserve: datapoint -> report it is read from.
+# Not from the values directly under "data": those can be 0 while the
+# report holds the setting.
+SOC_LIMITS = {
+    "sysBatChgUpLimit": "_EMS_CHANGE_REPORT",
+    "sysBatDsgDownLimit": "_EMS_CHANGE_REPORT",
+    "devSoc": "_EMS_PARAM_CHANGE_REPORT",
+}
 
 # Parser errors caused by unexpected API payloads
 PARSE_ERRORS = (KeyError, IndexError, TypeError, ValueError, AttributeError)
@@ -88,6 +105,10 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self.modules: dict[int, ModuleVersion] = {}
         self._mqtt_firmware: dict[str, str] = {}
         self._mqtt_refresh_unsub: Callable[[], None] | None = None
+        # Charge limit, backup reserve and devSoc (see SOC_LIMITS)
+        self.soc_limits: dict[str, int] = {}
+        # Commands waiting for their acknowledgement, by seq
+        self._pending_acks: dict[int, asyncio.Future[None]] = {}
 
     async def _async_setup(self) -> None:
         """Log in once before the first refresh."""
@@ -114,6 +135,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             ) from err
 
         self.active_errors = result.active_errors
+        self.soc_limits = soc_limits_of(response)
         self._update_firmware(result.firmware)
         return result.values()
 
@@ -185,8 +207,13 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             return
         try:
             credentials = await self.api.async_mqtt_credentials()
+            callbacks = MqttCallbacks(
+                on_modules=self._from_mqtt_thread(self._apply_modules),
+                on_settings=self._from_mqtt_thread(self._apply_settings),
+                on_ack=self._from_mqtt_thread(self._apply_ack),
+            )
             client = PowerOceanMqtt(
-                credentials, self.api.sn, self.api.user_id, self._modules_from_mqtt
+                credentials, self.api.sn, self.api.user_id, callbacks
             )
             await self.hass.async_add_executor_job(client.start)
         except (EcoflowApiError, OSError, ValueError, KeyError) as err:
@@ -196,6 +223,8 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self._mqtt_refresh_unsub = async_track_time_interval(
             self.hass, self._async_request_full_state, MQTT_REFRESH_INTERVAL
         )
+        # Settings (LED brightness, backup reserve) become available
+        self.async_update_listeners()
 
     async def async_stop_mqtt(self) -> None:
         """Close the MQTT connection, if any."""
@@ -211,9 +240,9 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         if self.mqtt:
             await self.hass.async_add_executor_job(self.mqtt.request_full_state)
 
-    def _modules_from_mqtt(self, modules: dict[int, ModuleVersion]) -> None:
-        """Hand the module versions over from paho's thread."""
-        self.hass.loop.call_soon_threadsafe(self._apply_modules, modules)
+    def _from_mqtt_thread[T](self, apply: Callable[[T], None]) -> Callable[[T], None]:
+        """Return a callback that hands a value over from paho's thread."""
+        return lambda value: self.hass.loop.call_soon_threadsafe(apply, value)
 
     @callback
     def _apply_modules(self, modules: dict[int, ModuleVersion]) -> None:
@@ -247,3 +276,126 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             device = device_registry.async_get_device(identifiers={(DOMAIN, sn)})
             if device and device.sw_version:
                 device_registry.async_update_device(device.id, sw_version=None)
+
+    # -----------------------------
+    # Settings: LED brightness, backup reserve
+    # -----------------------------
+
+    def setting_keys(self, name: str) -> list[str]:
+        """Return the datapoints of the inverter with a setting (emsCtrlLedBright)."""
+        prefix = f"{self.api.sn}_"
+        return [
+            unique_id
+            for unique_id in self.data or {}
+            if unique_id.startswith(prefix) and unique_id.endswith(f"_{name}")
+        ]
+
+    def setting(self, name: str) -> int | None:
+        """Return the current value of a setting of the inverter."""
+        if name in SOC_LIMITS:
+            return self.soc_limits.get(name)
+        keys = self.setting_keys(name)
+        value = self.data.get(keys[0]) if keys else None
+        return value if isinstance(value, int) else None
+
+    async def async_set_led_brightness(self, percent: int) -> None:
+        """
+        Set the LED brightness via MQTT and wait for the acknowledgement.
+
+        Raises:
+            HomeAssistantError: Without MQTT connection, or if the system does
+                not acknowledge the command in time.
+
+        """
+        mqtt = self._connected_mqtt()
+        await self._async_command(mqtt.set_led_brightness, percent)
+        # Acknowledged: show the value before the system reports it
+        self._apply_settings({"emsCtrlLedBright": percent})
+
+    async def async_set_backup_reserve(self, percent: int) -> None:
+        """
+        Set the backup reserve via MQTT and wait for the acknowledgement.
+
+        The command carries the charge limit and devSoc too; they are sent
+        unchanged, so both must be known.
+
+        Raises:
+            HomeAssistantError: Without MQTT connection, without the current
+                charge limit or devSoc, or if the system does not acknowledge
+                the command in time.
+
+        """
+        mqtt = self._connected_mqtt()
+        charge_limit = self.soc_limits.get("sysBatChgUpLimit")
+        dev_soc = self.soc_limits.get("devSoc")
+        if charge_limit is None or dev_soc is None:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN, translation_key="soc_limits_unknown"
+            )
+        await self._async_command(mqtt.set_soc_limits, charge_limit, percent, dev_soc)
+        self._apply_settings({"sysBatDsgDownLimit": percent})
+
+    def _connected_mqtt(self) -> PowerOceanMqtt:
+        if not self.mqtt:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN, translation_key="mqtt_not_connected"
+            )
+        return self.mqtt
+
+    async def _async_command(self, send: Callable[..., None], *values: int) -> None:
+        """Send a command (blocking, with the seq last) and wait for the ack."""
+        seq = new_seq()
+        acknowledged = self.hass.loop.create_future()
+        self._pending_acks[seq] = acknowledged
+        try:
+            await self.hass.async_add_executor_job(send, *values, seq)
+            async with asyncio.timeout(COMMAND_TIMEOUT):
+                await acknowledged
+        except TimeoutError as err:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN, translation_key="not_acknowledged"
+            ) from err
+        finally:
+            self._pending_acks.pop(seq, None)
+
+    @callback
+    def _apply_ack(self, seq: int) -> None:
+        """Complete the command the system acknowledged."""
+        acknowledged = self._pending_acks.get(seq)
+        if acknowledged and not acknowledged.done():
+            acknowledged.set_result(None)
+
+    @callback
+    def _apply_settings(self, values: dict[str, int]) -> None:
+        """Show changed settings (sensors and numbers) without polling."""
+        if not self.mqtt:
+            return
+        soc_limits = {**self.soc_limits}
+        data = {**self.data}
+        for name, value in values.items():
+            if name in SOC_LIMITS:
+                soc_limits[name] = value
+            for key in self.setting_keys(name):
+                data[key] = value
+        if soc_limits == self.soc_limits and data == self.data:
+            return
+        self.soc_limits = soc_limits
+        self.data = data
+        self.async_update_listeners()
+
+
+def soc_limits_of(response: dict[str, Any]) -> dict[str, int]:
+    """Return charge limit, backup reserve and devSoc from the reports."""
+    data = response.get("data")
+    quota = data.get("quota") if isinstance(data, dict) else None
+    if not isinstance(quota, dict):
+        return {}
+    found: dict[str, int] = {}
+    for report, values in quota.items():
+        if not isinstance(values, dict):
+            continue
+        for name, suffix in SOC_LIMITS.items():
+            value = values.get(name)
+            if report.endswith(suffix) and type(value) is int:
+                found[name] = value
+    return found

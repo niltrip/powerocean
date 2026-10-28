@@ -73,6 +73,25 @@
         },
         "missing_configuration": {
             "message": "La configuration est incomplète (numéro de série ou modèle manquant). Veuillez supprimer puis ajouter à nouveau l'appareil."
+        },
+        "mqtt_not_connected": {
+            "message": "Pas de connexion MQTT au cloud EcoFlow. Activez l'option « Connexion étendue (MQTT) »."
+        },
+        "not_acknowledged": {
+            "message": "Le système n'a pas confirmé le réglage. Veuillez réessayer."
+        },
+        "soc_limits_unknown": {
+            "message": "La limite de charge ou le devSoc du système ne sont pas encore connus, la réserve de secours ne peut donc pas être envoyée. Veuillez réessayer dans une minute."
+        }
+    },
+    "entity": {
+        "number": {
+            "led_brightness": {
+                "name": "Luminosité de la LED"
+            },
+            "backup_reserve": {
+                "name": "Réserve de secours"
+            }
         }
     }
 }

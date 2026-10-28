@@ -73,6 +73,15 @@
         },
         "missing_configuration": {
             "message": "Die Konfiguration ist unvollständig (Seriennummer oder Modell fehlt). Bitte das Gerät entfernen und neu hinzufügen."
+        },
+        "mqtt_not_connected": {
+            "message": "Keine MQTT-Verbindung zur EcoFlow-Cloud. Bitte die Option „Erweiterte Verbindung (MQTT)“ einschalten."
+        },
+        "not_acknowledged": {
+            "message": "Die Anlage hat die Einstellung nicht bestätigt. Bitte erneut versuchen."
+        },
+        "soc_limits_unknown": {
+            "message": "Ladegrenze oder devSoc der Anlage sind noch nicht bekannt, daher kann die Backup-Reserve nicht gesendet werden. Bitte in einer Minute erneut versuchen."
         }
     },
     "entity": {
@@ -750,13 +759,13 @@
                 "name": "§14a-Modus"
             },
             "sys_bat_backup_ratio": {
-                "name": "Notstromreserve"
+                "name": "Reserve-Anteil (nicht in der App)"
             },
             "sys_bat_chg_up_limit": {
                 "name": "Ladegrenze"
             },
             "sys_bat_dsg_down_limit": {
-                "name": "Entladegrenze"
+                "name": "Backup-Reserve (Entladegrenze)"
             },
             "sys_grid_pwr": {
                 "name": "Netzleistung (Cloud)"
@@ -827,6 +836,14 @@
             },
             "year_electricity_generation": {
                 "name": "Solarertrag Jahr"
+            }
+        },
+        "number": {
+            "led_brightness": {
+                "name": "LED-Helligkeit"
+            },
+            "backup_reserve": {
+                "name": "Backup-Reserve"
             }
         }
     }

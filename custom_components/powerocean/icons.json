@@ -42,6 +42,14 @@
           "0": "mdi:cloud-off-outline"
         }
       }
+    },
+    "number": {
+      "led_brightness": {
+        "default": "mdi:brightness-percent"
+      },
+      "backup_reserve": {
+        "default": "mdi:battery-lock"
+      }
     }
   }
 }

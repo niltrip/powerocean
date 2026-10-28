@@ -54,7 +54,11 @@ The integration then additionally connects to the EcoFlow cloud the way the EcoF
 - **Smart meter:** its firmware.
 - The other modules (inverter power stage, Wi-Fi) are listed in the diagnostics.
 
-All values still come from the regular polling. Nothing is changed on the system. If the connection fails, the integration keeps working and logs a warning. When you switch the option off, the firmware of the inverter and the smart meter is removed from their device pages again.
+**LED brightness:** With the option on, the inverter also gets a slider "LED brightness" (0–100 % in steps of 10, under *Configuration* on its device page). It sends the same command as the app and waits for the system to confirm it; if the system does not confirm it within 10 s, Home Assistant shows an error. A change in the app is shown right away as well.
+
+**Backup reserve:** A second slider "Backup reserve" (0–100 % in steps of 1) sets the backup reserve as in the app. The system keeps it as the lowest state of charge for discharging (`sysBatDsgDownLimit`, the sensor "Backup reserve (discharge limit)"). The app's command also contains the charge limit and a value `devSoc`; the integration sends their current values unchanged, so it only changes the backup reserve. While it does not know them yet (e.g. right after the start), the slider is unavailable.
+
+All other values still come from the regular polling. The LED brightness and the backup reserve are the only settings the integration changes. If the connection fails, the integration keeps working and logs a warning; the sliders are then unavailable. When you switch the option off, the sliders and the firmware of the inverter and the smart meter are removed again.
 
 
 
@@ -141,7 +145,7 @@ Each part of the system is a device of its own, named by its serial number and l
 ![PowerGlow heating rod](documentation/powerglow.png)
 ![PowerPulse wallbox](documentation/powerpulse.png)
 
-This integration only reads values. To control the PowerGlow or the PowerPulse 2 (mode, target temperature, charging current, …), have a look at the integrations by [Xygen](https://github.com/Xygen): [EcoFlow PowerGlow for Home Assistant](https://github.com/Xygen/EcoFlow-PowerGlow-for-Home-Assistant) and [EcoFlow PowerPulse 2 for Home Assistant](https://github.com/Xygen/EcoFlow-PowerPulse-2-for-Home-Assistant).
+Apart from the LED brightness, this integration only reads values. To control the PowerGlow or the PowerPulse 2 (mode, target temperature, charging current, …), have a look at the integrations by [Xygen](https://github.com/Xygen): [EcoFlow PowerGlow for Home Assistant](https://github.com/Xygen/EcoFlow-PowerGlow-for-Home-Assistant) and [EcoFlow PowerPulse 2 for Home Assistant](https://github.com/Xygen/EcoFlow-PowerPulse-2-for-Home-Assistant).
 
 
 ### Energy dashboard

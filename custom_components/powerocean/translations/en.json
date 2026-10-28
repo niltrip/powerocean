@@ -73,6 +73,15 @@
         },
         "missing_configuration": {
             "message": "The configuration is incomplete (serial number or model missing). Please remove and add the device again."
+        },
+        "mqtt_not_connected": {
+            "message": "No MQTT connection to the EcoFlow cloud. Switch on the option \"Extended connection (MQTT)\"."
+        },
+        "not_acknowledged": {
+            "message": "The system did not confirm the setting. Please try again."
+        },
+        "soc_limits_unknown": {
+            "message": "The current charge limit or devSoc of the system is not known yet, so the backup reserve cannot be sent. Please try again in a minute."
         }
     },
     "entity": {
@@ -750,13 +759,13 @@
                 "name": "§14a mode"
             },
             "sys_bat_backup_ratio": {
-                "name": "Backup reserve"
+                "name": "Backup ratio (not in the app)"
             },
             "sys_bat_chg_up_limit": {
                 "name": "Charge limit"
             },
             "sys_bat_dsg_down_limit": {
-                "name": "Discharge limit"
+                "name": "Backup reserve (discharge limit)"
             },
             "sys_grid_pwr": {
                 "name": "Grid power (cloud)"
@@ -827,6 +836,14 @@
             },
             "year_electricity_generation": {
                 "name": "Solar energy this year"
+            }
+        },
+        "number": {
+            "led_brightness": {
+                "name": "LED brightness"
+            },
+            "backup_reserve": {
+                "name": "Backup reserve"
             }
         }
     }
