@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### New
+
+- **LED brightness of the inverter (with the MQTT option):** a slider from
+  0 to 100 % in steps of 10, as in the EcoFlow app. The system confirms
+  each change; without confirmation Home Assistant shows an error.
+- **Backup reserve (with the MQTT option):** a slider from 0 to 100 % in
+  steps of 1, as in the EcoFlow app (`sysBatDsgDownLimit`). The app's
+  command also carries the charge limit and `devSoc`; the integration sends
+  their current values unchanged and does not send at all while it does not
+  know them.
+
+## 2026.10.28
+
 ### Breaking changes
 
 - **Battery firmware is shown on the device page.** Each battery pack shows
@@ -83,14 +96,6 @@
   inverter and the firmware of the smart meter on their device pages. It
   updates after a firmware update. All other modules are in the
   diagnostics. The values still come from the regular polling.
-- **LED brightness of the inverter (with the MQTT option):** a slider from
-  0 to 100 % in steps of 10, as in the EcoFlow app. The system confirms
-  each change; without confirmation Home Assistant shows an error.
-- **Backup reserve (with the MQTT option):** a slider from 0 to 100 % in
-  steps of 1, as in the EcoFlow app (`sysBatDsgDownLimit`). The app's
-  command also carries the charge limit and `devSoc`; the integration sends
-  their current values unchanged and does not send at all while it does not
-  know them.
 - **Link to the EcoFlow web portal** on every device page.
 - **Readable entity names** in English and German, e.g. "State of charge"
   instead of `bpSoc`. Entity IDs stay the same, also for new installations,
@@ -107,6 +112,12 @@
 
 ### Changed
 
+- **Backup reserve has the right name.** The backup reserve you set in the
+  EcoFlow app is `sysBatDsgDownLimit`: the sensor "Discharge limit" is now
+  called "Backup reserve (discharge limit)". The sensor that was called
+  "Backup reserve" (`sysBatBackupRatio`, disabled by default) does not follow
+  the app setting and is now called "Backup ratio (not in the app)". Entity
+  IDs stay the same; names you changed yourself are kept.
 - **Fewer diagnostic sensors.** Rarely needed sensors are disabled by default
   (connection codes, error and warning codes of inverter and PV strings,
   protection counters, states without known meaning, internal battery
