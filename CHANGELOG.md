@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2026.10.28
 
 ### Breaking changes
 
@@ -102,6 +102,12 @@
 
 ### Changed
 
+- **Backup reserve has the right name.** The backup reserve you set in the
+  EcoFlow app is `sysBatDsgDownLimit`: the sensor "Discharge limit" is now
+  called "Backup reserve (discharge limit)". The sensor that was called
+  "Backup reserve" (`sysBatBackupRatio`, disabled by default) does not follow
+  the app setting and is now called "Backup ratio (not in the app)". Entity
+  IDs stay the same; names you changed yourself are kept.
 - **Fewer diagnostic sensors.** Rarely needed sensors are disabled by default
   (connection codes, error and warning codes of inverter and PV strings,
   protection counters, states without known meaning, internal battery
