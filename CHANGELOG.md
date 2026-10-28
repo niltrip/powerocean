@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### New
+
+- **LED brightness of the inverter (with the MQTT option):** a slider from
+  0 to 100 % in steps of 10, as in the EcoFlow app. The system confirms
+  each change; without confirmation Home Assistant shows an error.
+
 ## 2026.10.28
 
 ### Breaking changes
@@ -83,9 +91,6 @@
   inverter and the firmware of the smart meter on their device pages. It
   updates after a firmware update. All other modules are in the
   diagnostics. The values still come from the regular polling.
-- **LED brightness of the inverter (with the MQTT option):** a slider from
-  0 to 100 % in steps of 10, as in the EcoFlow app. The system confirms
-  each change; without confirmation Home Assistant shows an error.
 - **Link to the EcoFlow web portal** on every device page.
 - **Readable entity names** in English and German, e.g. "State of charge"
   instead of `bpSoc`. Entity IDs stay the same, also for new installations,
