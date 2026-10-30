@@ -49,6 +49,14 @@
       },
       "backup_reserve": {
         "default": "mdi:battery-lock"
+      },
+      "solar_surplus": {
+        "default": "mdi:solar-power-variant"
+      }
+    },
+    "switch": {
+      "battery_save_mode": {
+        "default": "mdi:battery-heart-variant"
       }
     }
   }

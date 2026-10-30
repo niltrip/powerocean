@@ -38,15 +38,30 @@ IOT = 53
 MODULE_INFO = 113
 EMS = 96
 EMS_CHANGE_REPORT = 8
+EMS_PARAM_CHANGE_REPORT = 13
 LED_BRIGHTNESS = 119
 # Charge limit, backup reserve and devSoc in one command
 SOC_LIMITS = 112
+BATTERY_SAVE_MODE = 138
 # Settings in the EMS change report: field number -> datapoint
 CHANGE_REPORT_SETTINGS = {
     11: "sysBatChgUpLimit",
     # The backup reserve of the app
     12: "sysBatDsgDownLimit",
     152: "emsCtrlLedBright",
+}
+# Settings in the EMS parameter change report: field number -> datapoint
+PARAM_CHANGE_REPORT_SETTINGS = {
+    # The battery save mode of the app (0/1), not in the HTTP response
+    2: "batterySaveMode",
+    # Sent along with the battery save mode
+    3: "sysZone",
+    # "Surplus solar energy delivery" of the app, in %
+    10: "devSoc",
+}
+REPORT_SETTINGS = {
+    (EMS, EMS_CHANGE_REPORT): CHANGE_REPORT_SETTINGS,
+    (EMS, EMS_PARAM_CHANGE_REPORT): PARAM_CHANGE_REPORT_SETTINGS,
 }
 # Source of the requests: the app
 APP = 32
@@ -203,6 +218,19 @@ def soc_limits_request(
     return _ems_command(serial, SOC_LIMITS, content, seq)
 
 
+def battery_save_mode_request(serial: str, enabled: int, zone: int, seq: int) -> bytes:
+    """
+    Return the command that switches the battery save mode (96/138), as the app.
+
+    Content: field 1 = on (1) or off (0), field 2 = sysZone, field 3 = 0, the
+    zeros included. The app sends sysZone along, so it must be known. The
+    system acknowledges it on .../set_reply and reports the new state in an
+    EMS parameter change report (96/13, field 2).
+    """
+    content = _field_varint(1, enabled) + _field_varint(2, zone) + _field_varint(3, 0)
+    return _ems_command(serial, BATTERY_SAVE_MODE, content, seq)
+
+
 def _ems_command(serial: str, cmd_id: int, content: bytes, seq: int) -> bytes:
     """Return a setting command of the app to the EMS."""
     header = b"".join(
@@ -309,13 +337,14 @@ def module_versions(payload: bytes) -> dict[int, ModuleVersion] | None:
 
 
 def change_report_settings(part: Part) -> dict[str, int]:
-    """Return the settings of an EMS change report by datapoint, {} without."""
-    if (part.cmd_func, part.cmd_id) != (EMS, EMS_CHANGE_REPORT):
+    """Return the settings of an EMS (parameter) change report, {} without."""
+    settings = REPORT_SETTINGS.get((part.cmd_func, part.cmd_id))
+    if settings is None:
         return {}
     return {
-        CHANGE_REPORT_SETTINGS[number]: value
+        settings[number]: value
         for number, value in protobuf_fields(part.content)
-        if number in CHANGE_REPORT_SETTINGS and isinstance(value, int)
+        if number in settings and isinstance(value, int)
     }
 
 
@@ -416,6 +445,14 @@ class PowerOceanMqtt:
         self.client.publish(
             f"{self._property_topic}/set",
             soc_limits_request(self.serial, charge_limit, backup_reserve, dev_soc, seq),
+            qos=1,
+        )
+
+    def set_battery_save_mode(self, enabled: int, zone: int, seq: int) -> None:
+        """Switch the battery save mode with sysZone (acknowledged with `seq`)."""
+        self.client.publish(
+            f"{self._property_topic}/set",
+            battery_save_mode_request(self.serial, enabled, zone, seq),
             qos=1,
         )
 

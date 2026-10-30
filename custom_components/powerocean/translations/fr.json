@@ -81,7 +81,10 @@
             "message": "Le système n'a pas confirmé le réglage. Veuillez réessayer."
         },
         "soc_limits_unknown": {
-            "message": "La limite de charge ou le devSoc du système ne sont pas encore connus, la réserve de secours ne peut donc pas être envoyée. Veuillez réessayer dans une minute."
+            "message": "La limite de charge, la réserve de secours ou la distribution de l'énergie solaire excédentaire du système ne sont pas encore connues, le réglage ne peut donc pas être envoyé. Veuillez réessayer dans une minute."
+        },
+        "sys_zone_unknown": {
+            "message": "Le fuseau horaire du système (sysZone) n'est pas encore connu, le mode économie de batterie ne peut donc pas être envoyé. Veuillez réessayer dans une minute."
         }
     },
     "entity": {
@@ -91,6 +94,14 @@
             },
             "backup_reserve": {
                 "name": "Réserve de secours"
+            },
+            "solar_surplus": {
+                "name": "Distribution de l'énergie solaire excédentaire"
+            }
+        },
+        "switch": {
+            "battery_save_mode": {
+                "name": "Mode économie de batterie"
             }
         }
     }

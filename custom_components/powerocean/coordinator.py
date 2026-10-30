@@ -62,6 +62,8 @@ SOC_LIMITS = {
     "sysBatDsgDownLimit": "_EMS_CHANGE_REPORT",
     "devSoc": "_EMS_PARAM_CHANGE_REPORT",
 }
+# Settings only known from the MQTT reports (EMS parameter change report)
+MQTT_SETTINGS = ("batterySaveMode", "sysZone")
 
 # Parser errors caused by unexpected API payloads
 PARSE_ERRORS = (KeyError, IndexError, TypeError, ValueError, AttributeError)
@@ -107,6 +109,8 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self._mqtt_refresh_unsub: Callable[[], None] | None = None
         # Charge limit, backup reserve and devSoc (see SOC_LIMITS)
         self.soc_limits: dict[str, int] = {}
+        # Battery save mode and sysZone (see MQTT_SETTINGS)
+        self.mqtt_settings: dict[str, int] = {}
         # Commands waiting for their acknowledgement, by seq
         self._pending_acks: dict[int, asyncio.Future[None]] = {}
 
@@ -293,7 +297,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
                 device_registry.async_update_device(device.id, sw_version=None)
 
     # -----------------------------
-    # Settings: LED brightness, backup reserve
+    # Settings: LED brightness, backup reserve, solar surplus, battery save mode
     # -----------------------------
 
     def setting_keys(self, name: str) -> list[str]:
@@ -309,6 +313,8 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         """Return the current value of a setting of the inverter."""
         if name in SOC_LIMITS:
             return self.soc_limits.get(name)
+        if name in MQTT_SETTINGS:
+            return self.mqtt_settings.get(name)
         keys = self.setting_keys(name)
         value = self.data.get(keys[0]) if keys else None
         return value if isinstance(value, int) else None
@@ -328,27 +334,60 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self._apply_settings({"emsCtrlLedBright": percent})
 
     async def async_set_backup_reserve(self, percent: int) -> None:
-        """
-        Set the backup reserve via MQTT and wait for the acknowledgement.
+        """Set the backup reserve (sysBatDsgDownLimit), see _async_set_soc_limits."""
+        await self._async_set_soc_limits({"sysBatDsgDownLimit": percent})
 
-        The command carries the charge limit and devSoc too; they are sent
-        unchanged, so both must be known.
+    async def async_set_solar_surplus(self, percent: int) -> None:
+        """Set the surplus solar energy delivery (devSoc), see _async_set_soc_limits."""
+        await self._async_set_soc_limits({"devSoc": percent})
+
+    async def _async_set_soc_limits(self, changes: dict[str, int]) -> None:
+        """
+        Change one of the SOC_LIMITS via MQTT and wait for the acknowledgement.
+
+        One command carries charge limit, backup reserve and devSoc; the
+        others are sent unchanged, so all must be known.
 
         Raises:
             HomeAssistantError: Without MQTT connection, without the current
-                charge limit or devSoc, or if the system does not acknowledge
-                the command in time.
+                values, or if the system does not acknowledge the command in
+                time.
 
         """
         mqtt = self._connected_mqtt()
-        charge_limit = self.soc_limits.get("sysBatChgUpLimit")
-        dev_soc = self.soc_limits.get("devSoc")
-        if charge_limit is None or dev_soc is None:
+        limits = {**self.soc_limits, **changes}
+        if any(name not in limits for name in SOC_LIMITS):
             raise HomeAssistantError(
                 translation_domain=DOMAIN, translation_key="soc_limits_unknown"
             )
-        await self._async_command(mqtt.set_soc_limits, charge_limit, percent, dev_soc)
-        self._apply_settings({"sysBatDsgDownLimit": percent})
+        await self._async_command(
+            mqtt.set_soc_limits,
+            limits["sysBatChgUpLimit"],
+            limits["sysBatDsgDownLimit"],
+            limits["devSoc"],
+        )
+        self._apply_settings(changes)
+
+    async def async_set_battery_save_mode(self, *, enabled: bool) -> None:
+        """
+        Switch the battery save mode via MQTT and wait for the acknowledgement.
+
+        The command carries sysZone too; it is sent unchanged, so it must be
+        known.
+
+        Raises:
+            HomeAssistantError: Without MQTT connection, without sysZone, or if
+                the system does not acknowledge the command in time.
+
+        """
+        mqtt = self._connected_mqtt()
+        zone = self.mqtt_settings.get("sysZone")
+        if zone is None:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN, translation_key="sys_zone_unknown"
+            )
+        await self._async_command(mqtt.set_battery_save_mode, int(enabled), zone)
+        self._apply_settings({"batterySaveMode": int(enabled)})
 
     def _connected_mqtt(self) -> PowerOceanMqtt:
         if not self.mqtt:
@@ -386,15 +425,23 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         if not self.mqtt:
             return
         soc_limits = {**self.soc_limits}
+        mqtt_settings = {**self.mqtt_settings}
         data = {**self.data}
         for name, value in values.items():
             if name in SOC_LIMITS:
                 soc_limits[name] = value
+            if name in MQTT_SETTINGS:
+                mqtt_settings[name] = value
             for key in self.setting_keys(name):
                 data[key] = value
-        if soc_limits == self.soc_limits and data == self.data:
+        if (soc_limits, mqtt_settings, data) == (
+            self.soc_limits,
+            self.mqtt_settings,
+            self.data,
+        ):
             return
         self.soc_limits = soc_limits
+        self.mqtt_settings = mqtt_settings
         self.data = data
         self.async_update_listeners()
 

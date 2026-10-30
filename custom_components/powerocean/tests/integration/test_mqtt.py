@@ -72,6 +72,7 @@ class FakeMqtt:
         self.requests = 0
         self.led_commands: list[int] = []
         self.soc_limit_commands: list[tuple[int, int, int]] = []
+        self.battery_save_commands: list[tuple[int, int]] = []
         FakeMqtt.instances.append(self)
 
     def start(self) -> None:
@@ -97,6 +98,12 @@ class FakeMqtt:
     ) -> None:
         """Record the command; the system acknowledges it (paho's thread)."""
         self.soc_limit_commands.append((charge_limit, backup_reserve, dev_soc))
+        if FakeMqtt.acknowledge:
+            self.callbacks.on_ack(seq)
+
+    def set_battery_save_mode(self, enabled: int, zone: int, seq: int) -> None:
+        """Record the command; the system acknowledges it (paho's thread)."""
+        self.battery_save_commands.append((enabled, zone))
         if FakeMqtt.acknowledge:
             self.callbacks.on_ack(seq)
 
@@ -577,3 +584,182 @@ async def test_set_backup_reserve_without_acknowledgement(
 
     assert error.value.translation_key == "not_acknowledged"
     assert _backup_state(hass) == "5"
+
+
+# -----------------------------
+# Surplus solar energy delivery
+# -----------------------------
+
+SOLAR_NUMBER_UNIQUE_ID = f"{SN}_solar_surplus"
+
+
+def _solar_entity_id(hass: HomeAssistant) -> str | None:
+    return er.async_get(hass).async_get_entity_id(
+        "number", DOMAIN, SOLAR_NUMBER_UNIQUE_ID
+    )
+
+
+def _solar_state(hass: HomeAssistant) -> str:
+    entity_id = _solar_entity_id(hass)
+    assert entity_id
+    return hass.states.get(entity_id).state
+
+
+async def _set_solar(hass: HomeAssistant, value: float) -> None:
+    await hass.services.async_call(
+        "number",
+        "set_value",
+        {"entity_id": _solar_entity_id(hass), "value": value},
+        blocking=True,
+    )
+
+
+async def test_solar_surplus_only_with_mqtt(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=False)
+
+    assert _solar_entity_id(hass) is None
+
+
+async def test_solar_surplus_entity(hass: HomeAssistant, cloud: AsyncMock) -> None:
+    await _setup(hass, mqtt=True)
+
+    entity = er.async_get(hass).async_get(_solar_entity_id(hass))
+    assert entity.entity_category is EntityCategory.CONFIG
+    assert entity.translation_key == "solar_surplus"
+    state = hass.states.get(entity.entity_id)
+    # devSoc from the EMS parameter change report
+    assert state.state == "100"
+    assert state.attributes["step"] == 1
+    assert state.attributes["unit_of_measurement"] == "%"
+
+
+async def test_set_solar_surplus(hass: HomeAssistant, cloud: AsyncMock) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    await _set_solar(hass, 77)
+
+    # Charge limit and backup reserve are sent unchanged, as the app does
+    assert client.soc_limit_commands == [(100, 5, 77)]
+    assert _solar_state(hass) == "77"
+    # The backup reserve now sends the new value along
+    await _set_backup(hass, 16)
+    assert client.soc_limit_commands[-1] == (100, 16, 77)
+
+
+async def test_solar_surplus_reported_by_the_system(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    # Changed in the app: the system reports it (EMS parameter change report)
+    await hass.async_add_executor_job(client.callbacks.on_settings, {"devSoc": 77})
+    await hass.async_block_till_done()
+
+    assert _solar_state(hass) == "77"
+
+
+# -----------------------------
+# Battery save mode
+# -----------------------------
+
+SAVE_SWITCH_UNIQUE_ID = f"{SN}_battery_save_mode"
+
+
+def _save_entity_id(hass: HomeAssistant) -> str | None:
+    return er.async_get(hass).async_get_entity_id(
+        "switch", DOMAIN, SAVE_SWITCH_UNIQUE_ID
+    )
+
+
+def _save_state(hass: HomeAssistant) -> str:
+    entity_id = _save_entity_id(hass)
+    assert entity_id
+    return hass.states.get(entity_id).state
+
+
+async def _switch_save(hass: HomeAssistant, service: str) -> None:
+    await hass.services.async_call(
+        "switch", service, {"entity_id": _save_entity_id(hass)}, blocking=True
+    )
+
+
+async def _report(
+    hass: HomeAssistant, client: FakeMqtt, values: dict[str, int]
+) -> None:
+    await hass.async_add_executor_job(client.callbacks.on_settings, values)
+    await hass.async_block_till_done()
+
+
+async def test_battery_save_mode_removed_when_switched_off(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    entry = await _setup(hass, mqtt=True)
+    assert _save_entity_id(hass)
+
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, "mqtt": False}
+    )
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert _save_entity_id(hass) is None
+
+
+async def test_battery_save_mode_unavailable_until_reported(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    entry = await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    entity = er.async_get(hass).async_get(_save_entity_id(hass))
+    assert entity.entity_category is EntityCategory.CONFIG
+    assert entity.translation_key == "battery_save_mode"
+    # Not in the HTTP response: only known from the MQTT report
+    assert _save_state(hass) == STATE_UNAVAILABLE
+    with pytest.raises(HomeAssistantError) as error:
+        await entry.runtime_data.async_set_battery_save_mode(enabled=True)
+    assert error.value.translation_key == "sys_zone_unknown"
+
+    # Full state after connecting: parameter change report
+    await _report(hass, client, {"batterySaveMode": 1, "sysZone": 4})
+    assert _save_state(hass) == "on"
+
+    # Switched off in the app
+    await _report(hass, client, {"batterySaveMode": 0})
+    assert _save_state(hass) == "off"
+
+
+async def test_switch_battery_save_mode(hass: HomeAssistant, cloud: AsyncMock) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+    await _report(hass, client, {"batterySaveMode": 1, "sysZone": 4})
+
+    await _switch_save(hass, "turn_off")
+    assert _save_state(hass) == "off"
+    await _switch_save(hass, "turn_on")
+    assert _save_state(hass) == "on"
+
+    # sysZone is sent unchanged, as the app does
+    assert client.battery_save_commands == [(0, 4), (1, 4)]
+
+
+async def test_switch_battery_save_mode_without_acknowledgement(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+    await _report(hass, client, {"batterySaveMode": 1, "sysZone": 4})
+    FakeMqtt.acknowledge = False
+
+    with (
+        patch("custom_components.powerocean.coordinator.COMMAND_TIMEOUT", 0.01),
+        pytest.raises(HomeAssistantError) as error,
+    ):
+        await _switch_save(hass, "turn_off")
+
+    assert error.value.translation_key == "not_acknowledged"
+    assert _save_state(hass) == "on"
