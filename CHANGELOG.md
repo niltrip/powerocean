@@ -6,12 +6,19 @@
 
 - **LED brightness of the inverter (with the MQTT option):** a slider from
   0 to 100 % in steps of 10, as in the EcoFlow app. The system confirms
-  each change; without confirmation Home Assistant shows an error.
+  each change; without confirmation Home Assistant shows an error. 0 %
+  switches the LEDs off.
 - **Backup reserve (with the MQTT option):** a slider from 0 to 100 % in
   steps of 1, as in the EcoFlow app (`sysBatDsgDownLimit`). The app's
   command also carries the charge limit and `devSoc`; the integration sends
   their current values unchanged and does not send at all while it does not
   know them.
+- **Surplus solar energy delivery (with the MQTT option):** a slider from 0
+  to 100 % in steps of 1, as in the EcoFlow app (`devSoc`). Same command as
+  the backup reserve; the other values are sent unchanged.
+- **Battery save mode (with the MQTT option):** a switch, as in the EcoFlow
+  app. The system reports the state only via MQTT; the switch is
+  unavailable until the first report.
 - **`scripts/capture`** records the MQTT messages of the system while you
   use the EcoFlow app, masked and ready to attach to an issue, to help decode
   further functions. It only listens and sends nothing to the system.

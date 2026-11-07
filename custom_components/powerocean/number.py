@@ -2,7 +2,8 @@
 PowerOcean number entities: settings sent to the system via MQTT.
 
 Only with the option "Extended connection (MQTT)": the LED brightness of the
-inverter and the backup reserve, set as the EcoFlow app does.
+inverter, the backup reserve and the surplus solar energy delivery, set as
+the EcoFlow app does.
 """
 
 from homeassistant.components.number import DOMAIN as NUMBER_DOMAIN
@@ -15,7 +16,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import CONF_MQTT, DOMAIN
-from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
+from .coordinator import SOC_LIMITS, PowerOceanConfigEntry, PowerOceanCoordinator
 
 # One command at a time, each waits for its acknowledgement
 PARALLEL_UPDATES = 1
@@ -31,6 +32,7 @@ async def async_setup_entry(
     settings = [
         PowerOceanLedBrightness(coordinator),
         PowerOceanBackupReserve(coordinator),
+        PowerOceanSolarSurplus(coordinator),
     ]
     if entry.options.get(CONF_MQTT, False):
         async_add_entities(settings)
@@ -91,21 +93,36 @@ class PowerOceanLedBrightness(PowerOceanSetting):
         await self.coordinator.async_set_led_brightness(int(value))
 
 
-class PowerOceanBackupReserve(PowerOceanSetting):
-    """Backup reserve of the battery in % (sysBatDsgDownLimit)."""
+class PowerOceanSocLimit(PowerOceanSetting):
+    """A setting sent in one command with the other SOC_LIMITS, in steps of 1 %."""
 
-    _attr_translation_key = "backup_reserve"
     _attr_native_step = 1
-    _datapoint = "sysBatDsgDownLimit"
 
     @property
     def available(self) -> bool:
-        """Return False also without charge limit or devSoc, which are sent along."""
+        """Return False also without the other values, which are sent along."""
         return super().available and all(
-            name in self.coordinator.soc_limits
-            for name in ("sysBatChgUpLimit", "devSoc")
+            name in self.coordinator.soc_limits for name in SOC_LIMITS
         )
+
+
+class PowerOceanBackupReserve(PowerOceanSocLimit):
+    """Backup reserve of the battery in % (sysBatDsgDownLimit)."""
+
+    _attr_translation_key = "backup_reserve"
+    _datapoint = "sysBatDsgDownLimit"
 
     async def async_set_native_value(self, value: float) -> None:
         """Send the new backup reserve; raises if the system does not confirm it."""
         await self.coordinator.async_set_backup_reserve(int(value))
+
+
+class PowerOceanSolarSurplus(PowerOceanSocLimit):
+    """Surplus solar energy delivery of the app in % (devSoc)."""
+
+    _attr_translation_key = "solar_surplus"
+    _datapoint = "devSoc"
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Send the new value; raises if the system does not confirm it."""
+        await self.coordinator.async_set_solar_surplus(int(value))

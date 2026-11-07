@@ -11,6 +11,7 @@ from custom_components.powerocean.mqtt import (
     PowerOceanMqtt,
     _field_bytes,
     _field_varint,
+    battery_save_mode_request,
     get_all_request,
     led_brightness_request,
     module_info_request,
@@ -117,6 +118,29 @@ def test_soc_limits_request_as_the_app_sends_it() -> None:
         (5, 1),
         (8, 96),
         (9, 112),
+        (10, 6),
+        (11, 1),
+        (14, 1234),
+        (15, 1),
+        (16, 19),
+        (17, 1),
+        (23, b"android"),
+        (25, SN.encode()),
+    ]
+
+
+def test_battery_save_mode_request_as_the_app_sends_it() -> None:
+    message = battery_save_mode_request(SN, enabled=0, zone=4, seq=1234)
+    ((_, header),) = protobuf_fields(message)
+    # Field by field as captured from the Android app (save mode off)
+    assert protobuf_fields(header) == [
+        (1, bytes.fromhex("080010041800")),  # fields 1 = 0, 2 = 4, 3 = 0
+        (2, 32),
+        (3, 96),
+        (4, 1),
+        (5, 1),
+        (8, 96),
+        (9, 138),
         (10, 6),
         (11, 1),
         (14, 1234),
@@ -322,3 +346,32 @@ def test_ack_only_from_set_reply(
     _receive(mqtt, DEVICE_TOPIC, LED_ACK)
 
     callbacks.on_ack.assert_not_called()
+
+
+def test_set_battery_save_mode_publishes_the_command(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, _ = connection
+
+    mqtt.set_battery_save_mode(1, 4, seq=1234)
+
+    mqtt.client.publish.assert_called_once_with(
+        f"/app/{USER_ID}/{SN}/thing/property/set",
+        battery_save_mode_request(SN, 1, 4, 1234),
+        qos=1,
+    )
+
+
+def test_on_message_hands_over_the_parameter_change_report(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, callbacks = connection
+
+    # As captured after the app switched the save mode off: field 2 = 0
+    # (explicitly), field 3 = sysZone; field 10 = devSoc after another change
+    report = _field_varint(2, 0) + _field_varint(3, 4) + _field_varint(10, 77)
+    _receive(mqtt, DEVICE_TOPIC, _message((1, report), (2, 96), (8, 96), (9, 13)))
+
+    callbacks.on_settings.assert_called_once_with(
+        {"batterySaveMode": 0, "sysZone": 4, "devSoc": 77}
+    )

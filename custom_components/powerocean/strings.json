@@ -81,7 +81,10 @@
       "message": "The system did not confirm the setting. Please try again."
     },
     "soc_limits_unknown": {
-      "message": "The current charge limit or devSoc of the system is not known yet, so the backup reserve cannot be sent. Please try again in a minute."
+      "message": "The current charge limit, backup reserve or surplus solar energy delivery of the system is not known yet, so the setting cannot be sent. Please try again in a minute."
+    },
+    "sys_zone_unknown": {
+      "message": "The time zone of the system (sysZone) is not known yet, so the battery save mode cannot be sent. Please try again in a minute."
     }
   },
   "entity": {
@@ -844,6 +847,14 @@
       },
       "backup_reserve": {
         "name": "Backup reserve"
+      },
+      "solar_surplus": {
+        "name": "Surplus solar energy delivery"
+      }
+    },
+    "switch": {
+      "battery_save_mode": {
+        "name": "Battery save mode"
       }
     }
   }
