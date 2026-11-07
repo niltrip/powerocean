@@ -763,3 +763,96 @@ async def test_switch_battery_save_mode_without_acknowledgement(
 
     assert error.value.translation_key == "not_acknowledged"
     assert _save_state(hass) == "on"
+
+
+# -----------------------------
+# Confirmed settings and the HTTP response
+# -----------------------------
+
+
+async def _poll(hass: HomeAssistant, freezer: FrozenDateTimeFactory) -> None:
+    """Let the next HTTP request run (scan interval 10 s)."""
+    freezer.tick(timedelta(seconds=10))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+
+def _with_led(value: int) -> dict[str, Any]:
+    response = copy.deepcopy(RESPONSE)
+    response["data"]["quota"]["JTS1_EMS_CHANGE_REPORT"]["emsCtrlLedBright"] = value
+    return response
+
+
+async def test_set_led_brightness_kept_while_the_cloud_is_behind(
+    hass: HomeAssistant, cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+
+    await _set_led(hass, 40)
+    # The cloud still shows the old value
+    await _poll(hass, freezer)
+
+    assert _led_state(hass) == "40"
+
+
+async def test_set_led_brightness_hold_ends_when_the_cloud_shows_it(
+    hass: HomeAssistant, cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+    await _set_led(hass, 40)
+
+    with patch(
+        "custom_components.powerocean.ecoflow.HAEcoflowApi.fetch_raw",
+        return_value=_with_led(40),
+    ):
+        await _poll(hass, freezer)
+    # Later changed in the app, only the cloud shows it
+    with patch(
+        "custom_components.powerocean.ecoflow.HAEcoflowApi.fetch_raw",
+        return_value=_with_led(70),
+    ):
+        await _poll(hass, freezer)
+
+    assert _led_state(hass) == "70"
+
+
+async def test_set_led_brightness_hold_ends_after_two_minutes(
+    hass: HomeAssistant, cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+    await _set_led(hass, 40)
+
+    freezer.tick(timedelta(minutes=2))
+    await _poll(hass, freezer)
+
+    # The cloud never showed it: its value counts again
+    assert _led_state(hass) == "10"
+
+
+async def test_backup_reserve_kept_for_the_next_command(
+    hass: HomeAssistant, cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    await _set_backup(hass, 16)
+    # The cloud still shows the old backup reserve 5
+    await _poll(hass, freezer)
+    await _set_solar(hass, 80)
+
+    # Not (100, 5, 80): that would undo the backup reserve on the system
+    assert client.soc_limit_commands == [(100, 16, 100), (100, 16, 80)]
+    assert _backup_state(hass) == "16"
+
+
+async def test_reported_setting_kept_while_the_cloud_is_behind(
+    hass: HomeAssistant, cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    # Changed in the app: the system reports it before the cloud shows it
+    await _report(hass, client, {"devSoc": 77})
+    await _poll(hass, freezer)
+
+    assert _solar_state(hass) == "77"

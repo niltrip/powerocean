@@ -29,6 +29,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .api import AuthenticationError, EcoflowApiError, EcoflowConnectionError
 from .const import DEFAULT_SCAN_INTERVAL, DOMAIN, LOGGER
@@ -64,6 +65,9 @@ SOC_LIMITS = {
 }
 # Settings only known from the MQTT reports (EMS parameter change report)
 MQTT_SETTINGS = ("batterySaveMode", "sysZone")
+# How long a setting the system confirmed via MQTT wins over the HTTP
+# response: the cloud shows a change only 20-60 s later
+SETTING_HOLD = timedelta(minutes=2)
 
 # Parser errors caused by unexpected API payloads
 PARSE_ERRORS = (KeyError, IndexError, TypeError, ValueError, AttributeError)
@@ -111,6 +115,9 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self.soc_limits: dict[str, int] = {}
         # Battery save mode and sysZone (see MQTT_SETTINGS)
         self.mqtt_settings: dict[str, int] = {}
+        # Settings confirmed via MQTT the HTTP response may not show yet:
+        # name -> (value, time of the confirmation)
+        self._recent_settings: dict[str, tuple[int, datetime]] = {}
         # Commands waiting for their acknowledgement, by seq
         self._pending_acks: dict[int, asyncio.Future[None]] = {}
 
@@ -141,7 +148,31 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self.active_errors = result.active_errors
         self.soc_limits = soc_limits_of(response)
         self._update_firmware(result.firmware)
-        return result.values()
+        values = result.values()
+        self._hold_recent_settings(values)
+        return values
+
+    def _hold_recent_settings(self, values: dict[str, float | int | str]) -> None:
+        """
+        Keep settings confirmed via MQTT the HTTP response does not show yet.
+
+        Otherwise a slider jumps back after a change, and the next command
+        for the SOC_LIMITS would send the old values along again.
+        """
+        now = dt_util.utcnow()
+        for name, (value, since) in list(self._recent_settings.items()):
+            keys = self.setting_keys(name, values)
+            if name in SOC_LIMITS:
+                reported = self.soc_limits.get(name)
+            else:
+                reported = values.get(keys[0]) if keys else None
+            if reported == value or now - since > SETTING_HOLD:
+                del self._recent_settings[name]
+                continue
+            if name in SOC_LIMITS:
+                self.soc_limits[name] = value
+            for key in keys:
+                values[key] = value
 
     def _update_firmware(self, firmware: dict[str, str]) -> None:
         """Show a changed firmware version on the device page."""
@@ -300,12 +331,14 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
     # Settings: LED brightness, backup reserve, solar surplus, battery save mode
     # -----------------------------
 
-    def setting_keys(self, name: str) -> list[str]:
+    def setting_keys(
+        self, name: str, values: dict[str, float | int | str] | None = None
+    ) -> list[str]:
         """Return the datapoints of the inverter with a setting (emsCtrlLedBright)."""
         prefix = f"{self.api.sn}_"
         return [
             unique_id
-            for unique_id in self.data or {}
+            for unique_id in (self.data if values is None else values) or {}
             if unique_id.startswith(prefix) and unique_id.endswith(f"_{name}")
         ]
 
@@ -424,6 +457,9 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         """Show changed settings (sensors and numbers) without polling."""
         if not self.mqtt:
             return
+        now = dt_util.utcnow()
+        for name, value in values.items():
+            self._recent_settings[name] = (value, now)
         soc_limits = {**self.soc_limits}
         mqtt_settings = {**self.mqtt_settings}
         data = {**self.data}
