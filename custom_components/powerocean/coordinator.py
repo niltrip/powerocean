@@ -11,6 +11,7 @@ It handles:
 - A new login when the EcoFlow cloud rejects the current token
 - Mapping API errors to `UpdateFailed` / `ConfigEntryAuthFailed`
 - Building the endpoints, extended by datapoints that appear later
+- Optional MQTT connection: firmware, settings and live power values
 
 Usage:
   coordinator = PowerOceanCoordinator(hass, entry, api)
@@ -32,9 +33,11 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from homeassistant.util import dt as dt_util
 
 from .api import AuthenticationError, EcoflowApiError, EcoflowConnectionError
-from .const import DEFAULT_SCAN_INTERVAL, DOMAIN, LOGGER
+from .const import CONF_LIVE_POWER, DEFAULT_SCAN_INTERVAL, DOMAIN, LOGGER
 from .ecoflow import HAEcoflowApi
+from .flows import energy_flows
 from .mqtt import (
+    ENERGY_STREAM_STRINGS,
     MODULE_EMS,
     MODULE_METER,
     ModuleVersion,
@@ -53,6 +56,12 @@ type PowerOceanConfigEntry = ConfigEntry[PowerOceanCoordinator]
 # How often the module firmware is asked for again (it also comes after
 # every reconnect, e.g. after a firmware update)
 MQTT_REFRESH_INTERVAL = timedelta(hours=6)
+# How often the energy stream is asked for (option live power); the system
+# sends it for ~25 s after each request
+ENERGY_STREAM_INTERVAL = timedelta(seconds=20)
+# How long the power values of the energy stream win over the HTTP response,
+# which shows older values
+ENERGY_STREAM_HOLD = timedelta(seconds=30)
 # How long a command may wait for the acknowledgement of the system
 COMMAND_TIMEOUT = 10
 # Sent together with the backup reserve: datapoint -> report it is read from.
@@ -118,6 +127,11 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         # Settings confirmed via MQTT the HTTP response may not show yet:
         # name -> (value, time of the confirmation)
         self._recent_settings: dict[str, tuple[int, datetime]] = {}
+        # Option live power: values of the last energy stream report, by
+        # unique_id, and when it came
+        self._energy_stream_unsub: Callable[[], None] | None = None
+        self._stream_values: dict[str, float | int] = {}
+        self._stream_time: datetime | None = None
         # Commands waiting for their acknowledgement, by seq
         self._pending_acks: dict[int, asyncio.Future[None]] = {}
 
@@ -150,6 +164,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self._update_firmware(result.firmware)
         values = result.values()
         self._hold_recent_settings(values)
+        self._hold_energy_stream(values)
         return values
 
     def _hold_recent_settings(self, values: dict[str, float | int | str]) -> None:
@@ -260,6 +275,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
                 on_modules=self._from_mqtt_thread(self._apply_modules),
                 on_settings=self._from_mqtt_thread(self._apply_settings),
                 on_ack=self._from_mqtt_thread(self._apply_ack),
+                on_energy_stream=self._from_mqtt_thread(self._apply_energy_stream),
             )
             client = PowerOceanMqtt(
                 credentials, self.api.sn, self.api.user_id, callbacks
@@ -272,6 +288,11 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self._mqtt_refresh_unsub = async_track_time_interval(
             self.hass, self._async_request_full_state, MQTT_REFRESH_INTERVAL
         )
+        if self.config_entry.options.get(CONF_LIVE_POWER, False):
+            self._energy_stream_unsub = async_track_time_interval(
+                self.hass, self._async_request_energy_stream, ENERGY_STREAM_INTERVAL
+            )
+            await self._async_request_energy_stream(dt_util.utcnow())
         # Settings (LED brightness, backup reserve) become available
         self.async_update_listeners()
 
@@ -280,6 +301,9 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         if self._mqtt_refresh_unsub:
             self._mqtt_refresh_unsub()
             self._mqtt_refresh_unsub = None
+        if self._energy_stream_unsub:
+            self._energy_stream_unsub()
+            self._energy_stream_unsub = None
         if self.mqtt:
             client, self.mqtt = self.mqtt, None
             await self.hass.async_add_executor_job(client.stop)
@@ -288,6 +312,11 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         """Ask the system for its full state again (module firmware)."""
         if self.mqtt:
             await self.hass.async_add_executor_job(self.mqtt.request_full_state)
+
+    async def _async_request_energy_stream(self, _now: datetime) -> None:
+        """Ask the system for the energy stream again (option live power)."""
+        if self.mqtt:
+            await self.hass.async_add_executor_job(self.mqtt.request_energy_stream)
 
     def _from_mqtt_thread[T](self, apply: Callable[[T], None]) -> Callable[[T], None]:
         """Return a callback that hands a value over from paho's thread."""
@@ -480,6 +509,74 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self.mqtt_settings = mqtt_settings
         self.data = data
         self.async_update_listeners()
+
+    # -----------------------------
+    # Live power values (option live power)
+    # -----------------------------
+
+    @callback
+    def _apply_energy_stream(self, values: dict[str, float | int]) -> None:
+        """Show the power values of an energy stream report right away."""
+        if not self.mqtt or not self.data or self._is_dual():
+            return
+        self._stream_values = self._stream_datapoints(values)
+        self._stream_time = dt_util.utcnow()
+        data = {**self.data, **self._stream_values}
+        if data == self.data:
+            return
+        self.data = data
+        self.async_update_listeners()
+
+    def _is_dual(self) -> bool:
+        """Return True for a dual installation: its stream is not mapped yet."""
+        response = self.last_response or {}
+        data = response.get("data")
+        return isinstance(data, dict) and bool(data.get("parallel"))
+
+    def _stream_datapoints(
+        self, values: dict[str, float | int]
+    ) -> dict[str, float | int]:
+        """
+        Return the existing datapoints the energy stream updates, by unique_id.
+
+        The values directly under "data" (sysLoadPwr, ...), the PV strings of
+        the energy stream report and the flows calculated from the heartbeat,
+        now calculated from the stream. Never adds a datapoint.
+        """
+        prefix = f"{self.api.sn}_"
+        solar = float(values["mpptPwr"])
+        by_suffix: dict[str, float | int] = {
+            f"_mpptHeartBeat_{key}": value
+            for key, value in energy_flows(solar, values["sysGridPwr"], values["bpPwr"])
+        }
+        by_suffix["_mpptHeartBeat_mpptPv_pwrTotal"] = solar
+        for name in ENERGY_STREAM_STRINGS.values():
+            if name in values:
+                by_suffix[f"_ENERGY_STREAM_REPORT_{name}"] = values[name]
+
+        found: dict[str, float | int] = {}
+        for name, value in values.items():
+            if f"{prefix}{name}" in self.data:
+                found[f"{prefix}{name}"] = value
+        for unique_id in self.data:
+            if not unique_id.startswith(prefix):
+                continue
+            for suffix, value in by_suffix.items():
+                if unique_id.endswith(suffix):
+                    found[unique_id] = value
+        return found
+
+    def _hold_energy_stream(self, values: dict[str, float | int | str]) -> None:
+        """Keep the values of a recent energy stream over the older HTTP ones."""
+        if self._stream_time is None:
+            return
+        if dt_util.utcnow() - self._stream_time > ENERGY_STREAM_HOLD:
+            self._stream_values = {}
+            self._stream_time = None
+            return
+        for unique_id, value in self._stream_values.items():
+            if unique_id in values:
+                values[unique_id] = value
 
 
 def soc_limits_of(response: dict[str, Any]) -> dict[str, int]:

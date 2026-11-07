@@ -8,10 +8,13 @@ import pytest
 from custom_components.powerocean.mqtt import (
     ModuleVersion,
     MqttCallbacks,
+    Part,
     PowerOceanMqtt,
     _field_bytes,
     _field_varint,
     battery_save_mode_request,
+    energy_stream,
+    energy_stream_request,
     get_all_request,
     led_brightness_request,
     module_info_request,
@@ -152,6 +155,72 @@ def test_battery_save_mode_request_as_the_app_sends_it() -> None:
     ]
 
 
+def test_energy_stream_request_as_the_app_sends_it() -> None:
+    message = energy_stream_request(SN, seq=1234)
+    ((_, header),) = protobuf_fields(message)
+    # Field by field as captured from the Android app (every 10 s)
+    assert protobuf_fields(header) == [
+        (1, bytes.fromhex("0801")),  # field 1 = 1 (on)
+        (2, 32),
+        (3, 96),
+        (4, 1),
+        (5, 1),
+        (8, 96),
+        (9, 97),
+        (10, 2),
+        (11, 1),
+        (14, 1234),
+        (15, 1),
+        (16, 19),
+        (17, 1),
+        (23, b"android"),
+        (25, SN.encode()),
+    ]
+
+
+# Contents of energy stream reports (96/33) as captured: at noon, and in
+# the evening with an empty battery and no sun (zeros left out)
+STREAM_NOON = bytes.fromhex(
+    "0d0000dc4415000020411d00c08a4425000020c428283500003e443d0000aa43"
+)
+STREAM_EVENING = bytes.fromhex("0d0040544415004054442805")
+
+
+def test_energy_stream_values() -> None:
+    values = energy_stream(Part(96, 33, STREAM_NOON, None))
+
+    assert values == {
+        "sysLoadPwr": 1760.0,
+        "sysGridPwr": 10.0,
+        "mpptPwr": 1110.0,
+        "bpPwr": -640.0,
+        "pv1Pwr": 760.0,
+        "pv2Pwr": 340.0,
+        "bpSoc": 40,
+    }
+    # House = grid + solar - battery (battery positive = charging)
+    assert values["sysLoadPwr"] == (
+        values["sysGridPwr"] + values["mpptPwr"] - values["bpPwr"]
+    )
+
+
+def test_energy_stream_missing_power_is_zero() -> None:
+    values = energy_stream(Part(96, 33, STREAM_EVENING, None))
+
+    # No PV strings in the report: none in the values either
+    assert values == {
+        "sysLoadPwr": 849.0,
+        "sysGridPwr": 849.0,
+        "mpptPwr": 0.0,
+        "bpPwr": 0.0,
+        "bpSoc": 5,
+    }
+
+
+def test_energy_stream_only_from_its_report() -> None:
+    assert energy_stream(Part(96, 8, STREAM_NOON, None)) == {}
+
+
 def _message(*fields: tuple[int, int | bytes]) -> bytes:
     header = b"".join(
         _field_bytes(number, value)
@@ -204,7 +273,10 @@ def test_parse_module_info_skips_incomplete_entries() -> None:
 
 def _callbacks() -> MqttCallbacks:
     return MqttCallbacks(
-        on_modules=MagicMock(), on_settings=MagicMock(), on_ack=MagicMock()
+        on_modules=MagicMock(),
+        on_settings=MagicMock(),
+        on_ack=MagicMock(),
+        on_energy_stream=MagicMock(),
     )
 
 
@@ -375,3 +447,30 @@ def test_on_message_hands_over_the_parameter_change_report(
     callbacks.on_settings.assert_called_once_with(
         {"batterySaveMode": 0, "sysZone": 4, "devSoc": 77}
     )
+
+
+def test_request_energy_stream_publishes_the_request(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, _ = connection
+
+    mqtt.request_energy_stream()
+
+    topic, payload = mqtt.client.publish.call_args.args
+    assert topic == f"/app/{USER_ID}/{SN}/thing/property/set"
+    ((_, header),) = protobuf_fields(payload)
+    fields = dict(protobuf_fields(header))
+    assert (fields[8], fields[9], fields[1]) == (96, 97, bytes.fromhex("0801"))
+
+
+def test_on_message_hands_over_the_energy_stream(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, callbacks = connection
+
+    _receive(mqtt, DEVICE_TOPIC, _message((1, STREAM_NOON), (2, 96), (8, 96), (9, 33)))
+
+    callbacks.on_energy_stream.assert_called_once_with(
+        energy_stream(Part(96, 33, STREAM_NOON, None))
+    )
+    callbacks.on_settings.assert_not_called()
