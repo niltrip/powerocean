@@ -54,7 +54,7 @@ The integration then additionally connects to the EcoFlow cloud the way the EcoF
 - **Smart meter:** its firmware.
 - The other modules (inverter power stage, Wi-Fi) are listed in the diagnostics.
 
-**LED brightness:** With the option on, the inverter also gets a slider "LED brightness" (0–100 % in steps of 10, under *Configuration* on its device page). It sends the same command as the app and waits for the system to confirm it; if the system does not confirm it within 10 s, Home Assistant shows an error. A change in the app is shown right away as well.
+**LED brightness:** With the option on, the inverter also gets a slider "LED brightness" (0–100 % in steps of 10, under *Configuration* on its device page). It sends the same command as the app and waits for the system to confirm it; if the system does not confirm it within 10 s, Home Assistant shows an error. A change in the app is shown right away as well. 0 % switches the LEDs off.
 
 **Backup reserve:** A second slider "Backup reserve" (0–100 % in steps of 1) sets the backup reserve as in the app. The system keeps it as the lowest state of charge for discharging (`sysBatDsgDownLimit`, the sensor "Backup reserve (discharge limit)"). The app's command also contains the charge limit and the surplus solar energy delivery (`devSoc`); the integration sends their current values unchanged, so it only changes the backup reserve. While it does not know them yet (e.g. right after the start), the slider is unavailable.
 
@@ -62,7 +62,7 @@ The integration then additionally connects to the EcoFlow cloud the way the EcoF
 
 **Battery save mode:** A switch "Battery save mode" turns the app's battery save mode on and off. The system reports this setting only via MQTT, so the switch is unavailable until the first report after connecting. The app's command also contains the time zone of the system (`sysZone`); the integration sends the reported value unchanged.
 
-All other values still come from the regular polling. The LED brightness, the backup reserve, the surplus solar energy delivery and the battery save mode are the only settings the integration changes. If the connection fails, the integration keeps working and logs a warning; the sliders and the switch are then unavailable. When you switch the option off, the sliders, the switch and the firmware of the inverter and the smart meter are removed again.
+All other values still come from the regular polling. The cloud shows a changed setting only 20–60 s later; until then, for at most 2 minutes, the integration keeps the value the system confirmed via MQTT, so a slider does not jump back. The LED brightness, the backup reserve, the surplus solar energy delivery and the battery save mode are the only settings the integration changes. If the connection fails, the integration keeps working and logs a warning; the sliders and the switch are then unavailable. When you switch the option off, the sliders, the switch and the firmware of the inverter and the smart meter are removed again.
 
 
 

@@ -6,7 +6,8 @@
 
 - **LED brightness of the inverter (with the MQTT option):** a slider from
   0 to 100 % in steps of 10, as in the EcoFlow app. The system confirms
-  each change; without confirmation Home Assistant shows an error.
+  each change; without confirmation Home Assistant shows an error. 0 %
+  switches the LEDs off.
 - **Backup reserve (with the MQTT option):** a slider from 0 to 100 % in
   steps of 1, as in the EcoFlow app (`sysBatDsgDownLimit`). The app's
   command also carries the charge limit and `devSoc`; the integration sends
