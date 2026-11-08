@@ -2,6 +2,7 @@
 
 from typing import Any
 
+from custom_components.powerocean.const import DOMAIN
 from custom_components.powerocean.types import PowerOceanEndPoint
 
 
@@ -34,7 +35,7 @@ def _serialize_device(endpoint: PowerOceanEndPoint) -> dict:
         "sn": device_info.get("serial_number"),
         "model": device_info.get("model"),
         "manufacturer": device_info.get("manufacturer"),
-        "via_device": device_info.get("via_device"),
+        "via_device": (DOMAIN, endpoint.via_serial) if endpoint.via_serial else None,
     }
 
 

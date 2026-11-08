@@ -16,6 +16,7 @@ from homeassistant.const import (
     EntityCategory,
 )
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
@@ -33,7 +34,7 @@ ERROR_DETAILS_HINT = f"Ursache und Lösung im EcoFlow-Webportal: {PORTAL_URL}"
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,  # noqa: ARG001
+    hass: HomeAssistant,
     entry: PowerOceanConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
@@ -70,12 +71,44 @@ async def async_setup_entry(
         if not new:
             return
         added.update((endpoint.internal_unique_id, endpoint) for endpoint in new)
+        _register_devices(hass, coordinator, new)
         async_add_entities(
             [PowerOceanSensor(coordinator, endpoint) for endpoint in new]
         )
 
     _add_new_entities()
     entry.async_on_unload(coordinator.async_add_listener(_add_new_entities))
+
+
+@callback
+def _register_devices(
+    hass: HomeAssistant,
+    coordinator: PowerOceanCoordinator,
+    endpoints: list[PowerOceanEndPoint],
+) -> None:
+    """
+    Register the devices of the endpoints and link them to their parent device.
+
+    `via_device` in the device info is deprecated since Home Assistant 2026.10
+    and its replacement `via_device_id` is missing there before 2026.10. So the
+    devices are created first and then linked with async_update_device, which
+    takes `via_device_id` in all supported versions.
+    """
+    device_registry = dr.async_get(hass)
+    entry_id = coordinator.config_entry.entry_id
+    parents: dict[str, str] = {}
+    for endpoint in endpoints:
+        if endpoint.device_info and endpoint.serial not in parents:
+            device_registry.async_get_or_create(
+                config_entry_id=entry_id, **endpoint.device_info
+            )
+            if endpoint.via_serial:
+                parents[endpoint.serial] = endpoint.via_serial
+    devices = coordinator.devices(device_registry)
+    for sn, via_sn in parents.items():
+        device, parent = devices.get(sn), devices.get(via_sn)
+        if device and parent and device.via_device_id != parent.id:
+            device_registry.async_update_device(device.id, via_device_id=parent.id)
 
 
 class PowerOceanSensor(CoordinatorEntity[PowerOceanCoordinator], SensorEntity):
