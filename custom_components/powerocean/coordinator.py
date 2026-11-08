@@ -180,13 +180,13 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self.firmware = {**firmware, **self._mqtt_firmware}
         # Devices not registered yet get the version from their entities
         device_registry = dr.async_get(self.hass)
-        devices = self._devices(device_registry)
+        devices = self.devices(device_registry)
         for sn, version in self.firmware.items():
             device = devices.get(sn)
             if device and device.sw_version != version:
                 device_registry.async_update_device(device.id, sw_version=version)
 
-    def _devices(self, device_registry: dr.DeviceRegistry) -> dict[str, dr.DeviceEntry]:
+    def devices(self, device_registry: dr.DeviceRegistry) -> dict[str, dr.DeviceEntry]:
         """Return the devices of this config entry, by serial number."""
         # Not async_get_device: deprecated since Home Assistant 2026.10, and its
         # replacement async_get_device_by_identifier is missing before 2026.10
@@ -319,7 +319,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
     def clear_mqtt_firmware(self) -> None:
         """Remove the firmware a former MQTT connection showed (option off)."""
         device_registry = dr.async_get(self.hass)
-        devices = self._devices(device_registry)
+        devices = self.devices(device_registry)
         for sn in self._mqtt_firmware_devices:
             if sn in self.firmware:
                 continue

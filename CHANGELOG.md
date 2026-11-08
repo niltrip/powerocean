@@ -26,9 +26,11 @@
 ### Changed
 
 - **Ready for Home Assistant 2027.8:** the integration no longer looks up
-  its devices in a way Home Assistant 2026.10 marks as deprecated and 2027.8
-  removes. Nothing changes for you; Home Assistant 2025.8 or newer is still
-  enough. The tests now run on Home Assistant 2026.10.
+  its devices, nor links batteries and other devices to the inverter, in a
+  way Home Assistant 2026.10 marks as deprecated and 2027.8 removes (log
+  warning about `via_device`). Nothing changes for you; Home Assistant
+  2025.8 or newer is still enough. The tests now run on Home Assistant
+  2026.10.
 
 ## 2026.10.28
 

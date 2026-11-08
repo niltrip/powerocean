@@ -91,6 +91,7 @@ class PowerOceanEndPoint:
         description (str): Description of the endpoint.
         icon (str | None): Icon representing the endpoint.
         device_info (DeviceInfo): Inverter/Battery/Wallbox.
+        via_serial (str | None): Serial number of the parent device.
 
     """
 
@@ -102,6 +103,7 @@ class PowerOceanEndPoint:
     description: str
     icon: str | None
     device_info: DeviceInfo | None = None
+    via_serial: str | None = None
     enabled_default: bool = True
     diagnostic: bool = False
     translation_key: str | None = None
@@ -126,6 +128,7 @@ class PowerOceanEndPoint:
             description=SensorMetaHelper.get_description(key),
             icon=SensorMetaHelper.get_special_icon(key),
             device_info=device_info(datapoint.device, sw_version),
+            via_serial=datapoint.device.via_sn,
             enabled_default=datapoint.in_use and key not in DISABLED_BY_DEFAULT,
             diagnostic=_is_diagnostic(datapoint),
             translation_key=name_key or (translation_key(key) if states else None),
@@ -158,7 +161,12 @@ def _is_diagnostic(datapoint: "Datapoint") -> bool:
 
 
 def device_info(device: "Device", sw_version: str | None = None) -> DeviceInfo:
-    """Return the Home Assistant device info of a device."""
+    """
+    Return the Home Assistant device info of a device.
+
+    Without the link to the parent device: `via_device` is deprecated since
+    Home Assistant 2026.10, so the sensor platform links the devices itself.
+    """
     info = DeviceInfo(
         identifiers={(DOMAIN, device.sn)},
         serial_number=device.sn,
@@ -167,8 +175,6 @@ def device_info(device: "Device", sw_version: str | None = None) -> DeviceInfo:
         model=device.model,
         configuration_url=PORTAL_URL,
     )
-    if device.via_sn:
-        info["via_device"] = (DOMAIN, device.via_sn)
     if device.model_id:
         info["model_id"] = device.model_id
     if sw_version:

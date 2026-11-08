@@ -125,6 +125,19 @@ async def test_setup_and_unload(
     assert entry.state is ConfigEntryState.NOT_LOADED
 
 
+async def test_setup_uses_no_deprecated_home_assistant_api(
+    hass: HomeAssistant,
+    mock_authorize: AsyncMock,
+    mock_fetch: AsyncMock,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Home Assistant reports deprecated calls as a warning with "deprecated"."""
+    await _setup(hass, _entry())
+
+    deprecated = [r.getMessage() for r in caplog.records if "deprecated" in r.message]
+    assert deprecated == []
+
+
 @pytest.mark.parametrize(
     "side_effect", [EcoflowConnectionError("offline"), EcoflowApiError("region")]
 )
