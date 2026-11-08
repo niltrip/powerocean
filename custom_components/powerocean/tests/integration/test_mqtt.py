@@ -70,6 +70,7 @@ class FakeMqtt:
         self.on_modules = callbacks.on_modules
         self.started = self.stopped = False
         self.requests = 0
+        self.energy_stream_requests = 0
         self.led_commands: list[int] = []
         self.soc_limit_commands: list[tuple[int, int, int]] = []
         self.battery_save_commands: list[tuple[int, int]] = []
@@ -86,6 +87,10 @@ class FakeMqtt:
     def request_full_state(self) -> None:
         """Count the requests."""
         self.requests += 1
+
+    def request_energy_stream(self) -> None:
+        """Count the requests."""
+        self.energy_stream_requests += 1
 
     def set_led_brightness(self, percent: int, seq: int) -> None:
         """Record the command; the system acknowledges it (paho's thread)."""
@@ -142,10 +147,14 @@ def cloud() -> Generator[AsyncMock]:
         yield credentials
 
 
-async def _setup(hass: HomeAssistant, *, mqtt: bool | None) -> MockConfigEntry:
+async def _setup(
+    hass: HomeAssistant, *, mqtt: bool | None, live_power: bool | None = None
+) -> MockConfigEntry:
     options: dict[str, Any] = {"friendly_name": "PowerOcean", "scan_interval": 10}
     if mqtt is not None:
         options["mqtt"] = mqtt
+    if live_power is not None:
+        options["live_power"] = live_power
     entry = MockConfigEntry(
         domain=DOMAIN,
         version=2,
@@ -856,3 +865,158 @@ async def test_reported_setting_kept_while_the_cloud_is_behind(
     await _poll(hass, freezer)
 
     assert _solar_state(hass) == "77"
+
+
+# -----------------------------
+# Live power values (energy stream)
+# -----------------------------
+
+# Energy stream report as captured at noon (see unit/test_mqtt.py)
+STREAM = {
+    "sysLoadPwr": 1760.0,
+    "sysGridPwr": 10.0,
+    "mpptPwr": 1110.0,
+    "bpPwr": -640.0,
+    "pv1Pwr": 760.0,
+    "pv2Pwr": 340.0,
+    "bpSoc": 40,
+}
+HEARTBEAT = f"{SN}_JTS1_EMS_HEARTBEAT_mpptHeartBeat"
+# What the report changes: values under "data", PV strings, calculated flows
+STREAM_DATAPOINTS = {
+    f"{SN}_sysLoadPwr": 1760.0,
+    f"{SN}_sysGridPwr": 10.0,
+    f"{SN}_mpptPwr": 1110.0,
+    f"{SN}_bpPwr": -640.0,
+    f"{SN}_JTS1_ENERGY_STREAM_REPORT_pv1Pwr": 760.0,
+    f"{SN}_JTS1_ENERGY_STREAM_REPORT_pv2Pwr": 340.0,
+    f"{HEARTBEAT}_mpptPv_pwrTotal": 1110.0,
+    f"{HEARTBEAT}_housePower": 1760.0,
+    f"{HEARTBEAT}_gridPower": 10.0,
+    f"{HEARTBEAT}_solarToHouse": 1110.0,
+    f"{HEARTBEAT}_batteryToHouse": 640.0,
+    f"{HEARTBEAT}_gridToHouse": 10.0,
+    f"{HEARTBEAT}_solarToBattery": 0.0,
+    f"{HEARTBEAT}_solarToGrid": 0.0,
+}
+
+
+async def _stream(hass: HomeAssistant, client: FakeMqtt) -> None:
+    await hass.async_add_executor_job(client.callbacks.on_energy_stream, STREAM)
+    await hass.async_block_till_done()
+
+
+def _stream_values(entry: MockConfigEntry) -> dict[str, Any]:
+    data = entry.runtime_data.data
+    return {unique_id: data.get(unique_id) for unique_id in STREAM_DATAPOINTS}
+
+
+@pytest.mark.parametrize("live_power", [None, False])
+async def test_live_power_off_by_default(
+    hass: HomeAssistant,
+    cloud: AsyncMock,
+    freezer: FrozenDateTimeFactory,
+    live_power: bool | None,  # noqa: FBT001 (pytest parameter)
+) -> None:
+    await _setup(hass, mqtt=True, live_power=live_power)
+    (client,) = FakeMqtt.instances
+
+    freezer.tick(timedelta(seconds=60))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert client.energy_stream_requests == 0
+
+
+async def test_live_power_needs_mqtt(hass: HomeAssistant, cloud: AsyncMock) -> None:
+    await _setup(hass, mqtt=False, live_power=True)
+
+    assert FakeMqtt.instances == []
+
+
+async def test_live_power_requests_the_stream_every_20_seconds(
+    hass: HomeAssistant, cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    entry = await _setup(hass, mqtt=True, live_power=True)
+    (client,) = FakeMqtt.instances
+    # Right after connecting
+    assert client.energy_stream_requests == 1
+
+    freezer.tick(timedelta(seconds=20))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    assert client.energy_stream_requests == 2
+
+    # Unloaded: no more requests
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    freezer.tick(timedelta(seconds=20))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    assert client.energy_stream_requests == 2
+
+
+async def test_energy_stream_updates_the_existing_sensors(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    entry = await _setup(hass, mqtt=True, live_power=True)
+    (client,) = FakeMqtt.instances
+    entities = len(er.async_get(hass).entities)
+    datapoints = set(entry.runtime_data.data)
+
+    await _stream(hass, client)
+
+    assert _stream_values(entry) == STREAM_DATAPOINTS
+    entity_id = er.async_get(hass).async_get_entity_id(
+        "sensor", DOMAIN, f"{SN}_sysLoadPwr"
+    )
+    assert hass.states.get(entity_id).state == "1760.0"
+    # No new entities, no datapoints the HTTP response does not have
+    assert len(er.async_get(hass).entities) == entities
+    assert set(entry.runtime_data.data) == datapoints
+    assert f"{SN}_bpSoc" not in entry.runtime_data.data
+
+
+async def test_energy_stream_kept_while_the_cloud_is_behind(
+    hass: HomeAssistant, cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    entry = await _setup(hass, mqtt=True, live_power=True)
+    (client,) = FakeMqtt.instances
+
+    await _stream(hass, client)
+    # The next HTTP request shows the older values of the cloud
+    await _poll(hass, freezer)
+
+    assert _stream_values(entry) == STREAM_DATAPOINTS
+
+
+async def test_energy_stream_hold_ends_after_30_seconds(
+    hass: HomeAssistant, cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    entry = await _setup(hass, mqtt=True, live_power=True)
+    (client,) = FakeMqtt.instances
+
+    await _stream(hass, client)
+    # No more reports (e.g. connection lost): the cloud's values count again
+    freezer.tick(timedelta(seconds=30))
+    await _poll(hass, freezer)
+
+    assert entry.runtime_data.data[f"{SN}_sysLoadPwr"] == 692.0
+
+
+async def test_energy_stream_ignored_in_dual_installations(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    response = json.loads(
+        (FIXTURES_DIR / "response_modified_po_dual.json").read_text("utf-8")
+    )
+    with patch(
+        "custom_components.powerocean.ecoflow.HAEcoflowApi.fetch_raw",
+        return_value=response,
+    ):
+        entry = await _setup(hass, mqtt=True, live_power=True)
+    (client,) = FakeMqtt.instances
+    before = dict(entry.runtime_data.data)
+
+    await _stream(hass, client)
+
+    assert entry.runtime_data.data == before

@@ -5,7 +5,9 @@ Optional next to the HTTP polling: the integration connects with the MQTT
 credentials of the account, asks the system for its full state (as the app
 does when it opens) and reads the firmware of its modules from the answer.
 The only settings it sends are the brightness of the LED and the backup
-reserve, as the app does.
+reserve, as the app does. With the option "live power" it also asks for the
+energy stream every 20 s, as the app does while it is open; the system then
+reports the power values every ~5 s.
 
 The messages are protobuf. This module encodes and splits them without
 .proto files; the layout was captured from the Android app and matches
@@ -17,6 +19,7 @@ This module does not depend on Home Assistant.
 from __future__ import annotations
 
 import ssl
+import struct
 import time
 import uuid
 from dataclasses import dataclass
@@ -43,6 +46,20 @@ LED_BRIGHTNESS = 119
 # Charge limit, backup reserve and devSoc in one command
 SOC_LIMITS = 112
 BATTERY_SAVE_MODE = 138
+# The system reports the energy stream while it is asked for it
+ENERGY_STREAM_REPORT = 33
+ENERGY_STREAM_SWITCH = 97
+# Power values in the energy stream report (float): field number -> datapoint.
+# A missing field is 0 W, as protobuf leaves out zeros.
+ENERGY_STREAM_POWER = {
+    1: "sysLoadPwr",
+    2: "sysGridPwr",
+    3: "mpptPwr",
+    4: "bpPwr",
+}
+# Only there with a PV string connected (float)
+ENERGY_STREAM_STRINGS = {6: "pv1Pwr", 7: "pv2Pwr"}
+ENERGY_STREAM_SOC = 5
 # Settings in the EMS change report: field number -> datapoint
 CHANGE_REPORT_SETTINGS = {
     11: "sysBatChgUpLimit",
@@ -231,6 +248,16 @@ def battery_save_mode_request(serial: str, enabled: int, zone: int, seq: int) ->
     return _ems_command(serial, BATTERY_SAVE_MODE, content, seq)
 
 
+def energy_stream_request(serial: str, seq: int) -> bytes:
+    """
+    Return the request for the energy stream (96/97), as the app sends it.
+
+    Content: field 1 = 1 (on). The system then reports the energy stream
+    (96/33) every ~5 s for about 25 s; the app repeats it every 10 s.
+    """
+    return _ems_command(serial, ENERGY_STREAM_SWITCH, _field_varint(1, 1), seq)
+
+
 def _ems_command(serial: str, cmd_id: int, content: bytes, seq: int) -> bytes:
     """Return a setting command of the app to the EMS."""
     header = b"".join(
@@ -348,6 +375,33 @@ def change_report_settings(part: Part) -> dict[str, int]:
     }
 
 
+def _float(value: int) -> float:
+    """Return the float of a 32-bit field (protobuf_fields returns an int)."""
+    return round(struct.unpack("<f", struct.pack("<I", value))[0], 1)
+
+
+def energy_stream(part: Part) -> dict[str, float | int]:
+    """
+    Return the values of an energy stream report (96/33), {} without one.
+
+    Signs as in the HTTP response: grid positive = import, battery positive
+    = charging; house = grid + solar - battery.
+    """
+    if (part.cmd_func, part.cmd_id) != (EMS, ENERGY_STREAM_REPORT):
+        return {}
+    fields = dict(protobuf_fields(part.content))
+    values: dict[str, float | int] = {
+        name: _float(fields[number]) if isinstance(fields.get(number), int) else 0.0
+        for number, name in ENERGY_STREAM_POWER.items()
+    }
+    for number, name in ENERGY_STREAM_STRINGS.items():
+        if isinstance(value := fields.get(number), int):
+            values[name] = _float(value)
+    if isinstance(soc := fields.get(ENERGY_STREAM_SOC), int):
+        values["bpSoc"] = soc
+    return values
+
+
 # -----------------------------
 # Connection
 # -----------------------------
@@ -363,6 +417,8 @@ class MqttCallbacks:
     on_settings: Callable[[dict[str, int]], None]
     # The system acknowledged a command, by its seq
     on_ack: Callable[[int], None]
+    # Energy stream report: power values, by datapoint
+    on_energy_stream: Callable[[dict[str, float | int]], None]
 
 
 class PowerOceanMqtt:
@@ -430,6 +486,14 @@ class PowerOceanMqtt:
         """Ask the system for its full state, which holds the module info."""
         self.client.publish(f"{self._property_topic}/get", get_all_request(), qos=1)
 
+    def request_energy_stream(self) -> None:
+        """Ask the system for the energy stream (power values every ~5 s)."""
+        self.client.publish(
+            f"{self._property_topic}/set",
+            energy_stream_request(self.serial, new_seq()),
+            qos=1,
+        )
+
     def set_led_brightness(self, percent: int, seq: int) -> None:
         """Send the LED brightness in % (acknowledged with `seq`)."""
         self.client.publish(
@@ -488,5 +552,7 @@ class PowerOceanMqtt:
                         self.callbacks.on_ack(part.seq)
                 elif settings := change_report_settings(part):
                     self.callbacks.on_settings(settings)
+                elif values := energy_stream(part):
+                    self.callbacks.on_energy_stream(values)
         except ValueError:
             LOGGER.debug("MQTT message is no protobuf message")

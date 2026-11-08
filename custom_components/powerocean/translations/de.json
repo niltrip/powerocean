@@ -53,10 +53,12 @@
                 "data": {
                     "friendly_name": "Gerätename",
                     "scan_interval": "Aktualisierungsintervall (in Sekunden)",
-                    "mqtt": "Erweiterte Verbindung (MQTT)"
+                    "mqtt": "Erweiterte Verbindung (MQTT)",
+                    "live_power": "Live-Leistungswerte (MQTT)"
                 },
                 "data_description": {
-                    "mqtt": "Verbindet sich zusätzlich wie die EcoFlow-App mit der EcoFlow-Cloud (MQTT) und liest die Firmware der Module. Die Werte kommen weiterhin aus der regelmäßigen Abfrage."
+                    "mqtt": "Verbindet sich zusätzlich wie die EcoFlow-App mit der EcoFlow-Cloud (MQTT) und liest die Firmware der Module. Die Werte kommen weiterhin aus der regelmäßigen Abfrage.",
+                    "live_power": "Fragt die Anlage alle 20 s nach ihren Leistungswerten, wie es die EcoFlow-App tut, solange sie offen ist; Solar, Netz, Batterie, Haus und die Energieflüsse aktualisieren sich dann etwa alle 5 s. Nur mit der erweiterten Verbindung (MQTT)."
                 }
             }
         }

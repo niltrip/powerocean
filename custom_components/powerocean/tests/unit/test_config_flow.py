@@ -278,11 +278,12 @@ async def test_options_flow_updates_and_reloads(
     await hass.async_block_till_done()
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    # MQTT stays off unless switched on
+    # MQTT and live power stay off unless switched on
     assert entry.options == {
         "friendly_name": "Keller",
         "scan_interval": 30,
         "mqtt": False,
+        "live_power": False,
     }
     # OptionsFlowWithReload reloads the entry so the new interval is applied
     assert mock_setup_entry.call_count == 2
@@ -306,6 +307,30 @@ async def test_options_flow_switches_mqtt_on_and_off(
 
         assert result["type"] is FlowResultType.CREATE_ENTRY
         assert entry.options["mqtt"] is mqtt
+
+
+async def test_options_flow_switches_live_power_on(
+    hass: HomeAssistant, mock_setup_entry: AsyncMock
+) -> None:
+    entry = _entry()
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {
+            "friendly_name": "PowerOcean",
+            "scan_interval": 10,
+            "mqtt": True,
+            "live_power": True,
+        },
+    )
+    await hass.async_block_till_done()
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert entry.options["live_power"] is True
 
 
 # -----------------------------

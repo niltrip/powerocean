@@ -19,6 +19,12 @@
 - **Battery save mode (with the MQTT option):** a switch, as in the EcoFlow
   app. The system reports the state only via MQTT; the switch is
   unavailable until the first report.
+- **Live power values (with the MQTT option):** a second option asks the
+  system for its power values every 20 s, as the EcoFlow app does while it
+  is open. Solar, grid, battery and house power, the PV strings and the
+  calculated energy flows then update every ~5 s in the existing sensors,
+  without an open app. No new entities. Off by default; not yet for dual
+  installations.
 - **`scripts/capture`** records the MQTT messages of the system while you
   use the EcoFlow app, masked and ready to attach to an issue, to help decode
   further functions. It only listens and sends nothing to the system.

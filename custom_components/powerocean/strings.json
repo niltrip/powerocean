@@ -53,10 +53,12 @@
         "data": {
           "friendly_name": "[%key:common::config_flow::data::custom_device_name%]",
           "scan_interval": "[%key:common::config_flow::data::polling_interval%]",
-          "mqtt": "Extended connection (MQTT)"
+          "mqtt": "Extended connection (MQTT)",
+          "live_power": "Live power values (MQTT)"
         },
         "data_description": {
-          "mqtt": "Additionally connects to the EcoFlow cloud like the EcoFlow app (MQTT) and reads the firmware of the modules. The values still come from the regular polling."
+          "mqtt": "Additionally connects to the EcoFlow cloud like the EcoFlow app (MQTT) and reads the firmware of the modules. The values still come from the regular polling.",
+          "live_power": "Asks the system for its power values every 20 s, as the EcoFlow app does while it is open; solar, grid, battery, house and the energy flows then update every ~5 s. Only with the extended connection (MQTT)."
         }
       }
     }
