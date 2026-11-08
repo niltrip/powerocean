@@ -38,6 +38,8 @@ DATA = {
 OPTIONS = {"friendly_name": "PowerOcean", "scan_interval": 10}
 # A sensor that exists in response_modified.json
 SOC_UNIQUE_ID = f"{SN}_JTS1_EMS_CHANGE_REPORT_bpSoc"
+# Logger of Home Assistant's reports about deprecated calls
+FRAME_LOGGER = "homeassistant.helpers.frame"
 
 
 @pytest.fixture(autouse=True)
@@ -131,11 +133,16 @@ async def test_setup_uses_no_deprecated_home_assistant_api(
     mock_fetch: AsyncMock,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    """Home Assistant reports deprecated calls as a warning with "deprecated"."""
+    """
+    Home Assistant reports deprecated calls via its logger helpers.frame.
+
+    Only that logger counts: other warnings may contain "deprecated" too, e.g.
+    the asyncio warning about a slow task, which names this test.
+    """
     await _setup(hass, _entry())
 
-    deprecated = [r.getMessage() for r in caplog.records if "deprecated" in r.message]
-    assert deprecated == []
+    reports = [r.getMessage() for r in caplog.records if r.name == FRAME_LOGGER]
+    assert reports == []
 
 
 @pytest.mark.parametrize(
