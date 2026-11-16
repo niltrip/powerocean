@@ -221,6 +221,33 @@ def test_energy_stream_only_from_its_report() -> None:
     assert energy_stream(Part(96, 8, STREAM_NOON, None)) == {}
 
 
+def _with_house_power(raw: str) -> bytes:
+    """Return STREAM_NOON with field 1 (house power) as these 4 bytes."""
+    return bytes.fromhex("0d" + raw) + STREAM_NOON[5:]
+
+
+# 0x75e9b266 is the 5.9e32 W of issue #189; 0x7f800000 is infinity,
+# 0x7fc00000 not a number
+@pytest.mark.parametrize("raw", ["66b2e975", "0000807f", "0000c07f"])
+def test_energy_stream_with_impossible_values_is_ignored(
+    raw: str, caplog: pytest.LogCaptureFixture
+) -> None:
+    content = _with_house_power(raw)
+
+    with caplog.at_level("DEBUG", logger="custom_components.powerocean"):
+        assert energy_stream(Part(96, 33, content, None)) == {}
+
+    # The content is logged, to find out what the system sent
+    assert content.hex() in caplog.text
+
+
+def test_energy_stream_up_to_one_megawatt_is_kept() -> None:
+    # 1,000,000.0 W as float
+    values = energy_stream(Part(96, 33, _with_house_power("00247449"), None))
+
+    assert values["sysLoadPwr"] == 1_000_000.0
+
+
 def _message(*fields: tuple[int, int | bytes]) -> bytes:
     header = b"".join(
         _field_bytes(number, value)
@@ -474,3 +501,14 @@ def test_on_message_hands_over_the_energy_stream(
         energy_stream(Part(96, 33, STREAM_NOON, None))
     )
     callbacks.on_settings.assert_not_called()
+
+
+def test_on_message_drops_an_energy_stream_with_impossible_values(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, callbacks = connection
+    content = _with_house_power("66b2e975")
+
+    _receive(mqtt, DEVICE_TOPIC, _message((1, content), (2, 96), (8, 96), (9, 33)))
+
+    callbacks.on_energy_stream.assert_not_called()

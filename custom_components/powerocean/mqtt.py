@@ -18,6 +18,7 @@ This module does not depend on Home Assistant.
 
 from __future__ import annotations
 
+import math
 import ssl
 import struct
 import time
@@ -60,6 +61,9 @@ ENERGY_STREAM_POWER = {
 # Only there with a PV string connected (float)
 ENERGY_STREAM_STRINGS = {6: "pv1Pwr", 7: "pv2Pwr"}
 ENERGY_STREAM_SOC = 5
+# Larger power values (W) are decoding errors, not measurements: the largest
+# PowerOcean has 30 kW. Far above that on purpose, so no real value is lost.
+ENERGY_STREAM_MAX_POWER = 1_000_000
 # Settings in the EMS change report: field number -> datapoint
 CHANGE_REPORT_SETTINGS = {
     11: "sysBatChgUpLimit",
@@ -397,6 +401,18 @@ def energy_stream(part: Part) -> dict[str, float | int]:
     for number, name in ENERGY_STREAM_STRINGS.items():
         if isinstance(value := fields.get(number), int):
             values[name] = _float(value)
+    if not all(
+        math.isfinite(value) and abs(value) <= ENERGY_STREAM_MAX_POWER
+        for value in values.values()
+    ):
+        # Issue #189: some reports on a PowerOcean Plus read as 1e32 W.
+        # The content holds no serial number, so it can go into the log.
+        LOGGER.debug(
+            "MQTT energy stream report with impossible values ignored: %s, content %s",
+            values,
+            part.content.hex(),
+        )
+        return {}
     if isinstance(soc := fields.get(ENERGY_STREAM_SOC), int):
         values["bpSoc"] = soc
     return values
