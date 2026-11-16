@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Impossible power values via MQTT are ignored** (#189): an energy stream
+  report with a power value that is not a number or above 1 MW (the largest
+  PowerOcean has 30 kW) is dropped as a whole; the sensors keep their last
+  values. The debug log shows the content of the dropped report, to find out
+  what the system sent.
+
 ## 2026.11.14
 
 ### New
