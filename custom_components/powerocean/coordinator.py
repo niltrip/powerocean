@@ -43,6 +43,7 @@ from .ecoflow import HAEcoflowApi
 from .flows import energy_flows
 from .mqtt import (
     ENERGY_STREAM_STRINGS,
+    MINUTES_PER_DAY,
     MODULE_EMS,
     MODULE_METER,
     PREHEAT_TYPE,
@@ -71,8 +72,6 @@ ENERGY_STREAM_INTERVAL = timedelta(seconds=20)
 ENERGY_STREAM_HOLD = timedelta(seconds=30)
 # How long a command may wait for the acknowledgement of the system
 COMMAND_TIMEOUT = 10
-# End of the last preheating window (24:00)
-MINUTES_PER_DAY = 24 * 60
 # Sent together with the backup reserve: datapoint -> report it is read from.
 # Not from the values directly under "data": those can be 0 while the
 # report holds the setting.
@@ -300,6 +299,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
                 on_settings=self._from_mqtt_thread(self._apply_settings),
                 on_ack=self._from_mqtt_thread(self._apply_ack),
                 on_energy_stream=self._from_mqtt_thread(self._apply_energy_stream),
+                on_preheat=self._from_mqtt_thread(self._apply_preheat),
             )
             client = PowerOceanMqtt(
                 credentials, self.api.sn, self.api.user_id, callbacks
@@ -519,6 +519,22 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         if not self.mqtt:
             return
         self._recent_preheat = (task, dt_util.utcnow())
+        self.preheat = task
+        self.async_update_listeners()
+
+    @callback
+    def _apply_preheat(self, task: PreheatTask) -> None:
+        """
+        Show the battery preheating the system reported via MQTT.
+
+        It answers a query after every change, also one in the app; the
+        cloud shows it only 20-60 s later, so it is held like a setting.
+        """
+        if not self.mqtt:
+            return
+        self._recent_preheat = (task, dt_util.utcnow())
+        if task == self.preheat:
+            return
         self.preheat = task
         self.async_update_listeners()
 

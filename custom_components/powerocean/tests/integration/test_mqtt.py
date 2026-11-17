@@ -1021,6 +1021,25 @@ async def test_preheat_hold_ends_after_two_minutes(
     assert _preheat_states(hass) == ("on", "13:30", "15:00")
 
 
+async def test_preheat_changed_in_the_app(
+    hass: HomeAssistant, preheat_cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    # Answer to the query after the app's change: off, 19:00-19:30
+    await hass.async_add_executor_job(
+        client.callbacks.on_preheat,
+        PreheatTask(1, 2, 65, enabled=False, start=1140, end=1170),
+    )
+    await hass.async_block_till_done()
+    assert _preheat_states(hass) == ("off", "19:00", "19:30")
+
+    # The cloud still shows the old setting: the reported one stays
+    await _poll(hass, freezer)
+    assert _preheat_states(hass) == ("off", "19:00", "19:30")
+
+
 # -----------------------------
 # Confirmed settings and the HTTP response
 # -----------------------------

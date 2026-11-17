@@ -21,6 +21,8 @@ from custom_components.powerocean.mqtt import (
     module_info_request,
     module_versions,
     parse_module_info,
+    parse_preheat_report,
+    preheat_get_request,
     preheat_request,
     protobuf_fields,
     soc_limits_request,
@@ -201,6 +203,68 @@ def test_preheat_request_as_the_app_sends_it(
     ]
 
 
+def test_preheat_get_request_as_the_app_sends_it() -> None:
+    message = preheat_get_request(SN, seq=1234)
+    ((_, header),) = protobuf_fields(message)
+    # Field by field as captured from the Android app: no pdata, no data_len
+    assert protobuf_fields(header) == [
+        (2, 32),
+        (3, 96),
+        (4, 1),
+        (5, 1),
+        (8, 96),
+        (9, 203),
+        (11, 1),
+        (14, 1234),
+        (15, 1),
+        (16, 19),
+        (17, 1),
+        (23, b"android"),
+        (25, SN.encode()),
+    ]
+
+
+# Answers to the preheating query (96/203) as captured on 2026-11-17: the
+# task in field 1, field 4 only when on
+PREHEAT_REPORT_ON = _field_bytes(
+    1, bytes.fromhex("100218012001280030033800404148005204f488c824")
+)
+PREHEAT_REPORT_OFF = _field_bytes(
+    1, bytes.fromhex("10021801280030033800404148005204b888d023")
+)
+
+
+@pytest.mark.parametrize(
+    ("content", "expected"),
+    [
+        (PREHEAT_REPORT_ON, PreheatTask(1, 2, 65, enabled=True, start=1140, end=1170)),
+        (
+            PREHEAT_REPORT_OFF,
+            PreheatTask(1, 2, 65, enabled=False, start=1080, end=1140),
+        ),
+    ],
+    ids=["on 19:00-19:30", "off 18:00-19:00"],
+)
+def test_parse_preheat_report(content: bytes, expected: PreheatTask) -> None:
+    assert parse_preheat_report(content) == expected
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        b"",  # never set up
+        _field_varint(1, 5),
+        # a task of another type (1)
+        _field_bytes(1, bytes.fromhex("100218013001404148005204f488c824")),
+        # end before start: 19:30-19:00
+        _field_bytes(1, bytes.fromhex("1002180130034041480052049289d023")),
+    ],
+    ids=["empty", "no task", "other type", "end before start"],
+)
+def test_parse_preheat_report_without_a_task(content: bytes) -> None:
+    assert parse_preheat_report(content) is None
+
+
 def test_energy_stream_request_as_the_app_sends_it() -> None:
     message = energy_stream_request(SN, seq=1234)
     ((_, header),) = protobuf_fields(message)
@@ -350,6 +414,7 @@ def _callbacks() -> MqttCallbacks:
         on_settings=MagicMock(),
         on_ack=MagicMock(),
         on_energy_stream=MagicMock(),
+        on_preheat=MagicMock(),
     )
 
 
@@ -502,6 +567,29 @@ def test_preheat_acknowledged_on_the_device_topic(
     )
 
     callbacks.on_ack.assert_called_once_with(77)
+    # The confirmation does not say what changed (maybe in the app): ask
+    ((topic, payload), kwargs) = mqtt.client.publish.call_args
+    assert topic == f"/app/{USER_ID}/{SN}/thing/property/set"
+    ((_, header),) = protobuf_fields(payload)
+    assert dict(protobuf_fields(header))[9] == 203
+    assert kwargs == {"qos": 1}
+
+
+def test_on_message_hands_over_the_preheating(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, callbacks = connection
+
+    _receive(
+        mqtt,
+        DEVICE_TOPIC,
+        _message((1, PREHEAT_REPORT_ON), (2, 96), (8, 96), (9, 203), (14, 5)),
+    )
+
+    callbacks.on_preheat.assert_called_once_with(
+        PreheatTask(1, 2, 65, enabled=True, start=1140, end=1170)
+    )
+    callbacks.on_ack.assert_not_called()
 
 
 def test_set_preheat_publishes_the_command(

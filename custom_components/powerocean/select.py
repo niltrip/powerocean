@@ -15,13 +15,8 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import CONF_MQTT, DOMAIN
-from .coordinator import (
-    MINUTES_PER_DAY,
-    PowerOceanConfigEntry,
-    PowerOceanCoordinator,
-    format_minutes,
-)
-from .mqtt import PreheatTask
+from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator, format_minutes
+from .mqtt import MINUTES_PER_DAY, PreheatTask
 
 # One command at a time, each waits for its acknowledgement
 PARALLEL_UPDATES = 1
