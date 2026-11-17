@@ -22,6 +22,7 @@ from custom_components.powerocean.mqtt import (
     parse_module_info,
     protobuf_fields,
     soc_limits_request,
+    split_message,
 )
 
 SN = "SN_INVERTERBOX01"
@@ -501,6 +502,69 @@ def test_on_message_hands_over_the_energy_stream(
         energy_stream(Part(96, 33, STREAM_NOON, None))
     )
     callbacks.on_settings.assert_not_called()
+
+
+# Encrypted energy stream reports of a PowerOcean Plus from issue #189
+# (enc_type 1), with the key (lowest byte of the sequence number) and the
+# house power: in the evening, no sun, battery idle at 75 %
+ENCRYPTED_STREAMS = [
+    ("252868646c3d2868646c0063", 0x28, 817.0),
+    ("1518d8305d0d18d8305d3053", 0x18, 2700.0),
+    ("101d1da959081d1da9593556", 0x1D, 1440.0),
+    ("2d2060db64352060db64086b", 0x20, 2010.0),
+    ("3538f8847c2d38f8847c1073", 0x38, 1510.0),
+    ("1d10d0a2540510d0a254385b", 0x10, 1430.0),
+    ("2825259c613025259c610d6e", 0x25, 1480.0),
+    ("0508486a4c1d08486a4c2043", 0x08, 905.0),
+]
+
+
+@pytest.mark.parametrize(("content", "key", "house"), ENCRYPTED_STREAMS)
+def test_split_message_decrypts_an_encrypted_energy_stream(
+    content: str, key: int, house: float
+) -> None:
+    seq = 0x5A3C_0000 | key  # only the lowest byte is the key
+    payload = _message(
+        (1, bytes.fromhex(content)), (2, 96), (6, 1), (8, 96), (9, 33), (14, seq)
+    )
+
+    [part] = split_message(payload)
+
+    assert energy_stream(part) == {
+        "sysLoadPwr": house,
+        "sysGridPwr": house,
+        "mpptPwr": 0.0,
+        "bpPwr": 0.0,
+        "bpSoc": 75,
+    }
+    assert part.seq == seq
+
+
+def test_split_message_leaves_plain_content_alone() -> None:
+    # Without enc_type the content is not encrypted, whatever the seq
+    payload = _message((1, STREAM_NOON), (2, 96), (8, 96), (9, 33), (14, 0x28))
+
+    [part] = split_message(payload)
+
+    assert part.content == STREAM_NOON
+
+
+def test_on_message_hands_over_an_encrypted_energy_stream(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, callbacks = connection
+    content, key, house = ENCRYPTED_STREAMS[0]
+
+    _receive(
+        mqtt,
+        DEVICE_TOPIC,
+        _message(
+            (1, bytes.fromhex(content)), (2, 96), (6, 1), (8, 96), (9, 33), (14, key)
+        ),
+    )
+
+    callbacks.on_energy_stream.assert_called_once()
+    assert callbacks.on_energy_stream.call_args.args[0]["sysLoadPwr"] == house
 
 
 def test_on_message_drops_an_energy_stream_with_impossible_values(

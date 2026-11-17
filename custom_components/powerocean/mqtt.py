@@ -47,6 +47,8 @@ LED_BRIGHTNESS = 119
 # Charge limit, backup reserve and devSoc in one command
 SOC_LIMITS = 112
 BATTERY_SAVE_MODE = 138
+# Header field 6 (enc_type): content XOR-encrypted with the sequence number
+XOR_ENCRYPTED = 1
 # The system reports the energy stream while it is asked for it
 ENERGY_STREAM_REPORT = 33
 ENERGY_STREAM_SWITCH = 97
@@ -300,20 +302,38 @@ def _int(value: int | bytes | None) -> int | None:
     return value if isinstance(value, int) else None
 
 
+def _decrypt(content: bytes, enc_type: int | None, seq: int | None) -> bytes:
+    """
+    Return the content in plain text.
+
+    With enc_type 1 the system XORs every byte of the content with the
+    lowest byte of the sequence number (issue #189, PowerOcean Plus).
+    """
+    if enc_type != XOR_ENCRYPTED or seq is None:
+        return content
+    key = seq & 0xFF
+    return bytes(byte ^ key for byte in content)
+
+
 def split_message(payload: bytes) -> list[Part]:
-    """Return the parts of a message."""
+    """Return the parts of a message, contents decrypted."""
     parts: list[Part] = []
     for number, header in protobuf_fields(payload):
         if number != 1 or not isinstance(header, bytes):
             continue
         fields = dict(protobuf_fields(header))
         content = fields.get(1, b"")
+        seq = _int(fields.get(14))
         parts.append(
             Part(
                 cmd_func=_int(fields.get(8)),
                 cmd_id=_int(fields.get(9)),
-                content=content if isinstance(content, bytes) else b"",
-                seq=_int(fields.get(14)),
+                content=_decrypt(
+                    content if isinstance(content, bytes) else b"",
+                    _int(fields.get(6)),
+                    seq,
+                ),
+                seq=seq,
             )
         )
     return parts
