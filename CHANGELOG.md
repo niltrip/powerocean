@@ -10,6 +10,11 @@
   2026.11.17). They are now decrypted, so live power values update again
   with every report.
 
+### Changed
+
+- **Unknown fields of the MQTT energy stream go to the debug log**, each
+  field once: to find the live value of a third PV string (PowerOcean Plus).
+
 ## 2026.11.17
 
 ### Changed

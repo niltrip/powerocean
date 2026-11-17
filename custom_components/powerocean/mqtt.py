@@ -63,6 +63,10 @@ ENERGY_STREAM_POWER = {
 # Only there with a PV string connected (float)
 ENERGY_STREAM_STRINGS = {6: "pv1Pwr", 7: "pv2Pwr"}
 ENERGY_STREAM_SOC = 5
+# Field numbers we know in the energy stream report
+ENERGY_STREAM_KNOWN = {*ENERGY_STREAM_POWER, *ENERGY_STREAM_STRINGS, ENERGY_STREAM_SOC}
+# Unknown field numbers already written to the debug log (once per field)
+_logged_unknown_fields: set[int] = set()
 # Larger power values (W) are decoding errors, not measurements: the largest
 # PowerOcean has 30 kW. Far above that on purpose, so no real value is lost.
 ENERGY_STREAM_MAX_POWER = 1_000_000
@@ -404,6 +408,29 @@ def _float(value: int) -> float:
     return round(struct.unpack("<f", struct.pack("<I", value))[0], 1)
 
 
+def _log_unknown_fields(fields: dict[int, int | bytes], content: bytes) -> None:
+    """
+    Write unknown fields of an energy stream report to the debug log.
+
+    E.g. the third PV string of a PowerOcean Plus: its field number is not
+    known yet. Each field number once, as the report comes every few seconds;
+    protobuf leaves out zeros, so a field shows up first when it is not 0.
+    """
+    new = set(fields) - ENERGY_STREAM_KNOWN - _logged_unknown_fields
+    if not new:
+        return
+    _logged_unknown_fields.update(new)
+    LOGGER.debug(
+        "MQTT energy stream report with unknown fields %s: %s, content %s",
+        sorted(new),
+        {
+            number: _float(value) if isinstance(value, int) else value.hex()
+            for number, value in sorted(fields.items())
+        },
+        content.hex(),
+    )
+
+
 def energy_stream(part: Part) -> dict[str, float | int]:
     """
     Return the values of an energy stream report (96/33), {} without one.
@@ -414,6 +441,7 @@ def energy_stream(part: Part) -> dict[str, float | int]:
     if (part.cmd_func, part.cmd_id) != (EMS, ENERGY_STREAM_REPORT):
         return {}
     fields = dict(protobuf_fields(part.content))
+    _log_unknown_fields(fields, part.content)
     values: dict[str, float | int] = {
         name: _float(fields[number]) if isinstance(fields.get(number), int) else 0.0
         for number, name in ENERGY_STREAM_POWER.items()
