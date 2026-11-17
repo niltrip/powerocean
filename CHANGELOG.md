@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **Encrypted MQTT reports are decoded** (#189): some systems (seen on a
+  PowerOcean Plus) send part of their MQTT reports encrypted. The integration
+  read them as plain text, which gave impossible power values (dropped since
+  2026.11.17). They are now decrypted, so live power values update again
+  with every report.
+
 ## 2026.11.17
 
 ### Changed
