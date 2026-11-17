@@ -222,6 +222,44 @@ def test_energy_stream_only_from_its_report() -> None:
     assert energy_stream(Part(96, 8, STREAM_NOON, None)) == {}
 
 
+@pytest.fixture
+def fresh_unknown_fields(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Forget which unknown fields were already logged."""
+    monkeypatch.setattr(
+        "custom_components.powerocean.mqtt._logged_unknown_fields", set()
+    )
+
+
+@pytest.mark.usefixtures("fresh_unknown_fields")
+def test_energy_stream_logs_an_unknown_field_once(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    # STREAM_NOON plus field 8 = 190.0 W (float), as a third PV string might be
+    content = STREAM_NOON + bytes.fromhex("4500003e43")
+
+    with caplog.at_level("DEBUG", logger="custom_components.powerocean"):
+        values = energy_stream(Part(96, 33, content, None))
+        energy_stream(Part(96, 33, content, None))
+
+    # The known values are not affected
+    assert values == energy_stream(Part(96, 33, STREAM_NOON, None))
+    lines = [r for r in caplog.records if "unknown fields" in r.getMessage()]
+    assert len(lines) == 1
+    assert "[8]" in lines[0].getMessage()
+    assert "8: 190.0" in lines[0].getMessage()
+    assert content.hex() in lines[0].getMessage()
+
+
+@pytest.mark.usefixtures("fresh_unknown_fields")
+def test_energy_stream_without_unknown_fields_logs_nothing(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    with caplog.at_level("DEBUG", logger="custom_components.powerocean"):
+        energy_stream(Part(96, 33, STREAM_NOON, None))
+
+    assert "unknown fields" not in caplog.text
+
+
 def _with_house_power(raw: str) -> bytes:
     """Return STREAM_NOON with field 1 (house power) as these 4 bytes."""
     return bytes.fromhex("0d" + raw) + STREAM_NOON[5:]
