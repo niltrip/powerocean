@@ -10,6 +10,7 @@ from custom_components.powerocean.mqtt import (
     MqttCallbacks,
     Part,
     PowerOceanMqtt,
+    PreheatTask,
     _field_bytes,
     _field_varint,
     battery_save_mode_request,
@@ -20,6 +21,7 @@ from custom_components.powerocean.mqtt import (
     module_info_request,
     module_versions,
     parse_module_info,
+    preheat_request,
     protobuf_fields,
     soc_limits_request,
     split_message,
@@ -146,6 +148,49 @@ def test_battery_save_mode_request_as_the_app_sends_it() -> None:
         (8, 96),
         (9, 138),
         (10, 6),
+        (11, 1),
+        (14, 1234),
+        (15, 1),
+        (16, 19),
+        (17, 1),
+        (23, b"android"),
+        (25, SN.encode()),
+    ]
+
+
+# Battery preheating as the app set it on 2026-11-17 (capture with notes):
+# window in minutes and enabled, content of the app's 96/201 command
+PREHEAT_COMMANDS = [
+    (360, 450, True, "1002180120013003404148005204e882880e"),  # 06:00-07:30
+    (390, 1440, True, "10021801200130034041480052048683802d"),  # 06:30-24:00
+    (390, 510, True, "10021801200130034041480052048683f80f"),  # 06:30-08:30
+    (0, 510, True, "10021801200130034041480052048080f80f"),  # 00:00-08:30
+    (0, 510, False, "1002180130034041480052048080f80f"),  # switched off
+]
+
+
+@pytest.mark.parametrize(("start", "end", "enabled", "content"), PREHEAT_COMMANDS)
+def test_preheat_request_as_the_app_sends_it(
+    start: int,
+    end: int,
+    enabled: bool,  # noqa: FBT001 (pytest parameter)
+    content: str,
+) -> None:
+    task = PreheatTask(
+        task_index=1, is_cfg=2, time_mode=65, enabled=enabled, start=start, end=end
+    )
+    message = preheat_request(SN, task, seq=1234)
+    ((_, header),) = protobuf_fields(message)
+    # Field by field as captured from the Android app
+    assert protobuf_fields(header) == [
+        (1, bytes.fromhex(content)),
+        (2, 32),
+        (3, 96),
+        (4, 1),
+        (5, 1),
+        (8, 96),
+        (9, 201),
+        (10, len(content) // 2),
         (11, 1),
         (14, 1234),
         (15, 1),
@@ -434,6 +479,43 @@ def test_on_message_hands_over_ack_and_soc_limits(
     _receive(mqtt, DEVICE_TOPIC, _message((1, report), (2, 96), (8, 96), (9, 8)))
     callbacks.on_settings.assert_called_once_with(
         {"sysBatChgUpLimit": 90, "sysBatDsgDownLimit": 11}
+    )
+
+
+def test_preheat_acknowledged_on_the_device_topic(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, callbacks = connection
+
+    # Answer to 96/201 as captured: on the device topic, not on set_reply
+    _receive(
+        mqtt,
+        DEVICE_TOPIC,
+        _message(
+            (1, bytes.fromhex("08031001")),
+            (2, 96),
+            (3, 32),
+            (8, 96),
+            (9, 201),
+            (14, 77),
+        ),
+    )
+
+    callbacks.on_ack.assert_called_once_with(77)
+
+
+def test_set_preheat_publishes_the_command(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, _ = connection
+    task = PreheatTask(1, 2, 65, enabled=True, start=810, end=900)
+
+    mqtt.set_preheat(task, seq=1234)
+
+    mqtt.client.publish.assert_called_once_with(
+        f"/app/{USER_ID}/{SN}/thing/property/set",
+        preheat_request(SN, task, 1234),
+        qos=1,
     )
 
 

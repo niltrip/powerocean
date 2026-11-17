@@ -13,7 +13,7 @@ from freezegun.api import FrozenDateTimeFactory
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import STATE_UNAVAILABLE, EntityCategory
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
@@ -26,7 +26,11 @@ from custom_components.powerocean.diagnostics import (
     async_get_config_entry_diagnostics,
 )
 from custom_components.powerocean.ecoflow import MOCK_RESPONSE_ENV
-from custom_components.powerocean.mqtt import MqttCallbacks, module_versions
+from custom_components.powerocean.mqtt import (
+    MqttCallbacks,
+    PreheatTask,
+    module_versions,
+)
 from custom_components.powerocean.tests.utils import get_device
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
@@ -74,6 +78,7 @@ class FakeMqtt:
         self.led_commands: list[int] = []
         self.soc_limit_commands: list[tuple[int, int, int]] = []
         self.battery_save_commands: list[tuple[int, int]] = []
+        self.preheat_commands: list[PreheatTask] = []
         FakeMqtt.instances.append(self)
 
     def start(self) -> None:
@@ -109,6 +114,12 @@ class FakeMqtt:
     def set_battery_save_mode(self, enabled: int, zone: int, seq: int) -> None:
         """Record the command; the system acknowledges it (paho's thread)."""
         self.battery_save_commands.append((enabled, zone))
+        if FakeMqtt.acknowledge:
+            self.callbacks.on_ack(seq)
+
+    def set_preheat(self, task: PreheatTask, seq: int) -> None:
+        """Record the command; the system acknowledges it (paho's thread)."""
+        self.preheat_commands.append(task)
         if FakeMqtt.acknowledge:
             self.callbacks.on_ack(seq)
 
@@ -772,6 +783,242 @@ async def test_switch_battery_save_mode_without_acknowledgement(
 
     assert error.value.translation_key == "not_acknowledged"
     assert _save_state(hass) == "on"
+
+
+# -----------------------------
+# Battery preheating
+# -----------------------------
+
+# The task as the PowerOcean reported it on 2026-11-18: 13:30-15:00, on
+PREHEAT_TASK = {
+    "taskIndex": 1,
+    "role": 0,
+    "timeParam": 0,
+    "isCfg": 2,
+    "isEffect": False,
+    "timeMode": 65,
+    "timeTable": [58983210],
+    "type": 3,
+    "sysChgDsgPwr": 0,
+    "isEnable": True,
+}
+REPORTED = PreheatTask(1, 2, 65, enabled=True, start=810, end=900)
+
+
+def _with_preheat(**changes: Any) -> dict[str, Any]:
+    response = copy.deepcopy(RESPONSE)
+    report = response["data"]["quota"]["JTS1_ALL_HEATING_TASK_REPORT"]
+    report["timeTaskCfg"] = [{**PREHEAT_TASK, **changes}]
+    return response
+
+
+@pytest.fixture
+def preheat_cloud(cloud: AsyncMock) -> Generator[AsyncMock]:
+    """Answer with the preheating set up in the app."""
+    with patch(
+        "custom_components.powerocean.ecoflow.HAEcoflowApi.fetch_raw",
+        return_value=_with_preheat(),
+    ):
+        yield cloud
+
+
+def _preheat_entity_id(hass: HomeAssistant, platform: str, key: str) -> str | None:
+    return er.async_get(hass).async_get_entity_id(platform, DOMAIN, f"{SN}_{key}")
+
+
+def _preheat_states(hass: HomeAssistant) -> tuple[str, str, str]:
+    entity_ids = (
+        _preheat_entity_id(hass, "switch", "battery_preheat"),
+        _preheat_entity_id(hass, "select", "battery_preheat_start"),
+        _preheat_entity_id(hass, "select", "battery_preheat_end"),
+    )
+    assert all(entity_ids)
+    switch, start, end = (hass.states.get(e).state for e in entity_ids)
+    return switch, start, end
+
+
+async def _switch_preheat(hass: HomeAssistant, service: str) -> None:
+    await hass.services.async_call(
+        "switch",
+        service,
+        {"entity_id": _preheat_entity_id(hass, "switch", "battery_preheat")},
+        blocking=True,
+    )
+
+
+async def _select_preheat(hass: HomeAssistant, key: str, option: str) -> None:
+    await hass.services.async_call(
+        "select",
+        "select_option",
+        {"entity_id": _preheat_entity_id(hass, "select", key), "option": option},
+        blocking=True,
+    )
+
+
+async def test_preheat_only_with_mqtt(
+    hass: HomeAssistant, preheat_cloud: AsyncMock
+) -> None:
+    entry = await _setup(hass, mqtt=True)
+    for platform, key in (
+        ("switch", "battery_preheat"),
+        ("select", "battery_preheat_start"),
+        ("select", "battery_preheat_end"),
+    ):
+        entity_id = _preheat_entity_id(hass, platform, key)
+        assert entity_id
+        entity = er.async_get(hass).async_get(entity_id)
+        assert entity.entity_category is EntityCategory.CONFIG
+        assert entity.translation_key == key
+
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, "mqtt": False}
+    )
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert _preheat_entity_id(hass, "switch", "battery_preheat") is None
+    assert _preheat_entity_id(hass, "select", "battery_preheat_start") is None
+    assert _preheat_entity_id(hass, "select", "battery_preheat_end") is None
+
+
+async def test_preheat_entities(hass: HomeAssistant, preheat_cloud: AsyncMock) -> None:
+    await _setup(hass, mqtt=True)
+
+    assert _preheat_states(hass) == ("on", "13:30", "15:00")
+    start = hass.states.get(_preheat_entity_id(hass, "select", "battery_preheat_start"))
+    end = hass.states.get(_preheat_entity_id(hass, "select", "battery_preheat_end"))
+    # Steps of 30 minutes as in the app; the end may be 24:00
+    assert start.attributes["options"][:2] == ["00:00", "00:30"]
+    assert start.attributes["options"][-1] == "23:30"
+    assert end.attributes["options"][0] == "00:30"
+    assert end.attributes["options"][-1] == "24:00"
+
+
+async def test_preheat_unavailable_without_a_task(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    # Never set up in the app: the report holds no task
+    entry = await _setup(hass, mqtt=True)
+
+    assert _preheat_states(hass) == (STATE_UNAVAILABLE,) * 3
+    with pytest.raises(HomeAssistantError) as error:
+        await entry.runtime_data.async_set_preheat(enabled=True)
+    assert error.value.translation_key == "preheat_unknown"
+    assert FakeMqtt.instances[0].preheat_commands == []
+
+
+async def test_switch_preheat(hass: HomeAssistant, preheat_cloud: AsyncMock) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    await _switch_preheat(hass, "turn_off")
+    assert _preheat_states(hass) == ("off", "13:30", "15:00")
+    await _switch_preheat(hass, "turn_on")
+    assert _preheat_states(hass) == ("on", "13:30", "15:00")
+
+    # The window and the other values are sent unchanged
+    assert client.preheat_commands == [
+        PreheatTask(1, 2, 65, enabled=False, start=810, end=900),
+        REPORTED,
+    ]
+
+
+async def test_select_preheat_times(
+    hass: HomeAssistant, preheat_cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    await _select_preheat(hass, "battery_preheat_end", "24:00")
+    await _select_preheat(hass, "battery_preheat_start", "06:30")
+
+    assert _preheat_states(hass) == ("on", "06:30", "24:00")
+    assert client.preheat_commands == [
+        PreheatTask(1, 2, 65, enabled=True, start=810, end=1440),
+        PreheatTask(1, 2, 65, enabled=True, start=390, end=1440),
+    ]
+
+
+@pytest.mark.parametrize(
+    ("key", "option"),
+    [("battery_preheat_start", "15:00"), ("battery_preheat_end", "13:00")],
+)
+async def test_preheat_start_must_be_before_the_end(
+    hass: HomeAssistant, preheat_cloud: AsyncMock, key: str, option: str
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    # The app refuses this too
+    with pytest.raises(ServiceValidationError) as error:
+        await _select_preheat(hass, key, option)
+
+    assert error.value.translation_key == "preheat_start_not_before_end"
+    assert client.preheat_commands == []
+    assert _preheat_states(hass) == ("on", "13:30", "15:00")
+
+
+async def test_preheat_without_acknowledgement(
+    hass: HomeAssistant, preheat_cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+    FakeMqtt.acknowledge = False
+
+    with (
+        patch("custom_components.powerocean.coordinator.COMMAND_TIMEOUT", 0.01),
+        pytest.raises(HomeAssistantError) as error,
+    ):
+        await _switch_preheat(hass, "turn_off")
+
+    assert error.value.translation_key == "not_acknowledged"
+    assert _preheat_states(hass) == ("on", "13:30", "15:00")
+
+
+async def test_preheat_kept_while_the_cloud_is_behind(
+    hass: HomeAssistant, preheat_cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+    await _select_preheat(hass, "battery_preheat_start", "06:30")
+
+    # The cloud still shows 13:30
+    await _poll(hass, freezer)
+    assert _preheat_states(hass) == ("on", "06:30", "15:00")
+    # The next command builds on the new start, not on the cloud's
+    await _switch_preheat(hass, "turn_off")
+    assert client.preheat_commands[-1] == PreheatTask(
+        1, 2, 65, enabled=False, start=390, end=900
+    )
+
+
+async def test_preheat_hold_ends_when_the_cloud_shows_it(
+    hass: HomeAssistant, preheat_cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+    await _switch_preheat(hass, "turn_off")
+
+    with patch(
+        "custom_components.powerocean.ecoflow.HAEcoflowApi.fetch_raw",
+        return_value=_with_preheat(isEnable=False),
+    ):
+        await _poll(hass, freezer)
+    # Later switched on in the app, only the cloud shows it
+    await _poll(hass, freezer)
+
+    assert _preheat_states(hass) == ("on", "13:30", "15:00")
+
+
+async def test_preheat_hold_ends_after_two_minutes(
+    hass: HomeAssistant, preheat_cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+    await _switch_preheat(hass, "turn_off")
+
+    freezer.tick(timedelta(minutes=2))
+    await _poll(hass, freezer)
+
+    # The cloud never showed it: its value counts again
+    assert _preheat_states(hass) == ("on", "13:30", "15:00")
 
 
 # -----------------------------

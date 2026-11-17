@@ -87,6 +87,12 @@
         },
         "sys_zone_unknown": {
             "message": "Die Zeitzone der Anlage (sysZone) ist noch nicht bekannt, daher kann der Batteriesparmodus nicht gesendet werden. Bitte in einer Minute erneut versuchen."
+        },
+        "preheat_unknown": {
+            "message": "Die Batterievorwärmung ist noch nicht bekannt. Falls sie noch nie eingerichtet wurde, bitte einmal in der EcoFlow-App einrichten, sonst in einer Minute erneut versuchen."
+        },
+        "preheat_start_not_before_end": {
+            "message": "Der Beginn der Batterievorwärmung ({start}) muss vor ihrem Ende ({end}) liegen."
         }
     },
     "entity": {
@@ -854,9 +860,20 @@
                 "name": "Zustellung überschüssiger Solarenergie"
             }
         },
+        "select": {
+            "battery_preheat_start": {
+                "name": "Batterievorwärmung Beginn"
+            },
+            "battery_preheat_end": {
+                "name": "Batterievorwärmung Ende"
+            }
+        },
         "switch": {
             "battery_save_mode": {
                 "name": "Batteriesparmodus"
+            },
+            "battery_preheat": {
+                "name": "Batterievorwärmung"
             }
         }
     }

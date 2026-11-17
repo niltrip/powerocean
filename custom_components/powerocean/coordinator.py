@@ -20,13 +20,18 @@ Usage:
 
 import asyncio
 from collections.abc import Callable
+from dataclasses import replace
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
+from homeassistant.exceptions import (
+    ConfigEntryAuthFailed,
+    HomeAssistantError,
+    ServiceValidationError,
+)
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -40,9 +45,11 @@ from .mqtt import (
     ENERGY_STREAM_STRINGS,
     MODULE_EMS,
     MODULE_METER,
+    PREHEAT_TYPE,
     ModuleVersion,
     MqttCallbacks,
     PowerOceanMqtt,
+    PreheatTask,
     new_seq,
 )
 from .parse import parse
@@ -64,6 +71,8 @@ ENERGY_STREAM_INTERVAL = timedelta(seconds=20)
 ENERGY_STREAM_HOLD = timedelta(seconds=30)
 # How long a command may wait for the acknowledgement of the system
 COMMAND_TIMEOUT = 10
+# End of the last preheating window (24:00)
+MINUTES_PER_DAY = 24 * 60
 # Sent together with the backup reserve: datapoint -> report it is read from.
 # Not from the values directly under "data": those can be 0 while the
 # report holds the setting.
@@ -127,6 +136,10 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         # Settings confirmed via MQTT the HTTP response may not show yet:
         # name -> (value, time of the confirmation)
         self._recent_settings: dict[str, tuple[int, datetime]] = {}
+        # Battery preheating from the HTTP response, and the one set via MQTT
+        # while the cloud does not show it yet (as _recent_settings)
+        self.preheat: PreheatTask | None = None
+        self._recent_preheat: tuple[PreheatTask, datetime] | None = None
         # Option live power: values of the last energy stream report, by
         # unique_id, and when it came
         self._energy_stream_unsub: Callable[[], None] | None = None
@@ -161,6 +174,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
 
         self.active_errors = result.active_errors
         self.soc_limits = soc_limits_of(response)
+        self.preheat = self._held_preheat(preheat_of(response))
         self._update_firmware(result.firmware)
         values = result.values()
         self._hold_recent_settings(values)
@@ -188,6 +202,16 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
                 self.soc_limits[name] = value
             for key in keys:
                 values[key] = value
+
+    def _held_preheat(self, reported: PreheatTask | None) -> PreheatTask | None:
+        """Return the preheating set via MQTT until the cloud shows it."""
+        if self._recent_preheat is None:
+            return reported
+        task, since = self._recent_preheat
+        if reported == task or dt_util.utcnow() - since > SETTING_HOLD:
+            self._recent_preheat = None
+            return reported
+        return task
 
     def _update_firmware(self, firmware: dict[str, str]) -> None:
         """Show a changed firmware version on the device page."""
@@ -451,6 +475,53 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         await self._async_command(mqtt.set_battery_save_mode, int(enabled), zone)
         self._apply_settings({"batterySaveMode": int(enabled)})
 
+    async def async_set_preheat(
+        self,
+        *,
+        enabled: bool | None = None,
+        start: int | None = None,
+        end: int | None = None,
+    ) -> None:
+        """
+        Change the battery preheating via MQTT and wait for the acknowledgement.
+
+        The command carries the whole task; what is not changed is sent as
+        the system reported it, so the task must be known.
+
+        Raises:
+            HomeAssistantError: Without MQTT connection, without the task, or
+                if the system does not acknowledge the command in time.
+            ServiceValidationError: If the start is not before the end (the
+                app refuses that too).
+
+        """
+        mqtt = self._connected_mqtt()
+        if self.preheat is None:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN, translation_key="preheat_unknown"
+            )
+        task = replace(
+            self.preheat,
+            enabled=self.preheat.enabled if enabled is None else enabled,
+            start=self.preheat.start if start is None else start,
+            end=self.preheat.end if end is None else end,
+        )
+        if task.start >= task.end:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="preheat_start_not_before_end",
+                translation_placeholders={
+                    "start": format_minutes(task.start),
+                    "end": format_minutes(task.end),
+                },
+            )
+        await self._async_command(mqtt.set_preheat, task)
+        if not self.mqtt:
+            return
+        self._recent_preheat = (task, dt_util.utcnow())
+        self.preheat = task
+        self.async_update_listeners()
+
     def _connected_mqtt(self) -> PowerOceanMqtt:
         if not self.mqtt:
             raise HomeAssistantError(
@@ -458,7 +529,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             )
         return self.mqtt
 
-    async def _async_command(self, send: Callable[..., None], *values: int) -> None:
+    async def _async_command(self, send: Callable[..., None], *values: Any) -> None:
         """Send a command (blocking, with the seq last) and wait for the ack."""
         seq = new_seq()
         acknowledged = self.hass.loop.create_future()
@@ -594,3 +665,50 @@ def soc_limits_of(response: dict[str, Any]) -> dict[str, int]:
             if report.endswith(suffix) and type(value) is int:
                 found[name] = value
     return found
+
+
+def format_minutes(minutes: int) -> str:
+    """Return minutes after midnight as HH:MM (1440 = 24:00)."""
+    return f"{minutes // 60:02d}:{minutes % 60:02d}"
+
+
+def preheat_of(response: dict[str, Any]) -> PreheatTask | None:
+    """
+    Return the battery preheating from the heating task report, None without.
+
+    The report holds a list of tasks; the preheating is the one of type 3.
+    Its time table holds one window: end << 16 | start, in minutes.
+    """
+    data = response.get("data")
+    quota = data.get("quota") if isinstance(data, dict) else None
+    if not isinstance(quota, dict):
+        return None
+    for report, values in quota.items():
+        if not report.endswith("_ALL_HEATING_TASK_REPORT"):
+            continue
+        tasks = values.get("timeTaskCfg") if isinstance(values, dict) else None
+        for task in tasks if isinstance(tasks, list) else []:
+            if parsed := _preheat_task(task):
+                return parsed
+    return None
+
+
+def _preheat_task(task: Any) -> PreheatTask | None:
+    if not isinstance(task, dict) or task.get("type") != PREHEAT_TYPE:
+        return None
+    numbers = [task.get(key) for key in ("taskIndex", "isCfg", "timeMode")]
+    table = task.get("timeTable")
+    enabled = task.get("isEnable")
+    if (
+        any(type(number) is not int for number in numbers)
+        or not isinstance(table, list)
+        or not table
+        or type(table[0]) is not int
+        or not isinstance(enabled, bool)
+    ):
+        return None
+    start, end = table[0] & 0xFFFF, table[0] >> 16
+    if not 0 <= start < end <= MINUTES_PER_DAY:
+        return None
+    task_index, is_cfg, time_mode = numbers
+    return PreheatTask(task_index, is_cfg, time_mode, enabled, start, end)

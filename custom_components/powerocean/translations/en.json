@@ -87,6 +87,12 @@
         },
         "sys_zone_unknown": {
             "message": "The time zone of the system (sysZone) is not known yet, so the battery save mode cannot be sent. Please try again in a minute."
+        },
+        "preheat_unknown": {
+            "message": "The battery preheating is not known yet. If it was never set up, set it up once in the EcoFlow app; otherwise please try again in a minute."
+        },
+        "preheat_start_not_before_end": {
+            "message": "The start of the battery preheating ({start}) must be before its end ({end})."
         }
     },
     "entity": {
@@ -854,9 +860,20 @@
                 "name": "Surplus solar energy delivery"
             }
         },
+        "select": {
+            "battery_preheat_start": {
+                "name": "Battery preheating start"
+            },
+            "battery_preheat_end": {
+                "name": "Battery preheating end"
+            }
+        },
         "switch": {
             "battery_save_mode": {
                 "name": "Battery save mode"
+            },
+            "battery_preheat": {
+                "name": "Battery preheating"
             }
         }
     }

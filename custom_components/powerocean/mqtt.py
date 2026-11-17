@@ -47,6 +47,11 @@ LED_BRIGHTNESS = 119
 # Charge limit, backup reserve and devSoc in one command
 SOC_LIMITS = 112
 BATTERY_SAVE_MODE = 138
+# Battery preheating: the app sets it with 201 and reads it with 203; the
+# system confirms 201 on the property topic, not on set_reply
+PREHEAT_SET = 201
+# Task type of the battery preheating in the heating task report
+PREHEAT_TYPE = 3
 # Header field 6 (enc_type): content XOR-encrypted with the sequence number
 XOR_ENCRYPTED = 1
 # The system reports the energy stream while it is asked for it
@@ -286,6 +291,51 @@ def _ems_command(serial: str, cmd_id: int, content: bytes, seq: int) -> bytes:
         )
     )
     return _field_bytes(1, header)
+
+
+@dataclass(frozen=True)
+class PreheatTask:
+    """
+    The battery preheating: one time window, as the app offers it.
+
+    Start and end in minutes after midnight (end up to 1440 = 24:00). The
+    other values are sent back unchanged, as the app does: their meaning is
+    not fully known (timeMode 65 on a PowerOcean, 1 on a PowerOcean Plus).
+    """
+
+    task_index: int
+    is_cfg: int
+    time_mode: int
+    enabled: bool
+    start: int
+    end: int
+
+    @property
+    def time_table(self) -> int:
+        """Return start and end as the system stores them: end << 16 | start."""
+        return self.end << 16 | self.start
+
+
+def preheat_request(serial: str, task: PreheatTask, seq: int) -> bytes:
+    """
+    Return the command that sets the battery preheating (96/201), as the app.
+
+    Content: 2 isCfg, 3 taskIndex, 4 = 1 only when on, 6 type 3, 8 timeMode,
+    9 = 0 and 10 the time table as packed varint. The system answers with a
+    96/201 {1: 3, 2: 1} with the same seq on the property topic.
+    """
+    content = b"".join(
+        (
+            _field_varint(2, task.is_cfg),
+            _field_varint(3, task.task_index),
+            _field_varint(4, 1) if task.enabled else b"",
+            _field_varint(6, PREHEAT_TYPE),
+            _field_varint(8, task.time_mode),
+            _field_varint(9, 0),
+            _field_bytes(10, _varint(task.time_table)),
+        )
+    )
+    return _ems_command(serial, PREHEAT_SET, content, seq)
 
 
 @dataclass(frozen=True)
@@ -556,6 +606,14 @@ class PowerOceanMqtt:
             qos=1,
         )
 
+    def set_preheat(self, task: PreheatTask, seq: int) -> None:
+        """Send the battery preheating (acknowledged with `seq`)."""
+        self.client.publish(
+            f"{self._property_topic}/set",
+            preheat_request(self.serial, task, seq),
+            qos=1,
+        )
+
     def _on_connect(
         self,
         client: mqtt.Client,
@@ -582,7 +640,7 @@ class PowerOceanMqtt:
                 command = (part.cmd_func, part.cmd_id)
                 if command == (IOT, MODULE_INFO) and part.content:
                     self.callbacks.on_modules(parse_module_info(part.content))
-                elif reply:
+                elif reply or command == (EMS, PREHEAT_SET):
                     # By seq: only the integration's own commands wait for it
                     if part.seq is not None:
                         self.callbacks.on_ack(part.seq)
