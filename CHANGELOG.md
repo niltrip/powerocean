@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### New
+
+- **Battery preheating (with the MQTT option):** a switch and two selects
+  for start and end, as in the EcoFlow app: one time window per day in steps
+  of 30 minutes (00:00 to 24:00), the start before the end. The current
+  setting comes from the regular polling and, after every change (also in
+  the app), right away via MQTT; the preheating must have been set up once
+  in the app. Switching it off keeps the time window.
+
 ### Fixed
 
 - **Encrypted MQTT reports are decoded** (#189): some systems (seen on a

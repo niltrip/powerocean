@@ -54,9 +54,20 @@
         "default": "mdi:solar-power-variant"
       }
     },
+    "select": {
+      "battery_preheat_start": {
+        "default": "mdi:clock-start"
+      },
+      "battery_preheat_end": {
+        "default": "mdi:clock-end"
+      }
+    },
     "switch": {
       "battery_save_mode": {
         "default": "mdi:battery-heart-variant"
+      },
+      "battery_preheat": {
+        "default": "mdi:heat-wave"
       }
     }
   }

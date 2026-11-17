@@ -1,8 +1,8 @@
 """
 PowerOcean switches: settings sent to the system via MQTT.
 
-Only with the option "Extended connection (MQTT)": the battery save mode,
-switched as the EcoFlow app does.
+Only with the option "Extended connection (MQTT)": the battery save mode
+and the battery preheating, switched as the EcoFlow app does.
 """
 
 from typing import Any
@@ -30,7 +30,10 @@ async def async_setup_entry(
 ) -> None:
     """Set up the switches, if the MQTT option is on."""
     coordinator = entry.runtime_data
-    switches = [PowerOceanBatterySaveMode(coordinator)]
+    switches: list[SwitchEntity] = [
+        PowerOceanBatterySaveMode(coordinator),
+        PowerOceanBatteryPreheat(coordinator),
+    ]
     if entry.options.get(CONF_MQTT, False):
         async_add_entities(switches)
         return
@@ -80,3 +83,41 @@ class PowerOceanBatterySaveMode(CoordinatorEntity[PowerOceanCoordinator], Switch
     async def async_turn_off(self, **_kwargs: Any) -> None:
         """Switch off; raises if the system does not confirm it."""
         await self.coordinator.async_set_battery_save_mode(enabled=False)
+
+
+class PowerOceanBatteryPreheat(CoordinatorEntity[PowerOceanCoordinator], SwitchEntity):
+    """Battery preheating of the app, from the heating task report."""
+
+    _attr_has_entity_name = True
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_translation_key = "battery_preheat"
+
+    def __init__(self, coordinator: PowerOceanCoordinator) -> None:
+        """Initialize the switch of the inverter."""
+        super().__init__(coordinator)
+        sn = coordinator.api.sn
+        self._attr_unique_id = f"{sn}_{self._attr_translation_key}"
+        self._attr_device_info = DeviceInfo(identifiers={(DOMAIN, sn)})
+
+    @property
+    def available(self) -> bool:
+        """Return False without MQTT connection or without the task (sent along)."""
+        return (
+            super().available
+            and self.coordinator.mqtt is not None
+            and self.coordinator.preheat is not None
+        )
+
+    @property
+    def is_on(self) -> bool | None:
+        """Return the state the system reported last."""
+        task = self.coordinator.preheat
+        return None if task is None else task.enabled
+
+    async def async_turn_on(self, **_kwargs: Any) -> None:
+        """Switch on; raises if the system does not confirm it."""
+        await self.coordinator.async_set_preheat(enabled=True)
+
+    async def async_turn_off(self, **_kwargs: Any) -> None:
+        """Switch off; raises if the system does not confirm it."""
+        await self.coordinator.async_set_preheat(enabled=False)

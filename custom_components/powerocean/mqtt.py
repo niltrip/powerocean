@@ -47,6 +47,14 @@ LED_BRIGHTNESS = 119
 # Charge limit, backup reserve and devSoc in one command
 SOC_LIMITS = 112
 BATTERY_SAVE_MODE = 138
+# Battery preheating: the app sets it with 201 and reads it with 203; the
+# system confirms 201 on the property topic, not on set_reply
+PREHEAT_SET = 201
+PREHEAT_GET = 203
+# Task type of the battery preheating in the heating task report
+PREHEAT_TYPE = 3
+# End of the last preheating window (24:00)
+MINUTES_PER_DAY = 24 * 60
 # Header field 6 (enc_type): content XOR-encrypted with the sequence number
 XOR_ENCRYPTED = 1
 # The system reports the energy stream while it is asked for it
@@ -270,16 +278,17 @@ def energy_stream_request(serial: str, seq: int) -> bytes:
 
 def _ems_command(serial: str, cmd_id: int, content: bytes, seq: int) -> bytes:
     """Return a setting command of the app to the EMS."""
+    # Without content (a query) the app leaves out pdata and data_len
     header = b"".join(
         (
-            _field_bytes(1, content),  # pdata
+            _field_bytes(1, content) if content else b"",  # pdata
             _field_varint(2, APP),  # src
             _field_varint(3, EMS),  # dest
             _field_varint(4, 1),  # d_src
             _field_varint(5, 1),  # d_dest
             _field_varint(8, EMS),  # cmd_func
             _field_varint(9, cmd_id),  # cmd_id
-            _field_varint(10, len(content)),  # data_len
+            _field_varint(10, len(content)) if content else b"",  # data_len
             _field_varint(11, 1),  # need_ack
             _field_varint(14, seq),  # seq
             _field_varint(15, 1),  # product_id
@@ -290,6 +299,95 @@ def _ems_command(serial: str, cmd_id: int, content: bytes, seq: int) -> bytes:
         )
     )
     return _field_bytes(1, header)
+
+
+@dataclass(frozen=True)
+class PreheatTask:
+    """
+    The battery preheating: one time window, as the app offers it.
+
+    Start and end in minutes after midnight (end up to 1440 = 24:00). The
+    other values are sent back unchanged, as the app does: their meaning is
+    not fully known (timeMode 65 on a PowerOcean, 1 on a PowerOcean Plus).
+    """
+
+    task_index: int
+    is_cfg: int
+    time_mode: int
+    enabled: bool
+    start: int
+    end: int
+
+    @property
+    def time_table(self) -> int:
+        """Return start and end as the system stores them: end << 16 | start."""
+        return self.end << 16 | self.start
+
+
+def preheat_request(serial: str, task: PreheatTask, seq: int) -> bytes:
+    """
+    Return the command that sets the battery preheating (96/201), as the app.
+
+    Content: 2 isCfg, 3 taskIndex, 4 = 1 only when on, 6 type 3, 8 timeMode,
+    9 = 0 and 10 the time table as packed varint. The system answers with a
+    96/201 {1: 3, 2: 1} with the same seq on the property topic.
+    """
+    content = b"".join(
+        (
+            _field_varint(2, task.is_cfg),
+            _field_varint(3, task.task_index),
+            _field_varint(4, 1) if task.enabled else b"",
+            _field_varint(6, PREHEAT_TYPE),
+            _field_varint(8, task.time_mode),
+            _field_varint(9, 0),
+            _field_bytes(10, _varint(task.time_table)),
+        )
+    )
+    return _ems_command(serial, PREHEAT_SET, content, seq)
+
+
+def preheat_get_request(serial: str, seq: int) -> bytes:
+    """
+    Return the query of the battery preheating (96/203), as the app sends it.
+
+    No content. The system answers with a 96/203 on the property topic: field
+    1 holds the task, see parse_preheat_report.
+    """
+    return _ems_command(serial, PREHEAT_GET, b"", seq)
+
+
+def parse_preheat_report(content: bytes) -> PreheatTask | None:
+    """
+    Return the task of an answer to the preheating query, None without one.
+
+    Field 1 holds the task with the fields of the command (preheat_request);
+    field 4 is left out when the preheating is off.
+    """
+    task = dict(protobuf_fields(content)).get(1)
+    if not isinstance(task, bytes):
+        return None
+    fields = dict(protobuf_fields(task))
+    numbers = [fields.get(number) for number in (2, 3, 8)]
+    table = fields.get(10)
+    if (
+        fields.get(6) != PREHEAT_TYPE
+        or any(not isinstance(number, int) for number in numbers)
+        or not isinstance(table, bytes)
+    ):
+        return None
+    time_table, _ = _read_varint(table, 0)
+    start, end = time_table & 0xFFFF, time_table >> 16
+    if not 0 <= start < end <= MINUTES_PER_DAY:
+        return None
+    is_cfg, task_index, time_mode = numbers
+    return PreheatTask(
+        task_index=int(task_index),
+        is_cfg=int(is_cfg),
+        time_mode=int(time_mode),
+        enabled=fields.get(4) == 1,
+        start=start,
+        end=end,
+    )
 
 
 @dataclass(frozen=True)
@@ -483,6 +581,8 @@ class MqttCallbacks:
     on_ack: Callable[[int], None]
     # Energy stream report: power values, by datapoint
     on_energy_stream: Callable[[dict[str, float | int]], None]
+    # Battery preheating, as the system answered a query
+    on_preheat: Callable[[PreheatTask], None]
 
 
 class PowerOceanMqtt:
@@ -584,6 +684,22 @@ class PowerOceanMqtt:
             qos=1,
         )
 
+    def request_preheat(self) -> None:
+        """Ask the system for the battery preheating."""
+        self.client.publish(
+            f"{self._property_topic}/set",
+            preheat_get_request(self.serial, new_seq()),
+            qos=1,
+        )
+
+    def set_preheat(self, task: PreheatTask, seq: int) -> None:
+        """Send the battery preheating (acknowledged with `seq`)."""
+        self.client.publish(
+            f"{self._property_topic}/set",
+            preheat_request(self.serial, task, seq),
+            qos=1,
+        )
+
     def _on_connect(
         self,
         client: mqtt.Client,
@@ -610,10 +726,17 @@ class PowerOceanMqtt:
                 command = (part.cmd_func, part.cmd_id)
                 if command == (IOT, MODULE_INFO) and part.content:
                     self.callbacks.on_modules(parse_module_info(part.content))
-                elif reply:
+                elif reply or command == (EMS, PREHEAT_SET):
                     # By seq: only the integration's own commands wait for it
                     if part.seq is not None:
                         self.callbacks.on_ack(part.seq)
+                    if command == (EMS, PREHEAT_SET):
+                        # Changed, maybe in the app: the confirmation does
+                        # not say how, the answer to a query does
+                        self.request_preheat()
+                elif command == (EMS, PREHEAT_GET) and part.content:
+                    if task := parse_preheat_report(part.content):
+                        self.callbacks.on_preheat(task)
                 elif settings := change_report_settings(part):
                     self.callbacks.on_settings(settings)
                 elif values := energy_stream(part):

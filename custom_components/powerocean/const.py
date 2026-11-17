@@ -16,4 +16,9 @@ CONF_MQTT = "mqtt"
 CONF_LIVE_POWER = "live_power"
 # EcoFlow web portal for owners (portal.ecoflow.com is the installer portal)
 PORTAL_URL = "https://user-portal.ecoflow.com/"
-PLATFORMS: list[Platform] = [Platform.NUMBER, Platform.SENSOR, Platform.SWITCH]
+PLATFORMS: list[Platform] = [
+    Platform.NUMBER,
+    Platform.SELECT,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]

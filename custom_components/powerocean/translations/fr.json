@@ -87,6 +87,12 @@
         },
         "sys_zone_unknown": {
             "message": "Le fuseau horaire du système (sysZone) n'est pas encore connu, le mode économie de batterie ne peut donc pas être envoyé. Veuillez réessayer dans une minute."
+        },
+        "preheat_unknown": {
+            "message": "Le préchauffage de la batterie n'est pas encore connu. S'il n'a jamais été configuré, configurez-le une fois dans l'application EcoFlow ; sinon, réessayez dans une minute."
+        },
+        "preheat_start_not_before_end": {
+            "message": "Le début du préchauffage de la batterie ({start}) doit être avant sa fin ({end})."
         }
     },
     "entity": {
@@ -101,9 +107,20 @@
                 "name": "Distribution de l'énergie solaire excédentaire"
             }
         },
+        "select": {
+            "battery_preheat_start": {
+                "name": "Début du préchauffage de la batterie"
+            },
+            "battery_preheat_end": {
+                "name": "Fin du préchauffage de la batterie"
+            }
+        },
         "switch": {
             "battery_save_mode": {
                 "name": "Mode économie de batterie"
+            },
+            "battery_preheat": {
+                "name": "Préchauffage de la batterie"
             }
         }
     }
