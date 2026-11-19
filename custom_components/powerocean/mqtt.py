@@ -18,6 +18,7 @@ This module does not depend on Home Assistant.
 
 from __future__ import annotations
 
+import logging
 import math
 import ssl
 import struct
@@ -525,6 +526,10 @@ def log_message_part(part: Part, *, reply: bool) -> None:
     settings reports every time with their fields, so a change in the app
     shows which field holds the setting.
     """
+    # Only remembered while it is logged: debug logging switched on later
+    # (in the UI, without a restart) still shows every command once
+    if not LOGGER.isEnabledFor(logging.DEBUG):
+        return
     command = (part.cmd_func, part.cmd_id)
     if command not in _logged_commands:
         _logged_commands.add(command)
@@ -555,7 +560,10 @@ def _log_unknown_fields(fields: dict[int, int | bytes], content: bytes) -> None:
     E.g. the third PV string of a PowerOcean Plus: its field number is not
     known yet. Each field number once, as the report comes every few seconds;
     protobuf leaves out zeros, so a field shows up first when it is not 0.
+    Only remembered while it is logged, as in log_message_part.
     """
+    if not LOGGER.isEnabledFor(logging.DEBUG):
+        return
     new = set(fields) - ENERGY_STREAM_KNOWN - _logged_unknown_fields
     if not new:
         return

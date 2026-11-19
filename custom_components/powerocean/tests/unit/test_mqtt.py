@@ -848,3 +848,23 @@ def test_other_reports_logged_without_fields(
         _receive(mqtt, DEVICE_TOPIC, _message((1, STREAM_NOON), (8, 96), (9, 33)))
 
     assert _debug_lines(caplog, "MQTT settings report") == []
+
+
+@pytest.mark.usefixtures("fresh_logged_commands", "fresh_unknown_fields")
+def test_debug_logging_switched_on_later_still_logs_once(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    # Debug logging switched on in the UI while the integration runs
+    mqtt, _ = connection
+    unknown = STREAM_NOON + bytes.fromhex("4500003e43")
+
+    with caplog.at_level("INFO", logger="custom_components.powerocean"):
+        _receive(mqtt, DEVICE_TOPIC, LED_REPORT)
+        energy_stream(Part(96, 33, unknown, None))
+    with caplog.at_level("DEBUG", logger="custom_components.powerocean"):
+        _receive(mqtt, DEVICE_TOPIC, LED_REPORT)
+        energy_stream(Part(96, 33, unknown, None))
+
+    assert _debug_lines(caplog, "MQTT first message") == ["MQTT first message 96/8"]
+    assert len(_debug_lines(caplog, "unknown fields")) == 1
