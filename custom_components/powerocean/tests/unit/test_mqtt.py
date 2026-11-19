@@ -784,3 +784,87 @@ def test_on_message_drops_an_energy_stream_with_impossible_values(
     _receive(mqtt, DEVICE_TOPIC, _message((1, content), (2, 96), (8, 96), (9, 33)))
 
     callbacks.on_energy_stream.assert_not_called()
+
+
+@pytest.fixture
+def fresh_logged_commands(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Forget which commands were already logged."""
+    monkeypatch.setattr("custom_components.powerocean.mqtt._logged_commands", set())
+
+
+def _debug_lines(caplog: pytest.LogCaptureFixture, text: str) -> list[str]:
+    return [r.getMessage() for r in caplog.records if text in r.getMessage()]
+
+
+@pytest.mark.usefixtures("fresh_logged_commands")
+def test_each_command_logged_once(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    mqtt, _ = connection
+
+    with caplog.at_level("DEBUG", logger="custom_components.powerocean"):
+        _receive(mqtt, DEVICE_TOPIC, LED_REPORT)
+        _receive(mqtt, DEVICE_TOPIC, LED_REPORT)
+        _receive(mqtt, SET_REPLY_TOPIC, LED_ACK)
+
+    assert _debug_lines(caplog, "MQTT first message") == [
+        "MQTT first message 96/8",
+        "MQTT first message 96/119 (set_reply)",
+    ]
+
+
+@pytest.mark.usefixtures("fresh_logged_commands")
+def test_settings_report_logged_with_its_fields(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    mqtt, _ = connection
+    # A number, and a nested message that may hold a serial number
+    report = _field_varint(12, 75) + _field_bytes(5, b"SN_SECRET")
+    message = _message((1, report), (2, 96), (8, 96), (9, 8))
+
+    with caplog.at_level("DEBUG", logger="custom_components.powerocean"):
+        _receive(mqtt, DEVICE_TOPIC, message)
+        _receive(mqtt, DEVICE_TOPIC, message)
+
+    # Every time, so a change in the app shows up
+    assert (
+        _debug_lines(caplog, "MQTT settings report")
+        == ["MQTT settings report 96/8: {12: 75, 5: '<9 bytes>'}"] * 2
+    )
+    assert "SN_SECRET" not in caplog.text
+
+
+@pytest.mark.usefixtures("fresh_logged_commands")
+def test_other_reports_logged_without_fields(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    mqtt, _ = connection
+
+    with caplog.at_level("DEBUG", logger="custom_components.powerocean"):
+        _receive(mqtt, SET_REPLY_TOPIC, LED_ACK)
+        _receive(mqtt, DEVICE_TOPIC, _message((1, STREAM_NOON), (8, 96), (9, 33)))
+
+    assert _debug_lines(caplog, "MQTT settings report") == []
+
+
+@pytest.mark.usefixtures("fresh_logged_commands", "fresh_unknown_fields")
+def test_debug_logging_switched_on_later_still_logs_once(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    # Debug logging switched on in the UI while the integration runs
+    mqtt, _ = connection
+    unknown = STREAM_NOON + bytes.fromhex("4500003e43")
+
+    with caplog.at_level("INFO", logger="custom_components.powerocean"):
+        _receive(mqtt, DEVICE_TOPIC, LED_REPORT)
+        energy_stream(Part(96, 33, unknown, None))
+    with caplog.at_level("DEBUG", logger="custom_components.powerocean"):
+        _receive(mqtt, DEVICE_TOPIC, LED_REPORT)
+        energy_stream(Part(96, 33, unknown, None))
+
+    assert _debug_lines(caplog, "MQTT first message") == ["MQTT first message 96/8"]
+    assert len(_debug_lines(caplog, "unknown fields")) == 1

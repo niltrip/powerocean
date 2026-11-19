@@ -39,6 +39,7 @@ from homeassistant.util import dt as dt_util
 
 from .api import AuthenticationError, EcoflowApiError, EcoflowConnectionError
 from .const import CONF_LIVE_POWER, DEFAULT_SCAN_INTERVAL, DOMAIN, LOGGER
+from .devices import PowerOceanModel
 from .ecoflow import HAEcoflowApi
 from .flows import energy_flows
 from .mqtt import (
@@ -72,14 +73,21 @@ ENERGY_STREAM_INTERVAL = timedelta(seconds=20)
 ENERGY_STREAM_HOLD = timedelta(seconds=30)
 # How long a command may wait for the acknowledgement of the system
 COMMAND_TIMEOUT = 10
-# Sent together with the backup reserve: datapoint -> report it is read from.
+# Sent together with the backup reserve: datapoint -> reports it is read from.
 # Not from the values directly under "data": those can be 0 while the
 # report holds the setting.
 SOC_LIMITS = {
-    "sysBatChgUpLimit": "_EMS_CHANGE_REPORT",
-    "sysBatDsgDownLimit": "_EMS_CHANGE_REPORT",
-    "devSoc": "_EMS_PARAM_CHANGE_REPORT",
+    "sysBatChgUpLimit": ("_EMS_CHANGE_REPORT",),
+    "sysBatDsgDownLimit": ("_EMS_CHANGE_REPORT",),
+    # The PowerOcean Plus has no parameter change report; it holds devSoc in
+    # the EMS change report (issue #196)
+    "devSoc": ("_EMS_PARAM_CHANGE_REPORT", "_EMS_CHANGE_REPORT"),
 }
+# Models whose commands for the SOC_LIMITS (96/112) and the battery save
+# mode (96/138) are not known (issue #196): the PowerOcean Plus reports no
+# charge limit, which 96/112 sends along, and no battery save mode. Their
+# sliders and switch are not set up, rather than guessing a command.
+SETTINGS_UNKNOWN_MODELS = frozenset({PowerOceanModel.POWEROCEAN_PLUS})
 # Settings only known from the MQTT reports (EMS parameter change report)
 MQTT_SETTINGS = ("batterySaveMode", "sysZone")
 # How long a setting the system confirmed via MQTT wins over the HTTP
@@ -538,6 +546,11 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self.preheat = task
         self.async_update_listeners()
 
+    @property
+    def settings_known(self) -> bool:
+        """Return False if the SOC_LIMITS and battery save mode commands are unknown."""
+        return self.api.variant not in SETTINGS_UNKNOWN_MODELS
+
     def _connected_mqtt(self) -> PowerOceanMqtt:
         if not self.mqtt:
             raise HomeAssistantError(
@@ -676,9 +689,9 @@ def soc_limits_of(response: dict[str, Any]) -> dict[str, int]:
     for report, values in quota.items():
         if not isinstance(values, dict):
             continue
-        for name, suffix in SOC_LIMITS.items():
+        for name, suffixes in SOC_LIMITS.items():
             value = values.get(name)
-            if report.endswith(suffix) and type(value) is int:
+            if report.endswith(suffixes) and type(value) is int:
                 found[name] = value
     return found
 

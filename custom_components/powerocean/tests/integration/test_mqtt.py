@@ -159,7 +159,11 @@ def cloud() -> Generator[AsyncMock]:
 
 
 async def _setup(
-    hass: HomeAssistant, *, mqtt: bool | None, live_power: bool | None = None
+    hass: HomeAssistant,
+    *,
+    mqtt: bool | None,
+    live_power: bool | None = None,
+    model_id: str = "83",
 ) -> MockConfigEntry:
     options: dict[str, Any] = {"friendly_name": "PowerOcean", "scan_interval": 10}
     if mqtt is not None:
@@ -176,7 +180,7 @@ async def _setup(
             "device_id": SN,
             "email": "test@example.com",
             "password": "password123",
-            "model_id": "83",
+            "model_id": model_id,
         },
         options=options,
     )
@@ -1286,3 +1290,54 @@ async def test_energy_stream_ignored_in_dual_installations(
     await _stream(hass, client)
 
     assert entry.runtime_data.data == before
+
+
+# -----------------------------
+# PowerOcean Plus (issue #196)
+# -----------------------------
+
+PLUS_RESPONSE = json.loads(
+    (FIXTURES_DIR / "response_modified_po_plus_feature.json").read_text("utf-8")
+)
+UNKNOWN_ON_PLUS = [
+    ("number", BACKUP_NUMBER_UNIQUE_ID),
+    ("number", SOLAR_NUMBER_UNIQUE_ID),
+    ("switch", SAVE_SWITCH_UNIQUE_ID),
+]
+
+
+async def _setup_plus(hass: HomeAssistant) -> MockConfigEntry:
+    with patch(
+        "custom_components.powerocean.ecoflow.HAEcoflowApi.fetch_raw",
+        return_value=PLUS_RESPONSE,
+    ):
+        return await _setup(hass, mqtt=True, model_id="87")
+
+
+async def test_plus_only_settings_with_known_commands(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    entry = await _setup_plus(hass)
+
+    registry = er.async_get(hass)
+    for domain, unique_id in UNKNOWN_ON_PLUS:
+        assert registry.async_get_entity_id(domain, DOMAIN, unique_id) is None
+    # LED brightness and preheating: the commands work as on the other models
+    assert _led_entity_id(hass)
+    assert registry.async_get_entity_id("switch", DOMAIN, f"{SN}_battery_preheat")
+    # devSoc read from the EMS change report all the same
+    assert entry.runtime_data.setting("devSoc") == 100
+
+
+async def test_plus_removes_settings_from_older_versions(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    # Set up by a version that offered them, unavailable since
+    registry = er.async_get(hass)
+    for domain, unique_id in UNKNOWN_ON_PLUS:
+        registry.async_get_or_create(domain, DOMAIN, unique_id)
+
+    await _setup_plus(hass)
+
+    for domain, unique_id in UNKNOWN_ON_PLUS:
+        assert registry.async_get_entity_id(domain, DOMAIN, unique_id) is None
