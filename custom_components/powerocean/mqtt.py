@@ -98,6 +98,8 @@ REPORT_SETTINGS = {
     (EMS, EMS_CHANGE_REPORT): CHANGE_REPORT_SETTINGS,
     (EMS, EMS_PARAM_CHANGE_REPORT): PARAM_CHANGE_REPORT_SETTINGS,
 }
+# Commands already written to the debug log (once per command)
+_logged_commands: set[tuple[int | None, int | None]] = set()
 # Source of the requests: the app
 APP = 32
 
@@ -501,6 +503,46 @@ def change_report_settings(part: Part) -> dict[str, int]:
     }
 
 
+def _field_summary(content: bytes) -> dict[int, int | str]:
+    """
+    Return the fields of a content for the debug log.
+
+    Numbers as they are, nested messages and texts only by length: they may
+    hold serial numbers or network names.
+    """
+    return {
+        number: value if isinstance(value, int) else f"<{len(value)} bytes>"
+        for number, value in protobuf_fields(content)
+    }
+
+
+def log_message_part(part: Part, *, reply: bool) -> None:
+    """
+    Write a message part to the debug log, to find out what a system sends.
+
+    Issue #196: the PowerOcean Plus reports its settings differently. Each
+    command once, so the log shows which reports a system sends at all; the
+    settings reports every time with their fields, so a change in the app
+    shows which field holds the setting.
+    """
+    command = (part.cmd_func, part.cmd_id)
+    if command not in _logged_commands:
+        _logged_commands.add(command)
+        LOGGER.debug(
+            "MQTT first message %s/%s%s",
+            part.cmd_func,
+            part.cmd_id,
+            " (set_reply)" if reply else "",
+        )
+    if command in REPORT_SETTINGS and not reply:
+        LOGGER.debug(
+            "MQTT settings report %s/%s: %s",
+            part.cmd_func,
+            part.cmd_id,
+            _field_summary(part.content),
+        )
+
+
 def _float(value: int) -> float:
     """Return the float of a 32-bit field (protobuf_fields returns an int)."""
     return round(struct.unpack("<f", struct.pack("<I", value))[0], 1)
@@ -723,6 +765,7 @@ class PowerOceanMqtt:
         reply = message.topic.endswith("/set_reply")
         try:
             for part in split_message(message.payload):
+                log_message_part(part, reply=reply)
                 command = (part.cmd_func, part.cmd_id)
                 if command == (IOT, MODULE_INFO) and part.content:
                     self.callbacks.on_modules(parse_module_info(part.content))
