@@ -2,7 +2,8 @@
 PowerOcean switches: settings sent to the system via MQTT.
 
 Only with the option "Extended connection (MQTT)": the battery save mode
-and the battery preheating, switched as the EcoFlow app does.
+and the battery preheating, switched as the EcoFlow app does. The battery
+save mode not on models whose command is unknown (PowerOcean Plus).
 """
 
 from typing import Any
@@ -28,20 +29,22 @@ async def async_setup_entry(
     entry: PowerOceanConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up the switches, if the MQTT option is on."""
+    """Set up the switches, if the MQTT option is on and the command known."""
     coordinator = entry.runtime_data
-    switches: list[SwitchEntity] = [
-        PowerOceanBatterySaveMode(coordinator),
-        PowerOceanBatteryPreheat(coordinator),
+    mqtt = entry.options.get(CONF_MQTT, False)
+    switches: list[tuple[SwitchEntity, bool]] = [
+        (PowerOceanBatterySaveMode(coordinator), mqtt and coordinator.settings_known),
+        (PowerOceanBatteryPreheat(coordinator), mqtt),
     ]
-    if entry.options.get(CONF_MQTT, False):
-        async_add_entities(switches)
-        return
-    # Switched off: remove the switches instead of leaving them unavailable
+    async_add_entities(switch for switch, wanted in switches if wanted)
+    # Switched off or unknown: remove the switches instead of leaving them
+    # unavailable
     entity_registry = er.async_get(hass)
-    for switch in switches:
-        if entity_id := entity_registry.async_get_entity_id(
-            SWITCH_DOMAIN, DOMAIN, switch.unique_id
+    for switch, wanted in switches:
+        if not wanted and (
+            entity_id := entity_registry.async_get_entity_id(
+                SWITCH_DOMAIN, DOMAIN, switch.unique_id
+            )
         ):
             entity_registry.async_remove(entity_id)
 

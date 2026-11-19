@@ -3,7 +3,8 @@ PowerOcean number entities: settings sent to the system via MQTT.
 
 Only with the option "Extended connection (MQTT)": the LED brightness of the
 inverter, the backup reserve and the surplus solar energy delivery, set as
-the EcoFlow app does.
+the EcoFlow app does. The backup reserve and the surplus solar energy
+delivery not on models whose command is unknown (PowerOcean Plus).
 """
 
 from homeassistant.components.number import DOMAIN as NUMBER_DOMAIN
@@ -27,21 +28,23 @@ async def async_setup_entry(
     entry: PowerOceanConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up the settings, if the MQTT option is on."""
+    """Set up the settings, if the MQTT option is on and the command known."""
     coordinator = entry.runtime_data
+    mqtt = entry.options.get(CONF_MQTT, False)
     settings = [
-        PowerOceanLedBrightness(coordinator),
-        PowerOceanBackupReserve(coordinator),
-        PowerOceanSolarSurplus(coordinator),
+        (PowerOceanLedBrightness(coordinator), mqtt),
+        (PowerOceanBackupReserve(coordinator), mqtt and coordinator.settings_known),
+        (PowerOceanSolarSurplus(coordinator), mqtt and coordinator.settings_known),
     ]
-    if entry.options.get(CONF_MQTT, False):
-        async_add_entities(settings)
-        return
-    # Switched off: remove the sliders instead of leaving them unavailable
+    async_add_entities(setting for setting, wanted in settings if wanted)
+    # Switched off or unknown: remove the sliders instead of leaving them
+    # unavailable
     entity_registry = er.async_get(hass)
-    for setting in settings:
-        if entity_id := entity_registry.async_get_entity_id(
-            NUMBER_DOMAIN, DOMAIN, setting.unique_id
+    for setting, wanted in settings:
+        if not wanted and (
+            entity_id := entity_registry.async_get_entity_id(
+                NUMBER_DOMAIN, DOMAIN, setting.unique_id
+            )
         ):
             entity_registry.async_remove(entity_id)
 

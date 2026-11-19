@@ -19,10 +19,21 @@
   2026.11.17). They are now decrypted, so live power values update again
   with every report.
 
+- **PowerOcean Plus: no unavailable settings** (#196): the commands for the
+  backup reserve, the surplus solar energy delivery and the battery save mode
+  are not known for the PowerOcean Plus. These two sliders and the switch are
+  no longer set up there (and removed, if an earlier version added them),
+  instead of staying unavailable. The LED brightness and the battery
+  preheating stay. The surplus solar energy delivery is now also read from
+  the EMS change report, where the PowerOcean Plus reports it.
+
 ### Changed
 
 - **Unknown fields of the MQTT energy stream go to the debug log**, each
   field once: to find the live value of a third PV string (PowerOcean Plus).
+- **MQTT messages in the debug log** (#196): each kind of message once, and
+  the fields of every settings report (numbers only), to find out how other
+  models report their settings.
 
 ## 2026.11.17
 
