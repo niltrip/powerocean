@@ -195,7 +195,7 @@ logger:
 
 All within 10 minutes, in this order:
 
-1. Turn on debug logging.
+1. Turn on debug logging – this only starts the recording; you don't need the log file itself.
 2. Change the setting in the EcoFlow app, ideally a few times, and note the time of each change.
 3. Download the diagnostics (*⋮ → Download diagnostics*), **before** you turn debug logging off.
 4. Turn debug logging off.
