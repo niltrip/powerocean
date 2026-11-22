@@ -41,6 +41,7 @@ import paho.mqtt.client as mqtt
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from custom_components.powerocean.anonymize import redacted_values  # noqa: E402
 from custom_components.powerocean.api import EcoflowApi, EcoflowApiError  # noqa: E402
 from custom_components.powerocean.devices import MODEL_NAME_MAP  # noqa: E402
 from custom_components.powerocean.mqtt_capture import Masker, summary  # noqa: E402
@@ -150,17 +151,23 @@ def connect(
     return client
 
 
-async def account(api: EcoflowApi) -> tuple[str, dict[str, Any]]:
-    """Log in and return user id and MQTT credentials."""
+async def account(api: EcoflowApi) -> tuple[str, dict[str, Any], list[str]]:
+    """
+    Log in and return user id, MQTT credentials and personal text to mask.
+
+    The personal text (e.g. the vehicle id of a wallbox, issue #199) comes
+    from the HTTP response.
+    """
     try:
         await api.async_authorize()
         credentials = await api.async_mqtt_credentials()
+        private = redacted_values(await api.fetch_raw())
     finally:
         await api.close()
     if not api.user_id:
         msg = "Die Anmeldung lieferte keine User-ID."
         raise EcoflowApiError(msg)
-    return api.user_id, credentials
+    return api.user_id, credentials, private
 
 
 def saved_credentials() -> dict[str, str]:
@@ -195,7 +202,7 @@ def main() -> None:
     serial, username, variant = serial.strip(), username.strip(), variant.strip()
 
     try:
-        user_id, credentials = asyncio.run(
+        user_id, credentials, private = asyncio.run(
             account(EcoflowApi(serial, username, password, variant))
         )
     except EcoflowApiError as err:
@@ -204,7 +211,7 @@ def main() -> None:
     masker = Masker(
         serial,
         user_id,
-        [username, password, str(credentials["certificateAccount"])],
+        [username, password, str(credentials["certificateAccount"]), *private],
     )
     OUT_DIR.mkdir(exist_ok=True)
     out = OUT_DIR / f"capture-{datetime.now().astimezone():%Y%m%d-%H%M%S}.jsonl"

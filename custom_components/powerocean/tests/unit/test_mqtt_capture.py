@@ -137,3 +137,33 @@ def test_leak_check_ignores_text_that_looks_like_hex() -> None:
 
     assert "abcdef" in masked.hex()
     assert not masker.leaks_in(masked)
+
+
+# The vehicle id of a wallbox is short text (issue #199): only masked as a
+# known private text, from the HTTP response
+VEHICLE_ID = "Ab3Z"
+WALLBOX_CONTENT = (
+    _field_bytes(1, MODULE_SERIAL.encode())
+    + _field_varint(4, 2)
+    + _field_bytes(13, VEHICLE_ID.encode())
+    + _field_bytes(14, VEHICLE_ID.encode())
+)
+
+
+@pytest.mark.parametrize("encrypted", [False, True])
+def test_short_private_text_is_masked(*, encrypted: bool) -> None:
+    payload = _part(WALLBOX_CONTENT, encrypted=encrypted)
+
+    masked = Masker(SERIAL, USER_ID, [EMAIL, VEHICLE_ID]).payload(payload)
+
+    content = _contents(masked)
+    assert VEHICLE_ID.encode() not in content
+    assert content.count(b"XXXX") >= 2
+    assert summary(masked) == summary(payload)
+
+
+def test_short_text_is_found_by_the_leak_check() -> None:
+    masker = Masker(SERIAL, USER_ID, [EMAIL, VEHICLE_ID])
+
+    assert masker.leaks_in(_part(WALLBOX_CONTENT, encrypted=True))
+    assert not masker.leaks_in(masker.payload(_part(WALLBOX_CONTENT, encrypted=True)))

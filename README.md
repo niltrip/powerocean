@@ -202,7 +202,7 @@ All within 10 minutes, in this order:
 
 Attach the diagnostics (`config_entry-powerocean-….json`) to the issue together with your notes. The messages are only in the diagnostics, not in the debug log that Home Assistant downloads when you turn debug logging off.
 
-Serial numbers keep their length but are replaced (the inverter's keeps its first four characters, the model); all other text in the messages (e.g. a Wi-Fi name), the user id, the email and the MQTT account are replaced by `X`. A message that still contains one of them is left out. The messages still show the power, battery and energy values of that time. The messages are only kept in memory and are gone after a restart or when you turn debug logging off.
+Serial numbers keep their length but are replaced (the inverter's keeps its first four characters, the model); all other text in the messages (e.g. a Wi-Fi name), personal values of the cloud response (e.g. the vehicle id of a wallbox), the user id, the email and the MQTT account are replaced by `X`. A message that still contains one of them is left out. The messages still show the power, battery and energy values of that time. The messages are only kept in memory and are gone after a restart or when you turn debug logging off.
 
 **Recording MQTT messages with a script:** To help decode a function of the EcoFlow app (for example a wallbox or heating rod setting), you can record what the app sends and how the system answers. You need a computer with a copy of this repository and its Python environment (`scripts/setup`).
 

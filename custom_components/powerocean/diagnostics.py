@@ -19,7 +19,7 @@ from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.const import CONF_DEVICE_ID, CONF_EMAIL, CONF_PASSWORD
 from homeassistant.core import HomeAssistant
 
-from .anonymize import Anonymizer
+from .anonymize import Anonymizer, redacted_values
 from .const import LOGGER
 from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
 from .mqtt import PowerOceanMqtt
@@ -69,7 +69,12 @@ async def async_get_config_entry_diagnostics(
         "mqtt_messages": await hass.async_add_executor_job(
             _mqtt_messages,
             coordinator.mqtt,
-            [entry.data.get(CONF_EMAIL, ""), entry.data.get(CONF_PASSWORD, "")],
+            [
+                entry.data.get(CONF_EMAIL, ""),
+                entry.data.get(CONF_PASSWORD, ""),
+                # Also short ones, e.g. the vehicle id of a wallbox (#199)
+                *redacted_values(coordinator.last_response),
+            ],
         ),
     }
 

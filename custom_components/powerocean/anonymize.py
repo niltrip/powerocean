@@ -44,6 +44,9 @@ REDACT_KEYS = {
     "wireless4gIccid",
 }
 
+# Shorter personal values are no secret ("-1": no vehicle)
+MIN_PRIVATE_LENGTH = 3
+
 # Shorter values are placeholders like "xxxx" in user provided responses
 MIN_SN_LENGTH = 6
 SN_PATTERN = re.compile(rf"[A-Za-z0-9_-]{{{MIN_SN_LENGTH},}}")
@@ -68,6 +71,34 @@ def _decode_b64_sn(value: str) -> str | None:
     except (binascii.Error, UnicodeDecodeError, ValueError):
         return None
     return decoded if SN_PATTERN.fullmatch(decoded) else None
+
+
+def redacted_values(data: Any) -> list[str]:
+    """
+    Return the personal text in a response: the values of the REDACT_KEYS.
+
+    Also from embedded JSON strings. For the masking of the MQTT messages,
+    which hold e.g. the vehicle id as a short text (issue #199). Values
+    shorter than MIN_PRIVATE_LENGTH are left out: "-1" (no vehicle) would
+    be masked in every number.
+    """
+    found: set[str] = set()
+
+    def walk(value: Any, key: Any = None) -> None:
+        if isinstance(value, dict):
+            for child_key, child in value.items():
+                walk(child, child_key)
+        elif isinstance(value, list):
+            for child in value:
+                walk(child, key)
+        elif isinstance(value, str):
+            if (embedded := _load_embedded(value)) is not None:
+                walk(embedded)
+            elif _is_redacted_key(key) and len(value) >= MIN_PRIVATE_LENGTH:
+                found.add(value)
+
+    walk(data)
+    return sorted(found)
 
 
 def _load_embedded(value: str) -> dict | list | None:
