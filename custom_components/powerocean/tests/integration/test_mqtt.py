@@ -294,6 +294,33 @@ async def test_diagnostics_with_the_recorded_messages(
         assert secret.encode().hex() not in dumped
 
 
+async def test_diagnostics_mask_the_vehicle_id(
+    hass: HomeAssistant, cloud: AsyncMock, caplog: pytest.LogCaptureFixture
+) -> None:
+    entry = await _setup(hass, mqtt=True)
+    client = FakeMqtt.instances[-1]
+    # Short text, kept by the masking of other text (issue #199)
+    vehicle_id = "Ab3Z"
+    entry.runtime_data.last_response = {
+        "data": {"quota": {"JTS1_EDEV_PARAM_REPORT": {"chargeVehicleId": vehicle_id}}}
+    }
+    report = _field_bytes(
+        1,
+        _field_bytes(1, _field_bytes(13, vehicle_id.encode()))
+        + _field_varint(8, 209)
+        + _field_varint(9, 8),
+    )
+
+    caplog.set_level("DEBUG", logger="custom_components.powerocean")
+    client.recorder.add(f"/app/device/property/{SN}", report)
+    diagnostics = await async_get_config_entry_diagnostics(hass, entry)
+
+    [message] = diagnostics["mqtt_messages"]["messages"]
+    assert message["cmds"] == ["209/8 -->-"]
+    assert vehicle_id.encode().hex() not in message["hex"]
+    assert b"XXXX".hex() in message["hex"]
+
+
 async def test_switched_off_removes_the_firmware(
     hass: HomeAssistant, cloud: AsyncMock
 ) -> None:

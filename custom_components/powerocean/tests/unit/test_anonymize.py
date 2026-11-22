@@ -6,7 +6,12 @@ from pathlib import Path
 
 import pytest
 
-from custom_components.powerocean.anonymize import REDACT_KEYS, REDACTED, Anonymizer
+from custom_components.powerocean.anonymize import (
+    REDACT_KEYS,
+    REDACTED,
+    Anonymizer,
+    redacted_values,
+)
 from custom_components.powerocean.tests.utils import parse_structure, parse_values
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
@@ -82,3 +87,27 @@ def test_structure_hints_and_encodings() -> None:
     assert payload == {"bpSn": base64.b64encode(b"SN_BP01").decode(), "bpSoc": 50}
     assert quota["JTS1_BP_STA_REPORT"]["updateTime"] == "2026-01-20 05:18:05"
     assert quota["JTS1_ERROR_CHANGE_REPORT"]["bpErrCode"][0]["moduleSn"] == "SN_BP01"
+
+
+def test_redacted_values_for_the_mqtt_masking() -> None:
+    # As a wallbox reports it: the vehicle id as short text, also in an
+    # embedded JSON string (issue #199)
+    response = {
+        "data": {
+            "quota": {
+                "JTS1_EDEV_PARAM_REPORT": {
+                    "chargeVehicleId": "Ab3Z",
+                    "defaultVehicleId": "-1",  # no vehicle: no secret
+                },
+                "JTS1_EMS_CHANGE_REPORT": {"sysBatDsgDownLimit": 10},
+            },
+            "payload": json.dumps({"defaultVehicleId": "Qw7K", "location": ""}),
+            "systemName": "Home sweet home",
+        }
+    }
+
+    assert redacted_values(response) == ["Ab3Z", "Home sweet home", "Qw7K"]
+
+
+def test_redacted_values_without_response() -> None:
+    assert redacted_values(None) == []

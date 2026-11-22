@@ -10,7 +10,10 @@
   EcoFlow app. To find out how other models (e.g. the PowerOcean Plus)
   report and change their settings, without running a script. Serial
   numbers, all other text, user id, email and MQTT account are masked; a
-  message that still contains one of them is left out.
+  message that still contains one of them is left out. Also short personal
+  text the cloud response holds, e.g. the vehicle id of a wallbox (#199;
+  2026.11.23-beta.1 and -beta.2 left it unmasked). `scripts/capture` masks
+  it too.
 - **PowerOcean Plus: backup reserve, surplus solar energy delivery and
   battery save mode** (#196): with the MQTT option, the two sliders and the
   switch are now offered on the PowerOcean Plus too. Its app sends the same
