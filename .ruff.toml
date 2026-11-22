@@ -24,7 +24,7 @@ ignore = [
 "custom_components/powerocean/__init__.py" = ["PLR2004", "ARG001"]
 "custom_components/powerocean/config_flow.py" = ["ARG004"]
 "custom_components/powerocean/parser.py" = ["PLR0913", "F841"]
-"custom_components/powerocean/types.py" = ["UP040"]
+"custom_components/powerocean/models.py" = ["UP040"]
 "custom_components/powerocean/collector.py" = ["PLR0913", "ARG002"]
 "custom_components/powerocean/tests/*.py" = [
     "S101", # assert allowed in tests

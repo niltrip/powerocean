@@ -1,5 +1,5 @@
 """
-types.py: Definitions for PowerOcean endpoints and sensor metadata.
+models.py: Definitions for PowerOcean endpoints and sensor metadata.
 
 This module defines dataclasses and helpers for working with PowerOcean
 devices in Home Assistant. It includes:

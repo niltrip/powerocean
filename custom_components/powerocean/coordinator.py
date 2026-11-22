@@ -41,6 +41,7 @@ from .api import AuthenticationError, EcoflowApiError, EcoflowConnectionError
 from .const import CONF_LIVE_POWER, DEFAULT_SCAN_INTERVAL, DOMAIN, LOGGER
 from .ecoflow import HAEcoflowApi
 from .flows import energy_flows
+from .models import PowerOceanEndPoint
 from .mqtt import (
     ENERGY_STREAM_STRINGS,
     MINUTES_PER_DAY,
@@ -54,7 +55,6 @@ from .mqtt import (
     new_seq,
 )
 from .parse import parse
-from .types import PowerOceanEndPoint
 
 if TYPE_CHECKING:
     from .errors import ActiveError
