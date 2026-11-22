@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from custom_components.powerocean.mqtt import (
+    MessageRecorder,
     ModuleVersion,
     MqttCallbacks,
     Part,
@@ -507,7 +508,9 @@ def test_on_connect_subscribes_and_requests_full_state(
     topics = [call.args[0] for call in mqtt.client.subscribe.call_args_list]
     assert topics == [
         f"/app/device/property/{SN}",
+        f"/app/{USER_ID}/{SN}/thing/property/get",
         f"/app/{USER_ID}/{SN}/thing/property/get_reply",
+        f"/app/{USER_ID}/{SN}/thing/property/set",
         f"/app/{USER_ID}/{SN}/thing/property/set_reply",
     ]
     topic, payload = mqtt.client.publish.call_args.args
@@ -544,6 +547,61 @@ def test_on_message_hands_over_module_info(
 
     _receive(mqtt, f"/app/{USER_ID}/{SN}/thing/property/get_reply", GET_REPLY)
     callbacks.on_modules.assert_called_once_with(MODULES)
+
+
+@pytest.mark.parametrize("kind", ["set", "get"])
+def test_app_commands_are_only_recorded(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+    caplog: pytest.LogCaptureFixture,
+    kind: str,
+) -> None:
+    # Issue #198: the app's commands go into the diagnostics, but are no
+    # answer of the system (here: a module info and an acknowledgement)
+    mqtt, callbacks = connection
+    topic = f"/app/{USER_ID}/{SN}/thing/property/{kind}"
+
+    with caplog.at_level("DEBUG", logger="custom_components.powerocean"):
+        _receive(mqtt, topic, GET_REPLY)
+        _receive(mqtt, topic, LED_ACK)
+
+    callbacks.on_modules.assert_not_called()
+    callbacks.on_ack.assert_not_called()
+    assert [m.topic for m in mqtt.recorder.messages()] == [topic, topic]
+
+
+def test_messages_recorded_only_with_debug_logging(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    mqtt, callbacks = connection
+
+    with caplog.at_level("INFO", logger="custom_components.powerocean"):
+        _receive(mqtt, DEVICE_TOPIC, GET_REPLY)
+    assert mqtt.recorder.messages() == []
+
+    with caplog.at_level("DEBUG", logger="custom_components.powerocean"):
+        _receive(mqtt, DEVICE_TOPIC, GET_REPLY)
+    [message] = mqtt.recorder.messages()
+    assert (message.topic, message.payload) == (DEVICE_TOPIC, GET_REPLY)
+    # Recorded and handled as before
+    assert callbacks.on_modules.call_count == 2
+
+
+def test_recorder_keeps_the_last_minutes(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    now = [1000.0]
+    monkeypatch.setattr("custom_components.powerocean.mqtt.time.time", lambda: now[0])
+    recorder = MessageRecorder(seconds=600)
+
+    with caplog.at_level("DEBUG", logger="custom_components.powerocean"):
+        recorder.add("old", b"1")
+        now[0] += 400
+        recorder.add("new", b"2")
+        now[0] += 300
+
+    # The first one is 700 s old by now
+    assert [m.topic for m in recorder.messages()] == ["new"]
 
 
 def test_set_led_brightness_publishes_the_command(

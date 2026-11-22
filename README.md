@@ -62,7 +62,7 @@ The integration then additionally connects to the EcoFlow cloud the way the EcoF
 
 **Battery save mode:** A switch "Battery save mode" turns the app's battery save mode on and off. The system reports this setting only via MQTT, so the switch is unavailable until the first report after connecting. The app's command also contains the time zone of the system (`sysZone`); the integration sends the reported value unchanged.
 
-**PowerOcean Plus:** The commands for the backup reserve, the surplus solar energy delivery and the battery save mode are not known for the PowerOcean Plus yet: it does not report the charge limit the command sends along, nor the battery save mode. So these two sliders and the switch are not offered there; the LED brightness and the battery preheating are. To help find out the commands, turn on debug logging (see below): it then lists which MQTT messages the system sends, and the fields of every settings report, so a change in the app shows which field holds the setting.
+**PowerOcean Plus:** The commands for the backup reserve, the surplus solar energy delivery and the battery save mode are not known for the PowerOcean Plus yet: it does not report the charge limit the command sends along, nor the battery save mode. So these two sliders and the switch are not offered there; the LED brightness and the battery preheating are. To help find out the commands, record them in the diagnostics (see *Recording MQTT messages in the diagnostics* below) while you change these settings in the app.
 
 **Battery preheating:** A switch "Battery preheating" and two selects "Battery preheating start" and "Battery preheating end" set the app's battery preheating: one time window per day, in steps of 30 minutes (00:00 to 24:00), as in the app. The start must be before the end; otherwise Home Assistant shows an error and sends nothing, as the app refuses it too. The integration reads the current setting from the regular polling (`ALL_HEATING_TASK_REPORT`); after every change, also one in the app, it asks the system for it via MQTT, so a change in the app shows within a second instead of after 20–60 s. It sends the setting back with the change, so the preheating must have been set up once in the app; before that, the switch and the selects are unavailable. Switching it off keeps the time window.
 
@@ -178,7 +178,7 @@ The same file contains template sensors for the battery: remaining charge time, 
 
 **Diagnostics:** When you report a problem, please attach the diagnostics:
 *Settings → Devices & services → Ecoflow PowerOcean → ⋮ → Download diagnostics*.
-The file contains the last response of the EcoFlow cloud and the detected devices. Credentials, system name, location and time zone are removed, serial numbers are replaced by placeholders (`SN_MAIN`, `SN_BP01`, ...).
+The file contains the last response of the EcoFlow cloud and the detected devices. Credentials, system name, location and time zone are removed, serial numbers are replaced by placeholders (`SN_MAIN`, `SN_BP01`, ...). With the MQTT option and debug logging on, it also contains the masked MQTT messages of the last 10 minutes (see below).
 
 **Login:** If EcoFlow rejects the credentials (e.g. after you changed your password), Home Assistant asks you to sign in again. If the cloud cannot be reached, the integration retries on its own.
 
@@ -191,7 +191,15 @@ logger:
     custom_components.powerocean: debug
 ```
 
-**Recording MQTT messages:** To help decode a function of the EcoFlow app (for example a wallbox or heating rod setting), you can record what the app sends and how the system answers. You need a computer with a copy of this repository and its Python environment (`scripts/setup`).
+**Recording MQTT messages in the diagnostics:** With the option *Extended connection (MQTT)* and debug logging on (see above, or *⋮ → Enable debug logging* on the integration's page), the integration keeps the MQTT messages of the last 10 minutes in memory: the reports of the system and the commands of the EcoFlow app. The diagnostics then contain them, to find out how another model reports a setting and which command the app sends.
+
+1. Turn on debug logging.
+2. Change the setting in the EcoFlow app, ideally a few times, and note the time of each change.
+3. Within 10 minutes, download the diagnostics and attach them to the issue together with your notes.
+
+Serial numbers keep their length but are replaced (the inverter's keeps its first four characters, the model); all other text in the messages (e.g. a Wi-Fi name), the user id, the email and the MQTT account are replaced by `X`. A message that still contains one of them is left out. The messages still show the power, battery and energy values of that time. The messages are only kept in memory and are gone after a restart or when you turn debug logging off.
+
+**Recording MQTT messages with a script:** To help decode a function of the EcoFlow app (for example a wallbox or heating rod setting), you can record what the app sends and how the system answers. You need a computer with a copy of this repository and its Python environment (`scripts/setup`).
 
 1. Run `scripts/capture`. It asks for serial number, email and password, signs in like the EcoFlow app and only listens: it sends nothing to your system.
 2. When it says "Verbunden", open the app and use the function. After each step, type a short note and press Enter, e.g. `LED 40 %`. The notes mark the moment in the recording.
