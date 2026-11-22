@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+### New
+
+- **MQTT messages in the diagnostics** (#198): with the MQTT option and
+  debug logging on, the diagnostics contain the MQTT messages of the last
+  10 minutes, masked: the reports of the system and the commands of the
+  EcoFlow app. To find out how other models (e.g. the PowerOcean Plus)
+  report and change their settings, without running a script. Serial
+  numbers, all other text, user id, email and MQTT account are masked; a
+  message that still contains one of them is left out.
+
+### Changed
+
+- **`scripts/capture` masks encrypted messages too** (#198): it now shares
+  the masking with the diagnostics, which also masks the encrypted content
+  of a message (#189) and all text, not only serial numbers.
+
 ## 2026.11.22
 
 ### New

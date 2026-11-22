@@ -22,8 +22,10 @@ import logging
 import math
 import ssl
 import struct
+import threading
 import time
 import uuid
+from collections import deque
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -79,6 +81,12 @@ _logged_unknown_fields: set[int] = set()
 # Larger power values (W) are decoding errors, not measurements: the largest
 # PowerOcean has 30 kW. Far above that on purpose, so no real value is lost.
 ENERGY_STREAM_MAX_POWER = 1_000_000
+# Messages kept for the diagnostics while debug logging is on (issue #198):
+# about one per second, so the time window, not the number, is the limit
+RECORD_SECONDS = 10 * 60
+RECORD_MAX_MESSAGES = 3000
+# Topics of the app's commands and queries (only recorded)
+APP_TOPICS = ("/set", "/get")
 # Largest value of a 32-bit field (float in the energy stream report)
 MAX_UINT32 = 0xFFFFFFFF
 # Settings in the EMS change report: field number -> datapoint
@@ -409,7 +417,7 @@ def _int(value: int | bytes | None) -> int | None:
     return value if isinstance(value, int) else None
 
 
-def _decrypt(content: bytes, enc_type: int | None, seq: int | None) -> bytes:
+def decrypt(content: bytes, enc_type: int | None, seq: int | None) -> bytes:
     """
     Return the content in plain text.
 
@@ -435,7 +443,7 @@ def split_message(payload: bytes) -> list[Part]:
             Part(
                 cmd_func=_int(fields.get(8)),
                 cmd_id=_int(fields.get(9)),
-                content=_decrypt(
+                content=decrypt(
                     content if isinstance(content, bytes) else b"",
                     _int(fields.get(6)),
                     seq,
@@ -652,6 +660,46 @@ class MqttCallbacks:
     on_preheat: Callable[[PreheatTask], None]
 
 
+@dataclass(frozen=True)
+class RecordedMessage:
+    """A message as received, for the diagnostics (not masked yet)."""
+
+    time: float
+    topic: str
+    payload: bytes
+
+
+class MessageRecorder:
+    """
+    The messages of the last minutes, while debug logging is on (issue #198).
+
+    Filled from paho's thread, read by the diagnostics: only raw messages,
+    the diagnostics mask them. In memory only, gone with a reload.
+    """
+
+    def __init__(self, seconds: float = RECORD_SECONDS) -> None:
+        """Keep the messages of the last `seconds`."""
+        self.seconds = seconds
+        self._messages: deque[RecordedMessage] = deque(maxlen=RECORD_MAX_MESSAGES)
+        self._lock = threading.Lock()
+
+    def add(self, topic: str, payload: bytes) -> None:
+        """Remember a message, only while debug logging is on."""
+        if not LOGGER.isEnabledFor(logging.DEBUG):
+            return
+        now = time.time()
+        with self._lock:
+            self._messages.append(RecordedMessage(now, topic, bytes(payload)))
+            while self._messages and now - self._messages[0].time > self.seconds:
+                self._messages.popleft()
+
+    def messages(self) -> list[RecordedMessage]:
+        """Return the messages of the last minutes, oldest first."""
+        now = time.time()
+        with self._lock:
+            return [m for m in self._messages if now - m.time <= self.seconds]
+
+
 class PowerOceanMqtt:
     """
     MQTT connection of one system: module versions and settings.
@@ -672,6 +720,9 @@ class PowerOceanMqtt:
         self.serial = serial
         self.user_id = user_id
         self.callbacks = callbacks
+        self.recorder = MessageRecorder()
+        # Private text that must not show in the recorded messages
+        self.private = [str(credentials["certificateAccount"])]
         self.host = str(credentials["url"])
         self.port = int(credentials["port"])
         # Client id in the format of the Android app
@@ -691,10 +742,18 @@ class PowerOceanMqtt:
         return f"/app/{self.user_id}/{self.serial}/thing/property"
 
     def topics(self) -> list[str]:
-        """Return the topics the system answers on."""
+        """
+        Return the topics the system answers on, and the app's commands.
+
+        The commands and queries of the app (set, get) are only recorded for
+        the diagnostics: they show how the app changes a setting, e.g. on
+        another model (issue #198).
+        """
         return [
             f"/app/device/property/{self.serial}",
+            f"{self._property_topic}/get",
             f"{self._property_topic}/get_reply",
+            f"{self._property_topic}/set",
             f"{self._property_topic}/set_reply",
         ]
 
@@ -787,6 +846,10 @@ class PowerOceanMqtt:
     def _on_message(
         self, _client: mqtt.Client, _userdata: Any, message: mqtt.MQTTMessage
     ) -> None:
+        self.recorder.add(message.topic, message.payload)
+        if message.topic.endswith(APP_TOPICS):
+            # A command or query of the app (or our own), not of the system
+            return
         reply = message.topic.endswith("/set_reply")
         try:
             for part in split_message(message.payload):

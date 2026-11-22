@@ -5,8 +5,14 @@ The download contains the last raw API response and the devices the parser
 found, with their current values. Serial numbers are replaced consistently
 by placeholders (see `anonymize.py`), so the device structure stays readable
 and the response can be used as test fixture.
+
+With the MQTT option and debug logging on, it also contains the MQTT
+messages of the last minutes, masked (see `mqtt_capture.py`): to find out
+how another model reports and which commands the app sends (issue #198).
 """
 
+import logging
+from datetime import UTC, datetime
 from typing import Any
 
 from homeassistant.components.diagnostics import async_redact_data
@@ -14,14 +20,17 @@ from homeassistant.const import CONF_DEVICE_ID, CONF_EMAIL, CONF_PASSWORD
 from homeassistant.core import HomeAssistant
 
 from .anonymize import Anonymizer
+from .const import LOGGER
 from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
+from .mqtt import PowerOceanMqtt
+from .mqtt_capture import Masker, summary
 
 # The serial number is part of the entry's unique_id and title
 TO_REDACT = {CONF_DEVICE_ID, CONF_EMAIL, CONF_PASSWORD, "title", "unique_id"}
 
 
 async def async_get_config_entry_diagnostics(
-    hass: HomeAssistant,  # noqa: ARG001
+    hass: HomeAssistant,
     entry: PowerOceanConfigEntry,
 ) -> dict[str, Any]:
     """Return diagnostics for a config entry."""
@@ -57,7 +66,49 @@ async def async_get_config_entry_diagnostics(
             for address, module in sorted(coordinator.modules.items())
         },
         **anonymized,
+        "mqtt_messages": await hass.async_add_executor_job(
+            _mqtt_messages,
+            coordinator.mqtt,
+            [entry.data.get(CONF_EMAIL, ""), entry.data.get(CONF_PASSWORD, "")],
+        ),
     }
+
+
+def _mqtt_messages(mqtt: PowerOceanMqtt | None, private: list[str]) -> dict[str, Any]:
+    """
+    Return the recorded MQTT messages, masked.
+
+    Recorded only with the MQTT option and while debug logging is on. A
+    message that still holds a secret after masking is left out.
+    """
+    result: dict[str, Any] = {
+        "debug_logging": LOGGER.isEnabledFor(logging.DEBUG),
+        "messages": [],
+    }
+    if mqtt is None:
+        return result
+    masker = Masker(mqtt.serial, mqtt.user_id, [*mqtt.private, *private])
+    messages = mqtt.recorder.messages()
+    # First learn every serial and text, so the check of each message below
+    # knows also those that only a later message shows
+    for message in messages:
+        masker.payload(message.payload)
+    for message in messages:
+        masked = masker.payload(message.payload)
+        topic = masker.topic(message.topic)
+        record: dict[str, Any] = {
+            "time_utc": datetime.fromtimestamp(message.time, UTC).isoformat(
+                timespec="milliseconds"
+            ),
+            "topic": topic,
+        }
+        if masker.leaks_in(masked) or masker.leaks(topic):
+            record["left_out"] = "masking incomplete"
+        else:
+            record["cmds"] = summary(masked)
+            record["hex"] = masked.hex()
+        result["messages"].append(record)
+    return result
 
 
 def _devices(coordinator: PowerOceanCoordinator) -> dict[str, Any]:

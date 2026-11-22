@@ -27,8 +27,11 @@ from custom_components.powerocean.diagnostics import (
 )
 from custom_components.powerocean.ecoflow import MOCK_RESPONSE_ENV
 from custom_components.powerocean.mqtt import (
+    MessageRecorder,
     MqttCallbacks,
     PreheatTask,
+    _field_bytes,
+    _field_varint,
     module_versions,
 )
 from custom_components.powerocean.tests.utils import get_device
@@ -72,6 +75,8 @@ class FakeMqtt:
         self.user_id = user_id
         self.callbacks = callbacks
         self.on_modules = callbacks.on_modules
+        self.recorder = MessageRecorder()
+        self.private = [str(credentials["certificateAccount"])]
         self.started = self.stopped = False
         self.requests = 0
         self.energy_stream_requests = 0
@@ -247,6 +252,46 @@ async def test_module_firmware_on_the_devices(
     assert await hass.config_entries.async_unload(entry.entry_id)
     await hass.async_block_till_done()
     assert client.stopped
+
+
+# A command of the app with the serial in the header and a made-up module
+# serial and Wi-Fi name in its content (issue #198)
+APP_COMMAND = _field_bytes(
+    1,
+    _field_bytes(1, _field_bytes(3, b"HJ37ZZTESTSN0002") + _field_bytes(7, b"MyWifi"))
+    + _field_varint(8, 96)
+    + _field_varint(9, 112)
+    + _field_bytes(25, SN.encode()),
+)
+
+
+async def test_diagnostics_with_the_recorded_messages(
+    hass: HomeAssistant, cloud: AsyncMock, caplog: pytest.LogCaptureFixture
+) -> None:
+    entry = await _setup(hass, mqtt=True)
+    client = FakeMqtt.instances[-1]
+    topic = f"/app/{USER_ID}/{SN}/thing/property/set"
+
+    # Recorded only while debug logging is on
+    caplog.set_level("INFO", logger="custom_components.powerocean")
+    client.recorder.add(topic, APP_COMMAND)
+    diagnostics = await async_get_config_entry_diagnostics(hass, entry)
+    assert diagnostics["mqtt_messages"] == {"debug_logging": False, "messages": []}
+
+    caplog.set_level("DEBUG", logger="custom_components.powerocean")
+    client.recorder.add(topic, APP_COMMAND)
+    diagnostics = await async_get_config_entry_diagnostics(hass, entry)
+
+    recorded = diagnostics["mqtt_messages"]
+    assert recorded["debug_logging"] is True
+    [message] = recorded["messages"]
+    assert message["topic"] == "/app/USER/SN/thing/property/set"
+    assert message["cmds"] == ["96/112 -->-"]
+    assert len(message["hex"]) == 2 * len(APP_COMMAND)
+    dumped = json.dumps(recorded)
+    for secret in (SN, USER_ID, "HJ37ZZTESTSN0002", "MyWifi", "app-account"):
+        assert secret not in dumped
+        assert secret.encode().hex() not in dumped
 
 
 async def test_switched_off_removes_the_firmware(

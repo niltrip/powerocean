@@ -27,7 +27,6 @@ import asyncio
 import getpass
 import json
 import os
-import re
 import ssl
 import sys
 import threading
@@ -44,123 +43,12 @@ sys.path.insert(0, str(ROOT))
 
 from custom_components.powerocean.api import EcoflowApi, EcoflowApiError  # noqa: E402
 from custom_components.powerocean.devices import MODEL_NAME_MAP  # noqa: E402
-from custom_components.powerocean.mqtt import protobuf_fields  # noqa: E402
+from custom_components.powerocean.mqtt_capture import Masker, summary  # noqa: E402
 
 OUT_DIR = ROOT / "measurements"
 CREDENTIALS_FILE = Path.home() / ".config/powerocean/developer.env"
 # Input that ends the recording
 STOP = ("q", ":q", "quit", "exit", "ende")
-SERIAL_LENGTH = 16
-# The inverter serial keeps its first characters: the model, not the device
-KEEP_PREFIX = 4
-# A serial in a message that is no protobuf (JSON): 16 letters and digits
-SERIAL_PATTERN = re.compile(
-    rb"(?<![A-Za-z0-9])(?=[A-Za-z]*[0-9])[A-Za-z0-9]{16}(?![A-Za-z0-9])"
-)
-
-
-def printable(value: bytes) -> bool:
-    """Return whether a field is text."""
-    return bool(value) and all(32 <= c < 127 for c in value)  # noqa: PLR2004
-
-
-def text_fields(data: bytes) -> list[bytes]:
-    """Return all text fields of a protobuf message, also nested ones."""
-    try:
-        fields = protobuf_fields(data)
-    except (ValueError, IndexError):
-        return []
-    found: list[bytes] = []
-    for _, value in fields:
-        if not isinstance(value, bytes):
-            continue
-        if printable(value):
-            found.append(value)
-        else:
-            found.extend(text_fields(value))
-    return found
-
-
-def is_protobuf(data: bytes) -> bool:
-    """Return whether the message parses as protobuf."""
-    try:
-        return bool(protobuf_fields(data))
-    except (ValueError, IndexError):
-        return False
-
-
-def serials_in(payload: bytes) -> list[bytes]:
-    """Return what looks like a serial number in a message."""
-    if is_protobuf(payload):
-        return [
-            value
-            for value in text_fields(payload)
-            if len(value) == SERIAL_LENGTH and value.isalnum()
-        ]
-    return SERIAL_PATTERN.findall(payload)
-
-
-def summary(payload: bytes) -> list[str]:
-    """Return cmd_func/cmd_id src->dest of each part of a message."""
-    try:
-        parts = [value for number, value in protobuf_fields(payload) if number == 1]
-        result = []
-        for header in parts:
-            if not isinstance(header, bytes):
-                continue
-            fields = dict(protobuf_fields(header))
-            result.append(
-                "{}/{} {}->{}".format(*(fields.get(n, "-") for n in (8, 9, 2, 3)))
-            )
-    except (ValueError, IndexError):
-        return ["no protobuf"]
-    return result
-
-
-class Masker:
-    """Replace serial numbers and account data with masks of the same length."""
-
-    def __init__(self, serial: str, user_id: str, private: list[str]) -> None:
-        """Start with the inverter serial, the user id and other private text."""
-        self.serial = serial.encode()
-        self.user_id = user_id
-        self.masks: dict[bytes, bytes] = {
-            self.serial: self.serial[:KEEP_PREFIX]
-            + b"X" * (len(self.serial) - KEEP_PREFIX),
-            user_id.encode(): b"X" * len(user_id),
-        }
-        for text in private:
-            if text:
-                self.masks.setdefault(text.encode(), b"X" * len(text.encode()))
-        self.count = 0
-
-    def payload(self, data: bytes) -> bytes:
-        """Return the message with every known and new serial masked."""
-        for found in serials_in(data):
-            if found not in self.masks:
-                self.count += 1
-                number = str(self.count).encode()
-                self.masks[found] = b"X" * (SERIAL_LENGTH - len(number)) + number
-        # Longest first: a serial may contain a shorter private text
-        for secret in sorted(self.masks, key=len, reverse=True):
-            data = data.replace(secret, self.masks[secret])
-        return data
-
-    def topic(self, topic: str) -> str:
-        """Return the topic without serial and user id."""
-        return topic.replace(self.serial.decode(), "SN").replace(self.user_id, "USER")
-
-    def leaks(self, text: str) -> bool:
-        """Return whether the written text contains a secret in any form."""
-        text = text.lower()
-        for secret in self.masks:
-            forms = [secret]
-            if secret == self.serial:
-                forms.append(secret[KEEP_PREFIX:])
-            for form in forms:
-                if form.decode(errors="replace").lower() in text or form.hex() in text:
-                    return True
-        return False
 
 
 class Recorder:
@@ -190,11 +78,11 @@ class Recorder:
     def message(self, topic: str, payload: bytes) -> None:
         """Mask and write one message, show it on the console."""
         masked = self.masker.payload(payload)
-        record = {
-            "topic": self.masker.topic(topic),
-            "cmds": summary(masked),
-            "hex": masked.hex(),
-        }
+        record = {"topic": self.masker.topic(topic), "cmds": summary(masked)}
+        if self.masker.leaks_in(masked):
+            record["left_out"] = "masking incomplete"
+        else:
+            record["hex"] = masked.hex()
         self._write(record)
         # Only the app's commands and the answers to them: the reports of the
         # system come every second and would run through the note being typed

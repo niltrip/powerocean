@@ -51,4 +51,4 @@ body:
 - type: textarea
   attributes:
     label: "Diagnostics dump"
-    description: "Drag the diagnostics dump file here. (see https://www.home-assistant.io/integrations/diagnostics/ for info)"
+    description: "Drag the diagnostics dump file here. (see https://www.home-assistant.io/integrations/diagnostics/ for info) With the MQTT option and debug logging on, it also contains the masked MQTT messages of the last 10 minutes; please have a look before you upload it."
