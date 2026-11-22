@@ -98,6 +98,11 @@ CHANGE_REPORT_SETTINGS = {
     # The backup reserve of the app
     12: "sysBatDsgDownLimit",
     152: "emsCtrlLedBright",
+    # The PowerOcean Plus has no parameter change report: it reports these
+    # here (issue #196). Its field 301 is no sysZone the app sends along:
+    # the app sent 4, the system reported 1 again right after.
+    300: "batterySaveMode",
+    352: "devSoc",
 }
 # Settings in the EMS parameter change report: field number -> datapoint
 PARAM_CHANGE_REPORT_SETTINGS = {

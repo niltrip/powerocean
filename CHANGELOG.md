@@ -11,6 +11,15 @@
   report and change their settings, without running a script. Serial
   numbers, all other text, user id, email and MQTT account are masked; a
   message that still contains one of them is left out.
+- **PowerOcean Plus: backup reserve, surplus solar energy delivery and
+  battery save mode** (#196): with the MQTT option, the two sliders and the
+  switch are now offered on the PowerOcean Plus too. Its app sends the same
+  commands as on the other models; the Plus reports the battery save mode
+  and the surplus solar energy delivery in the EMS change report. As the
+  app, the integration sends a charge limit of 100 % along, and for the
+  battery save mode the UTC offset of Home Assistant's time zone (in winter
+  in Central Europe: UTC+1). West of UTC the switch stays unavailable: how
+  the app sends a negative offset is not known yet.
 
 ### Changed
 

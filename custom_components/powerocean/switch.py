@@ -2,8 +2,7 @@
 PowerOcean switches: settings sent to the system via MQTT.
 
 Only with the option "Extended connection (MQTT)": the battery save mode
-and the battery preheating, switched as the EcoFlow app does. The battery
-save mode not on models whose command is unknown (PowerOcean Plus).
+and the battery preheating, switched as the EcoFlow app does.
 """
 
 from typing import Any
@@ -29,15 +28,15 @@ async def async_setup_entry(
     entry: PowerOceanConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up the switches, if the MQTT option is on and the command known."""
+    """Set up the switches, if the MQTT option is on."""
     coordinator = entry.runtime_data
     mqtt = entry.options.get(CONF_MQTT, False)
     switches: list[tuple[SwitchEntity, bool]] = [
-        (PowerOceanBatterySaveMode(coordinator), mqtt and coordinator.settings_known),
+        (PowerOceanBatterySaveMode(coordinator), mqtt),
         (PowerOceanBatteryPreheat(coordinator), mqtt),
     ]
     async_add_entities(switch for switch, wanted in switches if wanted)
-    # Switched off or unknown: remove the switches instead of leaving them
+    # Switched off: remove the switches instead of leaving them
     # unavailable
     entity_registry = er.async_get(hass)
     for switch, wanted in switches:
