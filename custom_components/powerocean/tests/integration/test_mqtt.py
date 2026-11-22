@@ -1344,11 +1344,6 @@ async def test_energy_stream_ignored_in_dual_installations(
 PLUS_RESPONSE = json.loads(
     (FIXTURES_DIR / "response_modified_po_plus_feature.json").read_text("utf-8")
 )
-UNKNOWN_ON_PLUS = [
-    ("number", BACKUP_NUMBER_UNIQUE_ID),
-    ("number", SOLAR_NUMBER_UNIQUE_ID),
-    ("switch", SAVE_SWITCH_UNIQUE_ID),
-]
 
 
 async def _setup_plus(hass: HomeAssistant) -> MockConfigEntry:
@@ -1359,30 +1354,67 @@ async def _setup_plus(hass: HomeAssistant) -> MockConfigEntry:
         return await _setup(hass, mqtt=True, model_id="87")
 
 
-async def test_plus_only_settings_with_known_commands(
-    hass: HomeAssistant, cloud: AsyncMock
-) -> None:
-    entry = await _setup_plus(hass)
-
-    registry = er.async_get(hass)
-    for domain, unique_id in UNKNOWN_ON_PLUS:
-        assert registry.async_get_entity_id(domain, DOMAIN, unique_id) is None
-    # LED brightness and preheating: the commands work as on the other models
-    assert _led_entity_id(hass)
-    assert registry.async_get_entity_id("switch", DOMAIN, f"{SN}_battery_preheat")
-    # devSoc read from the EMS change report all the same
-    assert entry.runtime_data.setting("devSoc") == 100
-
-
-async def test_plus_removes_settings_from_older_versions(
-    hass: HomeAssistant, cloud: AsyncMock
-) -> None:
-    # Set up by a version that offered them, unavailable since
-    registry = er.async_get(hass)
-    for domain, unique_id in UNKNOWN_ON_PLUS:
-        registry.async_get_or_create(domain, DOMAIN, unique_id)
-
+async def test_plus_has_all_settings(hass: HomeAssistant, cloud: AsyncMock) -> None:
     await _setup_plus(hass)
 
-    for domain, unique_id in UNKNOWN_ON_PLUS:
-        assert registry.async_get_entity_id(domain, DOMAIN, unique_id) is None
+    assert _led_entity_id(hass)
+    assert _backup_entity_id(hass)
+    assert _solar_entity_id(hass)
+    assert _save_entity_id(hass)
+    assert er.async_get(hass).async_get_entity_id(
+        "switch", DOMAIN, f"{SN}_battery_preheat"
+    )
+
+
+async def test_plus_sends_the_charge_limit_of_the_app(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    await _setup_plus(hass)
+    (client,) = FakeMqtt.instances
+    # From the EMS change report of the HTTP response, no charge limit
+    assert _backup_state(hass) == "10"
+    assert _solar_state(hass) == "100"
+
+    await _set_backup(hass, 55)
+    await _set_solar(hass, 90)
+
+    # Charge limit 100, as the app sends it to a PowerOcean Plus
+    assert client.soc_limit_commands == [(100, 55, 100), (100, 55, 90)]
+
+
+async def test_plus_battery_save_mode_with_the_zone_of_the_time_zone(
+    hass: HomeAssistant, cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    # In France, when the app sent sysZone 4 (issue #196)
+    freezer.move_to("2026-11-22T15:57:19+00:00")
+    await hass.config.async_update(time_zone="Europe/Paris")
+    entry = await _setup_plus(hass)
+    (client,) = FakeMqtt.instances
+    assert _save_state(hass) == STATE_UNAVAILABLE
+
+    # As the Plus reports it: field 300 of the EMS change report, field 301
+    # (1, not the sysZone of the app) is not used
+    await _report(hass, client, {"batterySaveMode": 0})
+    assert _save_state(hass) == "off"
+    await _switch_save(hass, "turn_on")
+
+    # UTC+1 in quarter hours, as the app sent it
+    assert client.battery_save_commands == [(1, 4)]
+    assert _save_state(hass) == "on"
+    assert entry.runtime_data.setting("sysZone") == 4
+
+
+async def test_plus_battery_save_mode_unavailable_west_of_utc(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    await hass.config.async_update(time_zone="America/New_York")
+    entry = await _setup_plus(hass)
+    (client,) = FakeMqtt.instances
+    await _report(hass, client, {"batterySaveMode": 0})
+
+    # How the app sends a negative offset is not known
+    assert _save_state(hass) == STATE_UNAVAILABLE
+    with pytest.raises(HomeAssistantError) as error:
+        await entry.runtime_data.async_set_battery_save_mode(enabled=True)
+    assert error.value.translation_key == "sys_zone_unknown"
+    assert client.battery_save_commands == []

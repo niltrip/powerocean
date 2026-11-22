@@ -791,6 +791,44 @@ def test_on_message_hands_over_the_parameter_change_report(
     )
 
 
+# EMS change reports of a PowerOcean Plus while the app changed its settings
+# (issue #196, diagnostics of 2026-11-22): content -> settings
+PLUS_CHANGE_REPORTS = [
+    ("6032", {"sysBatDsgDownLimit": 50}),  # backup reserve 55 -> 50 %
+    ("80165a", {"devSoc": 90}),  # surplus solar energy delivery 100 -> 90 %
+    ("801664", {"devSoc": 100}),
+    # Battery save mode on and off, field 301 = 4 along (as the app sent)
+    ("e01201e81204", {"batterySaveMode": 1}),
+    ("e01200e81204", {"batterySaveMode": 0}),
+]
+
+
+@pytest.mark.parametrize(("content", "expected"), PLUS_CHANGE_REPORTS)
+def test_on_message_hands_over_the_change_report_of_a_plus(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+    content: str,
+    expected: dict[str, int],
+) -> None:
+    mqtt, callbacks = connection
+
+    report = bytes.fromhex(content)
+    _receive(mqtt, DEVICE_TOPIC, _message((1, report), (2, 96), (8, 96), (9, 8)))
+
+    callbacks.on_settings.assert_called_once_with(expected)
+
+
+def test_field_301_of_a_plus_is_no_setting(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    mqtt, callbacks = connection
+
+    # Seconds after the save mode command: 1 again, not the sysZone of the app
+    report = bytes.fromhex("e81201")
+    _receive(mqtt, DEVICE_TOPIC, _message((1, report), (2, 96), (8, 96), (9, 8)))
+
+    callbacks.on_settings.assert_not_called()
+
+
 def test_request_energy_stream_publishes_the_request(
     connection: tuple[PowerOceanMqtt, MqttCallbacks],
 ) -> None:

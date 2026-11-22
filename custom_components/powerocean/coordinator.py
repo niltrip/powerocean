@@ -83,11 +83,15 @@ SOC_LIMITS = {
     # the EMS change report (issue #196)
     "devSoc": ("_EMS_PARAM_CHANGE_REPORT", "_EMS_CHANGE_REPORT"),
 }
-# Models whose commands for the SOC_LIMITS (96/112) and the battery save
-# mode (96/138) are not known (issue #196): the PowerOcean Plus reports no
-# charge limit, which 96/112 sends along, and no battery save mode. Their
-# sliders and switch are not set up, rather than guessing a command.
-SETTINGS_UNKNOWN_MODELS = frozenset({PowerOceanModel.POWEROCEAN_PLUS})
+# The PowerOcean Plus reports no charge limit, which 96/112 sends along: the
+# app sends 100 (issue #196)
+FIXED_CHARGE_LIMIT = {PowerOceanModel.POWEROCEAN_PLUS: 100}
+# The PowerOcean Plus reports no sysZone that 96/138 sends along: the app sent
+# 4, the UTC offset of the phone (UTC+1) in quarter hours (issue #196). For
+# these models it is taken from the time zone of Home Assistant.
+ZONE_FROM_TIME_ZONE = frozenset({PowerOceanModel.POWEROCEAN_PLUS})
+# Length of a step of sysZone
+ZONE_STEP = timedelta(minutes=15)
 # Settings only known from the MQTT reports (EMS parameter change report)
 MQTT_SETTINGS = ("batterySaveMode", "sysZone")
 # How long a setting the system confirmed via MQTT wins over the HTTP
@@ -181,6 +185,8 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
 
         self.active_errors = result.active_errors
         self.soc_limits = soc_limits_of(response)
+        if (charge_limit := FIXED_CHARGE_LIMIT.get(self.api.variant)) is not None:
+            self.soc_limits["sysBatChgUpLimit"] = charge_limit
         self.preheat = self._held_preheat(preheat_of(response))
         self._update_firmware(result.firmware)
         values = result.values()
@@ -407,6 +413,8 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         """Return the current value of a setting of the inverter."""
         if name in SOC_LIMITS:
             return self.soc_limits.get(name)
+        if name == "sysZone" and self.api.variant in ZONE_FROM_TIME_ZONE:
+            return zone_of_time_zone()
         if name in MQTT_SETTINGS:
             return self.mqtt_settings.get(name)
         keys = self.setting_keys(name)
@@ -467,7 +475,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         Switch the battery save mode via MQTT and wait for the acknowledgement.
 
         The command carries sysZone too; it is sent unchanged, so it must be
-        known.
+        known (on some models: from the time zone, see ZONE_FROM_TIME_ZONE).
 
         Raises:
             HomeAssistantError: Without MQTT connection, without sysZone, or if
@@ -475,7 +483,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
 
         """
         mqtt = self._connected_mqtt()
-        zone = self.mqtt_settings.get("sysZone")
+        zone = self.setting("sysZone")
         if zone is None:
             raise HomeAssistantError(
                 translation_domain=DOMAIN, translation_key="sys_zone_unknown"
@@ -545,11 +553,6 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             return
         self.preheat = task
         self.async_update_listeners()
-
-    @property
-    def settings_known(self) -> bool:
-        """Return False if the SOC_LIMITS and battery save mode commands are unknown."""
-        return self.api.variant not in SETTINGS_UNKNOWN_MODELS
 
     def _connected_mqtt(self) -> PowerOceanMqtt:
         if not self.mqtt:
@@ -694,6 +697,19 @@ def soc_limits_of(response: dict[str, Any]) -> dict[str, int]:
             if report.endswith(suffixes) and type(value) is int:
                 found[name] = value
     return found
+
+
+def zone_of_time_zone() -> int | None:
+    """
+    Return the UTC offset of Home Assistant's time zone in quarter hours.
+
+    As the app sends sysZone (UTC+1 = 4). None west of UTC: how the app
+    sends a negative offset is not known.
+    """
+    offset = dt_util.now().utcoffset()
+    if offset is None or offset < timedelta(0):
+        return None
+    return offset // ZONE_STEP
 
 
 def format_minutes(minutes: int) -> str:
