@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2026.11.22
 
 ### New
 
@@ -27,7 +27,6 @@
   the next report. Such reports are now ignored.
 - **Vehicle id redacted in the diagnostics everywhere** (#199): it was
   redacted in the API response, but not in the values of the devices.
-
 - **PowerOcean Plus: no unavailable settings** (#196): the commands for the
   backup reserve, the surplus solar energy delivery and the battery save mode
   are not known for the PowerOcean Plus. These two sliders and the switch are
