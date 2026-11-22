@@ -24,7 +24,7 @@ from homeassistant.helpers.update_coordinator import (
 
 from .const import PORTAL_URL
 from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
-from .types import DISPLAY_PRECISION, SUGGESTED_UNITS, PowerOceanEndPoint
+from .models import DISPLAY_PRECISION, SUGGESTED_UNITS, PowerOceanEndPoint
 
 # Updates are fetched centrally by the coordinator
 PARALLEL_UPDATES = 0

@@ -18,6 +18,15 @@
   read them as plain text, which gave impossible power values (dropped since
   2026.11.17). They are now decrypted, so live power values update again
   with every report.
+- **MQTT connection no longer stops on a faulty message** (#199): a report
+  with an unexpected field ended the MQTT connection until the integration
+  was reloaded. Such reports are now ignored, and any other error is
+  written to the log instead.
+- **No more live power values of 0 W for half a minute** (#199): an energy
+  stream report without any power value set all power sensors to 0 W until
+  the next report. Such reports are now ignored.
+- **Vehicle id redacted in the diagnostics everywhere** (#199): it was
+  redacted in the API response, but not in the values of the devices.
 
 - **PowerOcean Plus: no unavailable settings** (#196): the commands for the
   backup reserve, the surplus solar energy delivery and the battery save mode

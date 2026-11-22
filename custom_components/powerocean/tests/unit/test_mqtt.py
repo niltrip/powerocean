@@ -396,6 +396,31 @@ def test_energy_stream_up_to_one_megawatt_is_kept() -> None:
     assert values["sysLoadPwr"] == 1_000_000.0
 
 
+def test_energy_stream_with_a_varint_power_is_ignored(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    # Issue #199: field 1 as varint (-1 as 64-bit), no 32-bit float
+    content = bytes.fromhex("08ffffffffffffffffff01") + STREAM_NOON[5:]
+
+    with caplog.at_level("DEBUG", logger="custom_components.powerocean"):
+        assert energy_stream(Part(96, 33, content, None)) == {}
+
+    assert content.hex() in caplog.text
+
+
+def test_energy_stream_without_power_values_is_ignored(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    # Issue #199: only the battery level (field 5), no power field at all.
+    # Not 0 W everywhere: the house always uses some power
+    content = bytes.fromhex("2805")
+
+    with caplog.at_level("DEBUG", logger="custom_components.powerocean"):
+        assert energy_stream(Part(96, 33, content, None)) == {}
+
+    assert "without power values" in caplog.text
+
+
 def _message(*fields: tuple[int, int | bytes]) -> bytes:
     header = b"".join(
         _field_bytes(number, value)
@@ -710,6 +735,22 @@ def test_on_message_hands_over_the_energy_stream(
         energy_stream(Part(96, 33, STREAM_NOON, None))
     )
     callbacks.on_settings.assert_not_called()
+
+
+def test_on_message_survives_an_error(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    # Issue #199: an error must not end paho's thread (and the connection)
+    mqtt, callbacks = connection
+    callbacks.on_energy_stream.side_effect = [RuntimeError("boom"), None]
+    payload = _message((1, STREAM_NOON), (2, 96), (8, 96), (9, 33))
+
+    _receive(mqtt, DEVICE_TOPIC, payload)
+    _receive(mqtt, DEVICE_TOPIC, payload)
+
+    assert callbacks.on_energy_stream.call_count == 2
+    assert "MQTT message could not be processed" in caplog.text
 
 
 # Encrypted energy stream reports of a PowerOcean Plus from issue #189

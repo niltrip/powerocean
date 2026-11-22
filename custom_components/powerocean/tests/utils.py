@@ -7,8 +7,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
 from custom_components.powerocean.const import DOMAIN
+from custom_components.powerocean.models import PowerOceanEndPoint
 from custom_components.powerocean.parse import parse
-from custom_components.powerocean.types import PowerOceanEndPoint
 
 SN = "SN_INVERTERBOX01"
 

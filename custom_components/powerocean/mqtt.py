@@ -79,6 +79,8 @@ _logged_unknown_fields: set[int] = set()
 # Larger power values (W) are decoding errors, not measurements: the largest
 # PowerOcean has 30 kW. Far above that on purpose, so no real value is lost.
 ENERGY_STREAM_MAX_POWER = 1_000_000
+# Largest value of a 32-bit field (float in the energy stream report)
+MAX_UINT32 = 0xFFFFFFFF
 # Settings in the EMS change report: field number -> datapoint
 CHANGE_REPORT_SETTINGS = {
     11: "sysBatChgUpLimit",
@@ -549,7 +551,14 @@ def log_message_part(part: Part, *, reply: bool) -> None:
 
 
 def _float(value: int) -> float:
-    """Return the float of a 32-bit field (protobuf_fields returns an int)."""
+    """
+    Return the float of a 32-bit field (protobuf_fields returns an int).
+
+    NaN for a larger value (a varint or 64-bit field, issue #199): no float,
+    so the report is ignored as one with impossible values.
+    """
+    if not 0 <= value <= MAX_UINT32:
+        return math.nan
     return round(struct.unpack("<f", struct.pack("<I", value))[0], 1)
 
 
@@ -590,6 +599,14 @@ def energy_stream(part: Part) -> dict[str, float | int]:
         return {}
     fields = dict(protobuf_fields(part.content))
     _log_unknown_fields(fields, part.content)
+    if not any(number in fields for number in ENERGY_STREAM_POWER):
+        # Issue #199: on a PowerOcean Plus some reports hold no power value.
+        # As 0 W everywhere they would show 0 W for the whole hold time.
+        LOGGER.debug(
+            "MQTT energy stream report without power values ignored: content %s",
+            part.content.hex(),
+        )
+        return {}
     values: dict[str, float | int] = {
         name: _float(fields[number]) if isinstance(fields.get(number), int) else 0.0
         for number, name in ENERGY_STREAM_POWER.items()
@@ -794,3 +811,7 @@ class PowerOceanMqtt:
                     self.callbacks.on_energy_stream(values)
         except ValueError:
             LOGGER.debug("MQTT message is no protobuf message")
+        except Exception:  # noqa: BLE001
+            # Issue #199: an error here would end paho's thread, and with it
+            # the connection until a reload. Log it, go on with the next one.
+            LOGGER.exception("MQTT message could not be processed")

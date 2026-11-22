@@ -3,7 +3,7 @@
 from typing import Any
 
 from custom_components.powerocean.const import DOMAIN
-from custom_components.powerocean.types import PowerOceanEndPoint
+from custom_components.powerocean.models import PowerOceanEndPoint
 
 
 def serialize_structure(endpoints: dict[str, Any]) -> dict:
