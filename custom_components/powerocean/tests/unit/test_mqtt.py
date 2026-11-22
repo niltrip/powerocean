@@ -1,5 +1,6 @@
 """test_mqtt: protobuf messages and module info of the MQTT connection."""
 
+import threading
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -516,6 +517,28 @@ def test_on_connect_subscribes_and_requests_full_state(
     topic, payload = mqtt.client.publish.call_args.args
     assert topic == f"/app/{USER_ID}/{SN}/thing/property/get"
     assert _header(payload) == _header(get_all_request())
+
+
+def test_thread_name_without_user_id(
+    connection: tuple[PowerOceanMqtt, MqttCallbacks],
+) -> None:
+    # paho names its thread after the client id, with the user id; the name
+    # is in every line of the debug log
+    mqtt, _ = connection
+    names: list[str] = []
+
+    def paho_thread() -> None:
+        mqtt._on_connect(mqtt.client, None, None, MagicMock(is_failure=True), None)
+        names.append(threading.current_thread().name)
+
+    thread = threading.Thread(
+        target=paho_thread, name=f"paho-mqtt-client-ANDROID_X_{USER_ID}"
+    )
+    thread.start()
+    thread.join()
+
+    assert names == ["powerocean-mqtt"]
+    assert USER_ID not in names[0]
 
 
 def test_on_connect_refused_sends_nothing(

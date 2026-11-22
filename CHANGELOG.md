@@ -14,6 +14,9 @@
 
 ### Changed
 
+- **No user id in the debug log:** the MQTT thread was named after the
+  client id, which contains the EcoFlow user id, so it was in every MQTT
+  line of the debug log. The thread is now called `powerocean-mqtt`.
 - **`scripts/capture` masks encrypted messages too** (#198): it now shares
   the masking with the diagnostics, which also masks the encrypted content
   of a message (#189) and all text, not only serial numbers.
