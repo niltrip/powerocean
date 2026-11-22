@@ -49,6 +49,18 @@ MIN_SN_LENGTH = 6
 SN_PATTERN = re.compile(rf"[A-Za-z0-9_-]{{{MIN_SN_LENGTH},}}")
 
 
+def _is_redacted_key(key: Any) -> bool:
+    """
+    Return True for a key with personal data.
+
+    Also for a datapoint in the diagnostics (<report>_chargeVehicleId), whose
+    value is the same as in the response (issue #199).
+    """
+    return isinstance(key, str) and (
+        key in REDACT_KEYS or key.rsplit("_", 1)[-1] in REDACT_KEYS
+    )
+
+
 def _decode_b64_sn(value: str) -> str | None:
     """Return the serial number a Base64 string encodes, None if it is none."""
     try:
@@ -162,7 +174,7 @@ class Anonymizer:
             return {
                 self._substitute(k) if isinstance(k, str) else k: (
                     REDACTED
-                    if k in REDACT_KEYS and v not in ("", None)
+                    if _is_redacted_key(k) and v not in ("", None)
                     else self._replace(v, k)
                 )
                 for k, v in data.items()

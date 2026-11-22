@@ -75,3 +75,42 @@ async def test_diagnostics(hass: HomeAssistant) -> None:
     assert len(batteries) == 2
     assert all(b["via_device"] == "SN_MAIN" for b in batteries)
     assert diagnostics["coordinator"]["last_update_success"] is True
+
+
+async def test_diagnostics_redacts_personal_datapoints(hass: HomeAssistant) -> None:
+    # Issue #199: the vehicle id is redacted in the response, and must be in
+    # the datapoints of the devices too
+    raw = (FIXTURES_DIR / "response_modified_po_plus.json").read_text("utf-8")
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        version=2,
+        minor_version=2,
+        unique_id=f"PowerOcean {SN}",
+        title="PowerOcean",
+        data={**DATA, "model_id": "87"},
+        options={"friendly_name": "PowerOcean", "scan_interval": 10},
+    )
+    entry.add_to_hass(hass)
+    with (
+        patch(
+            "custom_components.powerocean.ecoflow.HAEcoflowApi.async_authorize",
+            return_value=None,
+        ),
+        patch(
+            "custom_components.powerocean.ecoflow.HAEcoflowApi.fetch_raw",
+            return_value=json.loads(raw),
+        ),
+    ):
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    diagnostics = await async_get_config_entry_diagnostics(hass, entry)
+
+    datapoints = {
+        name: value
+        for device in diagnostics["devices"].values()
+        for name, value in device["datapoints"].items()
+        if name.endswith("_chargeVehicleId")
+    }
+    assert datapoints
+    assert set(datapoints.values()) == {"**REDACTED**"}
