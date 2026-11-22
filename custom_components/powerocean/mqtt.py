@@ -87,6 +87,9 @@ RECORD_SECONDS = 10 * 60
 RECORD_MAX_MESSAGES = 3000
 # Topics of the app's commands and queries (only recorded)
 APP_TOPICS = ("/set", "/get")
+# Name of paho's thread: paho names it after the client id, which holds the
+# user id, and the thread name is in every line of the debug log
+THREAD_NAME = "powerocean-mqtt"
 # Largest value of a 32-bit field (float in the energy stream report)
 MAX_UINT32 = 0xFFFFFFFF
 # Settings in the EMS change report: field number -> datapoint
@@ -834,6 +837,8 @@ class PowerOceanMqtt:
         reason: mqtt.ReasonCode,
         _props: Any,
     ) -> None:
+        # The first code of ours in paho's thread, before anything is logged
+        threading.current_thread().name = THREAD_NAME
         if reason.is_failure:
             LOGGER.warning("MQTT connection refused: %s", reason)
             return

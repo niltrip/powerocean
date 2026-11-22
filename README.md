@@ -193,9 +193,14 @@ logger:
 
 **Recording MQTT messages in the diagnostics:** With the option *Extended connection (MQTT)* and debug logging on (see above, or *⋮ → Enable debug logging* on the integration's page), the integration keeps the MQTT messages of the last 10 minutes in memory: the reports of the system and the commands of the EcoFlow app. The diagnostics then contain them, to find out how another model reports a setting and which command the app sends.
 
-1. Turn on debug logging.
+All within 10 minutes, in this order:
+
+1. Turn on debug logging – this only starts the recording; you don't need the log file itself.
 2. Change the setting in the EcoFlow app, ideally a few times, and note the time of each change.
-3. Within 10 minutes, download the diagnostics and attach them to the issue together with your notes.
+3. Download the diagnostics (*⋮ → Download diagnostics*), **before** you turn debug logging off.
+4. Turn debug logging off.
+
+Attach the diagnostics (`config_entry-powerocean-….json`) to the issue together with your notes. The messages are only in the diagnostics, not in the debug log that Home Assistant downloads when you turn debug logging off.
 
 Serial numbers keep their length but are replaced (the inverter's keeps its first four characters, the model); all other text in the messages (e.g. a Wi-Fi name), the user id, the email and the MQTT account are replaced by `X`. A message that still contains one of them is left out. The messages still show the power, battery and energy values of that time. The messages are only kept in memory and are gone after a restart or when you turn debug logging off.
 
