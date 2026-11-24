@@ -130,6 +130,8 @@ class _Context:
     inverter_sn: str = ""
     # Number of PV strings of the inverter, if the heartbeat tells
     pv_strings: int | None = None
+    # All reports of the inverter, for values one report takes from another
+    reports: dict[str, Any] = field(default_factory=dict)
 
     def inverter(self) -> Device:
         return make_device(self.inverter_sn, "PowerOcean", self.model)
@@ -198,6 +200,7 @@ def parse(response: dict[str, Any], main_sn: str, variant: str) -> ParseResult:
             ctx.inverter_sn = inverter_sn
             reports = parallel.get(inverter_sn, {})
             ctx.pv_strings = _pv_strings(reports)
+            ctx.reports = reports if isinstance(reports, dict) else {}
             for report_type in report_types:
                 # KNOWN BUG, kept until fixed in its own commit: the substring
                 # check also replaces HEATING_ROD_ENERGY_STREAM_REPORT, so the
@@ -207,6 +210,7 @@ def parse(response: dict[str, Any], main_sn: str, variant: str) -> ParseResult:
                 _read_report(ctx, reports, report_type)
     elif quota:
         ctx.pv_strings = _pv_strings(quota)
+        ctx.reports = quota if isinstance(quota, dict) else {}
         for report_type in report_types:
             _read_report(ctx, quota, report_type)
     else:
@@ -410,6 +414,8 @@ def _read_ems_heartbeat(
     mppt = _first_mppt_heartbeat(payload)
     if mppt is not None:
         _read_mppt(ctx, device, f"{name}_mpptHeartBeat", mppt, payload)
+    elif payload.get("mpptHeartBeat") == []:
+        _read_flows_without_mppt(ctx, device, f"{name}_mpptHeartBeat", payload)
 
     _read_meters(ctx, f"{name}_meterHeartBeat", payload, selected)
 
@@ -488,6 +494,47 @@ def _read_mppt(
         solar_total, payload.get("pcsMeterPower"), payload.get("emsBpPower")
     ):
         ctx.add(device, report, key, value)
+
+
+def _read_flows_without_mppt(
+    ctx: _Context, device: Device, report: str, heartbeat: dict[str, Any]
+) -> None:
+    """
+    Calculate solar power and energy flows when the heartbeat lacks the MPPT.
+
+    Since firmware 3.0.21 (PowerOcean Plus, issue #210) the heartbeat at times
+    has an empty mpptHeartBeat. The solar power then comes from the energy
+    stream report, but only if it is as recent as the heartbeat: without the
+    app open it can be hours old. PV string values have no other source.
+    """
+    solar = _recent_stream_solar(ctx, heartbeat)
+    if solar is None:
+        return
+    ctx.add(device, report, "mpptPv_pwrTotal", solar)
+    for key, value in energy_flows(
+        solar, heartbeat.get("pcsMeterPower"), heartbeat.get("emsBpPower")
+    ):
+        ctx.add(device, report, key, value)
+
+
+# Largest age difference between energy stream report and heartbeat for the
+# stream's solar power to count; the heartbeat comes about every 60 s
+STREAM_MAX_LAG = 120
+
+
+def _recent_stream_solar(ctx: _Context, heartbeat: dict[str, Any]) -> float | None:
+    """Return mpptPwr of the energy stream report if it is recent, else None."""
+    _, stream = _find_report(ctx.reports, ReportMode.ENERGY_STREAM.value)
+    solar = stream.get("mpptPwr")
+    if isinstance(solar, bool) or not isinstance(solar, (int, float)):
+        return None
+    stream_time = _server_time(stream.get("updateTime"))
+    heartbeat_time = _server_time(heartbeat.get("updateTime"))
+    if stream_time is None or heartbeat_time is None:
+        return None
+    if heartbeat_time - stream_time > STREAM_MAX_LAG:
+        return None
+    return float(solar)
 
 
 def _first_mppt_heartbeat(payload: dict[str, Any]) -> dict[str, Any] | None:

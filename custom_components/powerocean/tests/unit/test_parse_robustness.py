@@ -36,6 +36,50 @@ def test_quota_key_without_underscore() -> None:
 def test_heartbeat_empty_mppt_list() -> None:
     values = _parse({HEARTBEAT: {"bpRemainWatth": 5000, "mpptHeartBeat": []}})
     assert _value(values, "bpRemainWatth") == 5000
+    # Without an energy stream report there is no solar power: no flows
+    assert _flow(values, "mpptPv_pwrTotal") is None
+    assert _flow(values, "gridToHouse") is None
+
+
+STREAM = "JTS1_ENERGY_STREAM_REPORT"
+
+
+def _empty_mppt(heartbeat_time: str, stream_time: str) -> dict[str, Any]:
+    return _parse(
+        {
+            HEARTBEAT: {
+                "updateTime": heartbeat_time,
+                "pcsMeterPower": 100.0,
+                "emsBpPower": -500.0,
+                "mpptHeartBeat": [],
+            },
+            STREAM: {"updateTime": stream_time, "mpptPwr": 300.0},
+        }
+    )
+
+
+def test_heartbeat_empty_mppt_flows_from_recent_stream() -> None:
+    # Firmware 3.0.21 (issue #210): solar power from the energy stream report
+    values = _empty_mppt("2026-11-24 15:37:07", "2026-11-24 15:36:30")
+    assert _flow(values, "mpptPv_pwrTotal") == 300.0
+    assert _flow(values, "solarToHouse") == 300.0
+    assert _flow(values, "batteryToHouse") == 500.0
+    assert _flow(values, "gridToHouse") == 100.0
+    # PV string values have no other source
+    assert _flow(values, "mpptPv1_pwr") is None
+    assert _flow(values, "mpptInsResist") is None
+
+
+def test_heartbeat_empty_mppt_old_stream_is_ignored() -> None:
+    # Without the app open the energy stream report can be hours old
+    values = _empty_mppt("2026-11-24 15:37:07", "2026-11-24 12:00:00")
+    assert _flow(values, "mpptPv_pwrTotal") is None
+    assert _flow(values, "gridToHouse") is None
+
+
+def test_heartbeat_empty_mppt_stream_without_time_is_ignored() -> None:
+    values = _empty_mppt("2026-11-24 15:37:07", "")
+    assert _flow(values, "mpptPv_pwrTotal") is None
 
 
 def test_heartbeat_mppt_without_pv_list() -> None:
