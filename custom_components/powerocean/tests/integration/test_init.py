@@ -3,10 +3,12 @@
 import copy
 import json
 from collections.abc import Generator
+from datetime import timedelta
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from freezegun.api import FrozenDateTimeFactory
 from homeassistant.config_entries import SOURCE_REAUTH, ConfigEntryState
 from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
@@ -657,3 +659,55 @@ async def test_migrate_from_future_version_fails(
     await _setup(hass, entry)
 
     assert entry.state is ConfigEntryState.MIGRATION_ERROR
+
+
+# -----------------------------
+# Heartbeat without MPPT values (issue #210)
+# -----------------------------
+
+PV1_VOLTAGE = f"{SN}_JTS1_EMS_HEARTBEAT_mpptHeartBeat_mpptPv1_vol"
+
+
+def _without_mppt() -> dict:
+    """Return the response with an empty mpptHeartBeat, as firmware 3.0.21."""
+    response = copy.deepcopy(RESPONSE)
+    response["data"]["quota"]["JTS1_EMS_HEARTBEAT"]["mpptHeartBeat"] = []
+    return response
+
+
+async def test_mppt_values_held_while_heartbeat_lacks_them(
+    hass: HomeAssistant,
+    mock_authorize: AsyncMock,
+    mock_fetch: AsyncMock,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    entry = _entry()
+    await _setup(hass, entry)
+    coordinator = entry.runtime_data
+    entity_id = er.async_get(hass).async_get_entity_id("sensor", DOMAIN, PV1_VOLTAGE)
+    assert entity_id
+    state = hass.states.get(entity_id).state
+    assert state != STATE_UNAVAILABLE
+
+    # The next heartbeat comes without the MPPT values: the last ones stay
+    mock_fetch.return_value = _without_mppt()
+    freezer.tick(timedelta(minutes=4))
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+    assert hass.states.get(entity_id).state == state
+
+    # A heartbeat with them renews the hold
+    mock_fetch.return_value = RESPONSE
+    freezer.tick(timedelta(minutes=1))
+    await coordinator.async_refresh()
+    mock_fetch.return_value = _without_mppt()
+    freezer.tick(timedelta(minutes=4))
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+    assert hass.states.get(entity_id).state == state
+
+    # Missing for longer than the hold: unavailable
+    freezer.tick(timedelta(minutes=2))
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+    assert hass.states.get(entity_id).state == STATE_UNAVAILABLE

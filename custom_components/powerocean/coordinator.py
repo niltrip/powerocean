@@ -71,6 +71,12 @@ ENERGY_STREAM_INTERVAL = timedelta(seconds=20)
 # How long the power values of the energy stream win over the HTTP response,
 # which shows older values
 ENERGY_STREAM_HOLD = timedelta(seconds=30)
+# How long the MPPT values (PV strings, solar power, flows) of the heartbeat
+# are kept while it comes without them: since firmware 3.0.21 the PowerOcean
+# Plus sends it with and without them in turn (issue #210)
+MPPT_HOLD = timedelta(minutes=5)
+# Part of the unique_id of all values read from mpptHeartBeat
+MPPT_REPORT = "_mpptHeartBeat_"
 # How long a command may wait for the acknowledgement of the system
 COMMAND_TIMEOUT = 10
 # Sent together with the backup reserve: datapoint -> reports it is read from.
@@ -156,6 +162,8 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self._energy_stream_unsub: Callable[[], None] | None = None
         self._stream_values: dict[str, float | int] = {}
         self._stream_time: datetime | None = None
+        # Last MPPT values of the heartbeat and when they came, by unique_id
+        self._mppt_values: dict[str, tuple[float | int | str, datetime]] = {}
         # Commands waiting for their acknowledgement, by seq
         self._pending_acks: dict[int, asyncio.Future[None]] = {}
 
@@ -191,8 +199,21 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self._update_firmware(result.firmware)
         values = result.values()
         self._hold_recent_settings(values)
+        self._hold_mppt(values)
         self._hold_energy_stream(values)
         return values
+
+    def _hold_mppt(self, values: dict[str, float | int | str]) -> None:
+        """Keep recent MPPT values the response lacks (issue #210)."""
+        now = dt_util.utcnow()
+        for unique_id, value in values.items():
+            if MPPT_REPORT in unique_id:
+                self._mppt_values[unique_id] = (value, now)
+        for unique_id, (value, since) in list(self._mppt_values.items()):
+            if now - since > MPPT_HOLD:
+                del self._mppt_values[unique_id]
+            elif unique_id not in values:
+                values[unique_id] = value
 
     def _hold_recent_settings(self, values: dict[str, float | int | str]) -> None:
         """

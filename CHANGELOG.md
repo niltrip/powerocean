@@ -41,7 +41,9 @@
   the other calculated flows now come from the energy stream report then,
   if it is as recent as the heartbeat (with live power values or the app
   open). PV string voltage, current, power, light detected and insulation
-  resistance have no other source and stay unavailable for that time.
+  resistance have no other source: as the heartbeat comes with and without
+  them in turn, their last values are kept for up to 5 minutes, then they
+  become unavailable.
 
 ## 2026.11.22
 
