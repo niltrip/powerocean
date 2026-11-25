@@ -32,6 +32,8 @@ API_FIXTURES = [
     ("response_modified_po_dual.json", "83"),
     ("response_modified_po_plus.json", "87"),
     ("response_modified_po_plus_feature.json", "87"),
+    # Real: firmware 3.0.21, empty mpptHeartBeat (issue #210)
+    ("response_modified_po_plus_fw_3_0_21.json", "87"),
     ("response_modified_error_521.json", "83"),
     # Real: PowerGlow heating rod and PowerPulse wallbox (discussion #132)
     ("response_modified_powerglow.json", "83"),

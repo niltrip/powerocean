@@ -33,6 +33,18 @@
   the masking with the diagnostics, which also masks the encrypted content
   of a message (#189) and all text, not only serial numbers.
 
+### Fixed
+
+- **Solar power and energy flows unavailable at times** (#210): since
+  firmware 3.0.21 the PowerOcean Plus at times reports no PV string values
+  (empty `mpptHeartBeat`). Solar power, house consumption, grid power and
+  the other calculated flows now come from the energy stream report then,
+  if it is as recent as the heartbeat (with live power values or the app
+  open). PV string voltage, current, power, light detected and insulation
+  resistance have no other source: as the heartbeat comes with and without
+  them in turn, their last values are kept for up to 5 minutes, then they
+  become unavailable.
+
 ## 2026.11.22
 
 ### New
