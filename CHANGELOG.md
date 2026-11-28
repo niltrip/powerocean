@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### New
+
+- **Charging windows** (#213): with the MQTT option, each charging window set
+  up in the EcoFlow app (grid charging at set times) gets a switch
+  "Charging window N" and a setting "Charging window N power" (100 W steps,
+  up to the maximum the app offers for the model). The time window is shown
+  as attribute `window` of the switch; it is changed in the app, as are
+  new and deleted windows. Switching and the power are sent as the app does
+  and confirmed by the system; changes in the app show right away.
+
 ## 2026.11.28
 
 ### New
