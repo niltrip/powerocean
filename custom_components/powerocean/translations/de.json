@@ -93,6 +93,9 @@
         },
         "preheat_start_not_before_end": {
             "message": "Der Beginn der Batterievorwärmung ({start}) muss vor ihrem Ende ({end}) liegen."
+        },
+        "charge_task_unknown": {
+            "message": "Das Ladefenster {index} ist (nicht mehr) bekannt. Bitte in der EcoFlow-App einrichten oder in einer Minute erneut versuchen."
         }
     },
     "entity": {
@@ -858,6 +861,9 @@
             },
             "solar_surplus": {
                 "name": "Zustellung überschüssiger Solarenergie"
+            },
+            "charge_window_power": {
+                "name": "Ladefenster {index} Leistung"
             }
         },
         "select": {
@@ -874,6 +880,14 @@
             },
             "battery_preheat": {
                 "name": "Batterievorwärmung"
+            },
+            "charge_window": {
+                "name": "Ladefenster {index}",
+                "state_attributes": {
+                    "window": {
+                        "name": "Zeitfenster"
+                    }
+                }
             }
         }
     }

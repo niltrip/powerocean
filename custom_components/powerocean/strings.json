@@ -93,6 +93,9 @@
     },
     "preheat_start_not_before_end": {
       "message": "The start of the battery preheating ({start}) must be before its end ({end})."
+    },
+    "charge_task_unknown": {
+      "message": "The charging window {index} is not known (anymore). Set it up in the EcoFlow app, or try again in a minute."
     }
   },
   "entity": {
@@ -858,6 +861,9 @@
       },
       "solar_surplus": {
         "name": "Surplus solar energy delivery"
+      },
+      "charge_window_power": {
+        "name": "Charging window {index} power"
       }
     },
     "select": {
@@ -874,6 +880,14 @@
       },
       "battery_preheat": {
         "name": "Battery preheating"
+      },
+      "charge_window": {
+        "name": "Charging window {index}",
+        "state_attributes": {
+          "window": {
+            "name": "Time window"
+          }
+        }
       }
     }
   }

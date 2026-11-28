@@ -93,6 +93,9 @@
         },
         "preheat_start_not_before_end": {
             "message": "Le début du préchauffage de la batterie ({start}) doit être avant sa fin ({end})."
+        },
+        "charge_task_unknown": {
+            "message": "La plage de charge {index} n'est pas (plus) connue. Configurez-la dans l'application EcoFlow ou réessayez dans une minute."
         }
     },
     "entity": {
@@ -105,6 +108,9 @@
             },
             "solar_surplus": {
                 "name": "Distribution de l'énergie solaire excédentaire"
+            },
+            "charge_window_power": {
+                "name": "Puissance de la plage de charge {index}"
             }
         },
         "select": {
@@ -121,6 +127,14 @@
             },
             "battery_preheat": {
                 "name": "Préchauffage de la batterie"
+            },
+            "charge_window": {
+                "name": "Plage de charge {index}",
+                "state_attributes": {
+                    "window": {
+                        "name": "Plage horaire"
+                    }
+                }
             }
         }
     }
