@@ -10,7 +10,8 @@
   up to the maximum the app offers for the model). The time window is shown
   as attribute `window` of the switch; it is changed in the app, as are
   new and deleted windows. Switching and the power are sent as the app does
-  and confirmed by the system; changes in the app show right away.
+  and confirmed by the system; changes in the app show right away. Thanks
+  to shuette42/ecoflow-energy-ha for the power range the app offers.
 
 ## 2026.11.28
 
