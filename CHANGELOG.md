@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2026.11.28
+
 ### New
 
 - **MQTT messages in the diagnostics** (#198): with the MQTT option and
