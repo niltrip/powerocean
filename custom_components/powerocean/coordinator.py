@@ -44,16 +44,19 @@ from .ecoflow import HAEcoflowApi
 from .flows import energy_flows
 from .models import PowerOceanEndPoint
 from .mqtt import (
+    CHARGE_TASK_TYPE,
     ENERGY_STREAM_STRINGS,
     MINUTES_PER_DAY,
     MODULE_EMS,
     MODULE_METER,
     PREHEAT_TYPE,
+    ChargeTask,
     ModuleVersion,
     MqttCallbacks,
     PowerOceanMqtt,
     PreheatTask,
     new_seq,
+    valid_time_table,
 )
 from .parse import parse
 
@@ -103,6 +106,20 @@ MQTT_SETTINGS = ("batterySaveMode", "sysZone")
 # How long a setting the system confirmed via MQTT wins over the HTTP
 # response: the cloud shows a change only 20-60 s later
 SETTING_HOLD = timedelta(minutes=2)
+# Power of a charging window, as the app offers it: from 100 W in steps of
+# 100 W up to a maximum by model, from the first characters of the serial
+# number
+CHARGE_POWER_STEP = 100
+CHARGE_POWER_MAX = {
+    "HJ31": 10000,
+    "HJ35": 6000,
+    "HJ36": 8000,
+    "HJ37": 12000,
+    "HJ3": 10000,
+    "J32": 6000,
+    "R37": 29900,
+}
+CHARGE_POWER_MAX_DEFAULT = 10000
 
 # Parser errors caused by unexpected API payloads
 PARSE_ERRORS = (KeyError, IndexError, TypeError, ValueError, AttributeError)
@@ -157,6 +174,10 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         # while the cloud does not show it yet (as _recent_settings)
         self.preheat: PreheatTask | None = None
         self._recent_preheat: tuple[PreheatTask, datetime] | None = None
+        # Charging windows of the app by taskIndex, and those set via MQTT
+        # while the cloud does not show them yet (issue #213)
+        self.charge_tasks: dict[int, ChargeTask] = {}
+        self._recent_charge_tasks: dict[int, tuple[ChargeTask, datetime]] = {}
         # Option live power: values of the last energy stream report, by
         # unique_id, and when it came
         self._energy_stream_unsub: Callable[[], None] | None = None
@@ -196,6 +217,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         if (charge_limit := FIXED_CHARGE_LIMIT.get(self.api.variant)) is not None:
             self.soc_limits["sysBatChgUpLimit"] = charge_limit
         self.preheat = self._held_preheat(preheat_of(response))
+        self.charge_tasks = self._held_charge_tasks(charge_tasks_of(response))
         self._update_firmware(result.firmware)
         values = result.values()
         self._hold_recent_settings(values)
@@ -246,6 +268,18 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
             self._recent_preheat = None
             return reported
         return task
+
+    def _held_charge_tasks(
+        self, reported: dict[int, ChargeTask]
+    ) -> dict[int, ChargeTask]:
+        """Return the charging windows; those set via MQTT until the cloud has them."""
+        now = dt_util.utcnow()
+        for index, (task, since) in list(self._recent_charge_tasks.items()):
+            if reported.get(index) == task or now - since > SETTING_HOLD:
+                del self._recent_charge_tasks[index]
+            elif index in reported:
+                reported[index] = task
+        return reported
 
     def _update_firmware(self, firmware: dict[str, str]) -> None:
         """Show a changed firmware version on the device page."""
@@ -335,6 +369,7 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
                 on_ack=self._from_mqtt_thread(self._apply_ack),
                 on_energy_stream=self._from_mqtt_thread(self._apply_energy_stream),
                 on_preheat=self._from_mqtt_thread(self._apply_preheat),
+                on_charge_task=self._from_mqtt_thread(self._apply_charge_task),
             )
             client = PowerOceanMqtt(
                 credentials, self.api.sn, self.api.user_id, callbacks
@@ -575,6 +610,57 @@ class PowerOceanCoordinator(DataUpdateCoordinator[dict[str, float | int | str]])
         self.preheat = task
         self.async_update_listeners()
 
+    async def async_set_charge_task(
+        self, task_index: int, *, enabled: bool | None = None, power: int | None = None
+    ) -> None:
+        """
+        Change a charging window via MQTT and wait for the acknowledgement.
+
+        Switching sends only the state, as the app. A new power is sent with
+        the whole window as the system reported it, so the window must be
+        known; it keeps its state.
+
+        Raises:
+            HomeAssistantError: Without MQTT connection, without the window,
+                or if the system does not acknowledge the command in time.
+
+        """
+        mqtt = self._connected_mqtt()
+        if (current := self.charge_tasks.get(task_index)) is None:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="charge_task_unknown",
+                translation_placeholders={"index": str(task_index)},
+            )
+        task = replace(
+            current,
+            enabled=current.enabled if enabled is None else enabled,
+            power=current.power if power is None else power,
+        )
+        if power is None:
+            await self._async_command(
+                mqtt.set_charge_task_enabled, task_index, int(task.enabled)
+            )
+        else:
+            await self._async_command(mqtt.set_charge_task, task)
+        self._apply_charge_task(task)
+
+    @callback
+    def _apply_charge_task(self, task: ChargeTask) -> None:
+        """
+        Show a charging window confirmed or reported via MQTT.
+
+        The cloud shows it only 20-60 s later, so it is held like a setting.
+        Only windows the cloud reported are shown: they are set up in the app.
+        """
+        if not self.mqtt or task.task_index not in self.charge_tasks:
+            return
+        self._recent_charge_tasks[task.task_index] = (task, dt_util.utcnow())
+        if self.charge_tasks[task.task_index] == task:
+            return
+        self.charge_tasks[task.task_index] = task
+        self.async_update_listeners()
+
     def _connected_mqtt(self) -> PowerOceanMqtt:
         if not self.mqtt:
             raise HomeAssistantError(
@@ -778,3 +864,71 @@ def _preheat_task(task: Any) -> PreheatTask | None:
         return None
     task_index, is_cfg, time_mode = numbers
     return PreheatTask(task_index, is_cfg, time_mode, enabled, start, end)
+
+
+def charge_power_max(sn: str) -> int:
+    """Return the highest power of a charging window the app offers, in W."""
+    sn = sn.upper()
+    for prefix in sorted(CHARGE_POWER_MAX, key=len, reverse=True):
+        if sn.startswith(prefix):
+            return CHARGE_POWER_MAX[prefix]
+    return CHARGE_POWER_MAX_DEFAULT
+
+
+def charge_tasks_of(response: dict[str, Any]) -> dict[int, ChargeTask]:
+    """
+    Return the charging windows of the app by taskIndex (issue #213).
+
+    They are the tasks of type 1 in the EMS timer task report. A task with
+    values that cannot be sent back unchanged is left out.
+    """
+    data = response.get("data")
+    quota = data.get("quota") if isinstance(data, dict) else None
+    tasks: dict[int, ChargeTask] = {}
+    if not isinstance(quota, dict):
+        return tasks
+    for report, values in quota.items():
+        if not report.endswith("_EMS_ALL_TIMER_TASK_REPORT"):
+            continue
+        entries = values.get("timeTaskCfg") if isinstance(values, dict) else None
+        for entry in entries if isinstance(entries, list) else []:
+            if parsed := _charge_task(entry):
+                tasks[parsed.task_index] = parsed
+    return tasks
+
+
+def _flag(value: Any) -> bool | None:
+    """Return a flag of the response: true/false, older ones "TRUE"/"FALSE"."""
+    if isinstance(value, bool):
+        return value
+    return {"TRUE": True, "FALSE": False}.get(value) if isinstance(value, str) else None
+
+
+def _charge_task(entry: Any) -> ChargeTask | None:
+    if not isinstance(entry, dict) or entry.get("type") != CHARGE_TASK_TYPE:
+        return None
+    keys = ("taskIndex", "sysChgDsgPwr", "timeMode", "timeParam", "isCfg")
+    numbers = [entry.get(key) for key in keys]
+    table = entry.get("timeTable")
+    enabled = _flag(entry.get("isEnable"))
+    if (
+        any(type(number) is not int for number in numbers)
+        or not isinstance(table, list)
+        or any(type(value) is not int for value in table)
+        or not valid_time_table(tuple(table))
+        or enabled is None
+    ):
+        return None
+    task_index, power, time_mode, time_param, is_cfg = numbers
+    # isCfg 0: not set up (seen on the wallbox's charging timer)
+    if task_index < 1 or is_cfg == 0:
+        return None
+    return ChargeTask(
+        task_index=task_index,
+        enabled=enabled,
+        power=power,
+        task_type=CHARGE_TASK_TYPE,
+        time_mode=time_mode,
+        time_param=time_param,
+        time_table=tuple(table),
+    )

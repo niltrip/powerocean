@@ -1,8 +1,9 @@
 """
 PowerOcean switches: settings sent to the system via MQTT.
 
-Only with the option "Extended connection (MQTT)": the battery save mode
-and the battery preheating, switched as the EcoFlow app does.
+Only with the option "Extended connection (MQTT)": the battery save mode,
+the battery preheating and the charging windows, switched as the EcoFlow app
+does.
 """
 
 from typing import Any
@@ -16,6 +17,11 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .charge_window import (
+    ChargeWindowEntity,
+    format_windows,
+    setup_charge_window_entities,
+)
 from .const import CONF_MQTT, DOMAIN
 from .coordinator import PowerOceanConfigEntry, PowerOceanCoordinator
 
@@ -46,6 +52,13 @@ async def async_setup_entry(
             )
         ):
             entity_registry.async_remove(entity_id)
+    setup_charge_window_entities(
+        hass,
+        entry,
+        async_add_entities,
+        SWITCH_DOMAIN,
+        lambda coordinator, index: [PowerOceanChargeWindow(coordinator, index)],
+    )
 
 
 class PowerOceanBatterySaveMode(CoordinatorEntity[PowerOceanCoordinator], SwitchEntity):
@@ -123,3 +136,29 @@ class PowerOceanBatteryPreheat(CoordinatorEntity[PowerOceanCoordinator], SwitchE
     async def async_turn_off(self, **_kwargs: Any) -> None:
         """Switch off; raises if the system does not confirm it."""
         await self.coordinator.async_set_preheat(enabled=False)
+
+
+class PowerOceanChargeWindow(ChargeWindowEntity, SwitchEntity):
+    """A charging window of the app: grid charging at set times (issue #213)."""
+
+    _attr_translation_key = "charge_window"
+
+    @property
+    def is_on(self) -> bool | None:
+        """Return the state the system reported last."""
+        task = self.task
+        return None if task is None else task.enabled
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        """Return the time window, as set in the app."""
+        task = self.task
+        return None if task is None else {"window": format_windows(task)}
+
+    async def async_turn_on(self, **_kwargs: Any) -> None:
+        """Switch on; raises if the system does not confirm it."""
+        await self.coordinator.async_set_charge_task(self.task_index, enabled=True)
+
+    async def async_turn_off(self, **_kwargs: Any) -> None:
+        """Switch off; raises if the system does not confirm it."""
+        await self.coordinator.async_set_charge_task(self.task_index, enabled=False)

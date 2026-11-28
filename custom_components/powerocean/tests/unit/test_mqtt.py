@@ -480,6 +480,7 @@ def _callbacks() -> MqttCallbacks:
         on_ack=MagicMock(),
         on_energy_stream=MagicMock(),
         on_preheat=MagicMock(),
+        on_charge_task=MagicMock(),
     )
 
 

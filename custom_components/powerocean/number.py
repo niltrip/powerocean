@@ -2,21 +2,28 @@
 PowerOcean number entities: settings sent to the system via MQTT.
 
 Only with the option "Extended connection (MQTT)": the LED brightness of the
-inverter, the backup reserve and the surplus solar energy delivery, set as
-the EcoFlow app does.
+inverter, the backup reserve, the surplus solar energy delivery and the
+power of the charging windows, set as the EcoFlow app does.
 """
 
 from homeassistant.components.number import DOMAIN as NUMBER_DOMAIN
-from homeassistant.components.number import NumberEntity, NumberMode
-from homeassistant.const import PERCENTAGE, EntityCategory
+from homeassistant.components.number import NumberDeviceClass, NumberEntity, NumberMode
+from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfPower
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .charge_window import ChargeWindowEntity, setup_charge_window_entities
 from .const import CONF_MQTT, DOMAIN
-from .coordinator import SOC_LIMITS, PowerOceanConfigEntry, PowerOceanCoordinator
+from .coordinator import (
+    CHARGE_POWER_STEP,
+    SOC_LIMITS,
+    PowerOceanConfigEntry,
+    PowerOceanCoordinator,
+    charge_power_max,
+)
 
 # One command at a time, each waits for its acknowledgement
 PARALLEL_UPDATES = 1
@@ -46,6 +53,13 @@ async def async_setup_entry(
             )
         ):
             entity_registry.async_remove(entity_id)
+    setup_charge_window_entities(
+        hass,
+        entry,
+        async_add_entities,
+        NUMBER_DOMAIN,
+        lambda coordinator, index: [PowerOceanChargeWindowPower(coordinator, index)],
+    )
 
 
 class PowerOceanSetting(CoordinatorEntity[PowerOceanCoordinator], NumberEntity):
@@ -128,3 +142,30 @@ class PowerOceanSolarSurplus(PowerOceanSocLimit):
     async def async_set_native_value(self, value: float) -> None:
         """Send the new value; raises if the system does not confirm it."""
         await self.coordinator.async_set_solar_surplus(int(value))
+
+
+class PowerOceanChargeWindowPower(ChargeWindowEntity, NumberEntity):
+    """Charging power of a charging window of the app in W (issue #213)."""
+
+    _attr_translation_key = "charge_window_power"
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_mode = NumberMode.BOX
+    _attr_device_class = NumberDeviceClass.POWER
+    _attr_native_unit_of_measurement = UnitOfPower.WATT
+    _attr_native_min_value = CHARGE_POWER_STEP
+    _attr_native_step = CHARGE_POWER_STEP
+
+    def __init__(self, coordinator: PowerOceanCoordinator, task_index: int) -> None:
+        """Initialize the power of the window with this taskIndex."""
+        super().__init__(coordinator, task_index, "_power")
+        self._attr_native_max_value = charge_power_max(coordinator.api.sn)
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the power the system reported last."""
+        task = self.task
+        return None if task is None else task.power
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Send the new power; raises if the system does not confirm it."""
+        await self.coordinator.async_set_charge_task(self.task_index, power=int(value))

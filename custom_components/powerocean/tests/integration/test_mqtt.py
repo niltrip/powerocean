@@ -27,6 +27,7 @@ from custom_components.powerocean.diagnostics import (
 )
 from custom_components.powerocean.ecoflow import MOCK_RESPONSE_ENV
 from custom_components.powerocean.mqtt import (
+    ChargeTask,
     MessageRecorder,
     MqttCallbacks,
     PreheatTask,
@@ -45,6 +46,20 @@ MODULES = module_versions(
 
 SN = "SN_INVERTERBOX01"
 METER = f"{SN}_meter106"
+
+
+def _task(
+    index: int,
+    power: int,
+    time_table: tuple[int, ...],
+    *,
+    enabled: bool,
+    mode: tuple[int, int] = (65, 0),
+) -> ChargeTask:
+    """Return a charging window; mode: timeMode and timeParam."""
+    return ChargeTask(index, enabled, power, 1, mode[0], mode[1], time_table)
+
+
 USER_ID = "1234567890"
 CREDENTIALS = {
     "url": "mqtt.example.com",
@@ -84,6 +99,7 @@ class FakeMqtt:
         self.soc_limit_commands: list[tuple[int, int, int]] = []
         self.battery_save_commands: list[tuple[int, int]] = []
         self.preheat_commands: list[PreheatTask] = []
+        self.charge_task_commands: list[tuple[int, int] | ChargeTask] = []
         FakeMqtt.instances.append(self)
 
     def start(self) -> None:
@@ -125,6 +141,18 @@ class FakeMqtt:
     def set_preheat(self, task: PreheatTask, seq: int) -> None:
         """Record the command; the system acknowledges it (paho's thread)."""
         self.preheat_commands.append(task)
+        if FakeMqtt.acknowledge:
+            self.callbacks.on_ack(seq)
+
+    def set_charge_task_enabled(self, task_index: int, enabled: int, seq: int) -> None:
+        """Record the command; the system acknowledges it (paho's thread)."""
+        self.charge_task_commands.append((task_index, enabled))
+        if FakeMqtt.acknowledge:
+            self.callbacks.on_ack(seq)
+
+    def set_charge_task(self, task: ChargeTask, seq: int) -> None:
+        """Record the command; the system acknowledges it (paho's thread)."""
+        self.charge_task_commands.append(task)
         if FakeMqtt.acknowledge:
             self.callbacks.on_ack(seq)
 
@@ -1114,6 +1142,318 @@ async def test_preheat_changed_in_the_app(
     # The cloud still shows the old setting: the reported one stays
     await _poll(hass, freezer)
     assert _preheat_states(hass) == ("off", "19:00", "19:30")
+
+
+# -----------------------------
+# Charging windows (issue #213)
+# -----------------------------
+
+# Two windows as a PowerOcean Plus reported them on 2026-11-28: 02:00-06:00
+# with 3000 W, 14:30-16:00 with 1200 W
+CHARGE_TASKS = [
+    {
+        "taskIndex": 1,
+        "role": 0,
+        "timeParam": 0,
+        "isCfg": 2,
+        "isEffect": False,
+        "timeMode": 65,
+        "timeTable": [23593080],
+        "type": 1,
+        "sysChgDsgPwr": 3000,
+        "isEnable": True,
+    },
+    {
+        "taskIndex": 2,
+        "role": 0,
+        "timeParam": 0,
+        "isCfg": 2,
+        "isEffect": False,
+        "timeMode": 65,
+        "timeTable": [62915430],
+        "type": 1,
+        "sysChgDsgPwr": 1200,
+        "isEnable": False,
+    },
+]
+WINDOW_1 = _task(1, 3000, (23593080,), enabled=True)
+
+
+def _with_charge_tasks(*tasks: dict[str, Any]) -> dict[str, Any]:
+    response = copy.deepcopy(RESPONSE)
+    report = response["data"]["quota"]["JTS1_EMS_ALL_TIMER_TASK_REPORT"]
+    report["timeTaskCfg"] = list(tasks)
+    return response
+
+
+def _changed(index: int, **changes: Any) -> list[dict[str, Any]]:
+    return [
+        {**task, **changes} if task["taskIndex"] == index else task
+        for task in CHARGE_TASKS
+    ]
+
+
+@pytest.fixture
+def charge_cloud(cloud: AsyncMock) -> Generator[AsyncMock]:
+    """Answer with two charging windows set up in the app."""
+    with patch(
+        "custom_components.powerocean.ecoflow.HAEcoflowApi.fetch_raw",
+        return_value=_with_charge_tasks(*CHARGE_TASKS),
+    ):
+        yield cloud
+
+
+def _window_entity_id(hass: HomeAssistant, platform: str, index: int) -> str | None:
+    suffix = "_power" if platform == "number" else ""
+    return er.async_get(hass).async_get_entity_id(
+        platform, DOMAIN, f"{SN}_charge_window_{index}{suffix}"
+    )
+
+
+def _window_states(hass: HomeAssistant, index: int) -> tuple[str, str]:
+    switch = _window_entity_id(hass, "switch", index)
+    number = _window_entity_id(hass, "number", index)
+    assert switch
+    assert number
+    return hass.states.get(switch).state, hass.states.get(number).state
+
+
+async def _switch_window(hass: HomeAssistant, index: int, service: str) -> None:
+    await hass.services.async_call(
+        "switch",
+        service,
+        {"entity_id": _window_entity_id(hass, "switch", index)},
+        blocking=True,
+    )
+
+
+async def _set_window_power(hass: HomeAssistant, index: int, value: float) -> None:
+    await hass.services.async_call(
+        "number",
+        "set_value",
+        {"entity_id": _window_entity_id(hass, "number", index), "value": value},
+        blocking=True,
+    )
+
+
+async def test_charge_windows_only_with_mqtt(
+    hass: HomeAssistant, charge_cloud: AsyncMock
+) -> None:
+    entry = await _setup(hass, mqtt=True)
+    registry = er.async_get(hass)
+    for index in (1, 2):
+        switch = registry.async_get(_window_entity_id(hass, "switch", index))
+        number = registry.async_get(_window_entity_id(hass, "number", index))
+        assert switch.translation_key == "charge_window"
+        assert number.translation_key == "charge_window_power"
+        assert number.entity_category is EntityCategory.CONFIG
+        assert switch.entity_category is None
+
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, "mqtt": False}
+    )
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    for index in (1, 2):
+        assert _window_entity_id(hass, "switch", index) is None
+        assert _window_entity_id(hass, "number", index) is None
+
+
+async def test_no_charge_windows_without_mqtt(
+    hass: HomeAssistant, charge_cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=False)
+
+    assert _window_entity_id(hass, "switch", 1) is None
+    assert _window_entity_id(hass, "number", 1) is None
+
+
+async def test_charge_window_entities(
+    hass: HomeAssistant, charge_cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+
+    assert _window_states(hass, 1) == ("on", "3000")
+    assert _window_states(hass, 2) == ("off", "1200")
+    switch = hass.states.get(_window_entity_id(hass, "switch", 1))
+    assert switch.attributes["window"] == "02:00-06:00"
+    assert switch.attributes["friendly_name"] == "PowerOcean Charging window 1"
+    number = hass.states.get(_window_entity_id(hass, "number", 2))
+    assert number.attributes["friendly_name"] == "PowerOcean Charging window 2 power"
+    assert number.attributes["unit_of_measurement"] == "W"
+    # As the app offers it; the maximum depends on the model
+    assert (number.attributes["min"], number.attributes["step"]) == (100, 100)
+    assert number.attributes["max"] == 10000
+
+
+async def test_no_charge_windows_without_a_window(
+    hass: HomeAssistant, cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+
+    assert _window_entity_id(hass, "switch", 1) is None
+
+
+async def test_switch_charge_window(
+    hass: HomeAssistant, charge_cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    await _switch_window(hass, 1, "turn_off")
+    assert _window_states(hass, 1) == ("off", "3000")
+    await _switch_window(hass, 2, "turn_on")
+    assert _window_states(hass, 2) == ("on", "1200")
+
+    # Only the state is sent, as the app does
+    assert client.charge_task_commands == [(1, 0), (2, 1)]
+
+
+async def test_set_charge_window_power(
+    hass: HomeAssistant, charge_cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    await _set_window_power(hass, 1, 4500)
+    await _set_window_power(hass, 2, 800)
+
+    assert _window_states(hass, 1) == ("on", "4500")
+    assert _window_states(hass, 2) == ("off", "800")
+    # The whole window with its state, the rest as reported
+    assert client.charge_task_commands == [
+        _task(1, 4500, (23593080,), enabled=True),
+        _task(2, 800, (62915430,), enabled=False),
+    ]
+
+
+async def test_charge_window_without_acknowledgement(
+    hass: HomeAssistant, charge_cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+    FakeMqtt.acknowledge = False
+
+    with (
+        patch("custom_components.powerocean.coordinator.COMMAND_TIMEOUT", 0.01),
+        pytest.raises(HomeAssistantError) as error,
+    ):
+        await _switch_window(hass, 1, "turn_off")
+
+    assert error.value.translation_key == "not_acknowledged"
+    assert _window_states(hass, 1) == ("on", "3000")
+
+
+async def test_unknown_charge_window(
+    hass: HomeAssistant, charge_cloud: AsyncMock
+) -> None:
+    entry = await _setup(hass, mqtt=True)
+
+    with pytest.raises(HomeAssistantError) as error:
+        await entry.runtime_data.async_set_charge_task(3, enabled=True)
+
+    assert error.value.translation_key == "charge_task_unknown"
+    assert FakeMqtt.instances[0].charge_task_commands == []
+
+
+async def test_charge_window_kept_while_the_cloud_is_behind(
+    hass: HomeAssistant, charge_cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+    await _set_window_power(hass, 1, 4500)
+
+    # The cloud still shows 3000 W
+    await _poll(hass, freezer)
+    assert _window_states(hass, 1) == ("on", "4500")
+    # The next command builds on the new power
+    await _switch_window(hass, 1, "turn_off")
+    await _set_window_power(hass, 1, 5000)
+    assert client.charge_task_commands[-1] == _task(1, 5000, (23593080,), enabled=False)
+
+
+async def test_charge_window_hold_ends_when_the_cloud_shows_it(
+    hass: HomeAssistant, charge_cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+    await _switch_window(hass, 1, "turn_off")
+
+    with patch(
+        "custom_components.powerocean.ecoflow.HAEcoflowApi.fetch_raw",
+        return_value=_with_charge_tasks(*_changed(1, isEnable=False)),
+    ):
+        await _poll(hass, freezer)
+    # Later switched on in the app, only the cloud shows it
+    await _poll(hass, freezer)
+
+    assert _window_states(hass, 1) == ("on", "3000")
+
+
+async def test_charge_window_hold_ends_after_two_minutes(
+    hass: HomeAssistant, charge_cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+    await _switch_window(hass, 1, "turn_off")
+
+    freezer.tick(timedelta(minutes=2))
+    await _poll(hass, freezer)
+
+    # The cloud never showed it: its value counts again
+    assert _window_states(hass, 1) == ("on", "3000")
+
+
+async def test_charge_window_changed_in_the_app(
+    hass: HomeAssistant, charge_cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    # Answer to the app's query after its change: off, 2500 W
+    await hass.async_add_executor_job(
+        client.callbacks.on_charge_task,
+        _task(1, 2500, (23593080,), enabled=False),
+    )
+    await hass.async_block_till_done()
+    assert _window_states(hass, 1) == ("off", "2500")
+
+    # The cloud still shows the old setting: the reported one stays
+    await _poll(hass, freezer)
+    assert _window_states(hass, 1) == ("off", "2500")
+
+
+async def test_charge_window_unknown_to_the_cloud_is_not_added_via_mqtt(
+    hass: HomeAssistant, charge_cloud: AsyncMock
+) -> None:
+    await _setup(hass, mqtt=True)
+    (client,) = FakeMqtt.instances
+
+    await hass.async_add_executor_job(
+        client.callbacks.on_charge_task,
+        _task(3, 2500, (23593080,), enabled=True),
+    )
+    await hass.async_block_till_done()
+
+    assert _window_entity_id(hass, "switch", 3) is None
+
+
+async def test_charge_window_added_and_deleted_in_the_app(
+    hass: HomeAssistant, cloud: AsyncMock, freezer: FrozenDateTimeFactory
+) -> None:
+    await _setup(hass, mqtt=True)
+    assert _window_entity_id(hass, "switch", 1) is None
+
+    # Set up in the app
+    with patch(
+        "custom_components.powerocean.ecoflow.HAEcoflowApi.fetch_raw",
+        return_value=_with_charge_tasks(CHARGE_TASKS[0]),
+    ):
+        await _poll(hass, freezer)
+    assert _window_states(hass, 1) == ("on", "3000")
+    assert _window_entity_id(hass, "switch", 2) is None
+
+    # Deleted in the app
+    await _poll(hass, freezer)
+    assert _window_states(hass, 1) == (STATE_UNAVAILABLE, STATE_UNAVAILABLE)
 
 
 # -----------------------------

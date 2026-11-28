@@ -58,6 +58,15 @@ PREHEAT_GET = 203
 PREHEAT_TYPE = 3
 # End of the last preheating window (24:00)
 MINUTES_PER_DAY = 24 * 60
+# Charging windows of the app (grid charging at set times, issue #213): the
+# app changes one with 125 and reads one with 126; the system answers both
+# on set_reply
+TIMER_TASK_SET = 125
+TIMER_TASK_GET = 126
+# Task type of a charging window in the EMS timer task report
+CHARGE_TASK_TYPE = 1
+# isCfg of a change of an existing task, as the app sends it
+TASK_MODIFY = 2
 # Header field 6 (enc_type): content XOR-encrypted with the sequence number
 XOR_ENCRYPTED = 1
 # The system reports the energy stream while it is asked for it
@@ -412,6 +421,129 @@ def parse_preheat_report(content: bytes) -> PreheatTask | None:
 
 
 @dataclass(frozen=True)
+class ChargeTask:
+    """
+    A charging window of the app: grid charging with a set power (issue #213).
+
+    The time table holds the windows as the system stores them, each
+    end << 16 | start in minutes (as for the preheating). Type, timeMode,
+    timeParam and the time table are sent back unchanged, as the app does:
+    the meaning of timeMode and timeParam is not fully known.
+    """
+
+    task_index: int
+    enabled: bool
+    power: int
+    task_type: int
+    time_mode: int
+    time_param: int
+    time_table: tuple[int, ...]
+
+    @property
+    def windows(self) -> list[tuple[int, int]]:
+        """Return start and end of each window, in minutes after midnight."""
+        return [(value & 0xFFFF, value >> 16) for value in self.time_table]
+
+
+def valid_time_table(time_table: tuple[int, ...]) -> bool:
+    """
+    Return True if the time table holds windows with a start and an end.
+
+    A charging window may run over midnight (e.g. 22:00-06:00): only start
+    and end must differ.
+    """
+    return bool(time_table) and all(
+        value & 0xFFFF != value >> 16
+        and value & 0xFFFF <= MINUTES_PER_DAY
+        and value >> 16 <= MINUTES_PER_DAY
+        for value in time_table
+    )
+
+
+def charge_task_switch_request(
+    serial: str, task_index: int, *, enabled: bool, seq: int
+) -> bytes:
+    """
+    Return the command that switches a charging window on or off (96/125).
+
+    As the app: 2 isCfg (change), 3 taskIndex, 4 = 1 to switch on; to switch
+    off, field 4 is left out. The system answers on set_reply.
+    """
+    content = b"".join(
+        (
+            _field_varint(2, TASK_MODIFY),
+            _field_varint(3, task_index),
+            _field_varint(4, 1) if enabled else b"",
+        )
+    )
+    return _ems_command(serial, TIMER_TASK_SET, content, seq)
+
+
+def charge_task_request(serial: str, task: ChargeTask, seq: int) -> bytes:
+    """
+    Return the command that sets a whole charging window (96/125), as the app.
+
+    Content: 2 isCfg (change), 3 taskIndex, 4 = 1 only when on, 6 type,
+    7 power in W, 8 timeMode, 9 timeParam, 10 the time table as packed
+    varints. Without field 4 the window is switched off, so it is sent with
+    the current state.
+    """
+    content = b"".join(
+        (
+            _field_varint(2, TASK_MODIFY),
+            _field_varint(3, task.task_index),
+            _field_varint(4, 1) if task.enabled else b"",
+            _field_varint(6, task.task_type),
+            _field_varint(7, task.power),
+            _field_varint(8, task.time_mode),
+            _field_varint(9, task.time_param),
+            _field_bytes(10, b"".join(_varint(value) for value in task.time_table)),
+        )
+    )
+    return _ems_command(serial, TIMER_TASK_SET, content, seq)
+
+
+def parse_charge_task_report(content: bytes) -> ChargeTask | None:
+    """
+    Return the charging window of an answer to a query (96/126), else None.
+
+    Field 1 holds the task with the fields of the command
+    (charge_task_request); field 4 is left out when the window is off.
+    """
+    task = dict(protobuf_fields(content)).get(1)
+    if not isinstance(task, bytes):
+        return None
+    fields = dict(protobuf_fields(task))
+    numbers = [fields.get(number, 0) for number in (3, 6, 7, 8, 9)]
+    table = fields.get(10)
+    if any(not isinstance(number, int) for number in numbers) or not isinstance(
+        table, bytes
+    ):
+        return None
+    task_index, task_type, power, time_mode, time_param = (int(n) for n in numbers)
+    time_table: list[int] = []
+    pos = 0
+    while pos < len(table):
+        value, pos = _read_varint(table, pos)
+        time_table.append(value)
+    if (
+        task_type != CHARGE_TASK_TYPE
+        or task_index < 1
+        or not valid_time_table(tuple(time_table))
+    ):
+        return None
+    return ChargeTask(
+        task_index=task_index,
+        enabled=fields.get(4) == 1,
+        power=power,
+        task_type=task_type,
+        time_mode=time_mode,
+        time_param=time_param,
+        time_table=tuple(time_table),
+    )
+
+
+@dataclass(frozen=True)
 class Part:
     """One part of a message: command set and id, content, sequence number."""
 
@@ -666,6 +798,8 @@ class MqttCallbacks:
     on_energy_stream: Callable[[dict[str, float | int]], None]
     # Battery preheating, as the system answered a query
     on_preheat: Callable[[PreheatTask], None]
+    # A charging window, as the system answered a query (e.g. of the app)
+    on_charge_task: Callable[[ChargeTask], None]
 
 
 @dataclass(frozen=True)
@@ -834,6 +968,24 @@ class PowerOceanMqtt:
             qos=1,
         )
 
+    def set_charge_task_enabled(self, task_index: int, enabled: int, seq: int) -> None:
+        """Switch a charging window on (1) or off (0) (acknowledged with `seq`)."""
+        self.client.publish(
+            f"{self._property_topic}/set",
+            charge_task_switch_request(
+                self.serial, task_index, enabled=bool(enabled), seq=seq
+            ),
+            qos=1,
+        )
+
+    def set_charge_task(self, task: ChargeTask, seq: int) -> None:
+        """Send a whole charging window (acknowledged with `seq`)."""
+        self.client.publish(
+            f"{self._property_topic}/set",
+            charge_task_request(self.serial, task, seq),
+            qos=1,
+        )
+
     def _on_connect(
         self,
         client: mqtt.Client,
@@ -868,13 +1020,7 @@ class PowerOceanMqtt:
                 if command == (IOT, MODULE_INFO) and part.content:
                     self.callbacks.on_modules(parse_module_info(part.content))
                 elif reply or command == (EMS, PREHEAT_SET):
-                    # By seq: only the integration's own commands wait for it
-                    if part.seq is not None:
-                        self.callbacks.on_ack(part.seq)
-                    if command == (EMS, PREHEAT_SET):
-                        # Changed, maybe in the app: the confirmation does
-                        # not say how, the answer to a query does
-                        self.request_preheat()
+                    self._on_reply(part)
                 elif command == (EMS, PREHEAT_GET) and part.content:
                     if task := parse_preheat_report(part.content):
                         self.callbacks.on_preheat(task)
@@ -888,3 +1034,21 @@ class PowerOceanMqtt:
             # Issue #199: an error here would end paho's thread, and with it
             # the connection until a reload. Log it, go on with the next one.
             LOGGER.exception("MQTT message could not be processed")
+
+    def _on_reply(self, part: Part) -> None:
+        """Handle an answer to a command or query (also of the app)."""
+        command = (part.cmd_func, part.cmd_id)
+        # By seq: only the integration's own commands wait for it
+        if part.seq is not None:
+            self.callbacks.on_ack(part.seq)
+        if command == (EMS, PREHEAT_SET):
+            # Changed, maybe in the app: the confirmation does not say how,
+            # the answer to a query does
+            self.request_preheat()
+        elif (
+            command == (EMS, TIMER_TASK_GET)
+            and part.content
+            # The app asks after each change of a charging window
+            and (task := parse_charge_task_report(part.content))
+        ):
+            self.callbacks.on_charge_task(task)
